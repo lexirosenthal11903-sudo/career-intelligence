@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career AI — Job Search Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0C0C10; --surface: #14141A; --surface2: #1C1C24; --border: #2A2A36; --border2: #363644;
+  --accent: #7C6EF5; --accent2: #A897FF; --green: #34D399; --amber: #FBBF24; --red: #F87171; --blue: #60A5FA;
+  --text: #F0EEF8; --text2: #9896AA; --text3: #5C5A70;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Instrument Sans', sans-serif; min-height: 100vh; }
+.shell { max-width: 980px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* HEADER */
+header { padding: 32px 0 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
+.logo-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); }
+.logo-text { font-family: 'Instrument Serif', serif; font-size: 20px; }
+.logo-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-left: auto; }
+
+/* INTRO */
+.intro { margin-bottom: 40px; }
+.intro h1 { font-family: 'Instrument Serif', serif; font-size: clamp(32px, 5vw, 54px); line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 16px; }
+.intro h1 em { font-style: italic; color: var(--accent2); }
+.intro p { font-size: 16px; color: var(--text2); line-height: 1.7; max-width: 540px; }
+
+/* FORM CARD */
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 40px; margin-bottom: 32px; }
+.form-card h2 { font-family: 'Instrument Serif', serif; font-size: 24px; margin-bottom: 6px; }
+.form-card .sub { font-size: 14px; color: var(--text2); line-height: 1.65; margin-bottom: 36px; }
+
+/* CV UPLOAD ZONE */
+.upload-zone {
+  border: 1.5px dashed var(--border2); border-radius: 12px; padding: 32px 24px;
+  text-align: center; cursor: pointer; transition: all 0.2s; position: relative; margin-bottom: 24px;
+  background: var(--surface2);
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(124,110,245,0.06); }
+.upload-zone.has-file { border-color: var(--green); border-style: solid; background: rgba(52,211,153,0.05); }
+.upload-icon { font-size: 28px; margin-bottom: 10px; }
+.upload-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.upload-sub { font-size: 13px; color: var(--text3); }
+.upload-filename { font-size: 13px; color: var(--green); margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+#cvInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+.divider-or { display: flex; align-items: center; gap: 14px; margin: 20px 0; color: var(--text3); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+.divider-or::before, .divider-or::after { content:''; flex:1; height:1px; background: var(--border); }
+
+/* FIELDS */
+.field { margin-bottom: 22px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.field label .opt { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text3); }
+textarea, input[type="text"] {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px;
+  padding: 13px 16px; font-family: 'Instrument Sans', sans-serif; font-size: 15px; color: var(--text);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s; resize: none;
+}
+textarea { min-height: 90px; }
+textarea:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,110,245,0.14); }
+textarea::placeholder, input::placeholder { color: var(--text3); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media(max-width:560px){ .two-col { grid-template-columns:1fr; } .form-card { padding:24px; } }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 7px 16px; border-radius: 100px; border: 1px solid var(--border2); background: transparent; color: var(--text2); font-size: 13px; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: all 0.18s; user-select: none; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* RUN BUTTON */
+.run-wrap { margin-top: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.btn-run {
+  background: var(--accent); color: #fff; border: none; border-radius: 12px;
+  padding: 16px 40px; font-family: 'Instrument Sans', sans-serif; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; letter-spacing: -0.01em;
+}
+.btn-run:hover { background: #6458D8; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(124,110,245,0.35); }
+.btn-run:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+.btn-run.loading .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.run-note { font-size: 13px; color: var(--text3); line-height: 1.55; }
+
+/* LOADING */
+.loading-section { display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 32px; margin-bottom: 24px; }
+.loading-section.visible { display: block; }
+.load-steps { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.load-step { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text2); transition: color 0.3s; }
+.load-step.done { color: var(--green); }
+.load-step.active { color: var(--text); }
+.ld { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; transition: all 0.4s; }
+.load-step.active .ld { background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1s ease-in-out infinite; }
+.load-step.done .ld { background: var(--green); animation: none; box-shadow: none; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+/* RESULTS */
+.results { display: none; }
+.results.visible { display: block; }
+
+.section-head { display: flex; align-items: center; gap: 14px; margin: 44px 0 20px; }
+.s-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.s-icon.purple { background: rgba(124,110,245,0.15); }
+.s-icon.green { background: rgba(52,211,153,0.12); }
+.s-icon.amber { background: rgba(251,191,36,0.12); }
+.s-icon.blue { background: rgba(96,165,250,0.12); }
+.s-title { font-family: 'Instrument Serif', serif; font-size: 24px; }
+.s-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+/* PROFILE CARD */
+.profile-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; margin-bottom: 8px; }
+.profile-row { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 14px; }
+.profile-item { flex: 1; min-width: 140px; }
+.profile-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+.profile-val { font-size: 14px; color: var(--text); font-weight: 500; }
+.seniority-badge { display: inline-block; padding: 4px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; background: rgba(124,110,245,0.2); color: var(--accent2); }
+
+/* JOB TABLE */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.table-toolbar { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.table-count { font-size: 13px; color: var(--text2); }
+.table-count strong { color: var(--text); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+thead { background: var(--surface2); }
+th { padding: 11px 14px; text-align: left; font-size: 10.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 14px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; vertical-align: top; line-height: 1.5; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.018); }
+
+.job-title-cell .jt { font-weight: 600; font-size: 14px; }
+.job-title-cell .jc { font-size: 12.5px; color: var(--text2); margin-top: 2px; }
+.job-company-cell .jco { font-weight: 700; font-size: 14px; color: var(--accent2); }
+
+/* Relevance rank */
+.rank { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.rank-high { background: rgba(52,211,153,0.15); color: var(--green); }
+.rank-mid  { background: rgba(251,191,36,0.12); color: var(--amber); }
+.rank-low  { background: rgba(92,90,112,0.2); color: var(--text2); }
+
+.date-mono { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text3); }
+.apply-link { color: var(--accent2); text-decoration: none; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+.apply-link:hover { text-decoration: underline; }
+.contact-block .cn { font-weight: 600; font-size: 13px; }
+.contact-block .cr { font-size: 12px; color: var(--text3); }
+.contact-block .cli { color: var(--accent2); text-decoration: none; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+.contact-block .cli:hover { text-decoration: underline; }
+
+.status-sel { background: var(--surface2); border: 1px solid var(--border2); border-radius: 7px; color: var(--text2); font-family: 'Instrument Sans', sans-serif; font-size: 12px; padding: 5px 10px; cursor: pointer; outline: none; transition: all 0.18s; }
+.status-sel:focus { border-color: var(--accent); }
+
+.export-bar { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.btn-sm { background: var(--surface2); border: 1px solid var(--border2); color: var(--text2); border-radius: 8px; padding: 9px 18px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: all 0.18s; }
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+/* SKILLS */
+.skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media(max-width:600px){ .skills-grid { grid-template-columns:1fr; } }
+.skill-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+.skill-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.pill { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 12px; margin: 3px; }
+.pill-have { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.pill-build { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+.gap-item { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.gap-skill { font-size: 13px; font-weight: 600; color: var(--amber); margin-bottom: 4px; }
+.gap-how { font-size: 12.5px; color: var(--text2); line-height: 1.6; }
+
+.ai-block { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 20px 24px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.ai-block strong { color: var(--text); }
+
+/* OUTREACH */
+.outreach-list { display: flex; flex-direction: column; gap: 16px; }
+.outreach-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+.oc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.oc-info .oc-co { font-weight: 600; font-size: 15px; }
+.oc-info .oc-role { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.oc-info .oc-to { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.oc-type { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; background: rgba(124,110,245,0.15); color: var(--accent2); white-space: nowrap; }
+.msg-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 13.5px; color: var(--text2); line-height: 1.8; white-space: pre-wrap; }
+.copy-btn-sm { margin-top: 10px; background: none; border: 1px solid var(--border2); color: var(--text2); border-radius: 7px; padding: 7px 16px; font-size: 12px; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: all 0.18s; }
+.copy-btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+.copy-btn-sm.done { color: var(--green); border-color: rgba(52,211,153,0.4); }
+
+.error-box { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); border-radius: 12px; padding: 24px; color: var(--red); font-size: 14px; line-height: 1.7; }
+.error-box pre { margin-top: 12px; font-size: 12px; opacity: 0.7; white-space: pre-wrap; word-break: break-all; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header>
+  <div class="logo-dot"></div>
+  <span class="logo-text">Career AI</span>
+  <span class="logo-sub">Live Job Search · Skills · Outreach</span>
+</header>
+
+<div class="intro">
+  <h1>Tell us about yourself.<br>We'll find your <em>next role</em>.</h1>
+  <p>Upload your CV or describe your background. We'll figure out your seniority level, find real live jobs ranked by fit, map your skills, and draft your outreach — all in one go.</p>
+</div>
+
+<!-- FORM -->
+<div class="form-card">
+  <h2>Your profile</h2>
+  <p class="sub">Upload a CV to skip typing — or paste your background below. The more we know, the better the matches.</p>
+
+  <!-- CV UPLOAD -->
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="cvInput" accept=".pdf,.doc,.docx,.txt" onchange="handleFile(event)">
+    <div class="upload-icon">📄</div>
+    <div class="upload-title">Drop your CV here or click to upload</div>
+    <div class="upload-sub">PDF, Word, or plain text · We'll read it automatically</div>
+    <div class="upload-filename" id="uploadFilename"></div>
+  </div>
+
+  <div class="divider-or">or type it instead</div>
+
+  <div class="field">
+    <label>Your background <span class="opt">— past roles, experience, skills, anything relevant</span></label>
+    <textarea id="background" placeholder="e.g. 4 years in marketing at a consumer brand — campaigns, agency management, product collaboration. Psychology degree. Some freelance content work on the side. Now looking to move into something more strategic."></textarea>
+  </div>
+
+  <div class="two-col">
+    <div class="field">
+      <label>What direction are you heading? <span class="opt">— vague is fine</span></label>
+      <textarea id="direction" placeholder="e.g. I want to move into strategy, consulting, or operations. Open to pivoting — just want something more analytical and decision-focused." style="min-height:80px;"></textarea>
+    </div>
+    <div class="field">
+      <label>Location</label>
+      <input type="text" id="location" placeholder="e.g. London, UK"><br><br>
+      <label style="margin-top:16px;">Work style</label>
+      <div class="chips" id="workStyle" style="margin-top:8px;">
+        <span class="chip" onclick="toggleChip(this)">On-site</span>
+        <span class="chip on" onclick="toggleChip(this)">Hybrid</span>
+        <span class="chip" onclick="toggleChip(this)">Remote</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="field">
+      <label>Employment type</label>
+      <div class="chips" id="empType" style="margin-top:4px;">
+        <span class="chip on" onclick="toggleChip(this)">Full-time</span>
+        <span class="chip" onclick="toggleChip(this)">Contract</span>
+        <span class="chip" onclick="toggleChip(this)">Part-time</span>
+        <span class="chip" onclick="toggleChip(this)">Internship</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Salary expectation <span class="opt">— optional</span></label>
+      <input type="text" id="salary" placeholder="e.g. £40k–£55k, or leave open">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Anything else <span class="opt">— visa needs, deal-breakers, sector preferences</span></label>
+    <input type="text" id="extra" placeholder="e.g. No agencies · Need sponsorship · Open to junior roles to break into a new field">
+  </div>
+
+  <div class="run-wrap">
+    <button class="btn-run" id="runBtn" onclick="runSearch()">
+      <div class="spinner"></div>
+      <span>Find my opportunities →</span>
+    </button>
+    <p class="run-note">Searches live job boards · ranks by fit · maps your skills<br>drafts outreach tied to real roles found · ~60 seconds</p>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-section" id="loadingSection">
+  <div style="font-size:15px;font-weight:600;">Working on it…</div>
+  <div class="load-steps">
+    <div class="load-step" id="ls1"><div class="ld"></div><span>Reading your background and inferring seniority level</span></div>
+    <div class="load-step" id="ls2"><div class="ld"></div><span>Searching live job boards for matched roles</span></div>
+    <div class="load-step" id="ls3"><div class="ld"></div><span>Ranking roles by relevance to your profile</span></div>
+    <div class="load-step" id="ls4"><div class="ld"></div><span>Finding hiring contacts per company</span></div>
+    <div class="load-step" id="ls5"><div class="ld"></div><span>Analysing your skills and identifying gaps</span></div>
+    <div class="load-step" id="ls6"><div class="ld"></div><span>Drafting personalised outreach for top matches</span></div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+
+  <!-- Profile Summary -->
+  <div class="section-head">
+    <div class="s-icon purple">✦</div>
+    <div><div class="s-title">How we read your profile</div><div class="s-sub">Seniority inferred from your experience — drives which roles we target</div></div>
+  </div>
+  <div class="profile-card" id="profileCard"></div>
+
+  <!-- Jobs -->
+  <div class="section-head">
+    <div class="s-icon green">⟐</div>
+    <div><div class="s-title">Live roles — ranked by fit</div><div class="s-sub">Verified listings only · sorted from best match to broader options</div></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <div class="table-count" id="tableCount"></div>
+      <div style="font-size:12px;color:var(--text3);">Update status as you apply →</div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Fit</th><th>Role</th><th>Company</th><th>Posted</th><th>Type</th><th>Salary</th>
+            <th>Apply</th><th>Hiring Contact</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="jobBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="export-bar">
+    <button class="btn-sm" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-sm" onclick="copyTableText()">Copy for Google Sheets</button>
+  </div>
+
+  <!-- Skills -->
+  <div class="section-head">
+    <div class="s-icon amber">◈</div>
+    <div><div class="s-title">Skills analysis</div><div class="s-sub">What you bring · what to build · concrete next steps</div></div>
+  </div>
+  <div class="skills-grid" id="skillsGrid"></div>
+  <div class="ai-block" style="margin-top:16px;" id="skillsAdvice"></div>
+
+  <!-- Outreach -->
+  <div class="section-head">
+    <div class="s-icon blue">◎</div>
+    <div><div class="s-title">Outreach & applications</div><div class="s-sub">Personalised messages for your top matches — copy and send</div></div>
+  </div>
+  <div class="outreach-list" id="outreachList"></div>
+
+</div>
+</div>
+
+<script>
+// ── STATE ──
+let cvText = '';
+
+// ── DRAG + FILE READ ──
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+
+function handleFile(e) { if (e.target.files[0]) processFile(e.target.files[0]); }
+
+function processFile(file) {
+  document.getElementById('uploadFilename').textContent = '📎 ' + file.name;
+  zone.classList.add('has-file');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const content = e.target.result;
+    if (typeof content === 'string') {
+      cvText = content;
+    } else {
+      const bytes = new Uint8Array(content);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      cvText = '[FILE:' + file.name + ':BASE64:' + btoa(binary) + ']';
+    }
+  };
+  if (file.type === 'text/plain') {
+    reader.readAsText(file);
+  } else {
+    reader.readAsArrayBuffer(file);
+    setTimeout(() => { if (!cvText) cvText = '[Uploaded file: ' + file.name + ' — extract and analyse the experience, skills, and education from this CV]'; }, 500);
+  }
+}
+
+function toggleChip(el) { el.classList.toggle('on'); }
+function getChips(id) { return [...document.getElementById(id).querySelectorAll('.chip.on')].map(c => c.textContent.trim()); }
+
+// ── LOADING STEPS ──
+function setStep(n) {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('ls' + i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  }
+}
+
+// ── MAIN API CALL ──
+async function callClaude(system, user, retries = 2) {
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 8000,
+    system,
+    messages: [{ role: 'user', content: user }],
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }]
+  };
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (res.status === 429) {
+      let errJson = {};
+      try { errJson = await res.json(); } catch(e) {}
+      const msg = errJson?.error?.message || '';
+      const isOverage = msg.includes('exceeded_limit');
+      const resetAt = msg.match(/"resetsAt\\"?:\s*(\d+)/)?.[1];
+      let resetMsg = '';
+      if (resetAt) {
+        const mins = Math.ceil((Number(resetAt) * 1000 - Date.now()) / 60000);
+        resetMsg = ` Your limit resets in approximately ${mins} minute${mins !== 1 ? 's' : ''}.`;
+      }
+      if (isOverage) {
+        throw new Error(`rate_limit: You've hit your hourly usage limit with the Anthropic API.${resetMsg} Please wait and try again.`);
+      }
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+        continue;
+      }
+      throw new Error(`rate_limit: Too many requests. Please wait a minute and try again.`);
+    }
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error('API ' + res.status + ': ' + err);
+    }
+
+    const data = await res.json();
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+  }
+}
+
+// ── SAFE JSON PARSE ──
+function safeJSON(raw, fallback) {
+  try {
+    let s = raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    const a = s.indexOf('['), o = s.indexOf('{');
+    let start = -1;
+    if (a !== -1 && o !== -1) start = Math.min(a,o);
+    else if (a !== -1) start = a;
+    else if (o !== -1) start = o;
+    if (start === -1) return fallback;
+    const opener = s[start], closer = opener === '[' ? ']' : '}';
+    let depth = 0, end = -1;
+    for (let i = start; i < s.length; i++) {
+      if (s[i] === opener) depth++;
+      else if (s[i] === closer) { depth--; if (depth === 0) { end = i; break; } }
+    }
+    if (end === -1) return fallback;
+    return JSON.parse(s.slice(start, end + 1));
+  } catch(e) { return fallback; }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RUN ──
+async function runSearch() {
+  const background = document.getElementById('background').value.trim();
+  const direction  = document.getElementById('direction').value.trim();
+  const location   = document.getElementById('location').value.trim();
+  const salary     = document.getElementById('salary').value.trim();
+  const extra      = document.getElementById('extra').value.trim();
+  const workStyle  = getChips('workStyle');
+  const empType    = getChips('empType');
+
+  if (!background && !cvText) {
+    alert('Please upload a CV or describe your background first.');
+    return;
+  }
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true; btn.classList.add('loading');
+  document.getElementById('loadingSection').classList.add('visible');
+  document.getElementById('results').classList.remove('visible');
+
+  const profile = [
+    cvText ? `CV / Resume content (read every line carefully):\n${cvText.slice(0, 8000)}` : '',
+    background ? `Background description: ${background}` : '',
+    direction  ? `Career direction: ${direction}` : 'Career direction: Not specified — infer from background',
+    location   ? `Location: ${location}` : '',
+    `Work style: ${workStyle.length ? workStyle.join(', ') : 'Flexible'}`,
+    `Employment type: ${empType.length ? empType.join(', ') : 'Open'}`,
+    salary     ? `Salary expectation: ${salary}` : '',
+    extra      ? `Extra notes: ${extra}` : '',
+  ].filter(Boolean).join('\n');
+
+  let jobsData = [], skillsData = {}, outreachData = [], profileData = {};
+
+  try {
+    setStep(1);
+
+    const combinedSystem = `You are a career assistant and expert job search researcher. Your job is to deeply analyse a person's CV and career profile, then find REAL, LIVE, VERIFIED job listings that genuinely match their background.
+
+STEP 1 — DEEP CV ANALYSIS (do this first, before any job search)
+Read the full CV carefully. Extract:
+- Every job title and employer held
+- Industries and sectors worked in
+- Hard skills: tools, software, methodologies, certifications
+- Soft skills: inferred from responsibilities and achievements
+- Education: degrees, institutions, subjects
+- Quantified achievements if present
+- Career trajectory and progression pattern
+- What direction they want to move in
+
+STEP 2 — LIVE JOB SEARCH (strict rules)
+Use web_search to find REAL job listings. Follow every rule below:
+
+RULE 1 — VERIFY BEFORE INCLUDING: Only include a job if you have confirmed it is currently live. If you cannot confirm it exists right now, do not include it.
+RULE 2 — REAL URLs ONLY: The applyUrl must be the exact URL you found. Do not construct or guess URLs. If you did not find a direct apply link, use "Not listed".
+RULE 3 — RECENCY: Only include jobs posted within the last 30 days.
+RULE 4 — NO HALLUCINATION: Never invent job titles, company names, salaries, or contact details. If you don't know something, use "Not listed".
+RULE 5 — GENUINE RELEVANCE: Each job must genuinely match the person's demonstrated skills. Score honestly.
+RULE 6 — CONTACT INFO: Only include contactName and contactLinkedIn if you found them in search results.
+
+Search sources: LinkedIn Jobs, Indeed, Reed.co.uk, Totaljobs, CV-Library, Glassdoor.
+
+OUTPUT FORMAT
+Return ONLY a single valid JSON object — no markdown, no backticks, no explanation.
+
+{
+  "profile": {
+    "seniorityLevel": string,
+    "yearsExperience": string,
+    "topRoleTitles": array of 3-5 strings,
+    "extractedSectors": array of strings,
+    "extractedSkills": array of strings,
+    "summary": string,
+    "locationSearch": string
+  },
+  "jobs": [
+    {
+      "title": string,
+      "company": string,
+      "location": string,
+      "workStyle": string,
+      "datePosted": string,
+      "salary": string,
+      "applyUrl": string,
+      "contactName": string,
+      "contactTitle": string,
+      "contactLinkedIn": string,
+      "relevanceScore": number,
+      "relevanceReason": string
+    }
+  ],
+  "skills": {
+    "strengths": array of strings,
+    "gaps": array of { skill: string, why: string, howToBuild: string },
+    "advice": string
+  },
+  "outreach": [
+    {
+      "company": string,
+      "role": string,
+      "contactName": string,
+      "type": string,
+      "message": string
+    }
+  ]
+}`;
+
+    const combinedUser = `Please deeply analyse my CV and profile, then find verified live jobs, assess my skills, and draft outreach. Follow all rules strictly — especially the anti-hallucination rules for job URLs and recency.
+
+${profile}
+
+IMPORTANT: Read every line of my CV carefully. Extract my actual industries, skills, and experience before deciding which jobs to search for. Only return jobs you have verified are live right now with working apply links.
+
+Return ONLY the JSON object.`;
+
+    setStep(2);
+    const raw = await callClaude(combinedSystem, combinedUser);
+    setStep(3);
+
+    const combined = safeJSON(raw, null);
+    if (!combined || typeof combined !== 'object') throw new Error('Could not parse response. Please try again.');
+
+    profileData  = combined.profile  || { seniorityLevel: 'Mid-level', yearsExperience: 'Unknown', topRoleTitles: [], summary: '', locationSearch: location || 'UK' };
+    jobsData     = Array.isArray(combined.jobs) ? combined.jobs : [];
+    skillsData   = combined.skills   || { strengths: [], gaps: [], advice: '' };
+    outreachData = Array.isArray(combined.outreach) ? combined.outreach : [];
+
+    setStep(4);
+    jobsData.sort((a,b) => (Number(b.relevanceScore)||0) - (Number(a.relevanceScore)||0));
+    setStep(5);
+    await new Promise(r => setTimeout(r, 300));
+    setStep(6);
+    await new Promise(r => setTimeout(r, 300));
+
+    renderAll(profileData, jobsData, skillsData, outreachData);
+
+  } catch(err) {
+    document.getElementById('loadingSection').classList.remove('visible');
+    const isRateLimit = err.message.startsWith('rate_limit:');
+    const cleanMsg = isRateLimit ? err.message.replace('rate_limit: ', '') : err.message;
+    const hint = isRateLimit
+      ? 'This happens when the API usage limit is reached. Wait for the limit to reset, then try again.'
+      : 'Make sure web search is enabled in Claude settings. If the problem persists, try simplifying your background description.';
+    document.getElementById('results').innerHTML = `
+      <div class="error-box">
+        <strong>${isRateLimit ? '⏳ Usage limit reached' : 'Something went wrong'}</strong><br><br>
+        ${esc(cleanMsg)}<br><br>
+        ${esc(hint)}
+        ${!isRateLimit ? `<pre>${esc(err.stack||'')}</pre>` : ''}
+      </div>`;
+    document.getElementById('results').style.display = 'block';
+  }
+
+  btn.disabled = false; btn.classList.remove('loading');
+  document.getElementById('loadingSection').classList.remove('visible');
+}
+
+// ── RENDER ──
+function renderAll(p, jobs, skills, outreach) {
+  document.getElementById('profileCard').innerHTML = `
+    <div class="profile-row">
+      <div class="profile-item"><div class="profile-label">Inferred seniority</div><div class="profile-val"><span class="seniority-badge">${esc(p.seniorityLevel||'—')}</span></div></div>
+      <div class="profile-item"><div class="profile-label">Experience</div><div class="profile-val">${esc(p.yearsExperience||'—')}</div></div>
+      <div class="profile-item"><div class="profile-label">Target roles</div><div class="profile-val">${esc((p.topRoleTitles||[]).join(' · '))}</div></div>
+    </div>
+    ${(p.extractedSectors||[]).length ? `<div style="margin-bottom:10px;"><span style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);">Sectors identified in your CV</span><div style="margin-top:6px;">${(p.extractedSectors||[]).map(s=>`<span class="pill pill-have" style="font-size:11px;">${esc(s)}</span>`).join('')}</div></div>` : ''}
+    ${(p.extractedSkills||[]).length ? `<div style="margin-bottom:12px;"><span style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);">Skills extracted from your CV</span><div style="margin-top:6px;">${(p.extractedSkills||[]).map(s=>`<span class="pill" style="font-size:11px;background:rgba(124,110,245,0.1);color:var(--accent2);border:1px solid rgba(124,110,245,0.2);">${esc(s)}</span>`).join('')}</div></div>` : ''}
+    <div style="font-size:14px;color:var(--text2);line-height:1.7;">${esc(p.summary||'')}</div>
+  `;
+
+  document.getElementById('tableCount').innerHTML = `<strong>${jobs.length}</strong> live roles found · sorted best match first`;
+
+  if (jobs.length === 0) {
+    document.getElementById('jobBody').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text3);">No verified live listings found. Try broadening your location or direction and run again.</td></tr>`;
+  } else {
+    document.getElementById('jobBody').innerHTML = jobs.map((j, i) => {
+      const score = Number(j.relevanceScore) || 0;
+      const rankClass = score >= 8 ? 'rank-high' : score >= 5 ? 'rank-mid' : 'rank-low';
+      const rankLabel = score >= 8 ? '▲ Strong' : score >= 5 ? '◆ Good' : '○ Broad';
+      return `<tr title="${esc(j.relevanceReason||'')}">
+        <td><span class="rank ${rankClass}">${rankLabel}</span><div style="font-size:11px;color:var(--text3);margin-top:4px;max-width:80px;">${esc(j.relevanceReason||'').slice(0,60)}${(j.relevanceReason||'').length>60?'…':''}</div></td>
+        <td class="job-title-cell"><div class="jt">${esc(j.title||'—')}</div><div class="jc">${esc(j.location||'—')}</div></td>
+        <td class="job-company-cell"><div class="jco">${esc(j.company||'—')}</div></td>
+        <td><span class="date-mono">${esc(j.datePosted||'—')}</span></td>
+        <td style="font-size:13px;">${esc(j.workStyle||'—')}</td>
+        <td style="font-size:13px;">${esc(j.salary||'Not listed')}</td>
+        <td>${j.applyUrl && j.applyUrl !== 'Not listed' ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener">Apply →</a>` : '<span style="color:var(--text3);font-size:12px;">Not found</span>'}</td>
+        <td><div class="contact-block">
+          <div class="cn">${esc(j.contactName||'Not found')}</div>
+          <div class="cr">${esc(j.contactTitle||'')}</div>
+          ${j.contactLinkedIn && j.contactLinkedIn !== 'Not listed' ? `<a class="cli" href="${esc(j.contactLinkedIn)}" target="_blank" rel="noopener">LinkedIn →</a>` : ''}
+        </div></td>
+        <td>
+          <select class="status-sel" onchange="updateRow(this)">
+            <option value="">Not applied</option>
+            <option value="applied">Applied</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  const sg = document.getElementById('skillsGrid');
+  sg.innerHTML = `
+    <div class="skill-card">
+      <h4 style="color:var(--green);">✓ What you already bring</h4>
+      ${(skills.strengths||[]).map(s => `<span class="pill pill-have">${esc(s)}</span>`).join('') || '<span style="color:var(--text3);font-size:13px;">—</span>'}
+    </div>
+    <div class="skill-card">
+      <h4 style="color:var(--amber);">↑ Skills to build</h4>
+      ${(skills.gaps||[]).map(g => `<span class="pill pill-build">${esc(g.skill||g)}</span>`).join('') || '<span style="color:var(--text3);font-size:13px;">—</span>'}
+      ${(skills.gaps||[]).map(g => `<div class="gap-item"><div class="gap-skill">${esc(g.skill)}</div><div class="gap-how"><strong>Why:</strong> ${esc(g.why)}<br><strong>How:</strong> ${esc(g.howToBuild)}</div></div>`).join('')}
+    </div>
+  `;
+  document.getElementById('skillsAdvice').innerHTML = skills.advice ? `<strong>Recommended next steps:</strong> ${esc(skills.advice)}` : '—';
+
+  const ol = document.getElementById('outreachList');
+  if (!outreach || outreach.length === 0) {
+    ol.innerHTML = `<div class="ai-block">Outreach messages couldn't be generated this run. Try clicking "Find my opportunities" again.</div>`;
+  } else {
+    ol.innerHTML = outreach.map((o, i) => `
+      <div class="outreach-card">
+        <div class="oc-top">
+          <div class="oc-info">
+            <div class="oc-co">${esc(o.company||'—')} — ${esc(o.role||'—')}</div>
+            <div class="oc-to">To: ${esc(o.contactName||'Hiring team')}</div>
+          </div>
+          <div class="oc-type">${esc(o.type||'Message')}</div>
+        </div>
+        <div class="msg-box" id="msg${i}">${esc(o.message||'')}</div>
+        <button class="copy-btn-sm" onclick="copyMsg(${i},this)">Copy message</button>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateRow(sel) {
+  const colours = { applied:'#60A5FA', interview:'#FBBF24', offer:'#34D399', rejected:'#F87171', '':'var(--text2)' };
+  sel.style.color = colours[sel.value] || 'var(--text2)';
+}
+
+function copyMsg(i, btn) {
+  navigator.clipboard.writeText(document.getElementById('msg'+i).textContent).then(() => {
+    btn.textContent = 'Copied ✓'; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy message'; btn.classList.remove('done'); }, 2000);
+  });
+}
+
+function exportCSV() {
+  const headers = ['Fit Score','Title','Company','Location','Work Style','Posted','Salary','Apply URL','Contact Name','Contact Title','Contact LinkedIn','Status'];
+  const rows = [headers];
+  document.querySelectorAll('#jobBody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length < 9) return;
+    const rank = tds[0].querySelector('.rank')?.textContent||'';
+    const title = tds[1].querySelector('.jt')?.textContent||'';
+    const loc = tds[1].querySelector('.jc')?.textContent||'';
+    const company = tds[2].querySelector('.jco')?.textContent||'';
+    const posted = tds[3].textContent.trim();
+    const ws = tds[4].textContent.trim();
+    const sal = tds[5].textContent.trim();
+    const url = tds[6].querySelector('a')?.href||'Not found';
+    const cn = tds[7].querySelector('.cn')?.textContent||'';
+    const ct = tds[7].querySelector('.cr')?.textContent||'';
+    const cli = tds[7].querySelector('.cli')?.href||'';
+    const status = tds[8].querySelector('select')?.value||'';
+    rows.push([rank,title,company,loc,ws,posted,sal,url,cn,ct,cli,status].map(v=>`"${String(v).replace(/"/g,'""')}"`));
+  });
+  const blob = new Blob([rows.map(r=>r.join(',')).join('\n')], {type:'text/csv'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='job-tracker.csv'; a.click();
+}
+
+function copyTableText() {
+  const table = document.querySelector('#jobBody').closest('table');
+  const range = document.createRange(); range.selectNode(table);
+  window.getSelection().removeAllRanges(); window.getSelection().addRange(range);
+  document.execCommand('copy'); window.getSelection().removeAllRanges();
+}
+</script>
+</body>
+</html>
