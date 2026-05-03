@@ -2657,7 +2657,7 @@ function showError(title, msg, hint, stack) {
 
 async function callAPI(system, user, retries = 2) {
   const body = {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-5',
     max_tokens: 8000,
     system,
     messages: [{ role: 'user', content: user }],
