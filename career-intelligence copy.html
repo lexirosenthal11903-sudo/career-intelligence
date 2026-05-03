@@ -1,0 +1,3375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Intelligence — Intentional decisions, not desperate ones.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════
+   CAREER INTELLIGENCE PLATFORM — COMBINED
+   Sessions 1 + 2 + 3 in one file
+   Warm cream design system throughout
+═══════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── DESIGN TOKENS ── */
+:root {
+  --bg:         #F7F4EF;
+  --bg-warm:    #F0ECE5;
+  --bg-deep:    #E8E3DA;
+  --surface:    #FAFAF8;
+  --surface2:   #F2EFE9;
+
+  --ink:        #1C1A17;
+  --ink-2:      #4A4640;
+  --ink-3:      #8A8680;
+  --ink-4:      #B8B4AE;
+  --ink-5:      #D4D0CA;
+
+  --accent:     #8B6F47;
+  --accent-lt:  #C4A882;
+  --accent-dk:  #5C4632;
+
+  --green:      #3D6B4F;
+  --green-bg:   #EDF4F0;
+  --amber:      #9A6B2E;
+  --amber-bg:   #FBF6EE;
+  --red:        #8B3A2F;
+  --red-bg:     #FBF0EE;
+  --blue:       #3A5A7A;
+  --blue-bg:    #EEF3F9;
+
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans:  'DM Sans', system-ui, sans-serif;
+  --font-mono:  'DM Mono', 'Courier New', monospace;
+
+  --sp-1:  4px;  --sp-2:  8px;   --sp-3:  12px; --sp-4:  16px;
+  --sp-5:  20px; --sp-6:  24px;  --sp-8:  32px; --sp-10: 40px;
+  --sp-12: 48px; --sp-16: 64px;  --sp-20: 80px; --sp-24: 96px;
+
+  --r-sm: 6px;  --r-md: 10px;  --r-lg: 16px;  --r-xl: 24px;
+
+  --ease:     cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  --page-max:  1080px;
+  --prose-max: 600px;
+}
+
+/* ── BASE ── */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page { position: relative; z-index: 1; }
+
+.container {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--sp-8);
+}
+
+@media (max-width: 640px) { .container { padding: 0 var(--sp-5); } }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
+}
+
+.nav.scrolled,
+.nav.always-frosted {
+  background: rgba(247, 244, 239, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom-color: var(--ink-5);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-6);
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--ink);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.wordmark-main {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.wordmark-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 3px;
+  margin-left: 1px;
+}
+
+.nav-status {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent-lt);
+  border-radius: 100px;
+  padding: 4px 12px;
+  background: rgba(139, 111, 71, 0.06);
+}
+
+.nav-back {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: color 0.18s var(--ease);
+}
+.nav-back:hover { color: var(--ink); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+}
+
+.nav-cta-note {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.btn-restart {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-decoration: none;
+  border: 1px solid var(--ink-5);
+  border-radius: 100px;
+  padding: 6px 14px;
+  cursor: pointer;
+  background: none;
+  transition: all 0.18s var(--ease);
+}
+.btn-restart:hover { border-color: var(--accent-lt); color: var(--accent); }
+
+
+/* ═══════════════════════════════════════════════
+   SESSION PANELS — show/hide logic
+═══════════════════════════════════════════════ */
+.session-panel { display: none; }
+.session-panel.active { display: block; }
+
+
+/* ═══════════════════════════════════════════════
+   SESSION 1 — LANDING PAGE
+═══════════════════════════════════════════════ */
+.landing {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 0 80px;
+  position: relative;
+}
+
+.hero-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-10);
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 0.1s forwards;
+}
+
+.hero-rule-line {
+  width: 40px;
+  height: 1px;
+  background: var(--accent-lt);
+}
+
+.hero-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(52px, 8.5vw, 108px);
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  max-width: 820px;
+  margin-bottom: var(--sp-10);
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.2s forwards;
+}
+
+.hero-headline em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.hero-headline .hl-sub {
+  display: block;
+  font-size: clamp(32px, 5vw, 62px);
+  color: var(--ink-2);
+  font-weight: 300;
+  font-style: italic;
+  margin-top: var(--sp-2);
+}
+
+.hero-body {
+  max-width: 460px;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.75;
+  margin-bottom: var(--sp-12);
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.35s forwards;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.5s forwards;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  padding: 18px 40px;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.25s var(--ease);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(28, 26, 23, 0.2);
+}
+
+.btn-primary:hover::before { opacity: 0.14; }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-arrow {
+  font-size: 16px;
+  transition: transform 0.2s var(--ease);
+  position: relative;
+}
+
+.btn-primary:hover .btn-arrow { transform: translateX(3px); }
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(247, 244, 239, 0.35);
+  border-top-color: var(--bg);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  display: none;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.btn-primary.loading .btn-spinner { display: block; }
+.btn-primary.loading .btn-arrow   { display: none; }
+.btn-primary.loading .btn-label   { opacity: 0.75; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.link-secondary {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink-5);
+  padding-bottom: 1px;
+  transition: color 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+.link-secondary:hover { color: var(--ink); border-bottom-color: var(--ink-3); }
+
+.hero-footnote {
+  position: absolute;
+  bottom: 48px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 0.8s forwards;
+}
+
+.hero-stat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.hero-stat-n {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.hero-stat-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1.4;
+  max-width: 120px;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--ink-5);
+  align-self: center;
+}
+
+.hero-scroll-hint {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.hero-deco {
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-serif);
+  font-size: clamp(180px, 28vw, 340px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1;
+  color: rgba(28, 26, 23, 0.028);
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  z-index: -1;
+  animation: fadeIn 1.4s var(--ease-out) 0.3s both;
+}
+
+.position-section {
+  padding: var(--sp-24) 0;
+  border-top: 1px solid var(--ink-5);
+}
+
+.position-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-16);
+  align-items: start;
+}
+
+@media (max-width: 700px) {
+  .position-grid { grid-template-columns: 1fr; gap: var(--sp-10); }
+}
+
+.position-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: var(--sp-6);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.position-label::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--accent-lt);
+}
+
+.position-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(36px, 4.5vw, 56px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.position-heading em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.position-right { padding-top: var(--sp-12); }
+
+.position-body {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.8;
+  margin-bottom: var(--sp-6);
+}
+
+.pullquote {
+  border-left: 2px solid var(--accent-lt);
+  padding: var(--sp-5) var(--sp-6);
+  margin: var(--sp-8) 0;
+  background: var(--surface2);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+.pullquote p {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+
+/* ── SCROLL REVEALS ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+
+
+/* ═══════════════════════════════════════════════
+   SESSION 2 — INPUT FORM
+═══════════════════════════════════════════════ */
+.form-page {
+  padding-top: 120px;
+  padding-bottom: var(--sp-24);
+}
+
+.page-header {
+  margin-bottom: var(--sp-16);
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 0.1s forwards;
+}
+
+.page-header-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-8);
+}
+
+.page-header-rule-line {
+  width: 32px;
+  height: 1px;
+  background: var(--accent-lt);
+}
+
+.page-header h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 6vw, 76px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: var(--sp-6);
+  max-width: 700px;
+}
+
+.page-header h1 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.page-header p {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.8;
+  max-width: 480px;
+}
+
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: var(--sp-12) var(--sp-12);
+  margin-bottom: var(--sp-8);
+  opacity: 0;
+  animation: fadeUp 0.9s var(--ease-out) 0.25s forwards;
+}
+
+@media (max-width: 700px) {
+  .form-card { padding: var(--sp-8) var(--sp-6); border-radius: var(--r-lg); }
+}
+
+.form-section {
+  padding-bottom: var(--sp-10);
+  margin-bottom: var(--sp-10);
+  border-bottom: 1px solid var(--ink-5);
+}
+
+.form-section:last-of-type {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.form-section-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: var(--sp-6);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.form-section-label::before {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 1px;
+  background: var(--accent-lt);
+  flex-shrink: 0;
+}
+
+.field { margin-bottom: var(--sp-8); }
+.field:last-child { margin-bottom: 0; }
+
+.field > label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-2);
+  margin-bottom: var(--sp-3);
+  line-height: 1.4;
+}
+
+.field > label .opt {
+  color: var(--ink-4);
+  font-weight: 300;
+  font-size: 12px;
+}
+
+textarea,
+input[type="text"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: 15px var(--sp-5);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
+  resize: none;
+  line-height: 1.7;
+  -webkit-appearance: none;
+}
+
+textarea { min-height: 100px; }
+textarea.tall { min-height: 200px; }
+
+textarea:focus,
+input[type="text"]:focus {
+  border-color: var(--accent-lt);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
+}
+
+textarea::placeholder,
+input[type="text"]::placeholder {
+  color: var(--ink-4);
+  font-weight: 300;
+}
+
+.cv-wrapper { position: relative; }
+
+.cv-counter {
+  position: absolute;
+  bottom: 14px;
+  right: var(--sp-5);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-5);
+  pointer-events: none;
+  transition: color 0.3s;
+  letter-spacing: 0.04em;
+}
+.cv-counter.active { color: var(--ink-4); }
+
+.hint-box {
+  margin-top: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-left: 2px solid var(--accent-lt);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  display: flex;
+  gap: var(--sp-4);
+  align-items: flex-start;
+}
+
+.hint-icon {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  flex-shrink: 0;
+  padding-top: 2px;
+  font-weight: 500;
+}
+
+.hint-text {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-3);
+  line-height: 1.7;
+}
+
+.hint-text strong {
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-6);
+}
+
+@media (max-width: 620px) { .two-col { grid-template-columns: 1fr; } }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.chip {
+  padding: 7px var(--sp-5);
+  border-radius: 100px;
+  border: 1px solid var(--ink-5);
+  background: transparent;
+  color: var(--ink-3);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+  user-select: none;
+  line-height: 1;
+}
+
+.chip:hover {
+  border-color: var(--accent-lt);
+  color: var(--ink-2);
+  background: rgba(139, 111, 71, 0.05);
+}
+
+.chip.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.cta-wrap {
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-10);
+  border-top: 1px solid var(--ink-5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}
+
+.cta-note {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-4);
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+/* ═══════════════════════════════════════════════
+   LOADING SCREEN
+═══════════════════════════════════════════════ */
+.loading-screen {
+  display: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
+  margin-bottom: var(--sp-8);
+}
+
+.loading-screen.visible { display: block; }
+.loading-screen.shown   { opacity: 1; transform: translateY(0); }
+
+.loading-card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+
+.loading-top {
+  padding: var(--sp-10) var(--sp-12);
+  border-bottom: 1px solid var(--ink-5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) { .loading-top { padding: var(--sp-8) var(--sp-6); } }
+
+.loading-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.loading-heading em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.loading-sub {
+  margin-top: var(--sp-3);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-3);
+  line-height: 1.75;
+  max-width: 380px;
+}
+
+.progress-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-2);
+  padding-top: 4px;
+}
+
+.progress-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.progress-track {
+  width: 72px;
+  height: 2px;
+  background: var(--bg-deep);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-count {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-4);
+  letter-spacing: 0.06em;
+}
+
+.load-steps { padding: 0 var(--sp-12); }
+@media (max-width: 600px) { .load-steps { padding: 0 var(--sp-6); } }
+
+.load-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid var(--bg-deep);
+  transition: all 0.35s var(--ease);
+}
+.load-step:last-child { border-bottom: none; }
+
+.step-dot-wrap {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  position: relative;
+  transition: all 0.4s var(--ease);
+}
+
+.step-num { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-5); line-height: 1; transition: all 0.3s; }
+.step-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: none; }
+.step-tick { font-size: 11px; display: none; }
+.step-title { font-size: 14px; font-weight: 300; color: var(--ink-4); line-height: 1.4; transition: color 0.35s; }
+.step-sub { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; color: var(--ink-5); margin-top: 3px; line-height: 1.5; opacity: 0; transition: opacity 0.35s, color 0.35s; }
+
+.load-step.pending .step-dot-wrap { background: transparent; border: 1px solid var(--ink-5); }
+.load-step.pending .step-num { display: block; }
+.load-step.pending .step-dot, .load-step.pending .step-tick { display: none; }
+.load-step.pending .step-title { color: var(--ink-4); }
+.load-step.pending .step-sub { opacity: 0; }
+
+.load-step.active .step-dot-wrap { background: rgba(139,111,71,0.1); border: 1px solid rgba(139,111,71,0.3); box-shadow: 0 0 14px rgba(139,111,71,0.15); }
+.load-step.active .step-num { display: none; }
+.load-step.active .step-dot { display: block; animation: breathe 1.4s ease-in-out infinite; }
+.load-step.active .step-tick { display: none; }
+.load-step.active .step-title { color: var(--ink); font-weight: 400; }
+.load-step.active .step-sub { opacity: 1; color: var(--accent); }
+
+.load-step.done .step-dot-wrap { background: var(--green-bg); border: 1px solid rgba(61,107,79,0.2); }
+.load-step.done .step-num { display: none; }
+.load-step.done .step-dot { display: none; }
+.load-step.done .step-tick { display: block; color: var(--green); }
+.load-step.done .step-title { color: var(--ink-3); }
+.load-step.done .step-sub { opacity: 0; }
+
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.65); }
+}
+
+/* ═══════════════════════════════════════════════
+   ERROR BOX
+═══════════════════════════════════════════════ */
+.error-box {
+  display: none;
+  background: var(--red-bg);
+  border: 1px solid rgba(139, 58, 47, 0.2);
+  border-radius: var(--r-lg);
+  padding: var(--sp-8) var(--sp-10);
+  margin-bottom: var(--sp-8);
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+.error-box.visible { display: block; }
+.error-title { font-family: var(--font-serif); font-size: 20px; font-weight: 400; color: var(--red); margin-bottom: var(--sp-3); }
+.error-detail { color: var(--ink-2); margin-top: var(--sp-2); }
+.error-hint   { color: var(--ink-3); margin-top: var(--sp-3); font-size: 13px; }
+.error-stack  { margin-top: var(--sp-5); font-family: var(--font-mono); font-size: 11px; color: var(--ink-4); white-space: pre-wrap; word-break: break-all; }
+
+
+/* ═══════════════════════════════════════════════
+   SESSION 3 — RESULTS DASHBOARD
+═══════════════════════════════════════════════ */
+.dash-header {
+  padding-top: 80px;
+  padding-bottom: var(--sp-8);
+  border-bottom: 1px solid var(--ink-5);
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease-out) 0.1s forwards;
+}
+
+.dash-header-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+  padding-top: var(--sp-10);
+}
+
+.dash-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.dash-eyebrow-line {
+  width: 24px;
+  height: 1px;
+  background: var(--accent-lt);
+}
+
+.dash-title {
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.dash-title em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.dash-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+}
+
+.dash-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.dash-meta-val {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.dash-meta-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.dash-meta-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--ink-5);
+}
+
+/* ── TAB BAR ── */
+.tab-bar {
+  position: sticky;
+  top: 61px;
+  z-index: 90;
+  background: rgba(247, 244, 239, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ink-5);
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease-out) 0.25s forwards;
+}
+
+.tab-bar-inner {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tab-bar-inner::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-4);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  flex-shrink: 0;
+}
+
+.tab-btn:hover { color: var(--ink-2); }
+
+.tab-btn.active {
+  color: var(--ink);
+  font-weight: 400;
+  border-bottom-color: var(--accent);
+}
+
+.tab-num {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink-5);
+  transition: color 0.2s;
+}
+
+.tab-btn.active .tab-num,
+.tab-btn:hover .tab-num { color: var(--accent-lt); }
+
+/* ── DASH MAIN ── */
+.dash-main {
+  padding: var(--sp-12) 0 var(--sp-24);
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease-out) 0.4s forwards;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp 0.4s var(--ease-out) both; }
+
+/* Shared card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: var(--sp-10) var(--sp-10);
+  box-shadow: 0 1px 3px rgba(28,26,23,0.04), 0 4px 16px rgba(28,26,23,0.03);
+}
+
+@media (max-width: 640px) { .card { padding: var(--sp-6) var(--sp-5); border-radius: var(--r-lg); } }
+.card + .card { margin-top: var(--sp-5); }
+
+.sec-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: var(--sp-5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.sec-label::before {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 1px;
+  background: var(--accent-lt);
+  flex-shrink: 0;
+}
+
+.sec-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: var(--sp-3);
+}
+
+.sec-heading em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+/* Pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1;
+  margin: 3px;
+  font-family: var(--font-sans);
+}
+
+.pill-green   { background: var(--green-bg); color: var(--green);  border: 1px solid rgba(61,107,79,0.2); }
+.pill-amber   { background: var(--amber-bg); color: var(--amber);  border: 1px solid rgba(154,107,46,0.2); }
+.pill-neutral { background: var(--surface2); color: var(--ink-3);  border: 1px solid var(--ink-5); }
+.pill-accent  { background: rgba(139,111,71,0.08); color: var(--accent); border: 1px solid rgba(139,111,71,0.2); }
+
+.advice-block {
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-left: 3px solid var(--accent-lt);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: var(--sp-6) var(--sp-8);
+  margin-top: var(--sp-5);
+}
+
+.advice-block p {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.85;
+}
+
+.advice-block p strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ── PROFILE TAB ── */
+.profile-hero-card { margin-bottom: var(--sp-5); }
+
+.profile-badges {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-8);
+  padding-bottom: var(--sp-8);
+  border-bottom: 1px solid var(--bg-deep);
+}
+
+.profile-badge-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: var(--sp-2);
+}
+
+.seniority-badge {
+  display: inline-block;
+  background: rgba(139,111,71,0.1);
+  color: var(--accent-dk);
+  border: 1px solid rgba(139,111,71,0.25);
+  border-radius: var(--r-sm);
+  padding: 6px 16px;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1;
+}
+
+.profile-badge-val {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.profile-summary {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.85;
+  max-width: 680px;
+}
+
+.target-roles {
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--bg-deep);
+}
+
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink);
+}
+
+.role-item::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-lt);
+  flex-shrink: 0;
+}
+
+.directions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+}
+
+.direction-card {
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6) var(--sp-7);
+  transition: border-color 0.2s var(--ease);
+}
+.direction-card:hover { border-color: var(--accent-lt); }
+
+.direction-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: var(--sp-3);
+  line-height: 1.2;
+}
+
+.direction-why {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-3);
+  line-height: 1.75;
+}
+
+.values-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+/* ── SKILLS TAB ── */
+.skills-header { margin-bottom: var(--sp-8); }
+
+.skills-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+
+@media (max-width: 680px) { .skills-two-col { grid-template-columns: 1fr; } }
+
+.skills-card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8) var(--sp-8);
+}
+
+.skills-card-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: var(--sp-5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.pills-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -3px;
+  margin-bottom: var(--sp-6);
+}
+
+.gap-list { display: flex; flex-direction: column; gap: 0; }
+
+.gap-item {
+  padding: var(--sp-5) 0;
+  border-top: 1px solid var(--bg-deep);
+}
+.gap-item:first-child { border-top: none; padding-top: 0; }
+
+.gap-skill-name { font-family: var(--font-sans); font-size: 13.5px; font-weight: 500; color: var(--amber); margin-bottom: var(--sp-2); }
+.gap-why, .gap-how { font-size: 12.5px; font-weight: 300; color: var(--ink-3); line-height: 1.7; }
+.gap-how { color: var(--ink-2); margin-top: var(--sp-1); }
+.gap-meta-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-5); margin-bottom: 3px; }
+
+/* ── COMPANIES TAB ── */
+.companies-intro { margin-bottom: var(--sp-8); }
+
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--sp-5);
+}
+
+.company-card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  box-shadow: 0 1px 3px rgba(28,26,23,0.04);
+}
+
+.company-card:hover { border-color: var(--accent-lt); box-shadow: 0 4px 20px rgba(28,26,23,0.07); }
+
+.co-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-4); }
+
+.co-name {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.co-fit-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(139,111,71,0.1);
+  border: 1px solid rgba(139,111,71,0.2);
+  border-radius: 100px;
+  padding: 5px 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.co-why  { font-size: 13.5px; font-weight: 300; color: var(--ink-2); line-height: 1.75; }
+.co-culture { font-size: 12.5px; font-weight: 300; color: var(--ink-3); line-height: 1.7; }
+
+.co-value-tags { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
+
+.co-value-tag {
+  background: var(--surface2);
+  color: var(--ink-3);
+  border: 1px solid var(--ink-5);
+  border-radius: 4px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 300;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.co-role {
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.co-role-title { font-size: 13px; font-weight: 400; color: var(--ink-2); line-height: 1.4; }
+.co-role-sub { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-5); margin-top: 2px; }
+
+.co-apply-link {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-lt);
+  padding-bottom: 1px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.18s, border-color 0.18s;
+}
+.co-apply-link:hover { color: var(--accent-dk); border-bottom-color: var(--accent-dk); }
+.co-empty { color: var(--ink-5); font-size: 12px; font-family: var(--font-mono); }
+
+/* ── LIVE ROLES TAB ── */
+.roles-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-8);
+  flex-wrap: wrap;
+}
+
+.roles-count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding-bottom: 2px;
+}
+
+.roles-count strong { color: var(--ink-2); font-weight: 400; }
+
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(28,26,23,0.04);
+}
+
+.table-scroll { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; min-width: 780px; }
+thead { background: var(--surface2); }
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  border-bottom: 1px solid var(--ink-5);
+  white-space: nowrap;
+}
+
+td {
+  padding: 16px 16px;
+  border-bottom: 1px solid var(--bg-deep);
+  font-size: 13.5px;
+  font-weight: 300;
+  color: var(--ink-2);
+  vertical-align: top;
+  line-height: 1.55;
+}
+
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.15s; }
+tbody tr:hover td { background: rgba(139,111,71,0.025); }
+
+.fit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.fit-strong { background: var(--green-bg); color: var(--green); border: 1px solid rgba(61,107,79,0.2); }
+.fit-good   { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(154,107,46,0.2); }
+.fit-broad  { background: var(--surface2); color: var(--ink-3); border: 1px solid var(--ink-5); }
+
+.fit-reason { font-size: 11.5px; font-weight: 300; color: var(--ink-4); margin-top: 4px; line-height: 1.55; max-width: 120px; }
+
+.job-title   { font-weight: 400; color: var(--ink); font-size: 13.5px; }
+.job-loc     { font-size: 12px; color: var(--ink-4); margin-top: 2px; font-family: var(--font-mono); letter-spacing: 0.04em; }
+.job-company { font-weight: 400; color: var(--accent); font-size: 14px; }
+.job-date    { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-4); white-space: nowrap; }
+
+.apply-link {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-lt);
+  padding-bottom: 1px;
+  transition: color 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+.apply-link:hover { color: var(--accent-dk); border-bottom-color: var(--accent-dk); }
+
+.contact-name     { font-weight: 400; font-size: 13px; color: var(--ink); }
+.contact-role-txt { font-size: 11.5px; color: var(--ink-4); margin-top: 1px; }
+.contact-li {
+  display: inline-block;
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.status-sel {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 300;
+  padding: 6px 28px 6px 12px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.18s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23B8B4AE' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  min-width: 110px;
+}
+.status-sel:focus { border-color: var(--accent-lt); }
+
+.export-bar { display: flex; gap: var(--sp-3); margin-top: var(--sp-5); flex-wrap: wrap; }
+
+.btn-outline {
+  background: none;
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 300;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+}
+.btn-outline:hover { border-color: var(--accent-lt); color: var(--accent); }
+
+/* ── OUTREACH TAB ── */
+.outreach-intro { margin-bottom: var(--sp-8); }
+.outreach-list { display: flex; flex-direction: column; gap: var(--sp-5); }
+
+.outreach-card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(28,26,23,0.04);
+}
+
+.outreach-card-header {
+  padding: var(--sp-6) var(--sp-8) var(--sp-5);
+  border-bottom: 1px solid var(--bg-deep);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+.outreach-co   { font-family: var(--font-serif); font-size: 22px; font-weight: 500; color: var(--ink); line-height: 1.1; }
+.outreach-role { font-size: 13.5px; font-weight: 300; color: var(--ink-3); margin-top: 3px; }
+.outreach-to   { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-5); margin-top: 6px; }
+
+.outreach-type-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: var(--blue-bg);
+  border: 1px solid rgba(58,90,122,0.15);
+  border-radius: var(--r-sm);
+  padding: 5px 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.outreach-msg-wrap { padding: var(--sp-6) var(--sp-8) var(--sp-8); }
+
+.msg-box {
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: var(--sp-6) var(--sp-7);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.9;
+  white-space: pre-wrap;
+  font-family: var(--font-sans);
+  min-height: 80px;
+}
+
+.copy-row { display: flex; align-items: center; gap: var(--sp-4); margin-top: var(--sp-4); }
+
+.btn-copy {
+  background: none;
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 300;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.btn-copy:hover { border-color: var(--accent-lt); color: var(--accent); }
+.btn-copy.done  { color: var(--green); border-color: rgba(61,107,79,0.3); }
+.copy-hint { font-size: 12px; font-weight: 300; color: var(--ink-5); }
+
+/* ── NEXT STEPS TAB ── */
+.next-intro { margin-bottom: var(--sp-8); }
+.next-steps-list { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+.next-step-card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8) var(--sp-10);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-8);
+  box-shadow: 0 1px 3px rgba(28,26,23,0.04);
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+@media (max-width: 640px) { .next-step-card { padding: var(--sp-6) var(--sp-5); gap: var(--sp-5); } }
+.next-step-card:hover { border-color: var(--accent-lt); transform: translateY(-1px); }
+
+.next-step-num {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--bg-deep);
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+  min-width: 52px;
+  text-align: center;
+  transition: color 0.2s;
+}
+.next-step-card:hover .next-step-num { color: var(--accent-lt); }
+
+.next-step-body { flex: 1; }
+.next-step-title { font-family: var(--font-serif); font-size: 24px; font-weight: 500; color: var(--ink); line-height: 1.15; margin-bottom: var(--sp-3); }
+.next-step-desc  { font-size: 14.5px; font-weight: 300; color: var(--ink-2); line-height: 1.8; }
+
+.next-step-tag {
+  display: inline-block;
+  margin-top: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-5);
+  border: 1px solid var(--ink-5);
+  border-radius: 100px;
+  padding: 3px 12px;
+}
+
+.momentum-block {
+  margin-top: var(--sp-10);
+  padding: var(--sp-10) var(--sp-12);
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  text-align: center;
+}
+
+.momentum-quote {
+  font-family: var(--font-serif);
+  font-size: clamp(22px, 3vw, 34px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ink-2);
+  line-height: 1.45;
+  max-width: 540px;
+  margin: 0 auto var(--sp-5);
+}
+
+.momentum-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-5);
+}
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: var(--sp-16) var(--sp-8); color: var(--ink-4); }
+.empty-state-icon { font-family: var(--font-serif); font-size: 48px; font-weight: 300; font-style: italic; color: var(--bg-deep); margin-bottom: var(--sp-4); display: block; }
+.empty-state p { font-size: 14px; font-weight: 300; line-height: 1.7; }
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--ink-5);
+  padding: var(--sp-8) 0;
+  margin-top: var(--sp-20);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+}
+
+.footer-left { display: flex; align-items: center; gap: var(--sp-5); }
+
+.footer-copy {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-4);
+}
+
+.footer-tagline {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-3);
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .hero { padding: 100px 0 120px; min-height: 100svh; }
+  .hero-deco { display: none; }
+  .hero-stat-divider { display: none; }
+  .hero-footnote { position: relative; bottom: auto; margin-top: var(--sp-12); opacity: 1; animation: none; }
+  .cta-wrap { flex-direction: column; align-items: flex-start; }
+  .cta-note { max-width: 100%; }
+  .loading-top { flex-direction: column; gap: var(--sp-6); }
+  .progress-wrap { flex-direction: row; align-items: center; gap: var(--sp-4); }
+  .dash-meta { justify-content: flex-start; }
+  .dash-meta-divider { display: none; }
+  .dash-meta-item { align-items: flex-start; }
+  .nav-cta-note { display: none; }
+  .company-grid { grid-template-columns: 1fr; }
+  .directions-grid { grid-template-columns: 1fr; }
+  .outreach-card-header { flex-direction: column; gap: var(--sp-3); }
+  .next-step-card { flex-direction: column; gap: var(--sp-3); }
+  .next-step-num { font-size: 36px; }
+  .profile-badges { gap: var(--sp-5); }
+}
+
+@media (max-width: 480px) {
+  .tab-btn { padding: var(--sp-3) var(--sp-4); font-size: 12px; }
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════
+       NAVIGATION — adapts per session
+  ═══════════════════════════════════════════ -->
+  <nav class="nav" id="nav" aria-label="Site navigation">
+    <div class="container">
+      <div class="nav-inner">
+
+        <a href="#" class="wordmark" id="navWordmark" aria-label="Career Intelligence home" onclick="goToLanding(event)">
+          <span class="wordmark-main">Career Intelligence</span>
+          <span class="wordmark-dot" aria-hidden="true"></span>
+        </a>
+
+        <!-- S1 nav right -->
+        <span class="nav-status" id="navS1Right">Proof of concept</span>
+
+        <!-- S2 nav right -->
+        <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
+
+        <!-- S3 nav right -->
+        <div class="nav-right" id="navS3Right" style="display:none;">
+          <span class="nav-cta-note eyebrow">Your results</span>
+          <button class="btn-restart" onclick="goToForm()">← Start again</button>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 1 — LANDING PAGE
+  ═══════════════════════════════════════════ -->
+  <div class="session-panel active" id="panelS1">
+    <main class="landing" id="landing">
+
+      <!-- HERO -->
+      <section class="hero" aria-labelledby="hero-headline">
+        <div class="container">
+
+          <div class="hero-rule" aria-hidden="true">
+            <div class="hero-rule-line"></div>
+            <span class="eyebrow">Career Intelligence Platform</span>
+          </div>
+
+          <h1 class="hero-headline" id="hero-headline">
+            Your career<br>
+            deserves more<br>
+            <em>than a job board.</em>
+          </h1>
+
+          <p class="hero-body">
+            Upload your CV. In sixty seconds, you'll know where you fit,
+            what to build, and exactly who to reach out to — with the
+            message already written.
+          </p>
+
+          <div class="hero-cta">
+            <button class="btn-primary" id="getStarted" onclick="goToForm()">
+              Get started
+              <span class="btn-arrow" aria-hidden="true">→</span>
+            </button>
+            <a href="#about" class="link-secondary">How it works</a>
+          </div>
+
+          <div class="hero-deco" aria-hidden="true">CI</div>
+
+          <div class="hero-footnote" aria-label="Context statistics">
+            <div class="hero-stat">
+              <span class="hero-stat-n">24.4</span>
+              <span class="hero-stat-label">weeks — average job search in 2026</span>
+            </div>
+            <div class="hero-stat-divider" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-n">80%</span>
+              <span class="hero-stat-label">of roles never publicly posted</span>
+            </div>
+            <div class="hero-stat-divider" aria-hidden="true"></div>
+            <div class="hero-stat">
+              <span class="hero-stat-n">75%</span>
+              <span class="hero-stat-label">of applications filtered before a human reads them</span>
+            </div>
+            <div class="hero-scroll-hint" aria-hidden="true">
+              <svg width="10" height="14" viewBox="0 0 10 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 1v12M1 9l4 4 4-4" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Scroll
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- POSITIONING SECTION -->
+      <section class="position-section" id="about" aria-labelledby="position-heading">
+        <div class="container">
+          <div class="position-grid">
+            <div class="position-left reveal">
+              <div class="position-label">What this is</div>
+              <h2 class="position-heading" id="position-heading">
+                Career intelligence.<br>
+                <em>Not a faster<br>job board.</em>
+              </h2>
+            </div>
+            <div class="position-right reveal reveal-delay-1">
+              <p class="position-body">
+                A faster job board helps you apply to more things more quickly.
+                Career intelligence helps you understand where you actually fit,
+                what you actually want, and then act on that with clarity and intention.
+              </p>
+              <p class="position-body">
+                The job search becomes a byproduct of knowing yourself — not the
+                starting point. Upload your CV, or describe your background in a
+                few sentences. The platform does the rest.
+              </p>
+              <div class="pullquote">
+                <p>"When you don't have a job and you're looking without a specific direction, day to day you lose motivation. I want it to build and maintain that momentum — and keep people going every day."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="container">
+          <div class="footer-inner">
+            <div class="footer-left">
+              <span class="footer-copy">© 2026 — Career Intelligence</span>
+              <span class="footer-tagline">Intentional decisions, not desperate ones.</span>
+            </div>
+            <span class="eyebrow">Pre-seed concept build — May 2026</span>
+          </div>
+        </div>
+      </footer>
+
+    </main>
+  </div><!-- /panelS1 -->
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 2 — INPUT FORM + LOADING
+  ═══════════════════════════════════════════ -->
+  <div class="session-panel" id="panelS2">
+    <main>
+
+      <!-- FORM PAGE -->
+      <div class="form-page" id="formPage">
+        <div class="container">
+
+          <div class="page-header">
+            <div class="page-header-rule" aria-hidden="true">
+              <div class="page-header-rule-line"></div>
+              <span class="eyebrow">Step 1 of 1</span>
+            </div>
+            <h1>
+              Tell us who you are.<br>
+              We'll find <em>where you fit.</em>
+            </h1>
+            <p>
+              Paste your CV below, or describe where you've been and where you want to go.
+              We'll read it carefully — then find your direction, surface live roles, and
+              draft your outreach.
+            </p>
+          </div>
+
+          <!-- Form card -->
+          <div class="form-card" id="formCard">
+
+            <!-- SECTION 1: CV -->
+            <div class="form-section">
+              <div class="form-section-label">Your background</div>
+              <div class="field">
+                <label for="cvText">
+                  Paste your CV here
+                  <span class="opt"> — plain text works best</span>
+                </label>
+                <div class="cv-wrapper">
+                  <textarea
+                    id="cvText"
+                    class="tall"
+                    placeholder="Copy your CV from Word, Google Docs, or a PDF viewer and paste it here. Include your experience, roles, skills, and education — everything you'd normally send to an employer. The more you include, the more accurate the results."
+                    oninput="updateCounter()"
+                    rows="10"
+                    aria-describedby="cv-hint"
+                  ></textarea>
+                  <div class="cv-counter" id="cvCounter" aria-live="polite">0 words</div>
+                </div>
+                <div class="hint-box" id="cv-hint" role="note">
+                  <span class="hint-icon">Note</span>
+                  <p class="hint-text">
+                    <strong>Why plain text?</strong> PDF uploads often come out scrambled — garbled fonts, broken lines, missing words. Pasting as plain text gives us your CV exactly as written. Open your CV in Word or Google Docs, select all, and paste here.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: Direction -->
+            <div class="form-section">
+              <div class="form-section-label">Where you want to go</div>
+              <div class="field">
+                <label for="direction">
+                  What direction are you heading?
+                  <span class="opt"> — vague is fine</span>
+                </label>
+                <textarea
+                  id="direction"
+                  style="min-height: 96px;"
+                  placeholder="e.g. I want to move into strategy or consulting — not sure of exact titles, just something more analytical and decision-focused. Open to pivoting if the role makes sense."
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- SECTION 3: Preferences -->
+            <div class="form-section">
+              <div class="form-section-label">Your preferences</div>
+
+              <div class="two-col">
+                <div class="field">
+                  <label for="location">Location</label>
+                  <input type="text" id="location" placeholder="e.g. London, UK">
+                </div>
+                <div class="field">
+                  <label>Work style</label>
+                  <div class="chips" id="workStyle" role="group" aria-label="Work style">
+                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">On-site</span>
+                    <span class="chip on" role="checkbox" aria-checked="true" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Hybrid</span>
+                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Remote</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="two-col">
+                <div class="field">
+                  <label>Employment type</label>
+                  <div class="chips" id="empType" role="group" aria-label="Employment type">
+                    <span class="chip on" role="checkbox" aria-checked="true" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Full-time</span>
+                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Contract</span>
+                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Part-time</span>
+                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Internship</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="salary">
+                    Salary expectation
+                    <span class="opt"> — optional</span>
+                  </label>
+                  <input type="text" id="salary" placeholder="e.g. £40k–£55k, or leave open">
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 4: Anything else -->
+            <div class="form-section">
+              <div class="form-section-label">Anything else</div>
+              <div class="field">
+                <label for="extra">
+                  Values, deal-breakers, visa needs, sector preferences
+                  <span class="opt"> — optional</span>
+                </label>
+                <input
+                  type="text"
+                  id="extra"
+                  placeholder="e.g. Values-led companies only · No agencies · Need visa sponsorship · Not finance"
+                >
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-wrap">
+              <button
+                class="btn-primary"
+                id="runBtn"
+                onclick="runSearch()"
+                aria-label="Find my direction"
+              >
+                <div class="btn-spinner" aria-hidden="true"></div>
+                <span class="btn-label">Find my direction</span>
+                <span class="btn-arrow" aria-hidden="true">→</span>
+              </button>
+              <p class="cta-note">
+                Reads your background · maps your skills · searches live roles ·
+                surfaces contacts · drafts your outreach. About 60 seconds.
+              </p>
+            </div>
+
+          </div><!-- /form-card -->
+
+        </div><!-- /container -->
+      </div><!-- /form-page -->
+
+
+      <!-- LOADING SCREEN -->
+      <div class="loading-screen" id="loadingScreen" aria-live="polite" aria-label="Processing your profile">
+        <div class="container">
+          <div class="loading-card">
+
+            <div class="loading-top">
+              <div>
+                <div class="loading-heading">
+                  Working on it,<br>
+                  <em>stay with us.</em>
+                </div>
+                <p class="loading-sub">
+                  We're reading your background carefully before we touch anything else.
+                  This takes a minute — it's worth it.
+                </p>
+              </div>
+              <div class="progress-wrap" aria-label="Progress">
+                <div class="progress-label">Progress</div>
+                <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-count" id="progressCount">0 of 6</div>
+              </div>
+            </div>
+
+            <div class="load-steps" role="list">
+              <div class="load-step pending" id="ls1" role="listitem">
+                <div class="step-dot-wrap" aria-hidden="true"><span class="step-num">1</span><div class="step-dot"></div><span class="step-tick">✓</span></div>
+                <div class="step-body"><div class="step-title">Reading your background</div><div class="step-sub">Extracting experience, skills, and career trajectory…</div></div>
+              </div>
+              <div class="load-step pending" id="ls2" role="listitem">
+                <div class="step-dot-wrap" aria-hidden="true"><span class="step-num">2</span><div class="step-dot"></div><span class="step-tick">✓</span></div>
+                <div class="step-body"><div class="step-title">Mapping your skills</div><div class="step-sub">What you already bring, and what to build next…</div></div>
+              </div>
+              <div class="load-step pending" id="ls3" role="listitem">
+                <div class="step-dot-wrap" aria-hidden="true"><span class="step-num">3</span><div class="step-dot"></div><span class="step-tick">✓</span></div>
+                <div class="step-body"><div class="step-title">Finding aligned companies</div><div class="step-sub">Matching culture, values, and mission to your profile…</div></div>
+              </div>
+              <div class="load-step pending" id="ls4" role="listitem">
+                <div class="step-dot-wrap" aria-hidden="true"><span class="step-num">4</span><div class="step-dot"></div><span class="step-tick">✓</span></div>
+                <div class="step-body"><div class="step-title">Searching live roles</div><div class="step-sub">Checking job boards for current, verified listings…</div></div>
+              </div>
+              <div class="load-step pending" id="ls5" role="listitem">
+                <div class="step-dot-wrap" aria-hidden="true"><span class="step-num">5</span><div class="step-dot"></div><span class="step-tick">✓</span></div>
+                <div class="step-body"><div class="step-title">Surfacing industry contacts</div><div class="step-sub">Finding the right people to reach out to…</div></div>
+              </div>
+              <div class="load-step pending" id="ls6" role="listitem">
+                <div class="step-dot-wrap" aria-hidden="true"><span class="step-num">6</span><div class="step-dot"></div><span class="step-tick">✓</span></div>
+                <div class="step-body"><div class="step-title">Drafting your outreach</div><div class="step-sub">Writing personalised messages tied to the roles we found…</div></div>
+              </div>
+            </div><!-- /load-steps -->
+
+          </div><!-- /loading-card -->
+        </div><!-- /container -->
+      </div><!-- /loading-screen -->
+
+
+      <!-- ERROR -->
+      <div class="error-box" id="errorBox" role="alert">
+        <div class="container">
+          <div class="error-title" id="errorTitle">Something went wrong</div>
+          <div class="error-detail" id="errorMsg"></div>
+          <div class="error-hint" id="errorHint"></div>
+          <pre class="error-stack" id="errorStack"></pre>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-left">
+            <span class="footer-copy">© 2026 — Career Intelligence</span>
+            <span class="footer-tagline">Intentional decisions, not desperate ones.</span>
+          </div>
+          <span class="eyebrow">Career Intelligence Platform</span>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- /panelS2 -->
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 3 — RESULTS DASHBOARD
+  ═══════════════════════════════════════════ -->
+  <div class="session-panel" id="panelS3">
+
+    <!-- Dashboard header -->
+    <div class="dash-header">
+      <div class="container">
+        <div class="dash-header-inner">
+          <div class="dash-title-group">
+            <div class="dash-eyebrow" aria-hidden="true">
+              <div class="dash-eyebrow-line"></div>
+              <span class="eyebrow">Career Intelligence — Your results</span>
+            </div>
+            <h1 class="dash-title">
+              Here's where<br>
+              <em>you fit.</em>
+            </h1>
+          </div>
+          <div class="dash-meta" id="dashMeta" aria-label="Profile summary statistics">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar" role="navigation" aria-label="Dashboard sections">
+      <div class="container">
+        <div class="tab-bar-inner" role="tablist">
+          <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="panel-profile"   onclick="switchTab('profile')"   id="tab-profile">
+            <span class="tab-num">①</span> Profile &amp; Direction
+          </button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-skills"    onclick="switchTab('skills')"    id="tab-skills">
+            <span class="tab-num">②</span> Skills
+          </button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-companies" onclick="switchTab('companies')" id="tab-companies">
+            <span class="tab-num">③</span> Companies
+          </button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-roles"     onclick="switchTab('roles')"     id="tab-roles">
+            <span class="tab-num">④</span> Live Roles
+          </button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-outreach"  onclick="switchTab('outreach')"  id="tab-outreach">
+            <span class="tab-num">⑤</span> Outreach
+          </button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-next"      onclick="switchTab('next')"      id="tab-next">
+            <span class="tab-num">⑥</span> Next Steps
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="dash-main" id="dashMain">
+      <div class="container">
+
+        <!-- TAB 1: PROFILE & DIRECTION -->
+        <div class="tab-panel active" id="panel-profile" role="tabpanel" aria-labelledby="tab-profile">
+
+          <div class="card profile-hero-card">
+            <div class="sec-label">Who you are</div>
+            <div class="profile-badges" id="profileBadges"></div>
+            <div class="profile-summary" id="profileSummary"></div>
+            <div class="target-roles">
+              <div class="sec-label" style="margin-bottom: var(--sp-3);">Roles you're competitive for</div>
+              <div class="roles-list" id="rolesList"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sec-label">Suggested directions</div>
+            <h2 class="sec-heading">Where you could go<br><em>from here.</em></h2>
+            <div class="directions-grid" id="directionsGrid"></div>
+          </div>
+
+          <div class="two-col" style="margin-top: var(--sp-5);">
+            <div class="card">
+              <div class="sec-label">Sectors identified in your CV</div>
+              <div id="sectorPills"></div>
+            </div>
+            <div class="card">
+              <div class="sec-label">Skills extracted from your CV</div>
+              <div id="skillsPills"></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: var(--sp-5);">
+            <div class="sec-label">Values &amp; character signals</div>
+            <h2 class="sec-heading" style="font-size: clamp(20px, 2.5vw, 30px); margin-bottom: var(--sp-4);">What this platform read<br><em>between the lines.</em></h2>
+            <div class="values-tags" id="valuesTags"></div>
+          </div>
+
+        </div><!-- /panel-profile -->
+
+
+        <!-- TAB 2: SKILLS -->
+        <div class="tab-panel" id="panel-skills" role="tabpanel" aria-labelledby="tab-skills">
+          <div class="skills-header">
+            <div class="sec-label">Skills analysis</div>
+            <h2 class="sec-heading">What you bring.<br><em>What to build.</em></h2>
+          </div>
+          <div class="skills-two-col">
+            <div class="skills-card">
+              <div class="skills-card-title"><span class="title-icon">✓</span> What you already bring</div>
+              <div class="pills-cluster" id="strengthPills"></div>
+            </div>
+            <div class="skills-card">
+              <div class="skills-card-title"><span class="title-icon" style="color:var(--amber);">↑</span> Skills to build</div>
+              <div class="gap-list" id="gapList"></div>
+            </div>
+          </div>
+          <div class="advice-block" id="skillsAdvice"></div>
+        </div><!-- /panel-skills -->
+
+
+        <!-- TAB 3: COMPANIES -->
+        <div class="tab-panel" id="panel-companies" role="tabpanel" aria-labelledby="tab-companies">
+          <div class="companies-intro">
+            <div class="sec-label">Company match</div>
+            <h2 class="sec-heading">Employers whose values<br><em>align with yours.</em></h2>
+            <p style="font-size:14.5px; font-weight:300; color:var(--ink-3); line-height:1.8; max-width:540px; margin-top:var(--sp-3);">
+              Beyond role titles and salary — organisations whose culture, mission, and way of working genuinely suit you.
+            </p>
+          </div>
+          <div class="company-grid" id="companyGrid"></div>
+        </div><!-- /panel-companies -->
+
+
+        <!-- TAB 4: LIVE ROLES -->
+        <div class="tab-panel" id="panel-roles" role="tabpanel" aria-labelledby="tab-roles">
+          <div class="roles-header-row">
+            <div>
+              <div class="sec-label">Live roles</div>
+              <h2 class="sec-heading">Ranked by fit,<br><em>verified live.</em></h2>
+            </div>
+            <div class="roles-count" id="rolesCount"></div>
+          </div>
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fit</th>
+                    <th>Role</th>
+                    <th>Company</th>
+                    <th>Posted</th>
+                    <th>Style</th>
+                    <th>Salary</th>
+                    <th>Apply</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="rolesBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="export-bar">
+            <button class="btn-outline" onclick="exportCSV()">Export CSV</button>
+            <button class="btn-outline" onclick="copyTable()">Copy for Sheets</button>
+          </div>
+        </div><!-- /panel-roles -->
+
+
+        <!-- TAB 5: OUTREACH -->
+        <div class="tab-panel" id="panel-outreach" role="tabpanel" aria-labelledby="tab-outreach">
+          <div class="outreach-intro">
+            <div class="sec-label">Outreach messages</div>
+            <h2 class="sec-heading">Ready to send.<br><em>Just copy and go.</em></h2>
+            <p style="font-size:14.5px; font-weight:300; color:var(--ink-3); line-height:1.8; max-width:500px; margin-top:var(--sp-3);">
+              Each message is written for the specific role and person we found. Personalised, warm, and short enough to actually be read.
+            </p>
+          </div>
+          <div class="outreach-list" id="outreachList"></div>
+        </div><!-- /panel-outreach -->
+
+
+        <!-- TAB 6: NEXT STEPS -->
+        <div class="tab-panel" id="panel-next" role="tabpanel" aria-labelledby="tab-next">
+          <div class="next-intro">
+            <div class="sec-label">Today's actions</div>
+            <h2 class="sec-heading">Three things to do<br><em>today.</em></h2>
+            <p style="font-size:14.5px; font-weight:300; color:var(--ink-3); line-height:1.8; max-width:500px; margin-top:var(--sp-3);">
+              The job search lives or dies by daily momentum. These are the three most impactful things to do right now, in order.
+            </p>
+          </div>
+          <div class="next-steps-list" id="nextStepsList"></div>
+          <div class="momentum-block">
+            <p class="momentum-quote">"The job search should feel like a beginning — not a grind."</p>
+            <p class="momentum-sub">Career Intelligence Platform — May 2026</p>
+          </div>
+        </div><!-- /panel-next -->
+
+      </div><!-- /container -->
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-left">
+            <span class="footer-copy">© 2026 — Career Intelligence</span>
+            <span class="footer-tagline">Intentional decisions, not desperate ones.</span>
+          </div>
+          <span class="eyebrow">Career Intelligence Platform</span>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- /panelS3 -->
+
+</div><!-- /page -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT — all three sessions combined
+═══════════════════════════════════════════════════ -->
+<script>
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION — show/hide sessions
+// ══════════════════════════════════════════════════════
+
+function showSession(n) {
+  ['panelS1','panelS2','panelS3'].forEach((id, i) => {
+    document.getElementById(id).classList.toggle('active', i + 1 === n);
+  });
+  // Nav bar adapts
+  document.getElementById('navS1Right').style.display = n === 1 ? '' : 'none';
+  document.getElementById('navS2Right').style.display = n === 2 ? '' : 'none';
+  document.getElementById('navS3Right').style.display = n === 3 ? '' : 'none';
+
+  // Nav frosted glass always on when not landing
+  const nav = document.getElementById('nav');
+  if (n === 1) {
+    nav.classList.remove('always-frosted');
+  } else {
+    nav.classList.add('always-frosted');
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToLanding(e) {
+  if (e) e.preventDefault();
+  showSession(1);
+}
+
+function goToForm() {
+  showSession(2);
+  // Re-trigger the form card animation
+  const fc = document.getElementById('formCard');
+  fc.style.animation = 'none';
+  fc.offsetHeight; // reflow
+  fc.style.animation = '';
+}
+
+function goToDashboard() {
+  showSession(3);
+}
+
+
+// ══════════════════════════════════════════════════════
+// SESSION 1 — scroll effects
+// ══════════════════════════════════════════════════════
+
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  navEl.classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
+
+// Scroll-triggered reveals
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(el => {
+    if (el.isIntersecting) {
+      el.target.classList.add('visible');
+      revealObserver.unobserve(el.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => revealObserver.observe(el));
+
+
+// ══════════════════════════════════════════════════════
+// SESSION 2 — form helpers
+// ══════════════════════════════════════════════════════
+
+function updateCounter() {
+  const val = document.getElementById('cvText').value.trim();
+  const count = val ? val.split(/\s+/).filter(Boolean).length : 0;
+  const el = document.getElementById('cvCounter');
+  el.textContent = count === 0 ? '0 words' : count.toLocaleString() + (count === 1 ? ' word' : ' words');
+  el.className = 'cv-counter' + (count > 0 ? ' active' : '');
+}
+
+function toggleChip(el) {
+  const on = el.classList.toggle('on');
+  el.setAttribute('aria-checked', on ? 'true' : 'false');
+}
+
+function chipKey(e, el) {
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    toggleChip(el);
+  }
+}
+
+function getChips(id) {
+  return [...document.getElementById(id).querySelectorAll('.chip.on')]
+    .map(c => c.textContent.trim());
+}
+
+
+// ══════════════════════════════════════════════════════
+// SESSION 2 — loading step machine
+// ══════════════════════════════════════════════════════
+
+function setStep(n) {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('ls' + i);
+    el.className = 'load-step';
+    if      (i < n)  el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+    else              el.classList.add('pending');
+  }
+  const completed = n - 1;
+  const pct = Math.round((completed / 6) * 100);
+  const fill = document.getElementById('progressFill');
+  const count = document.getElementById('progressCount');
+  fill.style.width = pct + '%';
+  fill.parentElement.setAttribute('aria-valuenow', pct);
+  count.textContent = completed + ' of 6';
+}
+
+function completeAllSteps() {
+  for (let i = 1; i <= 6; i++) {
+    document.getElementById('ls' + i).className = 'load-step done';
+  }
+  const fill = document.getElementById('progressFill');
+  fill.style.width = '100%';
+  fill.parentElement.setAttribute('aria-valuenow', 100);
+  document.getElementById('progressCount').textContent = '6 of 6';
+}
+
+function showLoading() {
+  const fc = document.getElementById('formCard');
+  fc.style.opacity = '0.4';
+  fc.style.pointerEvents = 'none';
+  fc.style.transition = 'opacity 0.4s';
+  const screen = document.getElementById('loadingScreen');
+  screen.classList.add('visible');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      screen.classList.add('shown');
+      screen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+function hideLoading() {
+  const screen = document.getElementById('loadingScreen');
+  screen.classList.remove('shown');
+  setTimeout(() => screen.classList.remove('visible'), 450);
+  const fc = document.getElementById('formCard');
+  fc.style.opacity = '';
+  fc.style.pointerEvents = '';
+}
+
+function showError(title, msg, hint, stack) {
+  const box = document.getElementById('errorBox');
+  document.getElementById('errorTitle').textContent = title;
+  document.getElementById('errorMsg').textContent   = msg   || '';
+  document.getElementById('errorHint').textContent  = hint  || '';
+  document.getElementById('errorStack').textContent = stack || '';
+  box.classList.add('visible');
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+
+// ══════════════════════════════════════════════════════
+// API CALL
+// ══════════════════════════════════════════════════════
+
+async function callAPI(system, user, retries = 2) {
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 8000,
+    system,
+    messages: [{ role: 'user', content: user }],
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }]
+  };
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (res.status === 429) {
+      let errJson = {};
+      try { errJson = await res.json(); } catch(e) {}
+      const msg = errJson?.error?.message || '';
+      const isOverage = msg.includes('exceeded_limit');
+      const resetAt = msg.match(/"resetsAt"?:\s*(\d+)/)?.[1];
+      let resetMsg = '';
+      if (resetAt) {
+        const mins = Math.ceil((Number(resetAt) * 1000 - Date.now()) / 60000);
+        resetMsg = ` Your limit resets in approximately ${mins} minute${mins !== 1 ? 's' : ''}.`;
+      }
+      if (isOverage) {
+        throw new Error(`rate_limit: You've hit your hourly usage limit.${resetMsg} Please wait and try again.`);
+      }
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+        continue;
+      }
+      throw new Error('rate_limit: Too many requests. Please wait a minute and try again.');
+    }
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error('API ' + res.status + ': ' + err);
+    }
+
+    const data = await res.json();
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+  }
+}
+
+
+// ══════════════════════════════════════════════════════
+// SAFE JSON PARSER
+// ══════════════════════════════════════════════════════
+
+function safeJSON(raw, fallback) {
+  try {
+    let s = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const a = s.indexOf('['), o = s.indexOf('{');
+    let start = -1;
+    if (a !== -1 && o !== -1) start = Math.min(a, o);
+    else if (a !== -1) start = a;
+    else if (o !== -1) start = o;
+    if (start === -1) return fallback;
+    const opener = s[start], closer = opener === '[' ? ']' : '}';
+    let depth = 0, end = -1;
+    for (let i = start; i < s.length; i++) {
+      if (s[i] === opener) depth++;
+      else if (s[i] === closer) { depth--; if (depth === 0) { end = i; break; } }
+    }
+    if (end === -1) return fallback;
+    return JSON.parse(s.slice(start, end + 1));
+  } catch(e) { return fallback; }
+}
+
+
+// ══════════════════════════════════════════════════════
+// MAIN RUN — triggered by "Find my direction"
+// ══════════════════════════════════════════════════════
+
+async function runSearch() {
+  const cvText    = document.getElementById('cvText').value.trim();
+  const direction = document.getElementById('direction').value.trim();
+  const location  = document.getElementById('location').value.trim();
+  const salary    = document.getElementById('salary').value.trim();
+  const extra     = document.getElementById('extra').value.trim();
+  const workStyle = getChips('workStyle');
+  const empType   = getChips('empType');
+
+  if (!cvText && !direction) {
+    document.getElementById('cvText').focus();
+    document.getElementById('cvText').style.borderColor = 'var(--accent-lt)';
+    setTimeout(() => { document.getElementById('cvText').style.borderColor = ''; }, 2000);
+    return;
+  }
+
+  document.getElementById('errorBox').classList.remove('visible');
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  showLoading();
+  setStep(1);
+
+  const profileText = [
+    cvText    ? `CV / background (read every word):\n${cvText.slice(0, 9000)}` : '',
+    direction ? `Career direction: ${direction}` : 'Career direction: Not stated — infer carefully from the CV',
+    location  ? `Location: ${location}` : '',
+    `Work style: ${workStyle.length ? workStyle.join(', ') : 'Flexible'}`,
+    `Employment type: ${empType.length ? empType.join(', ') : 'Open'}`,
+    salary    ? `Salary expectation: ${salary}` : '',
+    extra     ? `Additional notes: ${extra}` : '',
+  ].filter(Boolean).join('\n\n');
+
+  const systemPrompt = `You are a career intelligence platform. Your purpose is to help people understand where they genuinely fit, not just find the next thing to apply to.
+
+PHILOSOPHY
+You think deeply before you act. You read the person's background carefully — every line — before deciding anything. You do not rush to job listings. You understand the person first.
+You use warm, calm, precise language. You are not clinical, not corporate, not hype. You are the capable, calm person who says "I've got this."
+
+STEP 1 — READ THE BACKGROUND DEEPLY
+Read every word of the CV and notes provided. Extract:
+- All job titles and employers, with dates and progression
+- Industries and sectors worked in — explicitly and by inference
+- Hard skills: tools, software, frameworks, methodologies, certifications
+- Soft skills: inferred carefully from responsibilities and achievements
+- Education: degrees, subjects, institutions, dates
+- Quantified achievements and measurable impact
+- Career trajectory — where they started, how far they've come, what the arc suggests
+- What direction they say they want to go — even if vague
+- What direction they SHOULD go based on their actual experience
+
+STEP 2 — PROFILE AND SENIORITY
+Infer:
+- Seniority level: Graduate / Junior / Mid-level / Senior / Lead / Director / Executive
+- Approximate years of meaningful experience
+- 3–5 role titles they would be genuinely competitive for (including titles they may not have considered)
+- Sectors that are a natural match
+- Company types that suit them (scale, culture, mission)
+- A short, honest, warm career summary — what makes this person interesting
+- 2–3 suggested career directions with explanation of why each fits
+
+STEP 3 — SKILLS MAPPING
+Identify:
+- Their genuine strengths — what they clearly do well, with examples from their CV
+- Specific gaps for their target roles — not generic, tied to what the roles actually require
+- For each gap: why it matters and one concrete way to close it
+- Overall advice for their skills development
+
+STEP 4 — COMPANY VALUES MATCHING
+Based on their background, experience, and any stated values or deal-breakers, identify 3–5 types of company (by culture, size, mission) that would suit this person. For each: name, why they fit, culture notes, value tags, and if possible an open role title.
+
+STEP 5 — LIVE JOB SEARCH (strict anti-hallucination rules)
+Search for REAL, CURRENT job listings using web_search. Rules:
+- RULE 1: Only include jobs you have verified exist right now. No guesses.
+- RULE 2: Only jobs posted within the last 30 days.
+- RULE 3: The applyUrl must be the actual URL you found — never constructed or guessed.
+- RULE 4: Never invent company names, salaries, or contact details.
+- RULE 5: If you cannot find a detail, use "Not listed" — never fill in plausible-sounding fiction.
+- RULE 6: Only include roles the person is genuinely competitive for, given their actual experience.
+Search: LinkedIn Jobs, Indeed, Reed.co.uk, Totaljobs, CV-Library.
+
+STEP 6 — INDUSTRY CONTACTS
+For each of the top 3 jobs found, search for a relevant hiring contact — hiring manager, recruiter, or senior person at that company. Only include contacts you actually found. Use "Not found" otherwise.
+
+STEP 7 — OUTREACH MESSAGES
+Write a personalised, warm, direct outreach message for each of the top 3–5 roles. Each message should:
+- Reference something specific about the company or role
+- Make a clear, confident connection to the person's actual background
+- Be 80–120 words — not too short, not too long
+- Sound like a thoughtful human wrote it, not a template
+
+OUTPUT FORMAT
+Return ONLY a valid JSON object. No markdown, no backticks, no preamble. Structure:
+
+{
+  "profile": {
+    "seniorityLevel": string,
+    "yearsExperience": string,
+    "topRoleTitles": [string],
+    "extractedSectors": [string],
+    "extractedSkills": [string],
+    "suggestedDirections": [{ "title": string, "why": string }],
+    "valuesSignals": [string],
+    "companySuggestions": [{ "type": string, "why": string }],
+    "summary": string,
+    "locationSearch": string
+  },
+  "skills": {
+    "strengths": [string],
+    "gaps": [{ "skill": string, "why": string, "howToBuild": string }],
+    "advice": string
+  },
+  "companyValues": [
+    {
+      "name": string,
+      "why": string,
+      "culture": string,
+      "values": [string],
+      "openRole": string,
+      "applyUrl": string
+    }
+  ],
+  "jobs": [
+    {
+      "title": string,
+      "company": string,
+      "location": string,
+      "workStyle": string,
+      "datePosted": string,
+      "salary": string,
+      "applyUrl": string,
+      "contactName": string,
+      "contactTitle": string,
+      "contactLinkedIn": string,
+      "relevanceScore": number,
+      "relevanceReason": string
+    }
+  ],
+  "outreach": [
+    {
+      "company": string,
+      "role": string,
+      "contactName": string,
+      "type": string,
+      "message": string
+    }
+  ]
+}`;
+
+  const userPrompt = `Please analyse my background carefully and find the right opportunities for me. Read every line before you do anything else.
+
+${profileText}
+
+Important: Only return verified live job listings. Follow every rule in the instructions. Return only the JSON object.`;
+
+  try {
+    setStep(2);
+    const raw = await callAPI(systemPrompt, userPrompt);
+    setStep(3);
+    await new Promise(r => setTimeout(r, 400));
+    setStep(4);
+    await new Promise(r => setTimeout(r, 400));
+    setStep(5);
+    await new Promise(r => setTimeout(r, 400));
+    setStep(6);
+    await new Promise(r => setTimeout(r, 300));
+
+    const result = safeJSON(raw, null);
+
+    if (!result || typeof result !== 'object') {
+      throw new Error('Could not parse the response. Please try again.');
+    }
+
+    completeAllSteps();
+    await new Promise(r => setTimeout(r, 800));
+
+    hideLoading();
+    btn.disabled = false;
+    btn.classList.remove('loading');
+
+    // Store result and show dashboard
+    window.ciResult = result;
+    render(result);
+    goToDashboard();
+
+  } catch(err) {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    hideLoading();
+
+    const isRate = err.message.startsWith('rate_limit:');
+    const clean  = isRate ? err.message.replace('rate_limit: ', '') : err.message;
+    const hint   = isRate
+      ? 'This happens when the API usage limit is reached. Wait for the limit to reset, then try again.'
+      : 'If the problem persists, try simplifying your background description or check your connection.';
+
+    showError(
+      isRate ? 'Usage limit reached' : 'Something went wrong',
+      clean,
+      hint,
+      !isRate ? (err.stack || '') : ''
+    );
+  }
+}
+
+
+// ══════════════════════════════════════════════════════
+// SESSION 3 — TAB SWITCHING
+// ══════════════════════════════════════════════════════
+
+const TABS = ['profile','skills','companies','roles','outreach','next'];
+
+function switchTab(name) {
+  TABS.forEach(t => {
+    const btn   = document.getElementById('tab-' + t);
+    const panel = document.getElementById('panel-' + t);
+    const active = (t === name);
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    panel.classList.toggle('active', active);
+  });
+  document.getElementById('dashMain').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+
+// ══════════════════════════════════════════════════════
+// SESSION 3 — UTILITIES
+// ══════════════════════════════════════════════════════
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function emptyState(title, desc) {
+  return `<div class="empty-state">
+    <span class="empty-state-icon" aria-hidden="true">—</span>
+    <p><strong style="color:var(--ink-3); font-weight:400;">${esc(title)}</strong><br>${esc(desc)}</p>
+  </div>`;
+}
+
+
+// ══════════════════════════════════════════════════════
+// SESSION 3 — RENDER FUNCTIONS
+// ══════════════════════════════════════════════════════
+
+function renderMeta(profile) {
+  const meta = document.getElementById('dashMeta');
+  const items = [
+    { val: profile.seniorityLevel || '—', label: 'Seniority' },
+    { val: profile.yearsExperience || '—', label: 'Experience' },
+    { val: (profile.topRoleTitles || []).length + ' roles', label: 'Target titles mapped' },
+  ];
+  meta.innerHTML = items.map((item, i) => `
+    ${i > 0 ? '<div class="dash-meta-divider" aria-hidden="true"></div>' : ''}
+    <div class="dash-meta-item">
+      <div class="dash-meta-val">${esc(item.val)}</div>
+      <div class="dash-meta-label">${esc(item.label)}</div>
+    </div>
+  `).join('');
+}
+
+function renderProfile(profile) {
+  document.getElementById('profileBadges').innerHTML = `
+    <div class="profile-badge-item">
+      <div class="profile-badge-label">Seniority</div>
+      <div class="seniority-badge">${esc(profile.seniorityLevel || 'Mid-level')}</div>
+    </div>
+    <div class="profile-badge-item">
+      <div class="profile-badge-label">Experience</div>
+      <div class="profile-badge-val">${esc(profile.yearsExperience || '—')}</div>
+    </div>
+    ${(profile.locationSearch || profile.location) ? `
+    <div class="profile-badge-item">
+      <div class="profile-badge-label">Location</div>
+      <div class="profile-badge-val">${esc(profile.locationSearch || profile.location)}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('profileSummary').textContent = profile.summary || '';
+
+  const roles = profile.topRoleTitles || [];
+  document.getElementById('rolesList').innerHTML = roles.length
+    ? roles.map(r => `<div class="role-item">${esc(r)}</div>`).join('')
+    : '<div class="role-item" style="color:var(--ink-4);">No role titles identified</div>';
+
+  const directions = profile.suggestedDirections || profile.directions || [];
+  document.getElementById('directionsGrid').innerHTML = directions.length
+    ? directions.map(d => `
+        <div class="direction-card">
+          <div class="direction-title">${esc(d.title || d)}</div>
+          ${d.why ? `<div class="direction-why">${esc(d.why)}</div>` : ''}
+        </div>
+      `).join('')
+    : `<div class="direction-card">
+        <div class="direction-title" style="color:var(--ink-3); font-style:italic;">Directions analysis not available</div>
+        <div class="direction-why">Run the search again to generate personalised direction suggestions.</div>
+      </div>`;
+
+  const sectors = profile.extractedSectors || [];
+  document.getElementById('sectorPills').innerHTML = sectors.length
+    ? sectors.map(s => `<span class="pill pill-neutral">${esc(s)}</span>`).join('')
+    : '<span style="color:var(--ink-4); font-size:13px; font-weight:300;">None identified</span>';
+
+  const skills = profile.extractedSkills || [];
+  document.getElementById('skillsPills').innerHTML = skills.length
+    ? skills.map(s => `<span class="pill pill-accent">${esc(s)}</span>`).join('')
+    : '<span style="color:var(--ink-4); font-size:13px; font-weight:300;">None identified</span>';
+
+  const values = profile.valuesSignals || profile.companySuggestions?.map(c => c.type) || [];
+  document.getElementById('valuesTags').innerHTML = values.length
+    ? values.map(v => `<span class="pill pill-neutral">${esc(typeof v === 'string' ? v : v.type || v)}</span>`).join('')
+    : '<span style="color:var(--ink-4); font-size:13px; font-weight:300;">No values signals identified</span>';
+}
+
+function renderSkills(skillsData) {
+  const strengths = skillsData.strengths || [];
+  document.getElementById('strengthPills').innerHTML = strengths.length
+    ? strengths.map(s => `<span class="pill pill-green">${esc(s)}</span>`).join('')
+    : '<span style="color:var(--ink-4); font-size:13px;">—</span>';
+
+  const gaps = skillsData.gaps || [];
+  document.getElementById('gapList').innerHTML = gaps.length
+    ? gaps.map(g => {
+        const skill = g.skill || g;
+        const why   = g.why   || '';
+        const how   = g.howToBuild || g.how || '';
+        return `
+          <div class="gap-item">
+            <div class="gap-skill-name">${esc(skill)}</div>
+            ${why ? `<div class="gap-meta-label">Why it matters</div><div class="gap-why">${esc(why)}</div>` : ''}
+            ${how ? `<div class="gap-meta-label" style="margin-top:var(--sp-2);">How to build it</div><div class="gap-how">${esc(how)}</div>` : ''}
+          </div>`;
+      }).join('')
+    : '<div class="gap-item"><span style="color:var(--ink-4); font-size:13px;">No skill gaps identified — strong match for your target roles.</span></div>';
+
+  const advice = skillsData.advice || '';
+  document.getElementById('skillsAdvice').innerHTML = advice
+    ? `<p><strong>Recommended next steps:</strong> ${esc(advice)}</p>`
+    : '<p>Run the analysis to generate personalised next steps for your target roles.</p>';
+}
+
+function renderCompanies(data) {
+  const companies = data.companyValues || data.profile?.companySuggestions || [];
+  const grid = document.getElementById('companyGrid');
+
+  if (!companies.length) {
+    const jobs = data.jobs || [];
+    if (!jobs.length) {
+      grid.innerHTML = emptyState('No company matches generated this run.', 'Run the search with your background to see companies matched to your values and working style.');
+      return;
+    }
+    const seen = new Set();
+    const uniqueJobs = jobs.filter(j => { if (seen.has(j.company)) return false; seen.add(j.company); return true; });
+    grid.innerHTML = uniqueJobs.slice(0, 6).map(j => `
+      <div class="company-card">
+        <div class="co-top">
+          <div class="co-name">${esc(j.company || '—')}</div>
+          <span class="co-fit-badge">From results</span>
+        </div>
+        <div class="co-why">${esc(j.relevanceReason || 'Matched to your profile based on role requirements.')}</div>
+        <div class="co-role">
+          <div>
+            <div class="co-role-title">${esc(j.title)}</div>
+            <div class="co-role-sub">Open role</div>
+          </div>
+          ${j.applyUrl && j.applyUrl !== 'Not listed' ? `<a class="co-apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener">Apply →</a>` : `<span class="co-empty">No link</span>`}
+        </div>
+      </div>
+    `).join('');
+    return;
+  }
+
+  grid.innerHTML = companies.map(c => {
+    const tags     = c.values || c.valueTags || [];
+    const openRole = c.openRole || c.role || null;
+    const applyUrl = c.applyUrl || null;
+    return `
+      <div class="company-card">
+        <div class="co-top">
+          <div class="co-name">${esc(c.name || c.type || '—')}</div>
+          <span class="co-fit-badge">Strong match</span>
+        </div>
+        <div class="co-why">${esc(c.why || c.whyFit || '')}</div>
+        ${c.culture ? `<div class="co-culture">${esc(c.culture)}</div>` : ''}
+        ${tags.length ? `<div class="co-value-tags">${tags.map(t => `<span class="co-value-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+        ${openRole ? `
+          <div class="co-role">
+            <div>
+              <div class="co-role-title">${esc(openRole)}</div>
+              <div class="co-role-sub">Open role</div>
+            </div>
+            ${applyUrl && applyUrl !== 'Not listed' ? `<a class="co-apply-link" href="${esc(applyUrl)}" target="_blank" rel="noopener">Apply →</a>` : `<span class="co-empty">No link</span>`}
+          </div>
+        ` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderRoles(jobs) {
+  const count = document.getElementById('rolesCount');
+  count.innerHTML = `<strong>${jobs.length}</strong> live role${jobs.length !== 1 ? 's' : ''} found · sorted best match first`;
+
+  const body = document.getElementById('rolesBody');
+  if (!jobs.length) {
+    body.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:48px; color:var(--ink-4);">
+      No verified live listings found. Try broadening your location or direction and run again.
+    </td></tr>`;
+    return;
+  }
+
+  body.innerHTML = jobs.map((j) => {
+    const score    = Number(j.relevanceScore) || 0;
+    const fitClass = score >= 8 ? 'fit-strong' : score >= 5 ? 'fit-good' : 'fit-broad';
+    const fitLabel = score >= 8 ? '▲ Strong' : score >= 5 ? '◆ Good' : '○ Broad';
+    const reason   = (j.relevanceReason || '').slice(0, 80) + ((j.relevanceReason || '').length > 80 ? '…' : '');
+
+    return `<tr title="${esc(j.relevanceReason || '')}">
+      <td>
+        <span class="fit-badge ${fitClass}">${fitLabel}</span>
+        ${reason ? `<div class="fit-reason">${esc(reason)}</div>` : ''}
+      </td>
+      <td>
+        <div class="job-title">${esc(j.title || '—')}</div>
+        <div class="job-loc">${esc(j.location || '—')}</div>
+      </td>
+      <td><span class="job-company">${esc(j.company || '—')}</span></td>
+      <td><span class="job-date">${esc(j.datePosted || '—')}</span></td>
+      <td style="font-size:13px; font-weight:300;">${esc(j.workStyle || '—')}</td>
+      <td style="font-size:13px; font-weight:300; white-space:nowrap;">${esc(j.salary || 'Not listed')}</td>
+      <td>
+        ${j.applyUrl && j.applyUrl !== 'Not listed'
+          ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener">Apply →</a>`
+          : `<span style="color:var(--ink-5); font-size:12px; font-family:var(--font-mono);">Not found</span>`}
+      </td>
+      <td>
+        <div class="contact-name">${esc(j.contactName || 'Not found')}</div>
+        ${j.contactTitle ? `<div class="contact-role-txt">${esc(j.contactTitle)}</div>` : ''}
+        ${j.contactLinkedIn && j.contactLinkedIn !== 'Not listed'
+          ? `<a class="contact-li" href="${esc(j.contactLinkedIn)}" target="_blank" rel="noopener">LinkedIn →</a>`
+          : ''}
+      </td>
+      <td>
+        <select class="status-sel" onchange="updateStatus(this)" aria-label="Application status for ${esc(j.title)}">
+          <option value="">Not applied</option>
+          <option value="applied">Applied</option>
+          <option value="interview">Interview</option>
+          <option value="offer">Offer</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateStatus(sel) {
+  const colours = { applied: '#3A5A7A', interview: '#9A6B2E', offer: '#3D6B4F', rejected: '#8B3A2F', '': 'var(--ink-3)' };
+  sel.style.color = colours[sel.value] || colours[''];
+}
+
+function renderOutreach(outreach) {
+  const list = document.getElementById('outreachList');
+  if (!outreach || !outreach.length) {
+    list.innerHTML = `<div class="advice-block">
+      <p>Outreach messages weren't generated this run. Try running the search again — or check the Live Roles tab for apply links you can use directly.</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = outreach.map((o, i) => `
+    <div class="outreach-card">
+      <div class="outreach-card-header">
+        <div class="outreach-card-info">
+          <div class="outreach-co">${esc(o.company || '—')}</div>
+          <div class="outreach-role">${esc(o.role || '—')}</div>
+          <div class="outreach-to">To: ${esc(o.contactName || 'Hiring team')}</div>
+        </div>
+        <span class="outreach-type-badge">${esc(o.type || 'LinkedIn message')}</span>
+      </div>
+      <div class="outreach-msg-wrap">
+        <div class="msg-box" id="msg-${i}">${esc(o.message || '')}</div>
+        <div class="copy-row">
+          <button class="btn-copy" onclick="copyMsg(${i}, this)" aria-label="Copy message for ${esc(o.company)}">
+            Copy message
+          </button>
+          <span class="copy-hint">Personalised for this role</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyMsg(i, btn) {
+  const text = document.getElementById('msg-' + i).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy message'; btn.classList.remove('done'); }, 2500);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy message'; btn.classList.remove('done'); }, 2500);
+  });
+}
+
+function renderNextSteps(data) {
+  const list = document.getElementById('nextStepsList');
+  let steps = data.nextSteps || data.next_steps || null;
+
+  if (!steps || !steps.length) {
+    const jobs     = data.jobs     || [];
+    const outreach = data.outreach || [];
+    const gaps     = (data.skills || {}).gaps || [];
+    steps = [];
+
+    if (jobs.length) {
+      const best = jobs[0];
+      steps.push({
+        title: 'Apply to your strongest match',
+        description: `${best.title} at ${best.company} is your highest-ranked role. ${best.applyUrl && best.applyUrl !== 'Not listed' ? 'The apply link is in the Live Roles tab — click it, tailor the first two lines of your cover letter to their mission, and submit today.' : 'Search for it on LinkedIn or the company website today and submit your application.'}`,
+        tag: 'Today · 30 minutes'
+      });
+    }
+
+    if (outreach.length) {
+      steps.push({
+        title: 'Send one outreach message',
+        description: `Your Outreach tab has ${outreach.length} personalised message${outreach.length !== 1 ? 's' : ''} ready to go. Pick the one that feels most natural, copy it, and send it on LinkedIn or by email today. One message is enough to start.`,
+        tag: 'Today · 10 minutes'
+      });
+    }
+
+    if (gaps.length) {
+      const g = gaps[0];
+      steps.push({
+        title: 'Start closing your biggest skills gap',
+        description: `Your analysis flagged "${g.skill || 'a key skill'}" as the most important thing to build for your target roles. ${g.howToBuild || 'Look for a structured course or hands-on project that lets you demonstrate this skill within the next 4–6 weeks.'} Even one hour started today builds momentum.`,
+        tag: 'This week · ongoing'
+      });
+    }
+
+    if (!steps.length) {
+      steps = [
+        { title: 'Run the search with your CV', description: 'Paste your full CV into the input form and hit Find my direction. The more detail you include, the more accurate and personalised your results will be.', tag: 'Now · 5 minutes' },
+        { title: 'Explore your profile analysis', description: 'Check the Profile & Direction tab first — it will show you how the platform has read your background, what seniority it inferred, and what role titles you should be targeting.', tag: 'Today · 10 minutes' },
+        { title: 'Send one connection request', description: 'Find one person on LinkedIn who works in your target sector and send a brief, genuine connection request. Building a network starts with one message.', tag: 'Today · 15 minutes' }
+      ];
+    }
+  }
+
+  list.innerHTML = steps.slice(0, 3).map((step, i) => `
+    <div class="next-step-card">
+      <div class="next-step-num" aria-hidden="true">${i + 1}</div>
+      <div class="next-step-body">
+        <div class="next-step-title">${esc(step.title || step)}</div>
+        ${step.description ? `<div class="next-step-desc">${esc(step.description)}</div>` : ''}
+        ${step.tag ? `<span class="next-step-tag">${esc(step.tag)}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+
+// ══════════════════════════════════════════════════════
+// SESSION 3 — EXPORT FUNCTIONS
+// ══════════════════════════════════════════════════════
+
+function exportCSV() {
+  const headers = ['Fit Score','Title','Company','Location','Style','Posted','Salary','Apply URL','Contact Name','Contact Role','LinkedIn','Status'];
+  const rows = [headers];
+  document.querySelectorAll('#rolesBody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length < 9) return;
+    rows.push([
+      tds[0].querySelector('.fit-badge')?.textContent?.trim() || '',
+      tds[1].querySelector('.job-title')?.textContent?.trim() || '',
+      tds[2].querySelector('.job-company')?.textContent?.trim() || '',
+      tds[1].querySelector('.job-loc')?.textContent?.trim() || '',
+      tds[4].textContent.trim(),
+      tds[3].textContent.trim(),
+      tds[5].textContent.trim(),
+      tds[6].querySelector('a')?.href || '',
+      tds[7].querySelector('.contact-name')?.textContent?.trim() || '',
+      tds[7].querySelector('.contact-role-txt')?.textContent?.trim() || '',
+      tds[7].querySelector('.contact-li')?.href || '',
+      tds[8].querySelector('select')?.value || '',
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`));
+  });
+  const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'career-intelligence-roles.csv';
+  a.click();
+}
+
+function copyTable() {
+  const table = document.querySelector('#rolesBody')?.closest('table');
+  if (!table) return;
+  const range = document.createRange();
+  range.selectNode(table);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  try { document.execCommand('copy'); } catch(e) {}
+  window.getSelection().removeAllRanges();
+}
+
+
+// ══════════════════════════════════════════════════════
+// MASTER RENDER FUNCTION
+// ══════════════════════════════════════════════════════
+
+function render(data) {
+  if (!data || typeof data !== 'object') return;
+
+  const profile  = data.profile  || {};
+  const skills   = data.skills   || {};
+  const jobs     = Array.isArray(data.jobs)     ? [...data.jobs].sort((a,b) => (Number(b.relevanceScore)||0) - (Number(a.relevanceScore)||0)) : [];
+  const outreach = Array.isArray(data.outreach) ? data.outreach : [];
+
+  renderMeta(profile);
+  renderProfile(profile);
+  renderSkills(skills);
+  renderCompanies(data);
+  renderRoles(jobs);
+  renderOutreach(outreach);
+  renderNextSteps(data);
+
+  // Reset to first tab
+  switchTab('profile');
+}
+
+</script>
+
+</body>
+</html>
