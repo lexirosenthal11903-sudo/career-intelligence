@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Intelligence — Intentional Decisions</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0E0D0B;
+  --surface: #161410;
+  --surface2: #1E1C18;
+  --surface3: #262420;
+  --border: #2E2C26;
+  --border2: #3A3830;
+  --warm: #C4A882;
+  --warm2: #8B6F47;
+  --warm3: #5C4A32;
+  --green: #4A7C59;
+  --green2: #6AAF82;
+  --amber: #C4913A;
+  --amber2: #E8B06A;
+  --blue: #4A6B8A;
+  --blue2: #7BA3C4;
+  --red: #8B3A2F;
+  --text: #F0EAE0;
+  --text2: #A09888;
+  --text3: #5C5648;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* GRAIN OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.shell {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 0 28px 100px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 36px 0 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 56px;
+}
+
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--warm2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-mark svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--warm);
+}
+
+.logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.logo-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-left: auto;
+}
+
+/* ── INTRO ── */
+.intro {
+  margin-bottom: 48px;
+}
+
+.intro-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--warm2);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.intro-eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--warm2);
+}
+
+.intro h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(38px, 6vw, 68px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.intro h1 em {
+  font-style: italic;
+  color: var(--warm);
+}
+
+.intro p {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 520px;
+  font-weight: 300;
+}
+
+/* ── FORM CARD ── */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 44px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--warm2), transparent);
+  opacity: 0.4;
+}
+
+.form-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.form-card .sub {
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  font-weight: 300;
+}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border: 1px dashed var(--border2);
+  border-radius: 10px;
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  margin-bottom: 24px;
+  background: var(--surface2);
+}
+
+.upload-zone:hover, .upload-zone.drag {
+  border-color: var(--warm2);
+  background: rgba(196,168,130,0.04);
+}
+
+.upload-zone.has-file {
+  border-color: var(--green);
+  border-style: solid;
+  background: rgba(74,124,89,0.06);
+}
+
+.upload-icon { font-size: 24px; margin-bottom: 10px; opacity: 0.7; }
+.upload-title { font-size: 14px; font-weight: 500; margin-bottom: 5px; color: var(--text); }
+.upload-sub { font-size: 12px; color: var(--text3); }
+.upload-filename { font-size: 12px; color: var(--green2); margin-top: 8px; font-family: 'DM Mono', monospace; }
+#cvInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+.divider-or {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0;
+  color: var(--text3);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+
+.divider-or::before, .divider-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── FIELDS ── */
+.field { margin-bottom: 22px; }
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-family: 'DM Mono', monospace;
+}
+
+.field label .opt {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text3);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+}
+
+textarea, input[type="text"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 13px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: none;
+}
+
+textarea { min-height: 88px; }
+
+textarea:focus, input:focus {
+  border-color: var(--warm2);
+  box-shadow: 0 0 0 3px rgba(139,111,71,0.12);
+}
+
+textarea::placeholder, input::placeholder { color: var(--text3); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media(max-width:580px) { .two-col { grid-template-columns: 1fr; } .form-card { padding: 24px; } }
+
+/* ── CHIPS ── */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-size: 12.5px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+}
+
+.chip:hover { border-color: var(--warm2); color: var(--warm); }
+.chip.on { background: var(--warm3); border-color: var(--warm2); color: var(--warm); }
+
+/* ── RUN BUTTON ── */
+.run-wrap {
+  margin-top: 36px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-run {
+  background: var(--warm2);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  padding: 15px 36px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.22s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.01em;
+}
+
+.btn-run:hover {
+  background: var(--warm);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(196,168,130,0.2);
+}
+
+.btn-run:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: var(--bg);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+.btn-run.loading .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.run-note {
+  font-size: 12px;
+  color: var(--text3);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ── LOADING ── */
+.loading-section {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.loading-section.visible { display: block; }
+
+.load-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+
+.load-steps { display: flex; flex-direction: column; gap: 12px; }
+
+.load-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text3);
+  transition: color 0.3s;
+}
+
+.load-step.done { color: var(--green2); }
+.load-step.active { color: var(--text); }
+
+.ld {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border2);
+  flex-shrink: 0;
+  transition: all 0.4s;
+}
+
+.load-step.active .ld {
+  background: var(--warm);
+  box-shadow: 0 0 8px var(--warm2);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.load-step.done .ld { background: var(--green2); animation: none; box-shadow: none; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+
+/* ── RESULTS ── */
+.results { display: none; }
+.results.visible { display: block; }
+
+/* ── SECTION HEADERS ── */
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 52px 0 22px;
+}
+
+.s-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+
+.s-icon.warm { background: rgba(196,168,130,0.1); border-color: rgba(196,168,130,0.2); }
+.s-icon.green { background: rgba(74,124,89,0.1); border-color: rgba(74,124,89,0.2); }
+.s-icon.amber { background: rgba(196,145,58,0.1); border-color: rgba(196,145,58,0.2); }
+.s-icon.blue { background: rgba(74,107,138,0.1); border-color: rgba(74,107,138,0.2); }
+.s-icon.red { background: rgba(139,58,47,0.1); border-color: rgba(139,58,47,0.2); }
+
+.s-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.s-sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 3px;
+  font-weight: 300;
+}
+
+/* ── PROFILE CARD ── */
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.profile-row {
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.profile-item {
+  flex: 1;
+  min-width: 140px;
+  padding: 16px 20px;
+  border-right: 1px solid var(--border);
+}
+
+.profile-item:last-child { border-right: none; }
+
+.profile-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+.profile-val {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.seniority-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(196,168,130,0.12);
+  color: var(--warm);
+  border: 1px solid rgba(196,168,130,0.2);
+}
+
+.pill {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: 100px;
+  font-size: 11.5px;
+  margin: 2px;
+}
+
+.pill-sector { background: rgba(196,168,130,0.08); color: var(--warm2); border: 1px solid rgba(196,168,130,0.15); }
+.pill-skill { background: rgba(74,107,138,0.1); color: var(--blue2); border: 1px solid rgba(74,107,138,0.2); }
+.pill-have { background: rgba(74,124,89,0.1); color: var(--green2); border: 1px solid rgba(74,124,89,0.2); }
+.pill-build { background: rgba(196,145,58,0.1); color: var(--amber2); border: 1px solid rgba(196,145,58,0.2); }
+
+.profile-summary {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+  font-weight: 300;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.profile-direction {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: var(--surface2);
+  border-radius: 8px;
+  border-left: 2px solid var(--warm2);
+}
+
+.profile-direction-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--warm2);
+  margin-bottom: 6px;
+}
+
+.profile-direction-text {
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ── SKILLS ── */
+.skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:600px) { .skills-grid { grid-template-columns: 1fr; } }
+
+.skill-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.skill-card-head {
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gap-item {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.gap-skill {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--amber2);
+  margin-bottom: 6px;
+}
+
+.gap-how {
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+.gap-how strong { color: var(--text); font-weight: 500; }
+
+.advice-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--warm2);
+  border-radius: 0 10px 10px 0;
+  padding: 20px 24px;
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-top: 16px;
+  font-weight: 300;
+}
+
+.advice-block strong { color: var(--text); font-weight: 500; }
+
+/* ── VALUES CARDS ── */
+.values-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+
+.value-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  transition: border-color 0.2s;
+}
+
+.value-card:hover { border-color: var(--border2); }
+
+.value-company {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--warm);
+  margin-bottom: 4px;
+}
+
+.value-role {
+  font-size: 12px;
+  color: var(--text3);
+  margin-bottom: 12px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+.value-match {
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+.value-tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 4px; }
+.value-tag {
+  font-size: 10.5px;
+  padding: 2px 10px;
+  border-radius: 100px;
+  background: rgba(196,168,130,0.08);
+  color: var(--warm2);
+  border: 1px solid rgba(196,168,130,0.12);
+}
+
+/* ── JOB TABLE ── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-toolbar {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.table-count { font-size: 12.5px; color: var(--text2); }
+.table-count strong { color: var(--text); }
+
+.table-scroll { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+thead { background: var(--surface2); }
+
+th {
+  padding: 11px 14px;
+  text-align: left;
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  vertical-align: top;
+  line-height: 1.5;
+  color: var(--text2);
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.012); }
+
+.jt { font-weight: 500; font-size: 13.5px; color: var(--text); }
+.jc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.jco { font-weight: 600; font-size: 13.5px; color: var(--warm); }
+
+.rank {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 10.5px;
+  font-weight: 500;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+.rank-high { background: rgba(74,124,89,0.15); color: var(--green2); border: 1px solid rgba(74,124,89,0.2); }
+.rank-mid { background: rgba(196,145,58,0.12); color: var(--amber2); border: 1px solid rgba(196,145,58,0.18); }
+.rank-low { background: rgba(92,86,72,0.2); color: var(--text2); border: 1px solid var(--border); }
+
+.date-mono { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+
+.apply-link {
+  color: var(--warm);
+  text-decoration: none;
+  font-size: 11.5px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
+
+.apply-link:hover { color: var(--warm2); }
+
+.contact-block .cn { font-weight: 500; font-size: 13px; color: var(--text); }
+.contact-block .cr { font-size: 11.5px; color: var(--text3); }
+.contact-block .cli {
+  color: var(--blue2);
+  text-decoration: none;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+}
+.contact-block .cli:hover { text-decoration: underline; }
+
+.status-sel {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 5px 9px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.status-sel:focus { border-color: var(--warm2); }
+
+.export-bar { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+.btn-sm {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  border-radius: 7px;
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.btn-sm:hover { border-color: var(--warm2); color: var(--warm); }
+
+/* ── OUTREACH ── */
+.outreach-list { display: flex; flex-direction: column; gap: 16px; }
+
+.outreach-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 26px;
+}
+
+.oc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.oc-co { font-weight: 500; font-size: 15px; color: var(--text); }
+.oc-role { font-size: 12.5px; color: var(--text2); margin-top: 2px; }
+.oc-to { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+.oc-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 5px;
+  background: rgba(196,168,130,0.1);
+  color: var(--warm2);
+  border: 1px solid rgba(196,168,130,0.15);
+  white-space: nowrap;
+}
+
+.msg-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.85;
+  white-space: pre-wrap;
+  font-weight: 300;
+}
+
+.copy-btn-sm {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.copy-btn-sm:hover { border-color: var(--warm2); color: var(--warm); }
+.copy-btn-sm.done { color: var(--green2); border-color: rgba(74,124,89,0.3); }
+
+/* ── ERROR ── */
+.error-box {
+  background: rgba(139,58,47,0.08);
+  border: 1px solid rgba(139,58,47,0.25);
+  border-radius: 10px;
+  padding: 24px;
+  color: #E07060;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.error-box pre { margin-top: 12px; font-size: 11px; opacity: 0.6; white-space: pre-wrap; word-break: break-all; }
+
+/* ── DIVIDER ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 48px 0;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- HEADER -->
+<header>
+  <div class="logo-mark">
+    <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 1L9.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H4.5L7 1Z"/>
+    </svg>
+  </div>
+  <span class="logo-name">Career Intelligence</span>
+  <span class="logo-tag">Intentional Decisions · Beta</span>
+</header>
+
+<!-- INTRO -->
+<div class="intro">
+  <div class="intro-eyebrow">Career Intelligence Platform</div>
+  <h1>Your career deserves<br>more than a <em>job board.</em></h1>
+  <p>Tell us about yourself and where you want to go — or upload your CV and let us read it. We'll understand your direction, identify where you fit, map your skills, and surface the right opportunities. Career decisions, made intentional.</p>
+</div>
+
+<!-- FORM -->
+<div class="form-card">
+  <h2>Your profile</h2>
+  <p class="sub">Upload your CV for the most accurate results — or describe your background below. The more context you give, the more precise your intelligence will be.</p>
+
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="cvInput" accept=".pdf,.doc,.docx,.txt" onchange="handleFile(event)">
+    <div class="upload-icon">◎</div>
+    <div class="upload-title">Upload your CV</div>
+    <div class="upload-sub">PDF, Word, or plain text — we'll read every line</div>
+    <div class="upload-filename" id="uploadFilename"></div>
+  </div>
+
+  <div class="divider-or">or describe your background</div>
+
+  <div class="field">
+    <label>Your background <span class="opt">— roles, experience, skills, education, anything relevant</span></label>
+    <textarea id="background" placeholder="e.g. Studied psychology, worked in marketing at a consumer brand for two years — campaigns, agency management, cross-functional projects. Some freelance content work. Looking to move into something more strategic or analytical. Not sure exactly what that looks like yet."></textarea>
+  </div>
+
+  <div class="two-col">
+    <div class="field">
+      <label>Where do you want to go? <span class="opt">— vague is fine, we'll help narrow it</span></label>
+      <textarea id="direction" placeholder="e.g. Something more strategic and analytical. Interested in consulting, operations, or maybe product. Open to pivoting — just want work that feels meaningful and uses my brain." style="min-height:80px;"></textarea>
+    </div>
+    <div class="field">
+      <label>Location</label>
+      <input type="text" id="location" placeholder="e.g. London, UK" style="margin-bottom:16px;">
+      <label>Work style</label>
+      <div class="chips" id="workStyle" style="margin-top:8px;">
+        <span class="chip" onclick="toggleChip(this)">On-site</span>
+        <span class="chip on" onclick="toggleChip(this)">Hybrid</span>
+        <span class="chip" onclick="toggleChip(this)">Remote</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="field">
+      <label>Employment type</label>
+      <div class="chips" id="empType" style="margin-top:4px;">
+        <span class="chip on" onclick="toggleChip(this)">Full-time</span>
+        <span class="chip" onclick="toggleChip(this)">Contract</span>
+        <span class="chip" onclick="toggleChip(this)">Part-time</span>
+        <span class="chip" onclick="toggleChip(this)">Internship</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Salary expectation <span class="opt">— optional</span></label>
+      <input type="text" id="salary" placeholder="e.g. £35k–£50k, or leave open">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Anything else <span class="opt">— values, deal-breakers, sector preferences, visa needs</span></label>
+    <input type="text" id="extra" placeholder="e.g. Want to work somewhere with genuine values · Open to smaller companies · Need visa sponsorship">
+  </div>
+
+  <div class="run-wrap">
+    <button class="btn-run" id="runBtn" onclick="runSearch()">
+      <div class="spinner"></div>
+      <span>Find my direction →</span>
+    </button>
+    <p class="run-note">Analyses your background · maps your skills · surfaces matched roles<br>finds industry contacts · drafts outreach · ~60–90 seconds</p>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-section" id="loadingSection">
+  <div class="load-title">Working on your intelligence…</div>
+  <div class="load-steps">
+    <div class="load-step" id="ls1"><div class="ld"></div><span>Reading your background and understanding your direction</span></div>
+    <div class="load-step" id="ls2"><div class="ld"></div><span>Mapping your skills and identifying gaps to bridge</span></div>
+    <div class="load-step" id="ls3"><div class="ld"></div><span>Finding companies whose values align with yours</span></div>
+    <div class="load-step" id="ls4"><div class="ld"></div><span>Searching live job boards for matched roles</span></div>
+    <div class="load-step" id="ls5"><div class="ld"></div><span>Surfacing industry contacts and people worth reaching</span></div>
+    <div class="load-step" id="ls6"><div class="ld"></div><span>Drafting personalised outreach for your top matches</span></div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+
+  <!-- 01 PROFILE & DIRECTION -->
+  <div class="section-head">
+    <div class="s-icon warm">✦</div>
+    <div>
+      <div class="s-title">Your profile & direction</div>
+      <div class="s-sub">How we read your background — and where we think you fit</div>
+    </div>
+  </div>
+  <div class="profile-card" id="profileCard"></div>
+
+  <!-- 02 SKILLS -->
+  <div class="section-head">
+    <div class="s-icon amber">◈</div>
+    <div>
+      <div class="s-title">Skills analysis</div>
+      <div class="s-sub">What you bring · what to build · how to bridge the gap</div>
+    </div>
+  </div>
+  <div class="skills-grid" id="skillsGrid"></div>
+  <div class="advice-block" id="skillsAdvice"></div>
+
+  <!-- 03 COMPANY VALUES -->
+  <div class="section-head">
+    <div class="s-icon blue">◎</div>
+    <div>
+      <div class="s-title">Companies that match your values</div>
+      <div class="s-sub">Not just roles — employers whose culture and mission align with who you are</div>
+    </div>
+  </div>
+  <div class="values-grid" id="valuesGrid"></div>
+
+  <div class="section-divider"></div>
+
+  <!-- 04 LIVE ROLES -->
+  <div class="section-head">
+    <div class="s-icon green">⟐</div>
+    <div>
+      <div class="s-title">Live roles — ranked by fit</div>
+      <div class="s-sub">Current listings matched to your actual background · sorted best match first</div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <div class="table-count" id="tableCount"></div>
+      <div style="font-size:11.5px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:0.06em;">Track your applications →</div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Fit</th>
+            <th>Role</th>
+            <th>Company</th>
+            <th>Posted</th>
+            <th>Style</th>
+            <th>Salary</th>
+            <th>Apply</th>
+            <th>Contact</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="jobBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="export-bar">
+    <button class="btn-sm" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-sm" onclick="copyTableText()">Copy for Sheets</button>
+  </div>
+
+  <!-- 05 OUTREACH -->
+  <div class="section-head">
+    <div class="s-icon red">◉</div>
+    <div>
+      <div class="s-title">Outreach — ready to send</div>
+      <div class="s-sub">Personalised messages for your top matches · copy and send directly</div>
+    </div>
+  </div>
+  <div class="outreach-list" id="outreachList"></div>
+
+</div>
+</div>
+
+<script>
+let cvText = '';
+
+// ── FILE HANDLING ──
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+
+function handleFile(e) { if (e.target.files[0]) processFile(e.target.files[0]); }
+
+function processFile(file) {
+  document.getElementById('uploadFilename').textContent = '✓ ' + file.name;
+  zone.classList.add('has-file');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const content = e.target.result;
+    if (typeof content === 'string') {
+      cvText = content;
+    } else {
+      const bytes = new Uint8Array(content);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      cvText = '[FILE:' + file.name + ':BASE64:' + btoa(binary) + ']';
+    }
+  };
+  if (file.type === 'text/plain') {
+    reader.readAsText(file);
+  } else {
+    reader.readAsArrayBuffer(file);
+    setTimeout(() => { if (!cvText) cvText = '[Uploaded: ' + file.name + ' — extract and analyse every detail of experience, skills, education, and achievements from this CV]'; }, 500);
+  }
+}
+
+function toggleChip(el) { el.classList.toggle('on'); }
+function getChips(id) { return [...document.getElementById(id).querySelectorAll('.chip.on')].map(c => c.textContent.trim()); }
+
+// ── LOADING STEPS ──
+function setStep(n) {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('ls' + i);
+    el.classList.remove('active', 'done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  }
+}
+
+// ── API CALL ──
+async function callClaude(system, user, retries = 2) {
+  const body = {
+    model: 'claude-sonnet-4-5',
+    max_tokens: 8000,
+    system,
+    messages: [{ role: 'user', content: user }],
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }]
+  };
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (res.status === 429) {
+      let errJson = {};
+      try { errJson = await res.json(); } catch(e) {}
+      const msg = errJson?.error?.message || '';
+      const isOverage = msg.includes('exceeded_limit');
+      const resetAt = msg.match(/"resetsAt\\"?:\s*(\d+)/)?.[1];
+      let resetMsg = '';
+      if (resetAt) {
+        const mins = Math.ceil((Number(resetAt) * 1000 - Date.now()) / 60000);
+        resetMsg = ` Usage resets in approximately ${mins} minute${mins !== 1 ? 's' : ''}.`;
+      }
+      if (isOverage) throw new Error(`rate_limit: Usage limit reached.${resetMsg} Please wait and try again.`);
+      if (attempt < retries) { await new Promise(r => setTimeout(r, 3000 * (attempt + 1))); continue; }
+      throw new Error(`rate_limit: Too many requests. Please wait a moment and try again.`);
+    }
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error('API ' + res.status + ': ' + err);
+    }
+
+    const data = await res.json();
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+  }
+}
+
+// ── JSON PARSER ──
+function safeJSON(raw, fallback) {
+  try {
+    let s = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const a = s.indexOf('['), o = s.indexOf('{');
+    let start = -1;
+    if (a !== -1 && o !== -1) start = Math.min(a, o);
+    else if (a !== -1) start = a;
+    else if (o !== -1) start = o;
+    if (start === -1) return fallback;
+    const opener = s[start], closer = opener === '[' ? ']' : '}';
+    let depth = 0, end = -1;
+    for (let i = start; i < s.length; i++) {
+      if (s[i] === opener) depth++;
+      else if (s[i] === closer) { depth--; if (depth === 0) { end = i; break; } }
+    }
+    if (end === -1) return fallback;
+    return JSON.parse(s.slice(start, end + 1));
+  } catch(e) { return fallback; }
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── MAIN RUN ──
+async function runSearch() {
+  const background = document.getElementById('background').value.trim();
+  const direction = document.getElementById('direction').value.trim();
+  const location = document.getElementById('location').value.trim();
+  const salary = document.getElementById('salary').value.trim();
+  const extra = document.getElementById('extra').value.trim();
+  const workStyle = getChips('workStyle');
+  const empType = getChips('empType');
+
+  if (!background && !cvText) {
+    alert('Please upload a CV or describe your background to continue.');
+    return;
+  }
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  document.getElementById('loadingSection').classList.add('visible');
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('results').style.display = 'none';
+
+  const profile = [
+    cvText ? `CV / Resume content (read every single line carefully — this is the primary source):\n${cvText.slice(0, 8000)}` : '',
+    background ? `Background description: ${background}` : '',
+    direction ? `Desired direction: ${direction}` : 'Desired direction: Not specified — infer from background and suggest 2-3 directions',
+    location ? `Location: ${location}` : 'Location: UK (default to London if not specified)',
+    `Work style preference: ${workStyle.length ? workStyle.join(', ') : 'Flexible'}`,
+    `Employment type: ${empType.length ? empType.join(', ') : 'Open to options'}`,
+    salary ? `Salary expectation: ${salary}` : '',
+    extra ? `Additional context and preferences: ${extra}` : '',
+  ].filter(Boolean).join('\n');
+
+  let jobsData = [], skillsData = {}, outreachData = [], profileData = {}, valuesData = [];
+
+  try {
+    setStep(1);
+
+    const systemPrompt = `You are a career intelligence platform. Your purpose is to help people make intentional career decisions — not just find jobs faster. You deeply understand a person's background, infer their direction even when they are vague, and provide genuinely useful, personalised intelligence.
+
+PHILOSOPHY
+Most people start job searching before they know what they actually want. Your job is to help them understand where they fit, identify the right opportunities, and move forward with intention. You are not a job board — you are a career advisor. The quality of your analysis matters far more than the volume of listings.
+
+STEP 1 — DEEP PROFILE ANALYSIS
+Read the full CV and background description with care. Extract:
+- Every role, employer, and responsibility
+- All hard skills: tools, software, methodologies, certifications, languages
+- Soft skills: inferred from achievements and responsibilities
+- Education: institution, subject, level, year
+- Career trajectory: are they progressing, pivoting, restarting?
+- Industries and sectors: current and adjacent
+- What direction they want to move in — if vague, suggest 2-3 specific paths with reasoning
+- Seniority level: be honest and precise
+- Values signals: what kind of environment, culture, and mission seems to matter to them
+
+STEP 2 — SKILLS ANALYSIS
+Map what they have against where they want to go:
+- List 6-10 genuine strengths — specific, not generic
+- Identify 3-5 real skill gaps for their target direction
+- For each gap: explain why it matters and give a specific, actionable way to address it
+- Give honest, considered next-step advice
+
+STEP 3 — COMPANY VALUES MATCHING
+Identify 3-5 companies that genuinely align with the person's apparent values, interests, and working style — not just companies with open roles. Consider:
+- Company mission and values
+- Culture and working environment
+- Size and stage (startup vs corporate)
+- Industry fit
+- Why this specific person would genuinely connect with this company
+For each company, find a relevant open role if one exists.
+
+STEP 4 — LIVE JOB SEARCH (strict rules — quality over quantity)
+Use web_search to find REAL, CURRENTLY LIVE job listings. Follow every rule:
+
+RULE 1 — VERIFY BEFORE INCLUDING: Search for the specific job and confirm it is currently live before including it. If you cannot verify it exists right now, do not include it.
+RULE 2 — REAL URLS ONLY: The applyUrl must be the exact URL you verified. Never construct or guess URLs. If no direct apply link found, use "Not listed".
+RULE 3 — RECENCY: Only include jobs posted within the last 21 days. If you cannot confirm the posting date is recent, do not include it.
+RULE 4 — NO HALLUCINATION: Never invent job titles, company names, salaries, or contact details. If you don't know something, use "Not listed". It is better to have fewer genuine results than many invented ones.
+RULE 5 — GENUINE RELEVANCE: Score honestly 1-10. Only include jobs that genuinely match their background. A score of 9-10 means strong match. 5-7 means reasonable match. Below 5 don't include.
+RULE 6 — CONTACT INFO: Only include real contact names and LinkedIn URLs you found in search results. Never invent them.
+
+Search: LinkedIn Jobs, Indeed, Reed.co.uk, Totaljobs, company career pages.
+Target: 5-8 high-quality verified listings rather than 15 unverified ones.
+
+STEP 5 — OUTREACH DRAFTING
+Draft 3 personalised outreach messages tied to specific found roles or companies. Each message should:
+- Feel genuinely human and considered, not templated
+- Reference something specific about the company or role
+- Be honest about the person's background and what they bring
+- Make a clear, confident ask
+- Be appropriate for LinkedIn or email (150-200 words)
+
+OUTPUT FORMAT
+Return ONLY a single valid JSON object with no markdown, no backticks, no explanation outside the JSON.
+
+{
+  "profile": {
+    "seniorityLevel": string,
+    "yearsExperience": string,
+    "topRoleTitles": array of 3-5 strings,
+    "extractedSectors": array of strings,
+    "extractedSkills": array of strings,
+    "suggestedDirections": array of 2-3 strings,
+    "summary": string,
+    "valuesSignals": string
+  },
+  "skills": {
+    "strengths": array of strings,
+    "gaps": array of { "skill": string, "why": string, "howToBuild": string },
+    "advice": string
+  },
+  "companyValues": [
+    {
+      "company": string,
+      "whyThisPerson": string,
+      "cultureNotes": string,
+      "valueTags": array of strings,
+      "openRole": string,
+      "roleUrl": string
+    }
+  ],
+  "jobs": [
+    {
+      "title": string,
+      "company": string,
+      "location": string,
+      "workStyle": string,
+      "datePosted": string,
+      "salary": string,
+      "applyUrl": string,
+      "contactName": string,
+      "contactTitle": string,
+      "contactLinkedIn": string,
+      "relevanceScore": number,
+      "relevanceReason": string
+    }
+  ],
+  "outreach": [
+    {
+      "company": string,
+      "role": string,
+      "contactName": string,
+      "type": string,
+      "message": string
+    }
+  ]
+}`;
+
+    const userPrompt = `Please analyse my background carefully and provide my full career intelligence. Prioritise quality over speed — I would rather have 5 verified live job listings than 15 invented ones. Be honest and specific in your analysis of my skills and direction.
+
+${profile}
+
+Remember: read every line of my background carefully before making any recommendations. Return ONLY the JSON object.`;
+
+    setStep(2);
+    const raw = await callClaude(systemPrompt, userPrompt);
+    setStep(3);
+
+    const combined = safeJSON(raw, null);
+    if (!combined || typeof combined !== 'object') throw new Error('Could not parse the response. Please try again.');
+
+    profileData = combined.profile || { seniorityLevel: 'Mid-level', yearsExperience: 'Unknown', topRoleTitles: [], extractedSectors: [], extractedSkills: [], suggestedDirections: [], summary: '', valuesSignals: '' };
+    skillsData = combined.skills || { strengths: [], gaps: [], advice: '' };
+    valuesData = Array.isArray(combined.companyValues) ? combined.companyValues : [];
+    jobsData = Array.isArray(combined.jobs) ? combined.jobs : [];
+    outreachData = Array.isArray(combined.outreach) ? combined.outreach : [];
+
+    setStep(4);
+    jobsData.sort((a, b) => (Number(b.relevanceScore) || 0) - (Number(a.relevanceScore) || 0));
+    setStep(5);
+    await new Promise(r => setTimeout(r, 200));
+    setStep(6);
+    await new Promise(r => setTimeout(r, 200));
+
+    renderAll(profileData, skillsData, valuesData, jobsData, outreachData);
+
+  } catch (err) {
+    document.getElementById('loadingSection').classList.remove('visible');
+    const isRateLimit = err.message.startsWith('rate_limit:');
+    const cleanMsg = isRateLimit ? err.message.replace('rate_limit: ', '') : err.message;
+    const hint = isRateLimit
+      ? 'Please wait for the usage limit to reset and try again.'
+      : 'If the problem persists, try simplifying your background description.';
+    const resultsEl = document.getElementById('results');
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `<div class="error-box"><strong>${isRateLimit ? 'Usage limit reached' : 'Something went wrong'}</strong><br><br>${esc(cleanMsg)}<br><br>${esc(hint)}${!isRateLimit ? `<pre>${esc(err.stack || '')}</pre>` : ''}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  document.getElementById('loadingSection').classList.remove('visible');
+}
+
+// ── RENDER ──
+function renderAll(p, skills, values, jobs, outreach) {
+  // PROFILE
+  const directionsHtml = (p.suggestedDirections || []).length
+    ? `<div class="profile-direction"><div class="profile-direction-label">Suggested directions</div><div class="profile-direction-text">${(p.suggestedDirections || []).map(d => `→ ${esc(d)}`).join('<br>')}</div></div>`
+    : '';
+
+  document.getElementById('profileCard').innerHTML = `
+    <div class="profile-row">
+      <div class="profile-item">
+        <div class="profile-label">Seniority</div>
+        <div class="profile-val"><span class="seniority-badge">${esc(p.seniorityLevel || '—')}</span></div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-label">Experience</div>
+        <div class="profile-val">${esc(p.yearsExperience || '—')}</div>
+      </div>
+      <div class="profile-item">
+        <div class="profile-label">Target roles</div>
+        <div class="profile-val" style="font-size:12.5px;">${esc((p.topRoleTitles || []).join(' · '))}</div>
+      </div>
+    </div>
+    ${(p.extractedSectors || []).length ? `<div style="margin-bottom:12px;"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Sectors</div>${(p.extractedSectors || []).map(s => `<span class="pill pill-sector">${esc(s)}</span>`).join('')}</div>` : ''}
+    ${(p.extractedSkills || []).length ? `<div style="margin-bottom:14px;"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Skills identified</div>${(p.extractedSkills || []).map(s => `<span class="pill pill-skill">${esc(s)}</span>`).join('')}</div>` : ''}
+    ${p.summary ? `<div class="profile-summary">${esc(p.summary)}</div>` : ''}
+    ${directionsHtml}
+    ${p.valuesSignals ? `<div class="profile-direction" style="margin-top:12px; border-left-color:var(--blue2);"><div class="profile-direction-label" style="color:var(--blue2);">Values signals</div><div class="profile-direction-text">${esc(p.valuesSignals)}</div></div>` : ''}
+  `;
+
+  // SKILLS
+  document.getElementById('skillsGrid').innerHTML = `
+    <div class="skill-card">
+      <div class="skill-card-head" style="color:var(--green2);">✓ What you already bring</div>
+      ${(skills.strengths || []).map(s => `<span class="pill pill-have">${esc(s)}</span>`).join('') || '<span style="color:var(--text3);font-size:13px;">—</span>'}
+    </div>
+    <div class="skill-card">
+      <div class="skill-card-head" style="color:var(--amber2);">↑ Skills to build</div>
+      ${(skills.gaps || []).map(g => `<span class="pill pill-build">${esc(g.skill || g)}</span>`).join('') || '<span style="color:var(--text3);font-size:13px;">—</span>'}
+      ${(skills.gaps || []).map(g => `
+        <div class="gap-item">
+          <div class="gap-skill">${esc(g.skill)}</div>
+          <div class="gap-how"><strong>Why it matters:</strong> ${esc(g.why)}<br><strong>How to build it:</strong> ${esc(g.howToBuild)}</div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  document.getElementById('skillsAdvice').innerHTML = skills.advice
+    ? `<strong>Recommended next steps:</strong> ${esc(skills.advice)}`
+    : '—';
+
+  // COMPANY VALUES
+  const vg = document.getElementById('valuesGrid');
+  if (!values || values.length === 0) {
+    vg.innerHTML = `<div class="advice-block">Company values matching couldn't be generated this run. Try again with more context about your values and preferences.</div>`;
+  } else {
+    vg.innerHTML = values.map(v => `
+      <div class="value-card">
+        <div class="value-company">${esc(v.company || '—')}</div>
+        <div class="value-role">${esc(v.openRole || 'Explore opportunities')}</div>
+        <div class="value-match"><strong style="color:var(--text);font-weight:500;">Why you'd fit:</strong> ${esc(v.whyThisPerson || '')}</div>
+        ${v.cultureNotes ? `<div class="value-match" style="margin-top:6px;">${esc(v.cultureNotes)}</div>` : ''}
+        <div class="value-tags">${(v.valueTags || []).map(t => `<span class="value-tag">${esc(t)}</span>`).join('')}</div>
+        ${v.roleUrl && v.roleUrl !== 'Not listed' ? `<div style="margin-top:10px;"><a class="apply-link" href="${esc(v.roleUrl)}" target="_blank" rel="noopener">View role →</a></div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  // JOBS
+  document.getElementById('tableCount').innerHTML = `<strong>${jobs.length}</strong> verified live roles · best match first`;
+
+  if (jobs.length === 0) {
+    document.getElementById('jobBody').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text3);">No verified live listings found for your profile right now. Try broadening your location or direction and run again.</td></tr>`;
+  } else {
+    document.getElementById('jobBody').innerHTML = jobs.map((j) => {
+      const score = Number(j.relevanceScore) || 0;
+      const rankClass = score >= 8 ? 'rank-high' : score >= 5 ? 'rank-mid' : 'rank-low';
+      const rankLabel = score >= 8 ? '▲ Strong' : score >= 5 ? '◆ Good' : '○ Broad';
+      return `<tr title="${esc(j.relevanceReason || '')}">
+        <td>
+          <span class="rank ${rankClass}">${rankLabel}</span>
+          <div style="font-size:10.5px;color:var(--text3);margin-top:4px;max-width:90px;line-height:1.4;">${esc(j.relevanceReason || '').slice(0, 55)}${(j.relevanceReason || '').length > 55 ? '…' : ''}</div>
+        </td>
+        <td><div class="jt">${esc(j.title || '—')}</div><div class="jc">${esc(j.location || '—')}</div></td>
+        <td><div class="jco">${esc(j.company || '—')}</div></td>
+        <td><span class="date-mono">${esc(j.datePosted || '—')}</span></td>
+        <td>${esc(j.workStyle || '—')}</td>
+        <td>${esc(j.salary || 'Not listed')}</td>
+        <td>${j.applyUrl && j.applyUrl !== 'Not listed' ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener">Apply →</a>` : '<span style="color:var(--text3);font-size:11px;">Not found</span>'}</td>
+        <td>
+          <div class="contact-block">
+            <div class="cn">${esc(j.contactName || 'Not found')}</div>
+            <div class="cr">${esc(j.contactTitle || '')}</div>
+            ${j.contactLinkedIn && j.contactLinkedIn !== 'Not listed' ? `<a class="cli" href="${esc(j.contactLinkedIn)}" target="_blank" rel="noopener">LinkedIn →</a>` : ''}
+          </div>
+        </td>
+        <td>
+          <select class="status-sel" onchange="updateRow(this)">
+            <option value="">Not applied</option>
+            <option value="applied">Applied</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // OUTREACH
+  const ol = document.getElementById('outreachList');
+  if (!outreach || outreach.length === 0) {
+    ol.innerHTML = `<div class="advice-block">Outreach messages couldn't be generated this run. Try clicking "Find my direction" again.</div>`;
+  } else {
+    ol.innerHTML = outreach.map((o, i) => `
+      <div class="outreach-card">
+        <div class="oc-top">
+          <div class="oc-info">
+            <div class="oc-co">${esc(o.company || '—')} — ${esc(o.role || '—')}</div>
+            <div class="oc-to">To: ${esc(o.contactName || 'Hiring team')}</div>
+          </div>
+          <div class="oc-type">${esc(o.type || 'Message')}</div>
+        </div>
+        <div class="msg-box" id="msg${i}">${esc(o.message || '')}</div>
+        <button class="copy-btn-sm" onclick="copyMsg(${i}, this)">Copy message</button>
+      </div>
+    `).join('');
+  }
+
+  const resultsEl = document.getElementById('results');
+  resultsEl.style.display = 'block';
+  resultsEl.classList.add('visible');
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateRow(sel) {
+  const colours = { applied: '#7BA3C4', interview: '#E8B06A', offer: '#6AAF82', rejected: '#E07060', '': 'var(--text2)' };
+  sel.style.color = colours[sel.value] || 'var(--text2)';
+}
+
+function copyMsg(i, btn) {
+  navigator.clipboard.writeText(document.getElementById('msg' + i).textContent).then(() => {
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy message'; btn.classList.remove('done'); }, 2000);
+  });
+}
+
+function exportCSV() {
+  const headers = ['Fit Score', 'Title', 'Company', 'Location', 'Work Style', 'Posted', 'Salary', 'Apply URL', 'Contact Name', 'Contact Title', 'Contact LinkedIn', 'Status'];
+  const rows = [headers];
+  document.querySelectorAll('#jobBody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length < 9) return;
+    const rank = tds[0].querySelector('.rank')?.textContent || '';
+    const title = tds[1].querySelector('.jt')?.textContent || '';
+    const loc = tds[1].querySelector('.jc')?.textContent || '';
+    const company = tds[2].querySelector('.jco')?.textContent || '';
+    const posted = tds[3].textContent.trim();
+    const ws = tds[4].textContent.trim();
+    const sal = tds[5].textContent.trim();
+    const url = tds[6].querySelector('a')?.href || 'Not found';
+    const cn = tds[7].querySelector('.cn')?.textContent || '';
+    const ct = tds[7].querySelector('.cr')?.textContent || '';
+    const cli = tds[7].querySelector('.cli')?.href || '';
+    const status = tds[8].querySelector('select')?.value || '';
+    rows.push([rank, title, company, loc, ws, posted, sal, url, cn, ct, cli, status].map(v => `"${String(v).replace(/"/g, '""')}"`));
+  });
+  const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'career-intelligence-tracker.csv';
+  a.click();
+}
+
+function copyTableText() {
+  const table = document.querySelector('#jobBody').closest('table');
+  const range = document.createRange();
+  range.selectNode(table);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  document.execCommand('copy');
+  window.getSelection().removeAllRanges();
+}
+</script>
+</body>
+</html>
