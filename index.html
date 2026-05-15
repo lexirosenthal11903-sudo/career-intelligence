@@ -3010,31 +3010,44 @@ function renderProfile(profile) {
     : '<span style="color:var(--ink-4); font-size:13px; font-weight:300;">No values signals identified</span>';
 }
 
-function renderSkills(skillsData) {
-  const strengths = skillsData.strengths || [];
+function skillStr(s) {
+  if (!s) return '';
+  if (typeof s === 'string') return s;
+  return s.skill || s.name || s.title || JSON.stringify(s);
+}
+
+function renderSkills(skillsData, profile) {
+  profile = profile || {};
+
+  // Strengths: prefer skills.strengths, fall back to profile.extractedSkills
+  let strengths = skillsData.strengths || skillsData.skill_strengths || skillsData.keyStrengths || [];
+  if (!strengths.length) strengths = profile.extractedSkills || [];
+  strengths = strengths.map(skillStr).filter(Boolean);
+
   document.getElementById('strengthPills').innerHTML = strengths.length
     ? strengths.map(s => `<span class="pill pill-green">${esc(s)}</span>`).join('')
-    : '<span style="color:var(--ink-4); font-size:13px;">—</span>';
+    : '<span style="color:var(--ink-4); font-size:13px;">No specific strengths identified — run with more CV detail for a richer analysis.</span>';
 
-  const gaps = skillsData.gaps || [];
+  // Gaps: handle both array-of-strings and array-of-objects
+  const rawGaps = skillsData.gaps || skillsData.skill_gaps || skillsData.gapsToAddress || [];
+  const gaps = rawGaps.map(g => typeof g === 'string'
+    ? { skill: g, why: '', howToBuild: '' }
+    : { skill: g.skill || g.name || '', why: g.why || g.reason || '', howToBuild: g.howToBuild || g.how || g.action || '' }
+  ).filter(g => g.skill);
+
   document.getElementById('gapList').innerHTML = gaps.length
-    ? gaps.map(g => {
-        const skill = g.skill || g;
-        const why   = g.why   || '';
-        const how   = g.howToBuild || g.how || '';
-        return `
-          <div class="gap-item">
-            <div class="gap-skill-name">${esc(skill)}</div>
-            ${why ? `<div class="gap-meta-label">Why it matters</div><div class="gap-why">${esc(why)}</div>` : ''}
-            ${how ? `<div class="gap-meta-label" style="margin-top:var(--sp-2);">How to build it</div><div class="gap-how">${esc(how)}</div>` : ''}
-          </div>`;
-      }).join('')
-    : '<div class="gap-item"><span style="color:var(--ink-4); font-size:13px;">No skill gaps identified — strong match for your target roles.</span></div>';
+    ? gaps.map(g => `
+        <div class="gap-item">
+          <div class="gap-skill-name">${esc(g.skill)}</div>
+          ${g.why ? `<div class="gap-meta-label">Why it matters</div><div class="gap-why">${esc(g.why)}</div>` : ''}
+          ${g.howToBuild ? `<div class="gap-meta-label" style="margin-top:var(--sp-2);">How to build it</div><div class="gap-how">${esc(g.howToBuild)}</div>` : ''}
+        </div>`).join('')
+    : '<div class="gap-item"><span style="color:var(--ink-4); font-size:13px;">No significant gaps identified — you\'re a strong match for your target roles.</span></div>';
 
-  const advice = skillsData.advice || '';
+  const advice = skillsData.advice || skillsData.summary || '';
   document.getElementById('skillsAdvice').innerHTML = advice
-    ? `<p><strong>Recommended next steps:</strong> ${esc(advice)}</p>`
-    : '<p>Run the analysis to generate personalised next steps for your target roles.</p>';
+    ? `<p>${esc(advice)}</p>`
+    : '<p style="color:var(--ink-4);">Run the analysis to generate personalised skills advice.</p>';
 }
 
 function renderCompanies(data) {
@@ -3299,48 +3312,89 @@ function copyMsg(i, btn) {
 }
 
 function renderNextSteps(data) {
-  const list = document.getElementById('nextStepsList');
-  let steps = data.nextSteps || data.next_steps || null;
+  const list    = document.getElementById('nextStepsList');
+  const jobs    = data.jobs    || [];
+  const profile = data.profile || {};
+  const rawGaps = (data.skills || {}).gaps || (data.skills || {}).skill_gaps || [];
+  const gaps    = rawGaps.map(g => typeof g === 'string' ? { skill: g, why: '', howToBuild: '' } : g).filter(g => g && (g.skill || g.name));
+  const steps   = [];
 
-  if (!steps || !steps.length) {
-    const jobs     = data.jobs     || [];
-    const outreach = data.outreach || [];
-    const gaps     = (data.skills || {}).gaps || [];
-    steps = [];
+  if (jobs.length) {
+    const best  = jobs[0];
+    const score = Number(best.relevanceScore) || 0;
+    const fitWord = score >= 8 ? 'strongest' : score >= 5 ? 'best-matched' : 'top';
+    const why   = best.relevanceReason
+      ? best.relevanceReason.replace(/^(this role |it )?(is )?(a )?(strong |good )?match (because |as )?/i, '').replace(/^./, c => c.toUpperCase())
+      : null;
+    const applyAction = best.applyUrl && best.applyUrl !== 'Not listed'
+      ? `The apply link is ready in Live Roles — click it, update the opening line of your cover letter to reference ${best.company} specifically, and submit.`
+      : `Search "${best.title} ${best.company}" on LinkedIn, locate the live listing, and submit today.`;
+    steps.push({
+      title: `Apply to ${best.title} at ${best.company}`,
+      description: `This is your ${fitWord} result.${why ? ' ' + why + '.' : ''} ${applyAction} Use the cover letter draft in the Live Roles drawer as your starting point.`,
+      tag: 'Today · 45 minutes'
+    });
+  }
 
-    if (jobs.length) {
-      const best = jobs[0];
-      steps.push({
-        title: 'Apply to your strongest match',
-        description: `${best.title} at ${best.company} is your highest-ranked role. ${best.applyUrl && best.applyUrl !== 'Not listed' ? 'The apply link is in the Live Roles tab — click it, tailor the first two lines of your cover letter to their mission, and submit today.' : 'Search for it on LinkedIn or the company website today and submit your application.'}`,
-        tag: 'Today · 30 minutes'
-      });
-    }
+  // Outreach step — prefer a job with a named contact, otherwise use job #2
+  const outreachJob = jobs.find((j, i) => i > 0 && j.contactName && j.contactName !== 'Not found')
+                   || (jobs.length > 1 ? jobs[1] : null)
+                   || (jobs.length === 1 ? jobs[0] : null);
+  if (outreachJob) {
+    const hasContact  = outreachJob.contactName && outreachJob.contactName !== 'Not found';
+    const contactDesc = hasContact
+      ? `${outreachJob.contactName}${outreachJob.contactTitle ? `, ${outreachJob.contactTitle}` : ''} at ${outreachJob.company}`
+      : `the hiring team at ${outreachJob.company}`;
+    const roleContext = outreachJob !== jobs[0]
+      ? `the ${outreachJob.title} role at ${outreachJob.company}`
+      : `this role`;
+    steps.push({
+      title: `Message ${contactDesc}`,
+      description: `Open ${outreachJob.title} at ${outreachJob.company} in Live Roles and expand Outreach & Apply. Copy the outreach message, make one specific edit — mention something you know about ${outreachJob.company} or why ${roleContext} interests you — then send it on LinkedIn. It takes 10 minutes and most people never do it.`,
+      tag: 'Today · 10 minutes'
+    });
+  }
 
-    if (outreach.length || (data.jobs && data.jobs.length)) {
-      steps.push({
-        title: 'Send one outreach message',
-        description: `Open a role in the Live Roles tab, expand the Outreach &amp; Apply section, copy the message, and send it on LinkedIn or by email today. One message is enough to start.`,
-        tag: 'Today · 10 minutes'
-      });
-    }
+  // Gap step — or third apply if no gaps
+  if (gaps.length) {
+    const g        = gaps[0];
+    const gapName  = g.skill || g.name || 'this skill';
+    const targets  = (profile.topRoleTitles || []).slice(0, 2).join(' and ') || 'your target roles';
+    const howTo    = g.howToBuild || g.how || g.action
+      || `Find one structured course or a hands-on project where you can demonstrate this skill — commit one hour this week to starting.`;
+    steps.push({
+      title: `Start building ${gapName} this week`,
+      description: `${g.why ? g.why + ' ' : ''}This is the gap most likely to cost you interviews for ${targets}. ${howTo} Even starting this week puts you ahead of candidates who wait.`,
+      tag: 'This week · 1–2 hours to begin'
+    });
+  } else if (jobs.length >= 3) {
+    const third = jobs[2];
+    steps.push({
+      title: `Research ${third.company} before applying`,
+      description: `${third.title} at ${third.company} is your third-ranked match. Before applying, spend 20 minutes on their website and recent LinkedIn activity, then tailor the first paragraph of your cover letter to something specific — a product launch, a hiring push, a value that resonates with you. That specificity is what gets responses.`,
+      tag: 'This week · 30 minutes'
+    });
+  }
 
-    if (gaps.length) {
-      const g = gaps[0];
-      steps.push({
-        title: 'Start closing your biggest skills gap',
-        description: `Your analysis flagged "${g.skill || 'a key skill'}" as the most important thing to build for your target roles. ${g.howToBuild || 'Look for a structured course or hands-on project that lets you demonstrate this skill within the next 4–6 weeks.'} Even one hour started today builds momentum.`,
-        tag: 'This week · ongoing'
-      });
-    }
-
-    if (!steps.length) {
-      steps = [
-        { title: 'Run the search with your CV', description: 'Paste your full CV into the input form and hit Find my direction. The more detail you include, the more accurate and personalised your results will be.', tag: 'Now · 5 minutes' },
-        { title: 'Explore your profile analysis', description: 'Check the Profile & Direction tab first — it will show you how the platform has read your background, what seniority it inferred, and what role titles you should be targeting.', tag: 'Today · 10 minutes' },
-        { title: 'Send one connection request', description: 'Find one person on LinkedIn who works in your target sector and send a brief, genuine connection request. Building a network starts with one message.', tag: 'Today · 15 minutes' }
-      ];
-    }
+  // Pre-search fallback
+  if (!steps.length) {
+    steps.push(
+      {
+        title: 'Paste your full CV and run the search',
+        description: 'Include everything — your complete work history, skills, education, and what you\'re looking for. The richer the input, the more specific and useful your results will be. This takes 5 minutes and everything else follows from it.',
+        tag: 'Now · 5 minutes'
+      },
+      {
+        title: 'Read your profile analysis before the roles',
+        description: 'The Profile & Direction tab tells you how this platform has read your background — your seniority level, your strongest sectors, and which directions make the most sense. Read it first so the role rankings make sense.',
+        tag: 'First thing'
+      },
+      {
+        title: 'Send one message before the end of today',
+        description: 'The job search stalls on inaction. Once you have your results, commit to sending one outreach message — to a contact, a hiring team, or a company you admire — before today ends. One message changes the odds.',
+        tag: 'Today'
+      }
+    );
   }
 
   list.innerHTML = steps.slice(0, 3).map((step, i) => `
@@ -3350,7 +3404,7 @@ function renderNextSteps(data) {
         <span class="step-check-box"></span>
       </label>
       <div class="next-step-body">
-        <div class="next-step-title">${esc(step.title || step)}</div>
+        <div class="next-step-title">${esc(step.title)}</div>
         ${step.description ? `<div class="next-step-desc">${esc(step.description)}</div>` : ''}
         ${step.tag ? `<span class="next-step-tag">${esc(step.tag)}</span>` : ''}
       </div>
@@ -3421,7 +3475,7 @@ function render(data) {
 
   renderMeta(profile);
   renderProfile(profile);
-  renderSkills(skills);
+  renderSkills(skills, profile);
   renderCompanies(data);
   renderRoles(jobs, data);
   renderNextSteps(data);
