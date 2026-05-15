@@ -32,7 +32,11 @@ export default async function handler(req, res) {
         headers: { 'Accept': 'application/json' }
       });
 
-      if (!response.ok) continue;
+if (!response.ok) {
+  const errText = await response.text();
+  console.error('Adzuna error:', response.status, errText);
+  continue;
+}
 
       const data = await response.json();
       const jobs = (data.results || []).map(job => ({
