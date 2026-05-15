@@ -7,51 +7,52 @@ export default async function handler(req, res) {
 
   const systemPrompt = `You are a career intelligence platform. Read the person's background carefully and extract structured insight. Be warm, precise, and honest. Do not rush.
 
-Return ONLY a valid JSON object with this exact structure — no markdown, no backticks, no preamble:
+CRITICAL FORMATTING RULE: Return ONLY a valid JSON object. Do not use markdown. Do not use backticks. Do not write anything before or after the JSON. Your entire response must start with { and end with }
 
+The JSON must have this exact structure:
 {
   "profile": {
-    "seniorityLevel": string,
-    "yearsExperience": string,
-    "topRoleTitles": [string],
-    "extractedSectors": [string],
-    "extractedSkills": [string],
-    "suggestedDirections": [{ "title": string, "why": string }],
-    "valuesSignals": [string],
-    "companySuggestions": [{ "type": string, "why": string }],
-    "summary": string,
-    "locationSearch": string,
-    "searchKeywords": [string]
+    "seniorityLevel": "string",
+    "yearsExperience": "string",
+    "topRoleTitles": ["string"],
+    "extractedSectors": ["string"],
+    "extractedSkills": ["string"],
+    "suggestedDirections": [{ "title": "string", "why": "string" }],
+    "valuesSignals": ["string"],
+    "companySuggestions": [{ "type": "string", "why": "string" }],
+    "summary": "string",
+    "locationSearch": "string",
+    "searchKeywords": ["string"]
   },
   "skills": {
-    "strengths": [string],
-    "gaps": [{ "skill": string, "why": string, "howToBuild": string }],
-    "advice": string
+    "strengths": ["string"],
+    "gaps": [{ "skill": "string", "why": "string", "howToBuild": "string" }],
+    "advice": "string"
   },
   "companyValues": [
     {
-      "name": string,
-      "why": string,
-      "culture": string,
-      "values": [string],
-      "openRole": string
+      "name": "string",
+      "why": "string",
+      "culture": "string",
+      "values": ["string"],
+      "openRole": "string"
     }
   ],
   "outreachContext": {
-    "tone": string,
-    "keyStrengths": [string],
-    "uniqueAngle": string
+    "tone": "string",
+    "keyStrengths": ["string"],
+    "uniqueAngle": "string"
   }
 }
 
 Rules:
-- searchKeywords: 3-5 short job title keywords to search for (e.g. ["marketing manager", "brand strategist"])
-- locationSearch: the location to search jobs in, defaulting to UK if not specified
+- searchKeywords: 3-5 short job title keywords (e.g. ["marketing manager", "brand strategist"])
+- locationSearch: location to search jobs in, defaulting to london if not specified
 - Be specific and honest — no generic advice
-- suggestedDirections: exactly 3 directions with clear reasoning`;
+- suggestedDirections: exactly 3 directions with clear reasoning
+- Start your response with { and nothing else`;
 
   const userPrompt = `Please analyse my background carefully.
-
 ${cvText ? `CV:\n${cvText.slice(0, 8000)}` : ''}
 ${direction ? `Direction: ${direction}` : 'Direction: Not stated — infer from CV'}
 ${location ? `Location: ${location}` : ''}
@@ -69,7 +70,7 @@ ${extra ? `Notes: ${extra}` : ''}`;
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-haiku-4-5',
         max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
@@ -77,6 +78,11 @@ ${extra ? `Notes: ${extra}` : ''}`;
     });
 
     const data = await response.json();
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message || 'API error' });
+    }
+
     const text = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
 
     let parsed;
@@ -84,11 +90,13 @@ ${extra ? `Notes: ${extra}` : ''}`;
       const clean = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
       const start = clean.indexOf('{');
       if (start === -1) throw new Error('No JSON found');
-      // Find the matching closing brace
       let depth = 0, end = -1;
       for (let i = start; i < clean.length; i++) {
         if (clean[i] === '{') depth++;
-        else if (clean[i] === '}') { depth--; if (depth === 0) { end = i; break; } }
+        else if (clean[i] === '}') {
+          depth--;
+          if (depth === 0) { end = i; break; }
+        }
       }
       if (end === -1) throw new Error('Incomplete JSON');
       parsed = JSON.parse(clean.slice(start, end + 1));
