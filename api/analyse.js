@@ -82,11 +82,16 @@ ${extra ? `Notes: ${extra}` : ''}`;
     let parsed;
     try {
       const clean = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      const start = Math.min(
-        clean.indexOf('{') !== -1 ? clean.indexOf('{') : Infinity,
-        clean.indexOf('[') !== -1 ? clean.indexOf('[') : Infinity
-      );
-      parsed = JSON.parse(clean.slice(start));
+      const start = clean.indexOf('{');
+      if (start === -1) throw new Error('No JSON found');
+      // Find the matching closing brace
+      let depth = 0, end = -1;
+      for (let i = start; i < clean.length; i++) {
+        if (clean[i] === '{') depth++;
+        else if (clean[i] === '}') { depth--; if (depth === 0) { end = i; break; } }
+      }
+      if (end === -1) throw new Error('Incomplete JSON');
+      parsed = JSON.parse(clean.slice(start, end + 1));
     } catch (e) {
       return res.status(500).json({ error: 'Failed to parse analysis response', raw: text });
     }
