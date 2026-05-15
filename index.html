@@ -1787,6 +1787,115 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   padding: 3px 12px;
 }
 
+/* ── NEXT STEP CHECKBOX ── */
+.step-check-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  cursor: pointer;
+}
+.step-check-wrap input { display: none; }
+.step-check-box {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--bg-deep);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+  flex-shrink: 0;
+}
+.step-check-wrap:hover .step-check-box { border-color: var(--accent-lt); }
+.step-check-wrap input:checked + .step-check-box {
+  background: var(--green);
+  border-color: var(--green);
+}
+.step-check-wrap input:checked + .step-check-box::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.next-step-card.checked { opacity: 0.5; }
+.next-step-card.checked .next-step-title { text-decoration: line-through; color: var(--ink-4); }
+
+/* ── JOB DRAWER ── */
+.job-row { cursor: pointer; }
+.expand-toggle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  white-space: nowrap;
+  user-select: none;
+  transition: color 0.15s;
+}
+.job-row:hover .expand-toggle { color: var(--accent); }
+.drawer-row td {
+  padding: 0 !important;
+  border-bottom: none !important;
+  background: var(--surface);
+}
+.drawer-row.open td { border-bottom: 1px solid var(--bg-deep) !important; }
+.job-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0, 0, 0.2, 1);
+}
+.drawer-row.open .job-drawer { grid-template-rows: 1fr; }
+.drawer-clip { overflow: hidden; min-height: 0; }
+.drawer-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--sp-6);
+  padding: var(--sp-6) var(--sp-8) var(--sp-8);
+  border-top: 1px solid var(--bg-deep);
+}
+@media (max-width: 900px) { .drawer-inner { grid-template-columns: 1fr; } }
+.drawer-section { display: flex; flex-direction: column; gap: var(--sp-3); }
+.drawer-section-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.drawer-msg-box {
+  background: var(--bg-warm);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: var(--sp-5) var(--sp-6);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.85;
+  white-space: pre-wrap;
+  flex: 1;
+}
+.drawer-tips { font-size: 13.5px; font-weight: 300; color: var(--ink-2); line-height: 1.75; flex: 1; }
+.drawer-tips ul { padding-left: var(--sp-5); }
+.drawer-tips li { margin-bottom: var(--sp-2); }
+.drawer-cover {
+  background: var(--bg-warm);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: var(--sp-5) var(--sp-6);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.85;
+  white-space: pre-wrap;
+  flex: 1;
+}
+
 .momentum-block {
   margin-top: var(--sp-10);
   padding: var(--sp-10) var(--sp-12);
@@ -2314,11 +2423,8 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-roles"     onclick="switchTab('roles')"     id="tab-roles">
             <span class="tab-num">④</span> Live Roles
           </button>
-          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-outreach"  onclick="switchTab('outreach')"  id="tab-outreach">
-            <span class="tab-num">⑤</span> Outreach
-          </button>
           <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-next"      onclick="switchTab('next')"      id="tab-next">
-            <span class="tab-num">⑥</span> Next Steps
+            <span class="tab-num">⑤</span> Next Steps
           </button>
         </div>
       </div>
@@ -2423,6 +2529,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
                     <th>Apply</th>
                     <th>Contact</th>
                     <th>Status</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody id="rolesBody"></tbody>
@@ -2436,20 +2543,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
         </div><!-- /panel-roles -->
 
 
-        <!-- TAB 5: OUTREACH -->
-        <div class="tab-panel" id="panel-outreach" role="tabpanel" aria-labelledby="tab-outreach">
-          <div class="outreach-intro">
-            <div class="sec-label">Outreach messages</div>
-            <h2 class="sec-heading">Ready to send.<br><em>Just copy and go.</em></h2>
-            <p style="font-size:14.5px; font-weight:300; color:var(--ink-3); line-height:1.8; max-width:500px; margin-top:var(--sp-3);">
-              Each message is written for the specific role and person we found. Personalised, warm, and short enough to actually be read.
-            </p>
-          </div>
-          <div class="outreach-list" id="outreachList"></div>
-        </div><!-- /panel-outreach -->
-
-
-        <!-- TAB 6: NEXT STEPS -->
+        <!-- TAB 5: NEXT STEPS -->
         <div class="tab-panel" id="panel-next" role="tabpanel" aria-labelledby="tab-next">
           <div class="next-intro">
             <div class="sec-label">Today's actions</div>
@@ -2812,7 +2906,7 @@ function generateOutreach(jobs, analysis) {
 // SESSION 3 — TAB SWITCHING
 // ══════════════════════════════════════════════════════
 
-const TABS = ['profile','skills','companies','roles','outreach','next'];
+const TABS = ['profile','skills','companies','roles','next'];
 
 function switchTab(name) {
   TABS.forEach(t => {
@@ -3000,25 +3094,32 @@ function renderCompanies(data) {
   }).join('');
 }
 
-function renderRoles(jobs) {
+function renderRoles(jobs, data) {
+  const profile = (data && data.profile) || {};
+  const skills  = (data && data.skills)  || {};
+
   const count = document.getElementById('rolesCount');
   count.innerHTML = `<strong>${jobs.length}</strong> live role${jobs.length !== 1 ? 's' : ''} found · sorted best match first`;
 
   const body = document.getElementById('rolesBody');
   if (!jobs.length) {
-    body.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:48px; color:var(--ink-4);">
+    body.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:48px; color:var(--ink-4);">
       No verified live listings found. Try broadening your location or direction and run again.
     </td></tr>`;
     return;
   }
 
-  body.innerHTML = jobs.map((j) => {
+  body.innerHTML = jobs.map((j, idx) => {
     const score    = Number(j.relevanceScore) || 0;
     const fitClass = score >= 8 ? 'fit-strong' : score >= 5 ? 'fit-good' : 'fit-broad';
     const fitLabel = score >= 8 ? '▲ Strong' : score >= 5 ? '◆ Good' : '○ Broad';
     const reason   = (j.relevanceReason || '').slice(0, 80) + ((j.relevanceReason || '').length > 80 ? '…' : '');
 
-    return `<tr title="${esc(j.relevanceReason || '')}">
+    const outreachMsg = buildOutreachMsg(j, profile);
+    const cvTipsHtml  = buildCVTips(j, profile, skills);
+    const coverLetter = buildCoverLetter(j, profile);
+
+    return `<tr class="job-row" onclick="toggleDrawer(${idx})" title="Click to see outreach &amp; apply details">
       <td>
         <span class="fit-badge ${fitClass}">${fitLabel}</span>
         ${reason ? `<div class="fit-reason">${esc(reason)}</div>` : ''}
@@ -3033,17 +3134,17 @@ function renderRoles(jobs) {
       <td style="font-size:13px; font-weight:300; white-space:nowrap;">${esc(j.salary || 'Not listed')}</td>
       <td>
         ${j.applyUrl && j.applyUrl !== 'Not listed'
-          ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener">Apply →</a>`
+          ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Apply →</a>`
           : `<span style="color:var(--ink-5); font-size:12px; font-family:var(--font-mono);">Not found</span>`}
       </td>
       <td>
         <div class="contact-name">${esc(j.contactName || 'Not found')}</div>
         ${j.contactTitle ? `<div class="contact-role-txt">${esc(j.contactTitle)}</div>` : ''}
         ${j.contactLinkedIn && j.contactLinkedIn !== 'Not listed'
-          ? `<a class="contact-li" href="${esc(j.contactLinkedIn)}" target="_blank" rel="noopener">LinkedIn →</a>`
+          ? `<a class="contact-li" href="${esc(j.contactLinkedIn)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">LinkedIn →</a>`
           : ''}
       </td>
-      <td>
+      <td onclick="event.stopPropagation()">
         <select class="status-sel" onchange="updateStatus(this)" aria-label="Application status for ${esc(j.title)}">
           <option value="">Not applied</option>
           <option value="applied">Applied</option>
@@ -3052,8 +3153,94 @@ function renderRoles(jobs) {
           <option value="rejected">Rejected</option>
         </select>
       </td>
+      <td><span class="expand-toggle" id="toggle-${idx}">▼ Outreach</span></td>
+    </tr>
+    <tr class="drawer-row" id="drawer-${idx}">
+      <td colspan="10">
+        <div class="job-drawer">
+          <div class="drawer-clip">
+            <div class="drawer-inner">
+              <div class="drawer-section">
+                <div class="drawer-section-label">Outreach message</div>
+                <div class="drawer-msg-box" id="dmsg-${idx}">${esc(outreachMsg)}</div>
+                <button class="btn-copy" onclick="copyDrawerMsg(${idx}, this)">Copy message</button>
+              </div>
+              <div class="drawer-section">
+                <div class="drawer-section-label">CV tailoring tips</div>
+                <div class="drawer-tips">${cvTipsHtml}</div>
+              </div>
+              <div class="drawer-section">
+                <div class="drawer-section-label">Cover letter draft</div>
+                <div class="drawer-cover" id="dcover-${idx}">${esc(coverLetter)}</div>
+                <button class="btn-copy" onclick="copyDrawerCover(${idx}, this)">Copy draft</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
     </tr>`;
   }).join('');
+}
+
+function toggleDrawer(idx) {
+  const row    = document.getElementById('drawer-' + idx);
+  const toggle = document.getElementById('toggle-' + idx);
+  const open   = row.classList.toggle('open');
+  toggle.textContent = open ? '▲ Outreach' : '▼ Outreach';
+}
+
+function copyDrawerMsg(idx, btn) {
+  const text = document.getElementById('dmsg-' + idx).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied ✓'; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy message'; btn.classList.remove('done'); }, 2500);
+  }).catch(() => { fallbackCopy(text, btn, 'Copy message'); });
+}
+
+function copyDrawerCover(idx, btn) {
+  const text = document.getElementById('dcover-' + idx).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied ✓'; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy draft'; btn.classList.remove('done'); }, 2500);
+  }).catch(() => { fallbackCopy(text, btn, 'Copy draft'); });
+}
+
+function fallbackCopy(text, btn, label) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  btn.textContent = 'Copied ✓'; btn.classList.add('done');
+  setTimeout(() => { btn.textContent = label; btn.classList.remove('done'); }, 2500);
+}
+
+function buildOutreachMsg(job, profile) {
+  const sectors  = (profile.extractedSectors || []).slice(0, 2).join(' and ') || 'this field';
+  const skills   = (profile.extractedSkills  || []).slice(0, 2).join(' and ') || 'relevant areas';
+  const contact  = job.contactName && job.contactName !== 'Not found' ? job.contactName : 'there';
+  return `Hi ${contact},\n\nI came across the ${job.title} role at ${job.company} and wanted to reach out directly.\n\nMy background is in ${sectors} and I think my experience with ${skills} would translate well here.\n\nI'd love to learn more about the team and what you're looking for. Would you be open to a brief conversation?\n\nBest,\n[Your name]`;
+}
+
+function buildCVTips(job, profile, skills) {
+  const topSkills = (profile.extractedSkills || []).slice(0, 3);
+  const gaps      = (skills.gaps || []).map(g => g.skill || g).slice(0, 2);
+  const tips = [
+    `Lead with your most relevant experience for a <strong>${esc(job.title)}</strong> role — put it in your summary line.`,
+    topSkills.length ? `Foreground these skills: <strong>${topSkills.map(esc).join(', ')}</strong>.` : null,
+    job.description ? `Mirror keywords from the job description — ATS systems scan for exact phrases.` : null,
+    gaps.length ? `If you can evidence any of these, add them: <em>${gaps.map(esc).join(', ')}</em>.` : null,
+    `Keep it to 1–2 pages. Put your most relevant role first.`
+  ].filter(Boolean);
+  return `<ul>${tips.map(t => `<li>${t}</li>`).join('')}</ul>`;
+}
+
+function buildCoverLetter(job, profile) {
+  const summary   = (profile.summary || '').split('.')[0];
+  const skills    = (profile.extractedSkills || []).slice(0, 3).join(', ') || 'the relevant skill areas';
+  const seniority = profile.seniorityLevel ? profile.seniorityLevel + ' professional' : 'professional';
+  const opening   = summary || `I am a ${seniority} with experience in ${(profile.extractedSectors || []).slice(0,1).join('') || 'this field'}`;
+  return `Dear Hiring Team,\n\nI am writing to apply for the ${job.title} position at ${job.company}. ${opening}.\n\nThroughout my career I have developed strong skills in ${skills}, and I am confident these would allow me to make an immediate contribution to your team.\n\nI am particularly drawn to ${job.company} and this role because of the opportunity to apply my background in a focused, high-impact environment.\n\nI would welcome the chance to discuss my application further at your convenience.\n\nYours sincerely,\n[Your name]`;
 }
 
 function updateStatus(sel) {
@@ -3130,10 +3317,10 @@ function renderNextSteps(data) {
       });
     }
 
-    if (outreach.length) {
+    if (outreach.length || (data.jobs && data.jobs.length)) {
       steps.push({
         title: 'Send one outreach message',
-        description: `Your Outreach tab has ${outreach.length} personalised message${outreach.length !== 1 ? 's' : ''} ready to go. Pick the one that feels most natural, copy it, and send it on LinkedIn or by email today. One message is enough to start.`,
+        description: `Open a role in the Live Roles tab, expand the Outreach &amp; Apply section, copy the message, and send it on LinkedIn or by email today. One message is enough to start.`,
         tag: 'Today · 10 minutes'
       });
     }
@@ -3157,8 +3344,11 @@ function renderNextSteps(data) {
   }
 
   list.innerHTML = steps.slice(0, 3).map((step, i) => `
-    <div class="next-step-card">
-      <div class="next-step-num" aria-hidden="true">${i + 1}</div>
+    <div class="next-step-card" id="step-card-${i}">
+      <label class="step-check-wrap" aria-label="Mark as done" onclick="event.stopPropagation()">
+        <input type="checkbox" class="step-check" id="step-${i}" onchange="toggleStep(${i}, this)">
+        <span class="step-check-box"></span>
+      </label>
       <div class="next-step-body">
         <div class="next-step-title">${esc(step.title || step)}</div>
         ${step.description ? `<div class="next-step-desc">${esc(step.description)}</div>` : ''}
@@ -3166,6 +3356,10 @@ function renderNextSteps(data) {
       </div>
     </div>
   `).join('');
+}
+
+function toggleStep(i, checkbox) {
+  document.getElementById('step-card-' + i).classList.toggle('checked', checkbox.checked);
 }
 
 
@@ -3176,9 +3370,9 @@ function renderNextSteps(data) {
 function exportCSV() {
   const headers = ['Fit Score','Title','Company','Location','Style','Posted','Salary','Apply URL','Contact Name','Contact Role','LinkedIn','Status'];
   const rows = [headers];
-  document.querySelectorAll('#rolesBody tr').forEach(tr => {
+  document.querySelectorAll('#rolesBody tr.job-row').forEach(tr => {
     const tds = tr.querySelectorAll('td');
-    if (tds.length < 9) return;
+    if (tds.length < 10) return;
     rows.push([
       tds[0].querySelector('.fit-badge')?.textContent?.trim() || '',
       tds[1].querySelector('.job-title')?.textContent?.trim() || '',
@@ -3229,8 +3423,7 @@ function render(data) {
   renderProfile(profile);
   renderSkills(skills);
   renderCompanies(data);
-  renderRoles(jobs);
-  renderOutreach(outreach);
+  renderRoles(jobs, data);
   renderNextSteps(data);
 
   // Reset to first tab
