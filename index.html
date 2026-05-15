@@ -2776,9 +2776,9 @@ async function runSearch() {
         location: analysis.profile.locationSearch || location || 'london'
       })
     });
-    if (!jobsRes.ok) throw new Error('Job search failed: ' + await jobsRes.text());
-    const jobsData = await jobsRes.json();
-    const rawJobs = jobsData.jobs || [];
+    if (!jobsRes.ok) console.warn('Job search unavailable');
+const jobsData = jobsRes.ok ? await jobsRes.json() : { jobs: [] };
+const rawJobs = jobsData.jobs || [];
 
     setStep(3);
     await new Promise(r => setTimeout(r, 300));
