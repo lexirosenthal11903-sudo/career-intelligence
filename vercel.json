@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/job-search-ai.html" }
+    { "source": "/", "destination": "/index.html" }
   ]
 }

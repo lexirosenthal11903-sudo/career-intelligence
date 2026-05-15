@@ -2652,58 +2652,6 @@ function showError(title, msg, hint, stack) {
 
 
 // ══════════════════════════════════════════════════════
-// API CALL
-// ══════════════════════════════════════════════════════
-
-async function callAPI(system, user, retries = 2) {
-  const body = {
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 8000,
-    system,
-    messages: [{ role: 'user', content: user }],
-    tools: [{ type: 'web_search_20250305', name: 'web_search' }]
-  };
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    if (res.status === 429) {
-      let errJson = {};
-      try { errJson = await res.json(); } catch(e) {}
-      const msg = errJson?.error?.message || '';
-      const isOverage = msg.includes('exceeded_limit');
-      const resetAt = msg.match(/"resetsAt"?:\s*(\d+)/)?.[1];
-      let resetMsg = '';
-      if (resetAt) {
-        const mins = Math.ceil((Number(resetAt) * 1000 - Date.now()) / 60000);
-        resetMsg = ` Your limit resets in approximately ${mins} minute${mins !== 1 ? 's' : ''}.`;
-      }
-      if (isOverage) {
-        throw new Error(`rate_limit: You've hit your hourly usage limit.${resetMsg} Please wait and try again.`);
-      }
-      if (attempt < retries) {
-        await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
-        continue;
-      }
-      throw new Error('rate_limit: Too many requests. Please wait a minute and try again.');
-    }
-
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error('API ' + res.status + ': ' + err);
-    }
-
-    const data = await res.json();
-    return data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
-  }
-}
-
-
-// ══════════════════════════════════════════════════════
 // SAFE JSON PARSER
 // ══════════════════════════════════════════════════════
 
@@ -2768,17 +2716,25 @@ async function runSearch() {
 
     setStep(2);
     const keywords = analysis.profile.searchKeywords || analysis.profile.topRoleTitles || ['graduate'];
-    const jobsRes = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        keywords: keywords.slice(0, 3),
-        location: analysis.profile.locationSearch || location || 'london'
-      })
-    });
-    if (!jobsRes.ok) console.warn('Job search unavailable');
-const jobsData = jobsRes.ok ? await jobsRes.json() : { jobs: [] };
-const rawJobs = jobsData.jobs || [];
+    let rawJobs = [];
+    try {
+      const jobsRes = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keywords: keywords.slice(0, 3),
+          location: analysis.profile.locationSearch || location || 'london'
+        })
+      });
+      if (jobsRes.ok) {
+        const jobsData = await jobsRes.json();
+        rawJobs = jobsData.jobs || [];
+      } else {
+        console.warn('Job search unavailable:', jobsRes.status);
+      }
+    } catch (jobErr) {
+      console.warn('Job search unavailable:', jobErr.message);
+    }
 
     setStep(3);
     await new Promise(r => setTimeout(r, 300));
