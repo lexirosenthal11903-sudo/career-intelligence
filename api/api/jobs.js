@@ -16,17 +16,22 @@ export default async function handler(req, res) {
     const searchLocation = location || 'london';
     const allJobs = [];
 
-    // Search for each keyword set
     for (const keyword of keywords.slice(0, 3)) {
-      const url = new URL('https://api.adzuna.com/v1/api/jobs/gb/search/1');
-      url.searchParams.set('app_id', appId);
-      url.searchParams.set('app_key', apiKey);
-      url.searchParams.set('what', keyword);
-      url.searchParams.set('where', searchLocation);
-      url.searchParams.set('results_per_page', '5');
-      url.searchParams.set('max_days_old', '30');
+      const params = new URLSearchParams({
+        app_id: appId,
+        app_key: apiKey,
+        what: keyword,
+        where: searchLocation,
+        results_per_page: '5',
+        max_days_old: '30'
+      });
 
-      const response = await fetch(url.toString());
+      const url = `https://api.adzuna.com/v1/api/jobs/gb/search/1?${params.toString()}`;
+
+      const response = await fetch(url, {
+        headers: { 'Accept': 'application/json' }
+      });
+
       if (!response.ok) continue;
 
       const data = await response.json();
@@ -50,7 +55,6 @@ export default async function handler(req, res) {
       allJobs.push(...jobs);
     }
 
-    // Deduplicate by job ID
     const seen = new Set();
     const unique = allJobs.filter(j => {
       if (seen.has(j.id)) return false;
