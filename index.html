@@ -2657,7 +2657,7 @@ function showError(title, msg, hint, stack) {
 
 async function callAPI(system, user, retries = 2) {
   const body = {
-    model: 'claude-sonnet-4-5',
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 8000,
     system,
     messages: [{ role: 'user', content: user }],
@@ -2749,172 +2749,79 @@ async function runSearch() {
   }
 
   document.getElementById('errorBox').classList.remove('visible');
-
   const btn = document.getElementById('runBtn');
   btn.disabled = true;
   btn.classList.add('loading');
-
   showLoading();
   setStep(1);
 
-  const profileText = [
-    cvText    ? `CV / background (read every word):\n${cvText.slice(0, 9000)}` : '',
-    direction ? `Career direction: ${direction}` : 'Career direction: Not stated — infer carefully from the CV',
-    location  ? `Location: ${location}` : '',
-    `Work style: ${workStyle.length ? workStyle.join(', ') : 'Flexible'}`,
-    `Employment type: ${empType.length ? empType.join(', ') : 'Open'}`,
-    salary    ? `Salary expectation: ${salary}` : '',
-    extra     ? `Additional notes: ${extra}` : '',
-  ].filter(Boolean).join('\n\n');
-
-  const systemPrompt = `You are a career intelligence platform. Your purpose is to help people understand where they genuinely fit, not just find the next thing to apply to.
-
-PHILOSOPHY
-You think deeply before you act. You read the person's background carefully — every line — before deciding anything. You do not rush to job listings. You understand the person first.
-You use warm, calm, precise language. You are not clinical, not corporate, not hype. You are the capable, calm person who says "I've got this."
-
-STEP 1 — READ THE BACKGROUND DEEPLY
-Read every word of the CV and notes provided. Extract:
-- All job titles and employers, with dates and progression
-- Industries and sectors worked in — explicitly and by inference
-- Hard skills: tools, software, frameworks, methodologies, certifications
-- Soft skills: inferred carefully from responsibilities and achievements
-- Education: degrees, subjects, institutions, dates
-- Quantified achievements and measurable impact
-- Career trajectory — where they started, how far they've come, what the arc suggests
-- What direction they say they want to go — even if vague
-- What direction they SHOULD go based on their actual experience
-
-STEP 2 — PROFILE AND SENIORITY
-Infer:
-- Seniority level: Graduate / Junior / Mid-level / Senior / Lead / Director / Executive
-- Approximate years of meaningful experience
-- 3–5 role titles they would be genuinely competitive for (including titles they may not have considered)
-- Sectors that are a natural match
-- Company types that suit them (scale, culture, mission)
-- A short, honest, warm career summary — what makes this person interesting
-- 2–3 suggested career directions with explanation of why each fits
-
-STEP 3 — SKILLS MAPPING
-Identify:
-- Their genuine strengths — what they clearly do well, with examples from their CV
-- Specific gaps for their target roles — not generic, tied to what the roles actually require
-- For each gap: why it matters and one concrete way to close it
-- Overall advice for their skills development
-
-STEP 4 — COMPANY VALUES MATCHING
-Based on their background, experience, and any stated values or deal-breakers, identify 3–5 types of company (by culture, size, mission) that would suit this person. For each: name, why they fit, culture notes, value tags, and if possible an open role title.
-
-STEP 5 — LIVE JOB SEARCH (strict anti-hallucination rules)
-Search for REAL, CURRENT job listings using web_search. Rules:
-- RULE 1: Only include jobs you have verified exist right now. No guesses.
-- RULE 2: Only jobs posted within the last 30 days.
-- RULE 3: The applyUrl must be the actual URL you found — never constructed or guessed.
-- RULE 4: Never invent company names, salaries, or contact details.
-- RULE 5: If you cannot find a detail, use "Not listed" — never fill in plausible-sounding fiction.
-- RULE 6: Only include roles the person is genuinely competitive for, given their actual experience.
-Search: LinkedIn Jobs, Indeed, Reed.co.uk, Totaljobs, CV-Library.
-
-STEP 6 — INDUSTRY CONTACTS
-For each of the top 3 jobs found, search for a relevant hiring contact — hiring manager, recruiter, or senior person at that company. Only include contacts you actually found. Use "Not found" otherwise.
-
-STEP 7 — OUTREACH MESSAGES
-Write a personalised, warm, direct outreach message for each of the top 3–5 roles. Each message should:
-- Reference something specific about the company or role
-- Make a clear, confident connection to the person's actual background
-- Be 80–120 words — not too short, not too long
-- Sound like a thoughtful human wrote it, not a template
-
-OUTPUT FORMAT
-Return ONLY a valid JSON object. No markdown, no backticks, no preamble. Structure:
-
-{
-  "profile": {
-    "seniorityLevel": string,
-    "yearsExperience": string,
-    "topRoleTitles": [string],
-    "extractedSectors": [string],
-    "extractedSkills": [string],
-    "suggestedDirections": [{ "title": string, "why": string }],
-    "valuesSignals": [string],
-    "companySuggestions": [{ "type": string, "why": string }],
-    "summary": string,
-    "locationSearch": string
-  },
-  "skills": {
-    "strengths": [string],
-    "gaps": [{ "skill": string, "why": string, "howToBuild": string }],
-    "advice": string
-  },
-  "companyValues": [
-    {
-      "name": string,
-      "why": string,
-      "culture": string,
-      "values": [string],
-      "openRole": string,
-      "applyUrl": string
-    }
-  ],
-  "jobs": [
-    {
-      "title": string,
-      "company": string,
-      "location": string,
-      "workStyle": string,
-      "datePosted": string,
-      "salary": string,
-      "applyUrl": string,
-      "contactName": string,
-      "contactTitle": string,
-      "contactLinkedIn": string,
-      "relevanceScore": number,
-      "relevanceReason": string
-    }
-  ],
-  "outreach": [
-    {
-      "company": string,
-      "role": string,
-      "contactName": string,
-      "type": string,
-      "message": string
-    }
-  ]
-}`;
-
-  const userPrompt = `Please analyse my background carefully and find the right opportunities for me. Read every line before you do anything else.
-
-${profileText}
-
-Important: Only return verified live job listings. Follow every rule in the instructions. Return only the JSON object.`;
-
   try {
+    setStep(1);
+    const analyseRes = await fetch('/api/analyse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cvText, direction, location, workStyle, empType, salary, extra })
+    });
+    if (!analyseRes.ok) throw new Error('Analysis failed: ' + await analyseRes.text());
+    const analysis = await analyseRes.json();
+    if (!analysis.profile) throw new Error('Could not read your profile. Please try again.');
+
     setStep(2);
-    const raw = await callAPI(systemPrompt, userPrompt);
+    const keywords = analysis.profile.searchKeywords || analysis.profile.topRoleTitles || ['graduate'];
+    const jobsRes = await fetch('/api/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        keywords: keywords.slice(0, 3),
+        location: analysis.profile.locationSearch || location || 'london'
+      })
+    });
+    if (!jobsRes.ok) throw new Error('Job search failed: ' + await jobsRes.text());
+    const jobsData = await jobsRes.json();
+    const rawJobs = jobsData.jobs || [];
+
     setStep(3);
-    await new Promise(r => setTimeout(r, 400));
-    setStep(4);
-    await new Promise(r => setTimeout(r, 400));
-    setStep(5);
-    await new Promise(r => setTimeout(r, 400));
-    setStep(6);
     await new Promise(r => setTimeout(r, 300));
 
-    const result = safeJSON(raw, null);
-
-    if (!result || typeof result !== 'object') {
-      throw new Error('Could not parse the response. Please try again.');
+    setStep(4);
+    let scoredJobs = rawJobs;
+    if (rawJobs.length > 0) {
+      const scoreRes = await fetch('/api/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobs: rawJobs,
+          profile: analysis.profile,
+          skills: analysis.skills || {}
+        })
+      });
+      if (scoreRes.ok) {
+        const scoreData = await scoreRes.json();
+        scoredJobs = scoreData.jobs || rawJobs;
+      }
     }
+
+    setStep(5);
+    await new Promise(r => setTimeout(r, 300));
+
+    setStep(6);
+    const outreach = generateOutreach(scoredJobs.slice(0, 3), analysis);
+    await new Promise(r => setTimeout(r, 300));
 
     completeAllSteps();
     await new Promise(r => setTimeout(r, 800));
 
+    const result = {
+      profile:       analysis.profile,
+      skills:        analysis.skills        || {},
+      companyValues: analysis.companyValues  || [],
+      jobs:          scoredJobs,
+      outreach:      outreach
+    };
+
     hideLoading();
     btn.disabled = false;
     btn.classList.remove('loading');
-
-    // Store result and show dashboard
     window.ciResult = result;
     render(result);
     goToDashboard();
@@ -2923,24 +2830,29 @@ Important: Only return verified live job listings. Follow every rule in the inst
     btn.disabled = false;
     btn.classList.remove('loading');
     hideLoading();
-
     const isRate = err.message.startsWith('rate_limit:');
-    const clean  = isRate ? err.message.replace('rate_limit: ', '') : err.message;
-    const hint   = isRate
-      ? 'This happens when the API usage limit is reached. Wait for the limit to reset, then try again.'
-      : 'If the problem persists, try simplifying your background description or check your connection.';
-
     showError(
       isRate ? 'Usage limit reached' : 'Something went wrong',
-      clean,
-      hint,
+      err.message.replace('rate_limit: ', ''),
+      isRate ? 'Please wait a moment and try again.' : 'If this keeps happening, try simplifying your CV text.',
       !isRate ? (err.stack || '') : ''
     );
   }
 }
 
+function generateOutreach(jobs, analysis) {
+  const profile = analysis.profile || {};
+  return jobs.slice(0, 3).map(job => ({
+    company:     job.company,
+    role:        job.title,
+    contactName: job.contactName || 'Hiring Team',
+    type:        'LinkedIn message',
+    message:     'Hi,\n\nI came across the ' + job.title + ' role at ' + job.company + ' and wanted to reach out directly.\n\nMy background is in ' + (profile.extractedSectors || []).slice(0, 2).join(' and ') + ' and I think my experience with ' + (profile.extractedSkills || []).slice(0, 2).join(' and ') + ' would translate well here.\n\nI would love to learn more about the team and what you are looking for. Would you be open to a brief conversation?\n\nBest,\n[Your name]'
+  }));
+}
 
-// ══════════════════════════════════════════════════════
+
+
 // SESSION 3 — TAB SWITCHING
 // ══════════════════════════════════════════════════════
 
