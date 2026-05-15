@@ -25,7 +25,6 @@ export default async function handler(req, res) {
       url.searchParams.set('where', searchLocation);
       url.searchParams.set('results_per_page', '5');
       url.searchParams.set('max_days_old', '30');
-      url.searchParams.set('content-type', 'application/json');
 
       const response = await fetch(url.toString());
       if (!response.ok) continue;
