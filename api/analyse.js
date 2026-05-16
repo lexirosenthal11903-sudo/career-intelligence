@@ -123,7 +123,7 @@ ${extra ? `Notes: ${extra}` : ''}`;
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 5000,
+        max_tokens: 4000,
         system: systemPrompt,
         tools: [tool],
         tool_choice: { type: 'tool', name: 'submit_career_analysis' },
