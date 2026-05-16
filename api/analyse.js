@@ -121,7 +121,7 @@ ${extra ? `Notes: ${extra}` : ''}`;
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 3000,
+        max_tokens: 4000,
         system: systemPrompt,
         tools: [tool],
         tool_choice: { type: 'tool', name: 'submit_career_analysis' },
@@ -140,10 +140,11 @@ ${extra ? `Notes: ${extra}` : ''}`;
       return res.status(500).json({ error: 'Model did not call the analysis tool', raw: data.content });
     }
 
-    console.log('[analyse] skills:', JSON.stringify(toolUse.input.skills));
-    console.log('[analyse] gaps shape:', JSON.stringify((toolUse.input.skills?.gaps || []).slice(0, 2)));
+    console.log('[analyse] full input keys:', Object.keys(toolUse.input));
+    console.log('[analyse] full input:', JSON.stringify(toolUse.input));
 
-    res.status(200).json(toolUse.input);
+    const { profile, skills, companyValues, outreachContext } = toolUse.input;
+    res.status(200).json({ profile, skills, companyValues, outreachContext });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
