@@ -90,16 +90,16 @@ ${extra ? `Notes: ${extra}` : ''}`;
 
     let parsed;
     try {
-      const clean = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      let clean = text;
+      // Strip markdown code blocks
+      clean = clean.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      // Find the first { and match to its closing }
       const start = clean.indexOf('{');
-      if (start === -1) throw new Error('No JSON found');
+      if (start === -1) throw new Error('No JSON object found');
       let depth = 0, end = -1;
       for (let i = start; i < clean.length; i++) {
         if (clean[i] === '{') depth++;
-        else if (clean[i] === '}') {
-          depth--;
-          if (depth === 0) { end = i; break; }
-        }
+        else if (clean[i] === '}') { depth--; if (depth === 0) { end = i; break; } }
       }
       if (end === -1) throw new Error('Incomplete JSON');
       parsed = JSON.parse(clean.slice(start, end + 1));
