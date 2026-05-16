@@ -3058,7 +3058,7 @@ function renderSkills(skillsData, profile) {
 }
 
 function renderCompanies(data) {
-  const companies = data.companyValues || data.profile?.companySuggestions || [];
+  const companies = Array.isArray(data.companyValues) ? data.companyValues : Array.isArray(data.profile?.companySuggestions) ? data.profile.companySuggestions : [];
   const grid = document.getElementById('companyGrid');
 
   if (!companies.length) {
