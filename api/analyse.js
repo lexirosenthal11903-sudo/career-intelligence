@@ -140,6 +140,9 @@ ${extra ? `Notes: ${extra}` : ''}`;
       return res.status(500).json({ error: 'Model did not call the analysis tool', raw: data.content });
     }
 
+    console.log('[analyse] skills:', JSON.stringify(toolUse.input.skills));
+    console.log('[analyse] gaps shape:', JSON.stringify((toolUse.input.skills?.gaps || []).slice(0, 2)));
+
     res.status(200).json(toolUse.input);
   } catch (err) {
     res.status(500).json({ error: err.message });

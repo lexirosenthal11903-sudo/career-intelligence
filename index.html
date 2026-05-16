@@ -268,7 +268,7 @@ body::before {
 .hero-headline {
   font-family: var(--font-serif);
   font-size: clamp(52px, 8.5vw, 108px);
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.0;
   letter-spacing: -0.025em;
   color: var(--ink);
@@ -294,7 +294,7 @@ body::before {
 }
 
 .hero-body {
-  max-width: 460px;
+  max-width: 640px;
   font-size: 16px;
   font-weight: 300;
   color: var(--ink-2);
@@ -2070,7 +2070,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             <a href="#about" class="link-secondary">How it works</a>
           </div>
 
-          <div class="hero-deco" aria-hidden="true">CI</div>
 
           <div class="hero-footnote" aria-label="Context statistics">
             <div class="hero-stat">
@@ -2231,7 +2230,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
                   <label>Work style</label>
                   <div class="chips" id="workStyle" role="group" aria-label="Work style">
                     <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">On-site</span>
-                    <span class="chip on" role="checkbox" aria-checked="true" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Hybrid</span>
+                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Hybrid</span>
                     <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Remote</span>
                   </div>
                 </div>
@@ -2241,7 +2240,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
                 <div class="field">
                   <label>Employment type</label>
                   <div class="chips" id="empType" role="group" aria-label="Employment type">
-                    <span class="chip on" role="checkbox" aria-checked="true" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Full-time</span>
+                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Full-time</span>
                     <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Contract</span>
                     <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Part-time</span>
                     <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Internship</span>
@@ -2799,11 +2798,14 @@ async function runSearch() {
 
   try {
     setStep(1);
-    const analyseRes = await fetch('/api/analyse', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cvText, direction, location, workStyle, empType, salary, extra })
-    });
+    const [analyseRes] = await Promise.all([
+      fetch('/api/analyse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cvText, direction, location, workStyle, empType, salary, extra })
+      }),
+      new Promise(r => setTimeout(r, 1500))
+    ]);
     if (!analyseRes.ok) throw new Error('Analysis failed: ' + await analyseRes.text());
     const analysis = await analyseRes.json();
     if (!analysis.profile) throw new Error('Could not read your profile. Please try again.');
@@ -2811,6 +2813,7 @@ async function runSearch() {
     setStep(2);
     const keywords = analysis.profile.searchKeywords || analysis.profile.topRoleTitles || ['graduate'];
     let rawJobs = [];
+    const jobsStart = Date.now();
     try {
       const jobsRes = await fetch('/api/jobs', {
         method: 'POST',
@@ -2829,6 +2832,8 @@ async function runSearch() {
     } catch (jobErr) {
       console.warn('Job search unavailable:', jobErr.message);
     }
+    const jobsElapsed = Date.now() - jobsStart;
+    if (jobsElapsed < 1500) await new Promise(r => setTimeout(r, 1500 - jobsElapsed));
 
     setStep(3);
     await new Promise(r => setTimeout(r, 300));
@@ -3018,6 +3023,7 @@ function skillStr(s) {
 
 function renderSkills(skillsData, profile) {
   profile = profile || {};
+  console.log('[renderSkills] skillsData:', JSON.stringify(skillsData));
 
   // Strengths: prefer skills.strengths, fall back to profile.extractedSkills
   let strengths = skillsData.strengths || skillsData.skill_strengths || skillsData.keyStrengths || [];
@@ -3066,7 +3072,7 @@ function renderCompanies(data) {
       <div class="company-card">
         <div class="co-top">
           <div class="co-name">${esc(j.company || '—')}</div>
-          <span class="co-fit-badge">From results</span>
+          <span class="co-fit-badge">Recommended match</span>
         </div>
         <div class="co-why">${esc(j.relevanceReason || 'Matched to your profile based on role requirements.')}</div>
         <div class="co-role">
@@ -3236,8 +3242,8 @@ function buildOutreachMsg(job, profile) {
 }
 
 function buildCVTips(job, profile, skills) {
-  const topSkills = (profile.extractedSkills || []).slice(0, 3);
-  const gaps      = (skills.gaps || []).map(g => g.skill || g).slice(0, 2);
+  const topSkills = [...new Set((profile.extractedSkills || []).map(s => typeof s === 'string' ? s : (s.name || s.skill || '')).filter(Boolean))].slice(0, 3);
+  const gaps      = (skills.gaps || []).map(g => typeof g === 'string' ? g : (g.skill || g.name || '')).filter(Boolean).slice(0, 2);
   const tips = [
     `Lead with your most relevant experience for a <strong>${esc(job.title)}</strong> role — put it in your summary line.`,
     topSkills.length ? `Foreground these skills: <strong>${topSkills.map(esc).join(', ')}</strong>.` : null,
@@ -3249,8 +3255,16 @@ function buildCVTips(job, profile, skills) {
 }
 
 function buildCoverLetter(job, profile) {
-  const summary   = (profile.summary || '').split('.')[0];
-  const skills    = (profile.extractedSkills || []).slice(0, 3).join(', ') || 'the relevant skill areas';
+  const rawSummary = (profile.summary || '').split('.')[0];
+  const summary = rawSummary
+    .replace(/\bYou're\b/gi, "I am")
+    .replace(/\bYou are\b/gi, "I am")
+    .replace(/\byou've\b/gi, "I've")
+    .replace(/\byou have\b/gi, "I have")
+    .replace(/\bYour\b/g, "My")
+    .replace(/\byour\b/g, "my")
+    .replace(/\byou\b/gi, "I");
+  const skills    = [...new Set(profile.extractedSkills || [])].slice(0, 3).join(', ') || 'the relevant skill areas';
   const seniority = profile.seniorityLevel ? profile.seniorityLevel + ' professional' : 'professional';
   const opening   = summary || `I am a ${seniority} with experience in ${(profile.extractedSectors || []).slice(0,1).join('') || 'this field'}`;
   return `Dear Hiring Team,\n\nI am writing to apply for the ${job.title} position at ${job.company}. ${opening}.\n\nThroughout my career I have developed strong skills in ${skills}, and I am confident these would allow me to make an immediate contribution to your team.\n\nI am particularly drawn to ${job.company} and this role because of the opportunity to apply my background in a focused, high-impact environment.\n\nI would welcome the chance to discuss my application further at your convenience.\n\nYours sincerely,\n[Your name]`;
