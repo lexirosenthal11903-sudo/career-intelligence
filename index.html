@@ -1319,7 +1319,37 @@ input[type="text"]::placeholder {
   font-size: 14px;
   font-weight: 300;
   color: var(--ink);
+  cursor: pointer;
+  user-select: none;
 }
+.role-item:hover { border-color: var(--ink-4); }
+.role-item-wrap { display: flex; flex-direction: column; gap: 0; }
+.role-desc-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+.role-desc-panel.open { grid-template-rows: 1fr; }
+.role-desc-clip {
+  overflow: hidden;
+  min-height: 0;
+}
+.role-desc-body {
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-top: none;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  padding: var(--sp-4) var(--sp-5);
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  display: grid;
+  gap: var(--sp-3);
+}
+.role-desc-body strong { color: var(--ink-2); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+.role-item.open { border-radius: var(--r-md) var(--r-md) 0 0; border-bottom-color: transparent; }
+.role-chevron { margin-left: auto; font-size: 10px; color: var(--ink-4); transition: transform 0.3s; flex-shrink: 0; }
+.role-item.open .role-chevron { transform: rotate(180deg); }
 
 .role-item::before {
   content: '';
@@ -2981,10 +3011,98 @@ function renderProfile(profile) {
 
   document.getElementById('profileSummary').textContent = profile.summary || '';
 
+  const roleDescriptions = {
+    'Strategy Consultant': {
+      day: 'Working with senior leadership at client organisations to diagnose business problems, build data-driven recommendations, and present findings to C-suite stakeholders. Projects typically run 6–12 weeks.',
+      salary: '£45,000 – £90,000 depending on level and firm',
+      suits: 'People who enjoy variety, structured problem-solving, and want broad exposure to industries early in their career.'
+    },
+    'Management Consultant': {
+      day: 'Leading workstreams on transformation, cost reduction, or growth strategy projects. Heavy on analysis, client communication, and slide-building. Frequent travel to client sites.',
+      salary: '£40,000 – £120,000+ depending on firm tier and experience',
+      suits: 'High-energy generalists who are comfortable with ambiguity and thrive under client pressure.'
+    },
+    'Business Analyst': {
+      day: 'Gathering requirements from stakeholders, mapping processes, analysing data to identify inefficiencies, and translating business needs into technical or operational solutions.',
+      salary: '£30,000 – £60,000',
+      suits: 'Detail-oriented people who enjoy bridging the gap between business teams and technical delivery.'
+    },
+    'Operations Analyst': {
+      day: 'Monitoring operational metrics, identifying bottlenecks, building dashboards, and working with cross-functional teams to improve processes and reduce cost.',
+      salary: '£28,000 – £55,000',
+      suits: 'Systematic thinkers who like optimising how things work behind the scenes.'
+    },
+    'Associate Consultant': {
+      day: 'Entry-level consulting work — research, data analysis, building client presentations, supporting senior consultants on projects across industries.',
+      salary: '£35,000 – £55,000',
+      suits: 'Graduates or early-career professionals looking to build broad commercial and analytical skills fast.'
+    },
+    'Product Manager': {
+      day: 'Owning a product roadmap, running discovery with users, writing specs, working daily with engineering and design, and tracking metrics to decide what to build next.',
+      salary: '£45,000 – £110,000',
+      suits: 'People who love synthesising user insight and business strategy, and are comfortable without direct authority.'
+    },
+    'Marketing Manager': {
+      day: 'Planning and executing campaigns, managing budgets, working with creative and content teams, analysing performance data, and owning channel strategy (paid, owned, earned).',
+      salary: '£35,000 – £70,000',
+      suits: 'Creative and analytical people who want to own the narrative around a product or brand.'
+    },
+    'Data Analyst': {
+      day: 'Writing SQL queries, building dashboards in Tableau or Looker, running ad hoc analyses for business teams, and presenting findings to non-technical stakeholders.',
+      salary: '£30,000 – £65,000',
+      suits: 'Curious people who like turning raw data into decisions and can communicate clearly in both numbers and plain English.'
+    },
+    'UX Designer': {
+      day: 'Conducting user research, creating wireframes and prototypes in Figma, running usability tests, and collaborating with product and engineering to ship well-designed experiences.',
+      salary: '£35,000 – £75,000',
+      suits: 'Empathetic problem-solvers who care deeply about how products feel to use, not just how they work.'
+    },
+    'Software Engineer': {
+      day: 'Writing and reviewing code, shipping features in two-week sprints, debugging production issues, and collaborating with product and design to build and scale systems.',
+      salary: '£40,000 – £120,000+ depending on stack and seniority',
+      suits: 'People who want to build things that scale, enjoy deep technical problem-solving, and are comfortable with continuous learning.'
+    }
+  };
+
   const roles = profile.topRoleTitles || [];
-  document.getElementById('rolesList').innerHTML = roles.length
-    ? roles.map(r => `<div class="role-item">${esc(r)}</div>`).join('')
-    : '<div class="role-item" style="color:var(--ink-4);">No role titles identified</div>';
+  const rolesList = document.getElementById('rolesList');
+  if (!roles.length) {
+    rolesList.innerHTML = '<div class="role-item" style="color:var(--ink-4);">No role titles identified</div>';
+  } else {
+    rolesList.innerHTML = roles.map((r, i) => {
+      const desc = roleDescriptions[r] || {
+        day: 'Day-to-day responsibilities vary by organisation and sector — this role typically involves a mix of analysis, stakeholder communication, and project delivery.',
+        salary: 'Salary varies by sector, location, and experience level',
+        suits: 'People with strong analytical and communication skills looking to make an impact in this field.'
+      };
+      return `
+        <div class="role-item-wrap">
+          <div class="role-item" data-role-idx="${i}">
+            ${esc(r)}
+            <span class="role-chevron">▼</span>
+          </div>
+          <div class="role-desc-panel" id="roleDesc${i}">
+            <div class="role-desc-clip">
+              <div class="role-desc-body">
+                <div><strong>Day to day</strong><br>${esc(desc.day)}</div>
+                <div><strong>Typical salary</strong><br>${esc(desc.salary)}</div>
+                <div><strong>Who it suits</strong><br>${esc(desc.suits)}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    rolesList.querySelectorAll('.role-item[data-role-idx]').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = el.dataset.roleIdx;
+        const panel = document.getElementById('roleDesc' + idx);
+        const isOpen = panel.classList.contains('open');
+        el.classList.toggle('open', !isOpen);
+        panel.classList.toggle('open', !isOpen);
+      });
+    });
+  }
 
   const directions = profile.suggestedDirections || profile.directions || [];
   document.getElementById('directionsGrid').innerHTML = directions.length

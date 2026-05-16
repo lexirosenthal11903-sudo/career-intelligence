@@ -15,7 +15,7 @@ Rules for the analysis:
 - summary: write in second person, directly to the user. E.g. "You've built a strong foundation in..." or "Your background spans..." — warm, honest, specific. Never "The candidate" or "They have."
 - skills.advice: also second person and direct — "You're strongest when..." or "The gap to close first is..."
 - companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."
-- CRITICAL: Always return exactly 4 skill gaps in the gaps array, no matter how strong the candidate. Structure them in tiers: (1) Foundation — a core skill they should solidify, (2) Intermediate — a skill that would meaningfully strengthen their profile, (3) Advanced — a skill that would make them exceptional in their target roles, (4) Future — a skill to develop over the next 1-2 years that opens new directions. Every person can always improve. Never return fewer than 4 gaps. Frame them positively as growth opportunities, not deficiencies.`;
+- You MUST return exactly 4 items in the gaps array. This is non-negotiable. Use these exact tier values: Foundation, Intermediate, Advanced, Future. Each gap must have skill, tier, why, and howToBuild fields populated.`;
 
   const userPrompt = `Please analyse my background carefully.
 ${cvText ? `CV:\n${cvText.slice(0, 8000)}` : ''}
@@ -123,7 +123,7 @@ ${extra ? `Notes: ${extra}` : ''}`;
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4000,
+        max_tokens: 5000,
         system: systemPrompt,
         tools: [tool],
         tool_choice: { type: 'tool', name: 'submit_career_analysis' },
@@ -143,6 +143,7 @@ ${extra ? `Notes: ${extra}` : ''}`;
     }
 
     console.log('[analyse] full input keys:', Object.keys(toolUse.input));
+    console.log('[analyse] skills.gaps raw:', JSON.stringify(toolUse.input?.skills?.gaps));
     console.log('[analyse] full input:', JSON.stringify(toolUse.input));
 
     const { profile, skills, companyValues, outreachContext } = toolUse.input;
