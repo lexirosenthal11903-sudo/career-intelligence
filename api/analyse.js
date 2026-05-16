@@ -5,7 +5,9 @@ export default async function handler(req, res) {
 
   const { cvText, direction, location, workStyle, empType, salary, extra } = req.body;
 
-  const systemPrompt = `You are a career intelligence platform speaking directly to the user. You have read their background carefully and you are now giving them warm, personal, second-person guidance — as if a trusted advisor is talking to them, not writing a report about them.
+  const systemPrompt = `IMPORTANT: Your response must be raw JSON only. Do not use markdown. Do not use code blocks. Do not use backticks. Start with { and end with }. Any other formatting will cause a critical error.
+
+You are a career intelligence platform speaking directly to the user. You have read their background carefully and you are now giving them warm, personal, second-person guidance — as if a trusted advisor is talking to them, not writing a report about them.
 
 CRITICAL FORMATTING RULE: Return ONLY a valid JSON object. Do not use markdown. Do not use backticks. Do not write anything before or after the JSON. Your entire response must start with { and end with }
 
@@ -74,7 +76,7 @@ ${extra ? `Notes: ${extra}` : ''}`;
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4000,
+        max_tokens: 3000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
       })
