@@ -14,7 +14,8 @@ Rules for the analysis:
 - suggestedDirections: exactly 3 directions. The "why" for each must speak directly to the user — e.g. "You've spent three years building X, which means you already have Y. This direction would let you..." Not "The candidate has experience in X."
 - summary: write in second person, directly to the user. E.g. "You've built a strong foundation in..." or "Your background spans..." — warm, honest, specific. Never "The candidate" or "They have."
 - skills.advice: also second person and direct — "You're strongest when..." or "The gap to close first is..."
-- companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."`;
+- companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."
+- CRITICAL: Always return exactly 4 skill gaps in the gaps array, no matter how strong the candidate. Structure them in tiers: (1) Foundation — a core skill they should solidify, (2) Intermediate — a skill that would meaningfully strengthen their profile, (3) Advanced — a skill that would make them exceptional in their target roles, (4) Future — a skill to develop over the next 1-2 years that opens new directions. Every person can always improve. Never return fewer than 4 gaps. Frame them positively as growth opportunities, not deficiencies.`;
 
   const userPrompt = `Please analyse my background carefully.
 ${cvText ? `CV:\n${cvText.slice(0, 8000)}` : ''}
@@ -73,10 +74,11 @@ ${extra ? `Notes: ${extra}` : ''}`;
                 type: 'object',
                 properties: {
                   skill:      { type: 'string' },
+                  tier:       { type: 'string' },
                   why:        { type: 'string' },
                   howToBuild: { type: 'string' }
                 },
-                required: ['skill', 'why', 'howToBuild']
+                required: ['skill', 'tier', 'why', 'howToBuild']
               }
             },
             advice: { type: 'string' }

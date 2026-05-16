@@ -3037,13 +3037,14 @@ function renderSkills(skillsData, profile) {
   // Gaps: handle both array-of-strings and array-of-objects
   const rawGaps = skillsData.gaps || skillsData.skill_gaps || skillsData.gapsToAddress || [];
   const gaps = rawGaps.map(g => typeof g === 'string'
-    ? { skill: g, why: '', howToBuild: '' }
-    : { skill: g.skill || g.name || '', why: g.why || g.reason || '', howToBuild: g.howToBuild || g.how || g.action || '' }
+    ? { skill: g, tier: '', why: '', howToBuild: '' }
+    : { skill: g.skill || g.name || '', tier: g.tier || '', why: g.why || g.reason || '', howToBuild: g.howToBuild || g.how || g.action || '' }
   ).filter(g => g.skill);
 
   document.getElementById('gapList').innerHTML = gaps.length
     ? gaps.map(g => `
         <div class="gap-item">
+          ${g.tier ? `<div class="gap-meta-label">${esc(g.tier)}</div>` : ''}
           <div class="gap-skill-name">${esc(g.skill)}</div>
           ${g.why ? `<div class="gap-meta-label">Why it matters</div><div class="gap-why">${esc(g.why)}</div>` : ''}
           ${g.howToBuild ? `<div class="gap-meta-label" style="margin-top:var(--sp-2);">How to build it</div><div class="gap-how">${esc(g.howToBuild)}</div>` : ''}
