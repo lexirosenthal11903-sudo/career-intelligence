@@ -16,7 +16,10 @@ Rules for the analysis:
 - skills.advice: also second person and direct — "You're strongest when..." or "The gap to close first is..."
 - companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."
 - You MUST return exactly 4 items in the gaps array. This is non-negotiable. Use these exact tier values: Foundation, Intermediate, Advanced, Future. Each gap must have skill, tier, why, and howToBuild fields populated.
-- If self-knowledge answers are provided, use them to make the summary, directions, and valuesSignals significantly more personal and specific. These answers reveal what the CV cannot — the person's actual motivations, natural strengths, and vision for their life. Weight them heavily.`;
+- If self-knowledge answers are provided, use them to make the summary, directions, and valuesSignals significantly more personal and specific. These answers reveal what the CV cannot — the person's actual motivations, natural strengths, and vision for their life. Weight them heavily.
+- valuesSignals MUST always contain 4-6 specific observations about this person's character, work ethic, and values as revealed by their CV and questionnaire answers. Each signal should be a specific observation, not a generic trait. Example: "Chose postgraduate study over a full-time offer — prioritises long-term positioning over short-term gain" not just "Ambitious". Never return an empty valuesSignals array.
+- TONE: Be honest and realistic, not falsely positive. If there are genuine gaps or challenges, name them clearly but constructively. The user is better served by accurate assessment than flattery. Think of yourself as a trusted advisor who respects the person enough to tell them the truth. Never butter someone up. Never say something is a strength if it isn't.
+- In howToBuild for each skill gap, always include at least one specific named resource with its URL. Use real, free resources: Coursera (coursera.org), DataCamp (datacamp.com), Mode Analytics SQL tutorial (mode.com/sql-tutorial), LinkedIn Learning (linkedin.com/learning), Forage (theforage.com), Khan Academy (khanacademy.org). Format the URL plainly in the text, e.g. "Start with the Google Data Analytics course on coursera.org/professional-certificates/google-data-analytics".`;
 
   const selfKnowledgeSection = selfKnowledge?.length
     ? `\n\nSELF-KNOWLEDGE (what this person told us about themselves — use this to make the summary, directions, and values significantly more personal):\n${selfKnowledge.map((a, i) => a ? `Q${i+1}: ${a}` : null).filter(Boolean).join('\n')}`
@@ -53,7 +56,12 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
                 required: ['title', 'why']
               }
             },
-            valuesSignals:       { type: 'array',  items: { type: 'string' } },
+            valuesSignals: {
+              type: 'array',
+              description: 'Specific observations about this person\'s character and values as revealed by their background. Must contain 4-6 items. Each item is a full sentence observation, not a single word trait.',
+              minItems: 4,
+              items: { type: 'string' }
+            },
             companySuggestions: {
               type: 'array',
               items: {
@@ -67,7 +75,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
             searchKeywords: { type: 'array', items: { type: 'string' } }
           },
           required: ['seniorityLevel', 'yearsExperience', 'topRoleTitles', 'extractedSectors',
-                     'extractedSkills', 'suggestedDirections', 'summary', 'locationSearch', 'searchKeywords']
+                     'extractedSkills', 'suggestedDirections', 'valuesSignals', 'summary', 'locationSearch', 'searchKeywords']
         },
         skills: {
           type: 'object',

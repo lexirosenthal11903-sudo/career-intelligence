@@ -3317,6 +3317,16 @@ function skillStr(s) {
   return s.skill || s.name || s.title || JSON.stringify(s);
 }
 
+function linkify(text) {
+  if (!text) return '';
+  // Escape first, then detect URLs and wrap them
+  const escaped = esc(text);
+  return escaped.replace(/https?:\/\/[^\s<>"]+|[a-zA-Z0-9.-]+\.(org|com|net|io|co\.uk)(\/[^\s<>"]*)?/g, url => {
+    const href = url.startsWith('http') ? url : 'https://' + url;
+    return `<a href="${href}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">${url}</a>`;
+  });
+}
+
 function renderSkills(skillsData, profile) {
   profile = profile || {};
   console.log('[renderSkills] skillsData:', JSON.stringify(skillsData));
@@ -3343,7 +3353,7 @@ function renderSkills(skillsData, profile) {
           ${g.tier ? `<div class="gap-meta-label">${esc(g.tier)}</div>` : ''}
           <div class="gap-skill-name">${esc(g.skill)}</div>
           ${g.why ? `<div class="gap-meta-label">Why it matters</div><div class="gap-why">${esc(g.why)}</div>` : ''}
-          ${g.howToBuild ? `<div class="gap-meta-label" style="margin-top:var(--sp-2);">How to build it</div><div class="gap-how">${esc(g.howToBuild)}</div>` : ''}
+          ${g.howToBuild ? `<div class="gap-meta-label" style="margin-top:var(--sp-2);">How to build it</div><div class="gap-how">${linkify(g.howToBuild)}</div>` : ''}
         </div>`).join('')
     : '<div class="gap-item"><span style="color:var(--ink-4); font-size:13px;">No significant gaps identified — you\'re a strong match for your target roles.</span></div>';
 
