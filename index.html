@@ -3334,12 +3334,20 @@ function skillStr(s) {
 
 function linkify(text) {
   if (!text) return '';
-  // Escape first, then detect URLs and wrap them
-  const escaped = esc(text);
-  return escaped.replace(/https?:\/\/[^\s<>"]+|[a-zA-Z0-9.-]+\.(org|com|net|io|co\.uk)(\/[^\s<>"]*)?/g, url => {
-    const href = url.startsWith('http') ? url : 'https://' + url;
-    return `<a href="${href}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">${url}</a>`;
-  });
+  // Work on raw text — escape segments individually so esc() never corrupts URL matches
+  const URL_RE = /https?:\/\/\S+|[a-zA-Z0-9][a-zA-Z0-9-]*\.(?:com|org|net|io|co\.uk|edu)(?:\/\S*)?/g;
+  let result = '';
+  let last = 0;
+  let m;
+  while ((m = URL_RE.exec(text)) !== null) {
+    result += esc(text.slice(last, m.index));
+    // Strip trailing punctuation that is not part of the URL
+    const raw = m[0].replace(/[.,;):]+$/, '');
+    const href = raw.startsWith('http') ? raw : 'https://' + raw;
+    result += `<a href="${esc(href)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">${esc(raw)}</a>`;
+    last = m.index + raw.length;
+  }
+  return result + esc(text.slice(last));
 }
 
 function renderSkills(skillsData, profile) {
