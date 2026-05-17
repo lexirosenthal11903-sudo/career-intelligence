@@ -1871,6 +1871,126 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 .next-steps-reveal-msg.visible { opacity: 1; }
 
 /* ── JOB DRAWER ── */
+/* ── Job saving ─────────────────────────────────────── */
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 17px;
+  color: var(--ink-5);
+  padding: 4px 6px;
+  line-height: 1;
+  transition: color 0.15s, transform 0.15s;
+  display: block;
+}
+.star-btn:hover { color: var(--accent-lt); transform: scale(1.2); }
+.star-btn.saved { color: var(--accent); }
+
+.saved-roles-section {
+  margin-bottom: var(--sp-6);
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--ink-5);
+}
+.saved-roles-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.saved-roles-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.saved-count-badge {
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 100px;
+  padding: 2px 8px;
+  line-height: 1.4;
+}
+.saved-cards { display: flex; flex-direction: column; gap: var(--sp-3); }
+.saved-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-5);
+  font-size: 13px;
+}
+.saved-card-title { font-weight: 400; color: var(--ink); flex: 1; }
+.saved-card-company { color: var(--ink-3); font-weight: 300; }
+.saved-card-salary { color: var(--ink-4); font-weight: 300; font-family: var(--font-mono); font-size: 11px; }
+.saved-card-actions { display: flex; align-items: center; gap: var(--sp-3); margin-left: auto; }
+.unsave-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.unsave-btn:hover { color: var(--ink); }
+
+/* ── PDF upload ──────────────────────────────────────── */
+.pdf-upload-area {
+  border: 1.5px dashed var(--ink-5);
+  border-radius: var(--r-md);
+  padding: var(--sp-5) var(--sp-6);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  margin-bottom: var(--sp-4);
+}
+.pdf-upload-area:hover { border-color: var(--accent-lt); background: rgba(196,168,130,0.04); }
+.pdf-upload-area.dragover { border-color: var(--accent); background: rgba(196,168,130,0.08); }
+.pdf-upload-icon { font-size: 20px; color: var(--ink-4); flex-shrink: 0; }
+.pdf-upload-text { font-size: 13px; color: var(--ink-3); font-weight: 300; }
+.pdf-upload-text strong { color: var(--ink-2); font-weight: 400; }
+#pdfFileInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.pdf-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: var(--sp-2);
+  min-height: 16px;
+}
+.pdf-status.loading { color: var(--ink-4); }
+.pdf-status.success { color: var(--accent); }
+.pdf-status.error   { color: #c0392b; }
+.cv-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin: var(--sp-4) 0;
+  color: var(--ink-5);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.cv-divider::before, .cv-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ink-5);
+}
+
 .job-row { cursor: pointer; }
 .expand-toggle {
   font-family: var(--font-mono);
@@ -2389,6 +2509,16 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             <div class="form-section">
               <div class="form-section-label">Your background</div>
               <div class="field">
+                <label>Upload your CV as a PDF</label>
+                <div class="pdf-upload-area" id="pdfUploadArea">
+                  <input type="file" id="pdfFileInput" accept=".pdf" onchange="handlePdfUpload(this)">
+                  <span class="pdf-upload-icon">↑</span>
+                  <div class="pdf-upload-text"><strong>Choose a PDF</strong> or drag it here</div>
+                </div>
+                <div class="pdf-status" id="pdfStatus"></div>
+
+                <div class="cv-divider">or paste manually</div>
+
                 <label for="cvText">
                   Paste your CV here
                   <span class="opt"> — plain text works best</span>
@@ -2403,12 +2533,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
                     aria-describedby="cv-hint"
                   ></textarea>
                   <div class="cv-counter" id="cvCounter" aria-live="polite">0 words</div>
-                </div>
-                <div class="hint-box" id="cv-hint" role="note">
-                  <span class="hint-icon">Note</span>
-                  <p class="hint-text">
-                    <strong>Why plain text?</strong> PDF uploads often come out scrambled — garbled fonts, broken lines, missing words. Pasting as plain text gives us your CV exactly as written. Open your CV in Word or Google Docs, select all, and paste here.
-                  </p>
                 </div>
               </div>
             </div>
@@ -2729,6 +2853,16 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 
         <!-- TAB 4: LIVE ROLES -->
         <div class="tab-panel" id="panel-roles" role="tabpanel" aria-labelledby="tab-roles">
+
+          <!-- Saved roles section (hidden until jobs are saved) -->
+          <div class="saved-roles-section" id="savedRolesSection" style="display:none;">
+            <div class="saved-roles-header">
+              <span class="saved-roles-title">Your saved roles</span>
+              <span class="saved-count-badge" id="savedCountBadge">0</span>
+            </div>
+            <div class="saved-cards" id="savedCardsContainer"></div>
+          </div>
+
           <div class="roles-header-row">
             <div>
               <div class="sec-label">Live roles</div>
@@ -2750,6 +2884,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
                     <th>Apply</th>
                     <th>Contact</th>
                     <th>Status</th>
+                    <th></th>
                     <th></th>
                   </tr>
                 </thead>
@@ -2803,6 +2938,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 <!-- ═══════════════════════════════════════════════════
      JAVASCRIPT — all three sessions combined
 ═══════════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 
 // ══════════════════════════════════════════════════════
@@ -3452,7 +3588,7 @@ function renderRoles(jobs, data) {
 
   const body = document.getElementById('rolesBody');
   if (!jobs.length) {
-    body.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:48px; color:var(--ink-4);">
+    body.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:48px; color:var(--ink-4);">
       No verified live listings found. Try broadening your location or direction and run again.
     </td></tr>`;
     return;
@@ -3503,9 +3639,12 @@ function renderRoles(jobs, data) {
         </select>
       </td>
       <td><span class="expand-toggle" id="toggle-${idx}">▼ Outreach</span></td>
+      <td onclick="event.stopPropagation()">
+        <button class="star-btn" id="star-${idx}" onclick="toggleSave(${idx})" title="Save this role" aria-label="Save ${esc(j.title)}">☆</button>
+      </td>
     </tr>
     <tr class="drawer-row" id="drawer-${idx}">
-      <td colspan="10">
+      <td colspan="11">
         <div class="job-drawer">
           <div class="drawer-clip">
             <div class="drawer-inner">
@@ -3888,6 +4027,133 @@ function render(data) {
   // Reset to first tab
   switchTab('profile');
 }
+
+
+// ══════════════════════════════════════════════════════
+// JOB SAVING
+// ══════════════════════════════════════════════════════
+
+window.savedJobs = [];
+
+function toggleSave(idx) {
+  const jobs = (window.ciResult && window.ciResult.jobs) || [];
+  const job = jobs[idx];
+  if (!job) return;
+
+  const alreadySaved = window.savedJobs.findIndex(j => j.id === job.id);
+  const starBtn = document.getElementById('star-' + idx);
+
+  if (alreadySaved !== -1) {
+    window.savedJobs.splice(alreadySaved, 1);
+    if (starBtn) { starBtn.textContent = '☆'; starBtn.classList.remove('saved'); starBtn.title = 'Save this role'; }
+  } else {
+    window.savedJobs.push({ ...job, _rowIdx: idx });
+    if (starBtn) { starBtn.textContent = '★'; starBtn.classList.add('saved'); starBtn.title = 'Remove from saved'; }
+  }
+  renderSavedSection();
+}
+
+function unsaveJob(jobId) {
+  const idx = window.savedJobs.findIndex(j => j.id === jobId);
+  if (idx === -1) return;
+  const job = window.savedJobs[idx];
+  window.savedJobs.splice(idx, 1);
+  // Sync star button in table
+  const starBtn = document.getElementById('star-' + job._rowIdx);
+  if (starBtn) { starBtn.textContent = '☆'; starBtn.classList.remove('saved'); starBtn.title = 'Save this role'; }
+  renderSavedSection();
+}
+
+function renderSavedSection() {
+  const section = document.getElementById('savedRolesSection');
+  const badge   = document.getElementById('savedCountBadge');
+  const cards   = document.getElementById('savedCardsContainer');
+  if (!section || !badge || !cards) return;
+
+  if (!window.savedJobs.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  badge.textContent = window.savedJobs.length;
+  cards.innerHTML = window.savedJobs.map(j => `
+    <div class="saved-card">
+      <div>
+        <div class="saved-card-title">${esc(j.title || '—')}</div>
+        <div class="saved-card-company">${esc(j.company || '—')}</div>
+      </div>
+      <span class="saved-card-salary">${esc(j.salary || 'Salary n/a')}</span>
+      <div class="saved-card-actions">
+        ${j.applyUrl && j.applyUrl !== 'Not listed'
+          ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener">Apply →</a>`
+          : ''}
+        <button class="unsave-btn" onclick="unsaveJob('${esc(j.id)}')">Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+
+// ══════════════════════════════════════════════════════
+// PDF UPLOAD
+// ══════════════════════════════════════════════════════
+
+async function handlePdfUpload(input) {
+  const file = input.files && input.files[0];
+  if (!file || file.type !== 'application/pdf') return;
+
+  const statusEl = document.getElementById('pdfStatus');
+  const textarea = document.getElementById('cvText');
+
+  statusEl.textContent = 'Extracting text…';
+  statusEl.className = 'pdf-status loading';
+
+  try {
+    if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js not loaded');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    let fullText = '';
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page    = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+
+    const cleaned = fullText.replace(/\s{3,}/g, '\n').trim();
+    if (!cleaned) throw new Error('No text found — try pasting manually');
+
+    textarea.value = cleaned;
+    updateCounter();
+    statusEl.textContent = 'CV extracted — please review below';
+    statusEl.className = 'pdf-status success';
+    // Clear file input so same file can be re-uploaded
+    input.value = '';
+  } catch (err) {
+    statusEl.textContent = err.message || 'Extraction failed — please paste your CV manually';
+    statusEl.className = 'pdf-status error';
+    input.value = '';
+  }
+}
+
+// Drag-and-drop on the upload area
+document.addEventListener('DOMContentLoaded', () => {
+  const area = document.getElementById('pdfUploadArea');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+  area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+  area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') {
+      const fakeInput = { files: [file], value: '' };
+      handlePdfUpload(fakeInput);
+    }
+  });
+});
 
 
 // ══════════════════════════════════════════════════════
