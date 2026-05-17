@@ -161,8 +161,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
     console.log('[analyse] skills.gaps raw:', JSON.stringify(toolUse.input?.skills?.gaps));
     console.log('[analyse] full input:', JSON.stringify(toolUse.input));
 
-    const { profile, skills, companyValues, outreachContext } = toolUse.input;
-    res.status(200).json({ profile, skills, companyValues, outreachContext });
+    res.status(200).json(toolUse.input);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
