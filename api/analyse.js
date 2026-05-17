@@ -15,7 +15,7 @@ Rules for the analysis:
 - summary: write in second person, directly to the user. E.g. "You've built a strong foundation in..." or "Your background spans..." — warm, honest, specific. Never "The candidate" or "They have."
 - skills.advice: also second person and direct — "You're strongest when..." or "The gap to close first is..."
 - companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."
-- You MUST return exactly 4 items in the gaps array. This is non-negotiable. Use these exact tier values: Foundation, Intermediate, Advanced, Future. Each gap must have skill, tier, why, and howToBuild fields populated.
+- CRITICAL: The gaps array MUST contain exactly 4 items. No exceptions. Even the strongest candidate has skills to develop. If you think someone has no gaps, you are wrong — look harder. Use the four tiers: Foundation (something core to consolidate), Intermediate (something that would meaningfully strengthen them), Advanced (something that would make them exceptional), Future (something to develop over 1-2 years). Each gap MUST have skill, tier, why, and howToBuild with a real URL.
 - If self-knowledge answers are provided, use them to make the summary, directions, and valuesSignals significantly more personal and specific. These answers reveal what the CV cannot — the person's actual motivations, natural strengths, and vision for their life. Weight them heavily.
 - valuesSignals MUST always contain 4-6 specific observations about this person's character, work ethic, and values as revealed by their CV and questionnaire answers. Each signal should be a specific observation, not a generic trait. Example: "Chose postgraduate study over a full-time offer — prioritises long-term positioning over short-term gain" not just "Ambitious". Never return an empty valuesSignals array.
 - TONE: Be honest and realistic, not falsely positive. If there are genuine gaps or challenges, name them clearly but constructively. The user is better served by accurate assessment than flattery. Think of yourself as a trusted advisor who respects the person enough to tell them the truth. Never butter someone up. Never say something is a strength if it isn't.
@@ -83,6 +83,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
             strengths: { type: 'array', items: { type: 'string' } },
             gaps: {
               type: 'array',
+              minItems: 4,
               items: {
                 type: 'object',
                 properties: {
@@ -156,6 +157,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
     }
 
     console.log('[analyse] full input keys:', Object.keys(toolUse.input));
+    console.log('[analyse] skills:', JSON.stringify(toolUse.input.skills));
     console.log('[analyse] skills.gaps raw:', JSON.stringify(toolUse.input?.skills?.gaps));
     console.log('[analyse] full input:', JSON.stringify(toolUse.input));
 
