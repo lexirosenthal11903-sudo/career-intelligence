@@ -2165,6 +2165,158 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   .tab-btn { padding: var(--sp-3) var(--sp-4); font-size: 12px; }
 }
 
+/* ── Nav auth ───────────────────────────────────────── */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--ink-3);
+}
+.nav-auth-email { color: var(--ink-2); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-auth-link {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-auth-link:hover { color: var(--accent); }
+
+/* ── Auth overlay ───────────────────────────────────── */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28,26,23,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-6);
+}
+.auth-overlay[hidden] { display: none; }
+.auth-modal {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: var(--sp-10);
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(28,26,23,0.18);
+}
+.auth-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: var(--sp-2);
+  line-height: 1.15;
+}
+.auth-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-3);
+  margin-bottom: var(--sp-7);
+  line-height: 1.6;
+}
+.auth-email-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: 14px var(--sp-5);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink);
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: var(--sp-4);
+  transition: border-color 0.2s;
+}
+.auth-email-input:focus { border-color: var(--accent-lt); }
+.auth-actions { display: flex; flex-direction: column; gap: var(--sp-3); }
+.auth-submit-btn {
+  width: 100%;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 400;
+  padding: 16px;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.auth-submit-btn:hover { background: var(--accent-dk); }
+.auth-submit-btn:disabled { opacity: 0.5; cursor: default; }
+.auth-skip-link {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--sp-2) 0;
+  text-align: center;
+  transition: color 0.15s;
+}
+.auth-skip-link:hover { color: var(--ink-2); }
+.auth-confirm {
+  text-align: center;
+  padding: var(--sp-6) 0;
+}
+.auth-confirm-icon { font-family: var(--font-serif); font-size: 32px; color: var(--accent-lt); margin-bottom: var(--sp-4); }
+.auth-confirm-text { font-size: 15px; color: var(--ink-2); font-weight: 300; line-height: 1.6; }
+.auth-status {
+  font-size: 12px;
+  color: #c0392b;
+  margin-top: var(--sp-2);
+  min-height: 16px;
+}
+
+/* ── Guest save banner ──────────────────────────────── */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  background: rgba(196,168,130,0.08);
+  border: 1px solid var(--accent-lt);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-5);
+  margin-bottom: var(--sp-5);
+  font-size: 13px;
+  color: var(--ink-3);
+  font-weight: 300;
+}
+.guest-banner[hidden] { display: none; }
+.guest-banner-link {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.guest-banner-link:hover { color: var(--accent-dk); }
+
 /* ── Refine card ────────────────────────────────────── */
 .refine-card {
   border-left: 3px solid var(--accent-lt);
@@ -2361,6 +2513,9 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <span class="nav-cta-note eyebrow">Your results</span>
           <button class="btn-restart" onclick="goToForm()">← Start again</button>
         </div>
+
+        <!-- Auth state — always visible -->
+        <div class="nav-auth" id="navAuth" style="display:none;"></div>
 
       </div>
     </div>
@@ -2765,6 +2920,14 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
       </div>
     </div>
 
+    <!-- Guest save banner -->
+    <div class="container" style="padding-top:var(--sp-4);">
+      <div class="guest-banner" id="guestBanner" hidden>
+        <span>Sign in to save your results and access them next time.</span>
+        <button class="guest-banner-link" onclick="openAuthOverlay(false)">Sign in →</button>
+      </div>
+    </div>
+
     <!-- Main content -->
     <main class="dash-main" id="dashMain">
       <div class="container">
@@ -2939,6 +3102,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
      JAVASCRIPT — all three sessions combined
 ═══════════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 
 // ══════════════════════════════════════════════════════
@@ -3239,6 +3403,11 @@ async function runSearch() {
     window.ciResult = result;
     render(result);
     goToDashboard();
+
+    // Persist results silently; show guest banner if not signed in
+    saveResultToDb(result);
+    const banner = document.getElementById('guestBanner');
+    if (banner) banner.hidden = !!sbSession;
 
   } catch(err) {
     btn.disabled = false;
@@ -4030,6 +4199,189 @@ function render(data) {
 
 
 // ══════════════════════════════════════════════════════
+// SUPABASE AUTH & PERSISTENCE
+// ══════════════════════════════════════════════════════
+
+let sbClient = null;
+let sbSession = null;
+let _authResolve = null; // resolves when auth overlay closes
+
+async function initSupabase() {
+  try {
+    const cfg = await fetch('/api/config').then(r => r.json());
+    if (!cfg.url || !cfg.anonKey) return; // env vars not set — silently skip
+    sbClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+
+    const { data: { session } } = await sbClient.auth.getSession();
+    sbSession = session;
+    updateNavAuth(session);
+    if (session) { loadSavedJobsFromDb(); }
+
+    sbClient.auth.onAuthStateChange(async (event, session) => {
+      sbSession = session;
+      updateNavAuth(session);
+      if (event === 'SIGNED_IN') {
+        closeAuthOverlay(false);
+        loadSavedJobsFromDb();
+        if (_authResolve) { _authResolve(); _authResolve = null; }
+      }
+    });
+  } catch (e) {
+    console.warn('[auth] Supabase init skipped:', e.message);
+  }
+}
+
+function updateNavAuth(session) {
+  const el = document.getElementById('navAuth');
+  if (!el) return;
+  if (session?.user) {
+    el.style.display = 'flex';
+    el.innerHTML = `
+      <span class="nav-auth-email">${esc(session.user.email)}</span>
+      <button class="nav-auth-link" onclick="signOut()">Sign out</button>`;
+  } else {
+    el.style.display = 'flex';
+    el.innerHTML = `<button class="nav-auth-link" onclick="openAuthOverlay(false)">Sign in</button>`;
+  }
+}
+
+function openAuthOverlay(interceptGoToForm) {
+  const overlay = document.getElementById('authOverlay');
+  const heading = document.getElementById('authHeading');
+  document.getElementById('authForm').style.display = '';
+  document.getElementById('authConfirm').style.display = 'none';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authStatus').textContent = '';
+  heading.textContent = sbSession ? 'Welcome back.' : 'Create your account.';
+  overlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+  document.getElementById('authEmail').focus();
+  return new Promise(resolve => { _authResolve = resolve; });
+}
+
+function closeAuthOverlay(skipped) {
+  document.getElementById('authOverlay').hidden = true;
+  document.body.style.overflow = '';
+  if (skipped && _authResolve) { _authResolve(); _authResolve = null; }
+}
+
+async function submitAuthEmail() {
+  if (!sbClient) return;
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('authStatus').textContent = 'Please enter a valid email address.';
+    return;
+  }
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  document.getElementById('authStatus').textContent = '';
+  try {
+    const { error } = await sbClient.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.href.split('?')[0].split('#')[0] }
+    });
+    if (error) throw error;
+    document.getElementById('authForm').style.display = 'none';
+    document.getElementById('authConfirm').style.display = '';
+  } catch (err) {
+    document.getElementById('authStatus').textContent = err.message || 'Something went wrong. Try again.';
+    btn.disabled = false;
+    btn.textContent = 'Send me a link';
+  }
+}
+
+async function signOut() {
+  if (!sbClient) return;
+  await sbClient.auth.signOut();
+  sbSession = null;
+  updateNavAuth(null);
+}
+
+function getAuthHeader() {
+  return sbSession?.access_token
+    ? { 'Authorization': 'Bearer ' + sbSession.access_token }
+    : {};
+}
+
+async function saveResultToDb(data) {
+  if (!sbSession || !sbClient) return;
+  try {
+    await fetch('/api/save-result', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify({ data })
+    });
+  } catch (e) { /* silent */ }
+}
+
+async function loadSavedJobsFromDb() {
+  if (!sbSession) return;
+  try {
+    const res = await fetch('/api/save-job', { headers: getAuthHeader() });
+    if (!res.ok) return;
+    const { jobs } = await res.json();
+    if (!jobs?.length) return;
+    // Merge into window.savedJobs (avoid duplicates)
+    jobs.forEach(j => {
+      if (!window.savedJobs.find(s => s.id === j.id)) {
+        window.savedJobs.push(j);
+      }
+    });
+    renderSavedSection();
+    // Sync star buttons if table already rendered
+    syncStarButtons();
+  } catch (e) { /* silent */ }
+}
+
+function syncStarButtons() {
+  const jobs = (window.ciResult && window.ciResult.jobs) || [];
+  jobs.forEach((j, idx) => {
+    const isSaved = window.savedJobs.some(s => s.id === j.id);
+    const btn = document.getElementById('star-' + idx);
+    if (btn) {
+      btn.textContent = isSaved ? '★' : '☆';
+      btn.classList.toggle('saved', isSaved);
+    }
+  });
+}
+
+async function persistSaveJob(job) {
+  if (!sbSession) return;
+  try {
+    await fetch('/api/save-job', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify({ jobId: job.id, jobData: job })
+    });
+  } catch (e) { /* silent */ }
+}
+
+async function persistUnsaveJob(jobId) {
+  if (!sbSession) return;
+  try {
+    await fetch('/api/save-job', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify({ jobId })
+    });
+  } catch (e) { /* silent */ }
+}
+
+// Intercept goToForm to show auth overlay for guests
+const _originalGoToForm = goToForm;
+function goToForm() {
+  if (sbClient && !sbSession) {
+    openAuthOverlay(true).then(() => _originalGoToForm());
+  } else {
+    _originalGoToForm();
+  }
+}
+
+initSupabase();
+
+
+// ══════════════════════════════════════════════════════
 // JOB SAVING
 // ══════════════════════════════════════════════════════
 
@@ -4046,9 +4398,11 @@ function toggleSave(idx) {
   if (alreadySaved !== -1) {
     window.savedJobs.splice(alreadySaved, 1);
     if (starBtn) { starBtn.textContent = '☆'; starBtn.classList.remove('saved'); starBtn.title = 'Save this role'; }
+    persistUnsaveJob(job.id);
   } else {
     window.savedJobs.push({ ...job, _rowIdx: idx });
     if (starBtn) { starBtn.textContent = '★'; starBtn.classList.add('saved'); starBtn.title = 'Remove from saved'; }
+    persistSaveJob(job);
   }
   renderSavedSection();
 }
@@ -4058,6 +4412,7 @@ function unsaveJob(jobId) {
   if (idx === -1) return;
   const job = window.savedJobs[idx];
   window.savedJobs.splice(idx, 1);
+  persistUnsaveJob(jobId);
   // Sync star button in table
   const starBtn = document.getElementById('star-' + job._rowIdx);
   if (starBtn) { starBtn.textContent = '☆'; starBtn.classList.remove('saved'); starBtn.title = 'Save this role'; }
@@ -4316,6 +4671,31 @@ async function qFinish() {
 }
 
 </script>
+
+<!-- Auth overlay -->
+<div class="auth-overlay" id="authOverlay" hidden>
+  <div class="auth-modal">
+    <div id="authForm">
+      <div class="auth-heading" id="authHeading">Welcome back.</div>
+      <p class="auth-sub">Enter your email and we'll send you a sign-in link — no password needed.</p>
+      <input type="email" class="auth-email-input" id="authEmail" placeholder="your@email.com" autocomplete="email">
+      <div class="auth-status" id="authStatus"></div>
+      <div class="auth-actions">
+        <button class="auth-submit-btn" id="authSubmitBtn" onclick="submitAuthEmail()">Send me a link</button>
+        <button class="auth-skip-link" onclick="closeAuthOverlay(true)">Continue without signing in</button>
+      </div>
+    </div>
+    <div id="authConfirm" style="display:none;">
+      <div class="auth-confirm">
+        <div class="auth-confirm-icon">✦</div>
+        <div class="auth-confirm-text">Check your email — we've sent you a sign-in link.<br><br>You can close this and come back once you've clicked it.</div>
+      </div>
+      <div style="text-align:center; margin-top:var(--sp-6);">
+        <button class="auth-skip-link" onclick="closeAuthOverlay(true)">Continue without signing in</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Questionnaire modal -->
 <div class="q-overlay" id="qOverlay" hidden>
