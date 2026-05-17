@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { cvText, direction, location, workStyle, empType, salary, extra } = req.body;
+  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge } = req.body;
 
   const systemPrompt = `You are a career intelligence platform speaking directly to the user. You have read their background carefully and you are now giving them warm, personal, second-person guidance — as if a trusted advisor is talking to them, not writing a report about them.
 
@@ -15,7 +15,12 @@ Rules for the analysis:
 - summary: write in second person, directly to the user. E.g. "You've built a strong foundation in..." or "Your background spans..." — warm, honest, specific. Never "The candidate" or "They have."
 - skills.advice: also second person and direct — "You're strongest when..." or "The gap to close first is..."
 - companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."
-- You MUST return exactly 4 items in the gaps array. This is non-negotiable. Use these exact tier values: Foundation, Intermediate, Advanced, Future. Each gap must have skill, tier, why, and howToBuild fields populated.`;
+- You MUST return exactly 4 items in the gaps array. This is non-negotiable. Use these exact tier values: Foundation, Intermediate, Advanced, Future. Each gap must have skill, tier, why, and howToBuild fields populated.
+- If self-knowledge answers are provided, use them to make the summary, directions, and valuesSignals significantly more personal and specific. These answers reveal what the CV cannot — the person's actual motivations, natural strengths, and vision for their life. Weight them heavily.`;
+
+  const selfKnowledgeSection = selfKnowledge?.length
+    ? `\n\nSELF-KNOWLEDGE (what this person told us about themselves — use this to make the summary, directions, and values significantly more personal):\n${selfKnowledge.map((a, i) => a ? `Q${i+1}: ${a}` : null).filter(Boolean).join('\n')}`
+    : '';
 
   const userPrompt = `Please analyse my background carefully.
 ${cvText ? `CV:\n${cvText.slice(0, 8000)}` : ''}
@@ -24,7 +29,7 @@ ${location ? `Location: ${location}` : ''}
 ${workStyle?.length ? `Work style: ${workStyle.join(', ')}` : ''}
 ${empType?.length ? `Employment type: ${empType.join(', ')}` : ''}
 ${salary ? `Salary: ${salary}` : ''}
-${extra ? `Notes: ${extra}` : ''}`;
+${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
 
   const tool = {
     name: 'submit_career_analysis',

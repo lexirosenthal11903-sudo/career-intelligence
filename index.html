@@ -2030,6 +2030,174 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 @media (max-width: 480px) {
   .tab-btn { padding: var(--sp-3) var(--sp-4); font-size: 12px; }
 }
+
+/* ── Refine card ────────────────────────────────────── */
+.refine-card {
+  border-left: 3px solid var(--accent-lt);
+  position: relative;
+  overflow: hidden;
+}
+.refine-sub {
+  font-size: 14px;
+  color: var(--ink-3);
+  font-weight: 300;
+  margin-bottom: var(--sp-6);
+  max-width: 480px;
+  line-height: 1.6;
+}
+.refine-btn {
+  padding: 14px 32px;
+  font-size: 14px;
+}
+.enriched-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(196,168,130,0.12);
+  border: 1px solid var(--accent-lt);
+  border-radius: 100px;
+  padding: 5px 12px;
+  margin-bottom: var(--sp-5);
+}
+
+/* ── Questionnaire modal ────────────────────────────── */
+.q-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28,26,23,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-6);
+}
+.q-overlay[hidden] { display: none; }
+.q-modal {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: var(--sp-10);
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(28,26,23,0.18);
+  position: relative;
+}
+.q-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-8);
+}
+.q-progress-track {
+  display: flex;
+  gap: 6px;
+}
+.q-pip {
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--ink-5);
+  transition: background 0.3s;
+}
+.q-pip.done { background: var(--accent); }
+.q-pip.active { background: var(--accent-lt); }
+.q-skip-all {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.q-skip-all:hover { color: var(--ink-2); }
+.q-body { min-height: 240px; }
+.q-question {
+  font-family: var(--font-serif);
+  font-size: clamp(22px, 3.5vw, 30px);
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink);
+  margin-bottom: var(--sp-6);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.q-question.fading { opacity: 0; transform: translateY(6px); }
+.q-textarea {
+  width: 100%;
+  min-height: 110px;
+  background: var(--surface2);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-5);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink);
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: opacity 0.25s ease;
+}
+.q-textarea:focus { border-color: var(--accent-lt); }
+.q-textarea.fading { opacity: 0; }
+.q-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--sp-6);
+}
+.q-btn-skip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.q-btn-skip:hover { color: var(--ink-2); }
+.q-btn-next {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  padding: 13px 28px;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.q-btn-next:hover { background: var(--accent-dk); }
+.q-btn-next:disabled { opacity: 0.5; cursor: default; }
+.q-enriching {
+  text-align: center;
+  padding: var(--sp-8) 0;
+}
+.q-enriching-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-top: var(--sp-4);
+}
+@keyframes qPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+.q-pulse { animation: qPulse 1.6s ease infinite; }
 </style>
 </head>
 
@@ -2499,6 +2667,15 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             <div class="values-tags" id="valuesTags"></div>
           </div>
 
+          <!-- Refine card -->
+          <div class="card refine-card" id="refineCard" style="margin-top: var(--sp-5);">
+            <div class="enriched-badge" id="enrichedBadge" style="display:none;">✓ Profile enriched with self-reflection</div>
+            <div class="sec-label">Refine your profile</div>
+            <h2 class="sec-heading" style="font-size: clamp(18px, 2.5vw, 26px); margin-bottom: var(--sp-3);">Make your results<br><em>more personal.</em></h2>
+            <p class="refine-sub">Answer a few questions to go deeper than the CV. Takes 3–5 minutes and makes the directions, values, and summary significantly more specific to you.</p>
+            <button class="btn-primary refine-btn" id="refineBtn" onclick="openQuestionnaire()">Start reflection</button>
+          </div>
+
         </div><!-- /panel-profile -->
 
 
@@ -2811,6 +2988,7 @@ async function runSearch() {
   const extra     = document.getElementById('extra').value.trim();
   const workStyle = getChips('workStyle');
   const empType   = getChips('empType');
+  window.ciFormData = { cvText, direction, location, workStyle, empType, salary, extra };
 
   if (!cvText && !direction) {
     document.getElementById('cvText').focus();
@@ -3619,7 +3797,178 @@ function render(data) {
   switchTab('profile');
 }
 
+
+// ══════════════════════════════════════════════════════
+// SELF-KNOWLEDGE QUESTIONNAIRE
+// ══════════════════════════════════════════════════════
+
+const Q_QUESTIONS = [
+  'Who are you when your job title, degree, and university are removed? Describe yourself without those labels.',
+  'When have you felt most completely absorbed in work — time disappeared and it felt natural? What were you actually doing?',
+  'What would you work on even if nobody paid you and nobody noticed?',
+  'What is your specific advantage over people who started earlier or had more advantages? You have one.',
+  'Describe your ideal working life at 35 — not the job title, the texture of the day. Where are you, what are you doing, who is around you?'
+];
+
+let qIdx = 0;
+let qAnswers = [];
+
+function openQuestionnaire() {
+  qIdx = 0;
+  qAnswers = new Array(Q_QUESTIONS.length).fill('');
+  buildPips();
+  showQQuestion(0);
+  document.getElementById('qOverlay').hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+
+function buildPips() {
+  const container = document.getElementById('qPips');
+  container.innerHTML = Q_QUESTIONS.map((_, i) =>
+    `<div class="q-pip" id="qPip${i}"></div>`
+  ).join('');
+  updatePips();
+}
+
+function updatePips() {
+  Q_QUESTIONS.forEach((_, i) => {
+    const pip = document.getElementById('qPip' + i);
+    if (!pip) return;
+    pip.className = 'q-pip' + (i < qIdx ? ' done' : i === qIdx ? ' active' : '');
+  });
+}
+
+function showQQuestion(idx) {
+  const questionEl = document.getElementById('qQuestion');
+  const answerEl   = document.getElementById('qAnswer');
+  const nextBtn    = document.getElementById('qNextBtn');
+
+  questionEl.classList.remove('fading');
+  answerEl.classList.remove('fading');
+
+  questionEl.textContent = Q_QUESTIONS[idx];
+  answerEl.value = qAnswers[idx] || '';
+  answerEl.focus();
+
+  nextBtn.textContent = idx === Q_QUESTIONS.length - 1 ? 'Finish →' : 'Next →';
+  updatePips();
+}
+
+function qTransitionTo(nextIdx) {
+  const questionEl = document.getElementById('qQuestion');
+  const answerEl   = document.getElementById('qAnswer');
+
+  qAnswers[qIdx] = document.getElementById('qAnswer').value.trim();
+  questionEl.classList.add('fading');
+  answerEl.classList.add('fading');
+
+  setTimeout(() => {
+    qIdx = nextIdx;
+    showQQuestion(qIdx);
+  }, 250);
+}
+
+function qNext() {
+  qAnswers[qIdx] = document.getElementById('qAnswer').value.trim();
+  if (qIdx < Q_QUESTIONS.length - 1) {
+    qTransitionTo(qIdx + 1);
+  } else {
+    qFinish();
+  }
+}
+
+function qSkip() {
+  qAnswers[qIdx] = '';
+  if (qIdx < Q_QUESTIONS.length - 1) {
+    qTransitionTo(qIdx + 1);
+  } else {
+    qFinish();
+  }
+}
+
+function qSkipAll() {
+  qAnswers = new Array(Q_QUESTIONS.length).fill('');
+  qCloseModal();
+}
+
+function qCloseModal() {
+  document.getElementById('qOverlay').hidden = true;
+  document.body.style.overflow = '';
+}
+
+async function qFinish() {
+  const hasAnyAnswer = qAnswers.some(a => a.length > 0);
+  if (!hasAnyAnswer) { qCloseModal(); return; }
+
+  const body   = document.getElementById('qBody');
+  const footer = document.querySelector('.q-footer');
+  document.querySelector('.q-skip-all').disabled = true;
+  footer.style.display = 'none';
+  body.innerHTML = `
+    <div class="q-enriching">
+      <div class="q-pulse" style="font-family:var(--font-serif); font-size:28px; color:var(--accent-lt);">✦</div>
+      <div class="q-enriching-label">Enriching your profile…</div>
+    </div>`;
+
+  try {
+    const fd = window.ciFormData || {};
+    const res = await fetch('/api/analyse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...fd, selfKnowledge: qAnswers })
+    });
+    if (!res.ok) throw new Error('Re-analysis failed');
+    const enriched = await res.json();
+    if (!enriched.profile) throw new Error('No profile in response');
+
+    if (window.ciResult) {
+      window.ciResult.profile.summary             = enriched.profile.summary             || window.ciResult.profile.summary;
+      window.ciResult.profile.suggestedDirections = enriched.profile.suggestedDirections || window.ciResult.profile.suggestedDirections;
+      window.ciResult.profile.valuesSignals       = enriched.profile.valuesSignals       || window.ciResult.profile.valuesSignals;
+      window.ciResult.profile.companySuggestions  = enriched.profile.companySuggestions  || window.ciResult.profile.companySuggestions;
+      if (enriched.companyValues?.length) window.ciResult.companyValues = enriched.companyValues;
+
+      renderProfile(window.ciResult.profile);
+      renderCompanies(window.ciResult);
+    }
+
+    qCloseModal();
+
+    const badge = document.getElementById('enrichedBadge');
+    if (badge) badge.style.display = 'inline-flex';
+    const btn = document.getElementById('refineBtn');
+    if (btn) btn.textContent = 'Reflect again';
+
+  } catch (err) {
+    body.innerHTML = `<div class="q-enriching">
+      <div style="color:var(--ink-3); font-size:14px; line-height:1.6; font-weight:300;">Something went wrong — try again in a moment.</div>
+    </div>`;
+    footer.style.display = 'flex';
+    footer.querySelector('.q-btn-next').textContent = 'Try again';
+    footer.querySelector('.q-btn-next').onclick = qFinish;
+    document.querySelector('.q-skip-all').disabled = false;
+  }
+}
+
 </script>
+
+<!-- Questionnaire modal -->
+<div class="q-overlay" id="qOverlay" hidden>
+  <div class="q-modal">
+    <div class="q-top">
+      <div class="q-progress-track" id="qPips"></div>
+      <button class="q-skip-all" onclick="qSkipAll()">Skip all</button>
+    </div>
+    <div class="q-body" id="qBody">
+      <div class="q-question" id="qQuestion"></div>
+      <textarea class="q-textarea" id="qAnswer" rows="5" placeholder="Take your time…"></textarea>
+    </div>
+    <div class="q-footer">
+      <button class="q-btn-skip" onclick="qSkip()">Skip this one</button>
+      <button class="q-btn-next" id="qNextBtn" onclick="qNext()">Next →</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
