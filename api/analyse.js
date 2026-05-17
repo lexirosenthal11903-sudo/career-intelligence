@@ -3,8 +3,83 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge } = req.body;
+  const enrichOnly = req.query?.enrichOnly === 'true';
+  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge, profile: incomingProfile } = req.body;
 
+  // ── ENRICH-ONLY mode: fast re-analysis from questionnaire answers only ──────
+  if (enrichOnly) {
+    const p = incomingProfile || {};
+    const selfSection = (selfKnowledge || []).map((a, i) => a ? `Q${i+1}: ${a}` : null).filter(Boolean).join('\n');
+
+    const enrichTool = {
+      name: 'submit_enrichment',
+      description: 'Submit the enriched profile fields.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          summary:             { type: 'string' },
+          suggestedDirections: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { title: { type: 'string' }, why: { type: 'string' } },
+              required: ['title', 'why']
+            }
+          },
+          valuesSignals:       { type: 'array', minItems: 4, items: { type: 'string' } },
+          companySuggestions:  {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { type: { type: 'string' }, why: { type: 'string' } },
+              required: ['type', 'why']
+            }
+          }
+        },
+        required: ['summary', 'suggestedDirections', 'valuesSignals', 'companySuggestions']
+      }
+    };
+
+    try {
+      const enrichRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1500,
+          system: `You are a career intelligence platform. Update this person's career profile using their self-knowledge answers. Write entirely in second person ("you", "your"). Be specific and personal — these answers reveal the person behind the CV. Return 3 suggestedDirections and 4-6 valuesSignals as specific sentence observations.`,
+          tools: [enrichTool],
+          tool_choice: { type: 'tool', name: 'submit_enrichment' },
+          messages: [{
+            role: 'user',
+            content: `Current profile:
+- Seniority: ${p.seniorityLevel || 'unknown'}
+- Target roles: ${(p.topRoleTitles || []).join(', ')}
+- Summary: ${(p.summary || '').slice(0, 200)}
+
+Self-knowledge answers:
+${selfSection}
+
+Update the summary, directions, valuesSignals, and companySuggestions to reflect what these answers reveal about who this person really is and what they want.`
+          }]
+        })
+      });
+      const enrichData = await enrichRes.json();
+      const enrichToolUse = enrichData.content?.find(b => b.type === 'tool_use' && b.name === 'submit_enrichment');
+      if (!enrichToolUse?.input) {
+        return res.status(500).json({ error: 'Enrichment tool not called', raw: enrichData.content });
+      }
+      return res.status(200).json({ profile: { ...p, ...enrichToolUse.input } });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  // ── FULL ANALYSIS ─────────────────────────────────────────────────────────────
   const systemPrompt = `You are a career intelligence platform speaking directly to the user. You have read their background carefully and you are now giving them warm, personal, second-person guidance — as if a trusted advisor is talking to them, not writing a report about them.
 
 Rules for the analysis:
@@ -156,12 +231,74 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
       return res.status(500).json({ error: 'Model did not call the analysis tool', raw: data.content });
     }
 
-    console.log('[analyse] full input keys:', Object.keys(toolUse.input));
-    console.log('[analyse] skills:', JSON.stringify(toolUse.input.skills));
-    console.log('[analyse] skills.gaps raw:', JSON.stringify(toolUse.input?.skills?.gaps));
-    console.log('[analyse] full input:', JSON.stringify(toolUse.input));
+    let result = toolUse.input;
 
-    res.status(200).json(toolUse.input);
+    console.log('[analyse] full input keys:', Object.keys(result));
+    console.log('[analyse] skills:', JSON.stringify(result.skills));
+    console.log('[analyse] skills.gaps raw:', JSON.stringify(result.skills?.gaps));
+
+    // ── Skills fallback: if gaps are missing, run a focused second call ────────
+    if (!result.skills?.gaps?.length) {
+      console.log('[analyse] gaps missing — running fallback gap call');
+      try {
+        const profile = result.profile || {};
+        const gapTool = {
+          name: 'submit_gaps',
+          description: 'Submit exactly 4 skill gaps.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              strengths: { type: 'array', items: { type: 'string' } },
+              gaps: {
+                type: 'array',
+                minItems: 4,
+                items: {
+                  type: 'object',
+                  properties: {
+                    skill:      { type: 'string' },
+                    tier:       { type: 'string' },
+                    why:        { type: 'string' },
+                    howToBuild: { type: 'string' }
+                  },
+                  required: ['skill', 'tier', 'why', 'howToBuild']
+                }
+              },
+              advice: { type: 'string' }
+            },
+            required: ['strengths', 'gaps', 'advice']
+          }
+        };
+        const gapRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 1500,
+            system: 'You are a career coach. You MUST return exactly 4 skill gaps using tiers: Foundation, Intermediate, Advanced, Future. Every person has gaps. Include a real resource URL in each howToBuild.',
+            tools: [gapTool],
+            tool_choice: { type: 'tool', name: 'submit_gaps' },
+            messages: [{
+              role: 'user',
+              content: `Give skill gaps for: ${profile.seniorityLevel || ''} with ${profile.yearsExperience || ''} experience. Target roles: ${(profile.topRoleTitles || []).join(', ')}. Skills: ${(profile.extractedSkills || []).slice(0, 8).join(', ')}.`
+            }]
+          })
+        });
+        const gapData = await gapRes.json();
+        const gapToolUse = gapData.content?.find(b => b.type === 'tool_use' && b.name === 'submit_gaps');
+        if (gapToolUse?.input) {
+          console.log('[analyse] fallback gaps:', JSON.stringify(gapToolUse.input));
+          result = { ...result, skills: gapToolUse.input };
+        }
+      } catch (gapErr) {
+        console.log('[analyse] fallback gap call failed:', gapErr.message);
+      }
+    }
+
+    res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

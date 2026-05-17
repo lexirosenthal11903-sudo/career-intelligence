@@ -1855,6 +1855,20 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 }
 .next-step-card.checked { opacity: 0.5; }
 .next-step-card.checked .next-step-title { text-decoration: line-through; color: var(--ink-4); }
+.next-step-card.step-hidden { display: none; }
+@keyframes stepReveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.next-step-card.step-revealing { animation: stepReveal 0.45s var(--ease-out) both; }
+.next-steps-reveal-msg {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: var(--sp-2) 0 var(--sp-1);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.next-steps-reveal-msg.visible { opacity: 1; }
 
 /* ── JOB DRAWER ── */
 .job-row { cursor: pointer; }
@@ -2671,9 +2685,10 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <div class="card refine-card" id="refineCard" style="margin-top: var(--sp-5);">
             <div class="enriched-badge" id="enrichedBadge" style="display:none;">✓ Profile enriched with self-reflection</div>
             <div class="sec-label">Refine your profile</div>
-            <h2 class="sec-heading" style="font-size: clamp(18px, 2.5vw, 26px); margin-bottom: var(--sp-3);">Make your results<br><em>more personal.</em></h2>
-            <p class="refine-sub">Answer a few questions to go deeper than the CV. Takes 3–5 minutes and makes the directions, values, and summary significantly more specific to you.</p>
-            <button class="btn-primary refine-btn" id="refineBtn" onclick="openQuestionnaire()">Start reflection</button>
+            <h2 class="sec-heading" style="font-size: clamp(18px, 2.5vw, 26px); margin-bottom: var(--sp-2);">Your CV shows what you've done.</h2>
+            <h2 class="sec-heading" style="font-size: clamp(18px, 2.5vw, 26px); margin-bottom: var(--sp-4);"><em>These questions reveal who you are.</em></h2>
+            <p class="refine-sub">5 questions, 3–5 minutes. Your answers change your direction suggestions, values analysis, and company matches — making everything significantly more specific to you.</p>
+            <button class="btn-primary refine-btn" id="refineBtn" onclick="openQuestionnaire()">Start reflection →</button>
           </div>
 
         </div><!-- /panel-profile -->
@@ -3720,8 +3735,46 @@ function renderNextSteps(data) {
     );
   }
 
-  list.innerHTML = steps.slice(0, 3).map((step, i) => `
-    <div class="next-step-card" id="step-card-${i}">
+  // Build up to 3 extra steps from remaining data
+  if (jobs.length >= 3) {
+    const third = jobs[2];
+    steps.push({
+      title: `Apply to ${third.title} at ${third.company}`,
+      description: `Spend 20 minutes on ${third.company}'s website and recent LinkedIn activity before applying. Then tailor the first paragraph of your cover letter to something specific — a product they've launched, a value that resonates. That specificity is what gets responses.`,
+      tag: 'This week · 30 minutes'
+    });
+  }
+  if (gaps.length >= 2) {
+    const g2 = gaps[1];
+    const gapName2 = g2.skill || g2.name || 'this skill';
+    const howTo2 = g2.howToBuild || g2.how || g2.action || 'Commit one hour this week to starting.';
+    steps.push({
+      title: `Build ${gapName2}`,
+      description: `${g2.why ? g2.why + ' ' : ''}${howTo2}`,
+      tag: 'This week'
+    });
+  }
+  const companies = Array.isArray(data.companyValues) ? data.companyValues : [];
+  if (companies.length) {
+    const co = companies[0];
+    steps.push({
+      title: `Research ${co.name} this week`,
+      description: `${co.name} is one of your suggested company matches. Spend 15 minutes on their careers page and recent news, then connect with someone from their team on LinkedIn with a short, specific note about why you're interested. This is how you get seen before a job is posted.`,
+      tag: 'This week · 15 minutes'
+    });
+  }
+
+  // Pad to 6 with a fallback if needed
+  if (steps.length < 4) steps.push({
+    title: 'Complete the self-reflection questions',
+    description: 'The "Refine your profile" section on the Profile tab has 5 short questions that make your direction suggestions and values analysis significantly more personal. It takes 3–5 minutes and meaningfully changes what you see.',
+    tag: 'Now · 5 minutes'
+  });
+
+  window.ciSteps = steps;
+
+  const renderStep = (step, i, hidden) => `
+    <div class="next-step-card${hidden ? ' step-hidden' : ''}" id="step-card-${i}">
       <label class="step-check-wrap" aria-label="Mark as done" onclick="event.stopPropagation()">
         <input type="checkbox" class="step-check" id="step-${i}" onchange="toggleStep(${i}, this)">
         <span class="step-check-box"></span>
@@ -3731,12 +3784,33 @@ function renderNextSteps(data) {
         ${step.description ? `<div class="next-step-desc">${esc(step.description)}</div>` : ''}
         ${step.tag ? `<span class="next-step-tag">${esc(step.tag)}</span>` : ''}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+
+  list.innerHTML = steps.map((step, i) => renderStep(step, i, i >= 3)).join('') +
+    `<div class="next-steps-reveal-msg" id="stepsRevealMsg">Here's what to do next.</div>`;
 }
 
 function toggleStep(i, checkbox) {
   document.getElementById('step-card-' + i).classList.toggle('checked', checkbox.checked);
+  // Check if all currently visible (non-hidden) steps are checked
+  const allSteps = window.ciSteps || [];
+  const visibleCards = document.querySelectorAll('#nextStepsList .next-step-card:not(.step-hidden)');
+  const allChecked = [...visibleCards].every(card => card.classList.contains('checked'));
+  if (!allChecked) return;
+  // Find the next hidden step to reveal
+  const nextIdx = [...document.querySelectorAll('#nextStepsList .next-step-card')]
+    .findIndex(card => card.classList.contains('step-hidden'));
+  if (nextIdx === -1) return;
+  const msg = document.getElementById('stepsRevealMsg');
+  if (msg) { msg.classList.add('visible'); }
+  setTimeout(() => {
+    const nextCard = document.getElementById('step-card-' + nextIdx);
+    if (nextCard) {
+      nextCard.classList.remove('step-hidden');
+      nextCard.classList.add('step-revealing');
+    }
+    if (msg) { msg.classList.remove('visible'); }
+  }, 500);
 }
 
 
@@ -3921,22 +3995,29 @@ async function qFinish() {
     </div>`;
 
   try {
-    const fd = window.ciFormData || {};
-    const res = await fetch('/api/analyse', {
+    const currentProfile = window.ciResult?.profile || {};
+    const res = await fetch('/api/analyse?enrichOnly=true', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...fd, selfKnowledge: qAnswers })
+      body: JSON.stringify({
+        selfKnowledge: qAnswers,
+        profile: {
+          seniorityLevel: currentProfile.seniorityLevel,
+          topRoleTitles:  currentProfile.topRoleTitles,
+          summary:        (currentProfile.summary || '').slice(0, 200)
+        }
+      })
     });
     if (!res.ok) throw new Error('Re-analysis failed');
     const enriched = await res.json();
     if (!enriched.profile) throw new Error('No profile in response');
 
     if (window.ciResult) {
-      window.ciResult.profile.summary             = enriched.profile.summary             || window.ciResult.profile.summary;
-      window.ciResult.profile.suggestedDirections = enriched.profile.suggestedDirections || window.ciResult.profile.suggestedDirections;
-      window.ciResult.profile.valuesSignals       = enriched.profile.valuesSignals       || window.ciResult.profile.valuesSignals;
-      window.ciResult.profile.companySuggestions  = enriched.profile.companySuggestions  || window.ciResult.profile.companySuggestions;
-      if (enriched.companyValues?.length) window.ciResult.companyValues = enriched.companyValues;
+      const ep = enriched.profile;
+      if (ep.summary)             window.ciResult.profile.summary             = ep.summary;
+      if (ep.suggestedDirections) window.ciResult.profile.suggestedDirections = ep.suggestedDirections;
+      if (ep.valuesSignals)       window.ciResult.profile.valuesSignals       = ep.valuesSignals;
+      if (ep.companySuggestions)  window.ciResult.profile.companySuggestions  = ep.companySuggestions;
 
       renderProfile(window.ciResult.profile);
       renderCompanies(window.ciResult);
