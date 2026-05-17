@@ -3214,7 +3214,7 @@ function renderCompanies(data) {
       <div class="company-card">
         <div class="co-top">
           <div class="co-name">${esc(c.name || c.type || '—')}</div>
-          <span class="co-fit-badge">Strong match</span>
+          <span class="co-fit-badge">Recommended match</span>
         </div>
         <div class="co-why">${esc(c.why || c.whyFit || '')}</div>
         ${c.culture ? `<div class="co-culture">${esc(c.culture)}</div>` : ''}
@@ -3251,7 +3251,7 @@ function renderRoles(jobs, data) {
     const score    = Number(j.relevanceScore) || 0;
     const fitClass = score >= 8 ? 'fit-strong' : score >= 5 ? 'fit-good' : 'fit-broad';
     const fitLabel = score >= 8 ? '▲ Strong' : score >= 5 ? '◆ Good' : '○ Broad';
-    const reason   = (j.relevanceReason || '').slice(0, 80) + ((j.relevanceReason || '').length > 80 ? '…' : '');
+    const reason   = (j.relevanceReason || '').slice(0, 120) + ((j.relevanceReason || '').length > 120 ? '…' : '');
 
     const outreachMsg = buildOutreachMsg(j, profile);
     const cvTipsHtml  = buildCVTips(j, profile, skills);
@@ -3457,7 +3457,9 @@ function renderNextSteps(data) {
     const score = Number(best.relevanceScore) || 0;
     const fitWord = score >= 8 ? 'strongest' : score >= 5 ? 'best-matched' : 'top';
     const why   = best.relevanceReason
-      ? best.relevanceReason.replace(/^(this role |it )?(is )?(a )?(strong |good )?match (because |as )?/i, '').replace(/^./, c => c.toUpperCase())
+      ? best.relevanceReason
+          .replace(/\bcandidate's\b/gi, 'your').replace(/\bthe candidate\b/gi, 'you')
+          .replace(/^(this role |it )?(is )?(a )?(strong |good )?match (because |as )?/i, '').replace(/^./, c => c.toUpperCase())
       : null;
     const applyAction = best.applyUrl && best.applyUrl !== 'Not listed'
       ? `The apply link is ready in Live Roles — click it, update the opening line of your cover letter to reference ${best.company} specifically, and submit.`

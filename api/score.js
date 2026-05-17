@@ -19,7 +19,9 @@ For each job, return:
   "contactName": "Not found",
   "contactTitle": "Not found",
   "contactLinkedIn": "Not found"
-}`;
+}
+
+Write relevanceReason in second person, directly to the user. Never use "the candidate" or "candidate's" — use "you" and "your" instead. Example: "Your background in X makes you a strong fit for this role."`;
 
   const userPrompt = `Score these jobs against this candidate profile.
 
