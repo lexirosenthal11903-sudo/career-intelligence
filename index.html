@@ -3128,14 +3128,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
       </div>
     </div>
 
-    <!-- Guest save banner -->
-    <div class="container" style="padding-top:var(--sp-4);">
-      <div class="guest-banner" id="guestBanner" hidden>
-        <span>Sign in to save your results and access them next time.</span>
-        <button class="guest-banner-link" onclick="openAuthOverlay()">Sign in →</button>
-      </div>
-    </div>
-
     <!-- Main content -->
     <main class="dash-main" id="dashMain">
       <div class="container">
@@ -3283,6 +3275,14 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 
       </div><!-- /container -->
     </main>
+
+    <!-- Guest save banner — shown at bottom after results, only for guests -->
+    <div class="container" style="padding-bottom:var(--sp-8);">
+      <div class="guest-banner" id="guestBanner" hidden>
+        <span>Sign in to save your results and access them next time.</span>
+        <button class="guest-banner-link" onclick="openAuthOverlay()">Sign in →</button>
+      </div>
+    </div>
 
     </div><!-- /dash-shell -->
 
@@ -4677,15 +4677,8 @@ async function persistUnsaveJob(jobId) {
   } catch (e) { /* silent */ }
 }
 
-// Intercept goToForm to show auth overlay for guests
-const _originalGoToForm = goToForm;
-function goToForm() {
-  if (sbClient && !sbSession) {
-    openAuthOverlay().then(() => _originalGoToForm());
-  } else {
-    _originalGoToForm();
-  }
-}
+// goToForm goes directly to the form — no auth gate.
+// Sign-in is prompted via the nav link and the post-results banner.
 
 initSupabase();
 
