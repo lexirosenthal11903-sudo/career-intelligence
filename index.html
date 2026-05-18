@@ -2924,7 +2924,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
     <div class="container" style="padding-top:var(--sp-4);">
       <div class="guest-banner" id="guestBanner" hidden>
         <span>Sign in to save your results and access them next time.</span>
-        <button class="guest-banner-link" onclick="openAuthOverlay(false)">Sign in →</button>
+        <button class="guest-banner-link" onclick="openAuthOverlay()">Sign in →</button>
       </div>
     </div>
 
@@ -4204,30 +4204,75 @@ function render(data) {
 
 let sbClient = null;
 let sbSession = null;
-let _authResolve = null; // resolves when auth overlay closes
+let _authResolve = null;
+let _authPollInterval = null;
 
 async function initSupabase() {
   try {
     const cfg = await fetch('/api/config').then(r => r.json());
-    if (!cfg.url || !cfg.anonKey) return; // env vars not set — silently skip
+    if (!cfg.url || !cfg.anonKey) return;
     sbClient = window.supabase.createClient(cfg.url, cfg.anonKey);
 
+    // Fix 2: check existing session on page load — if present, goToForm skips the overlay
     const { data: { session } } = await sbClient.auth.getSession();
     sbSession = session;
     updateNavAuth(session);
     if (session) { loadSavedJobsFromDb(); }
 
+    // Fix 1: SIGNED_IN fires in same tab after magic link redirect
     sbClient.auth.onAuthStateChange(async (event, session) => {
       sbSession = session;
       updateNavAuth(session);
       if (event === 'SIGNED_IN') {
-        closeAuthOverlay(false);
         loadSavedJobsFromDb();
-        if (_authResolve) { _authResolve(); _authResolve = null; }
+        closeAuthOverlay(); // resolves _authResolve → advances to form
       }
     });
   } catch (e) {
     console.warn('[auth] Supabase init skipped:', e.message);
+  }
+}
+
+// Fix 3: poll getSession() every 2 s while confirm screen is open
+// catches the case where the magic link opened in a different tab
+function startAuthPoll() {
+  if (!sbClient || _authPollInterval) return;
+  _authPollInterval = setInterval(async () => {
+    try {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session && !sbSession) {
+        sbSession = session;
+        updateNavAuth(session);
+        loadSavedJobsFromDb();
+        clearInterval(_authPollInterval);
+        _authPollInterval = null;
+        closeAuthOverlay();
+      }
+    } catch (_) {}
+  }, 2000);
+}
+
+function stopAuthPoll() {
+  if (_authPollInterval) { clearInterval(_authPollInterval); _authPollInterval = null; }
+}
+
+async function checkSessionNow() {
+  if (!sbClient) return;
+  const btn = document.querySelector('#authConfirm .auth-submit-btn');
+  if (btn) btn.textContent = 'Checking…';
+  try {
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (session) {
+      sbSession = session;
+      updateNavAuth(session);
+      loadSavedJobsFromDb();
+      closeAuthOverlay();
+    } else {
+      if (btn) btn.textContent = 'Not signed in yet — check your email';
+      setTimeout(() => { if (btn) btn.textContent = 'I\'ve already clicked the link'; }, 2500);
+    }
+  } catch (e) {
+    if (btn) btn.textContent = 'I\'ve already clicked the link';
   }
 }
 
@@ -4241,28 +4286,30 @@ function updateNavAuth(session) {
       <button class="nav-auth-link" onclick="signOut()">Sign out</button>`;
   } else {
     el.style.display = 'flex';
-    el.innerHTML = `<button class="nav-auth-link" onclick="openAuthOverlay(false)">Sign in</button>`;
+    el.innerHTML = `<button class="nav-auth-link" onclick="openAuthOverlay()">Sign in</button>`;
   }
 }
 
-function openAuthOverlay(interceptGoToForm) {
+function openAuthOverlay() {
   const overlay = document.getElementById('authOverlay');
-  const heading = document.getElementById('authHeading');
   document.getElementById('authForm').style.display = '';
   document.getElementById('authConfirm').style.display = 'none';
   document.getElementById('authEmail').value = '';
   document.getElementById('authStatus').textContent = '';
-  heading.textContent = sbSession ? 'Welcome back.' : 'Create your account.';
+  document.getElementById('authHeading').textContent = 'Create your account.';
   overlay.hidden = false;
   document.body.style.overflow = 'hidden';
   document.getElementById('authEmail').focus();
   return new Promise(resolve => { _authResolve = resolve; });
 }
 
-function closeAuthOverlay(skipped) {
+// Always resolves _authResolve so the goToForm chain advances regardless
+// of whether the user signed in or skipped
+function closeAuthOverlay() {
+  stopAuthPoll();
   document.getElementById('authOverlay').hidden = true;
   document.body.style.overflow = '';
-  if (skipped && _authResolve) { _authResolve(); _authResolve = null; }
+  if (_authResolve) { _authResolve(); _authResolve = null; }
 }
 
 async function submitAuthEmail() {
@@ -4284,6 +4331,7 @@ async function submitAuthEmail() {
     if (error) throw error;
     document.getElementById('authForm').style.display = 'none';
     document.getElementById('authConfirm').style.display = '';
+    startAuthPoll(); // catch cross-tab sign-in
   } catch (err) {
     document.getElementById('authStatus').textContent = err.message || 'Something went wrong. Try again.';
     btn.disabled = false;
@@ -4372,7 +4420,7 @@ async function persistUnsaveJob(jobId) {
 const _originalGoToForm = goToForm;
 function goToForm() {
   if (sbClient && !sbSession) {
-    openAuthOverlay(true).then(() => _originalGoToForm());
+    openAuthOverlay().then(() => _originalGoToForm());
   } else {
     _originalGoToForm();
   }
@@ -4682,16 +4730,17 @@ async function qFinish() {
       <div class="auth-status" id="authStatus"></div>
       <div class="auth-actions">
         <button class="auth-submit-btn" id="authSubmitBtn" onclick="submitAuthEmail()">Send me a link</button>
-        <button class="auth-skip-link" onclick="closeAuthOverlay(true)">Continue without signing in</button>
+        <button class="auth-skip-link" onclick="closeAuthOverlay()">Continue without signing in</button>
       </div>
     </div>
     <div id="authConfirm" style="display:none;">
       <div class="auth-confirm">
         <div class="auth-confirm-icon">✦</div>
-        <div class="auth-confirm-text">Check your email — we've sent you a sign-in link.<br><br>You can close this and come back once you've clicked it.</div>
+        <div class="auth-confirm-text">Check your email — we've sent you a sign-in link.<br><br>This screen will advance automatically once you click it.</div>
       </div>
-      <div style="text-align:center; margin-top:var(--sp-6);">
-        <button class="auth-skip-link" onclick="closeAuthOverlay(true)">Continue without signing in</button>
+      <div style="text-align:center; margin-top:var(--sp-6); display:flex; flex-direction:column; gap:var(--sp-3); align-items:center;">
+        <button class="auth-submit-btn" style="max-width:280px;" onclick="checkSessionNow()">I've already clicked the link</button>
+        <button class="auth-skip-link" onclick="closeAuthOverlay()">Continue without signing in</button>
       </div>
     </div>
   </div>
