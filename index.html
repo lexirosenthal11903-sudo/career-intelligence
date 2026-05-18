@@ -23,23 +23,24 @@
 /* ── DESIGN TOKENS ── */
 :root {
   --bg:         #F7F4EF;
-  --bg-warm:    #F0ECE5;
-  --bg-deep:    #E8E3DA;
-  --surface:    #FAFAF8;
-  --surface2:   #F2EFE9;
+  --bg-warm:    #F0EBE3;
+  --bg-deep:    #EDE7DC;
+  --surface:    #F7F4EF;
+  --surface2:   #F0EBE3;
 
   --ink:        #1C1A17;
-  --ink-2:      #4A4640;
-  --ink-3:      #8A8680;
-  --ink-4:      #B8B4AE;
-  --ink-5:      #D4D0CA;
+  --ink-2:      #3D3A34;
+  --ink-3:      #6B6660;
+  --ink-4:      #9A9590;
+  --ink-5:      #E8E2D9;
 
   --accent:     #8B6F47;
-  --accent-lt:  #C4A882;
+  --accent-lt:  #A68B5B;
   --accent-dk:  #5C4632;
+  --accent-bg:  #F5EFE6;
 
-  --green:      #3D6B4F;
-  --green-bg:   #EDF4F0;
+  --green:      #5C7A62;
+  --green-bg:   #EBF2EC;
   --amber:      #9A6B2E;
   --amber-bg:   #FBF6EE;
   --red:        #8B3A2F;
@@ -77,7 +78,7 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   font-weight: 300;
-  line-height: 1.65;
+  line-height: 1.75;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -1085,35 +1086,98 @@ input[type="text"]::placeholder {
   background: var(--ink-5);
 }
 
-/* ── TAB BAR ── */
-.tab-bar {
+/* ── PROGRESS SIDEBAR ── */
+.progress-sidebar {
+  position: fixed;
+  top: 61px;
+  left: 0;
+  bottom: 0;
+  width: 220px;
+  background: #F0EBE3;
+  border-right: 1px solid #E8E2D9;
+  z-index: 50;
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  opacity: 0;
+  animation: fadeIn 0.5s var(--ease-out) 0.3s forwards;
+}
+
+.sidebar-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 24px 13px 21px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 300;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  line-height: 1.3;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+}
+
+.sidebar-step:hover:not(.sidebar-locked) { color: var(--ink-2); background: rgba(139,111,71,0.04); }
+
+.sidebar-step.sidebar-active {
+  border-left-color: #8B6F47;
+  color: #8B6F47;
+  font-weight: 400;
+  background: rgba(139,111,71,0.06);
+}
+
+.sidebar-step.sidebar-complete { color: var(--ink-2); }
+
+.sidebar-step.sidebar-locked {
+  color: #9A9590;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.sidebar-tick {
+  flex-shrink: 0;
+  width: 14px;
+  font-size: 12px;
+  color: #5C7A62;
+  line-height: 1;
+}
+
+.sidebar-step-label { flex: 1; }
+
+/* ── MOBILE PROGRESS STRIP ── */
+.progress-strip {
+  display: none;
   position: sticky;
   top: 61px;
   z-index: 90;
-  background: rgba(247, 244, 239, 0.95);
+  background: rgba(247, 244, 239, 0.96);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--ink-5);
-  opacity: 0;
-  animation: fadeUp 0.7s var(--ease-out) 0.25s forwards;
-}
-
-.tab-bar-inner {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.tab-bar-inner::-webkit-scrollbar { display: none; }
+.progress-strip::-webkit-scrollbar { display: none; }
 
-.tab-btn {
+.progress-strip-inner {
+  display: flex;
+  align-items: stretch;
+}
+
+.strip-step {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-4) var(--sp-5);
+  gap: 5px;
+  padding: var(--sp-3) var(--sp-4);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 300;
   color: var(--ink-4);
   background: none;
@@ -1121,34 +1185,163 @@ input[type="text"]::placeholder {
   border-bottom: 2px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  transition: color 0.18s, border-color 0.18s;
   flex-shrink: 0;
 }
 
-.tab-btn:hover { color: var(--ink-2); }
+.strip-step:hover:not(.strip-locked) { color: var(--ink-2); }
+.strip-step.strip-active { color: #8B6F47; font-weight: 400; border-bottom-color: #8B6F47; }
+.strip-step.strip-locked { color: #9A9590; cursor: not-allowed; pointer-events: none; }
 
-.tab-btn.active {
-  color: var(--ink);
+/* ── DASH SHELL — content offset for sidebar ── */
+.dash-shell { margin-left: 220px; }
+
+@media (max-width: 768px) {
+  .progress-sidebar { display: none; }
+  .progress-strip   { display: block; }
+  .dash-shell       { margin-left: 0; }
+}
+
+/* ── SECTION NEXT BUTTON ── */
+.section-next-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--ink-5);
+}
+
+.btn-next-section {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
   font-weight: 400;
-  border-bottom-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-lt);
+  border-radius: var(--r-md);
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
 }
 
-.tab-num {
+.btn-next-section:hover { background: rgba(139,111,71,0.1); border-color: var(--accent); transform: translateX(2px); }
+
+/* ── ROLES CARD GRID ── */
+.roles-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 760px) { .roles-card-grid { grid-template-columns: 1fr; gap: 20px; } }
+
+.role-card-wrapper { display: flex; flex-direction: column; }
+
+.role-card {
+  background: var(--surface);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl);
+  padding: 40px;
+  position: relative;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  box-shadow: 0 1px 3px rgba(28,26,23,0.04);
+  flex: 1;
+}
+
+.role-card:hover { border-color: var(--accent-lt); box-shadow: 0 4px 20px rgba(28,26,23,0.07); }
+
+.role-card-star {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.role-card-company {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.15;
+  margin-bottom: 5px;
+  padding-right: 32px;
+}
+
+.role-card-title {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.role-card-meta {
   font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.06em;
-  color: var(--ink-5);
-  transition: color 0.2s;
+  font-size: 11px;
+  color: var(--ink-4);
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  letter-spacing: 0.03em;
 }
 
-.tab-btn.active .tab-num,
-.tab-btn:hover .tab-num { color: var(--accent-lt); }
+.role-card-bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bg-deep);
+}
+
+.role-card-reason {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--ink-4);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.role-card-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0, 0, 0.2, 1);
+  border: 1px solid var(--ink-5);
+  border-top: none;
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  overflow: hidden;
+}
+
+.role-card-drawer.open { grid-template-rows: 1fr; }
+
+.role-card-drawer-clip { overflow: hidden; min-height: 0; }
+
+/* Seamlessly join card to open drawer */
+.role-card-wrapper:has(.role-card-drawer.open) .role-card {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  border-bottom-color: transparent;
+}
 
 /* ── DASH MAIN ── */
 .dash-main {
   padding: var(--sp-12) 0 var(--sp-24);
   opacity: 0;
   animation: fadeUp 0.7s var(--ease-out) 0.4s forwards;
+}
+
+/* meta labels per spec */
+.meta-label-spec {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #8B6F47;
 }
 
 .tab-panel { display: none; }
@@ -1159,7 +1352,7 @@ input[type="text"]::placeholder {
   background: var(--surface);
   border: 1px solid var(--ink-5);
   border-radius: var(--r-xl);
-  padding: var(--sp-10) var(--sp-10);
+  padding: 40px;
   box-shadow: 0 1px 3px rgba(28,26,23,0.04), 0 4px 16px rgba(28,26,23,0.03);
 }
 
@@ -1190,7 +1383,7 @@ input[type="text"]::placeholder {
 
 .sec-heading {
   font-family: var(--font-serif);
-  font-size: clamp(26px, 3.5vw, 40px);
+  font-size: clamp(40px, 4vw, 48px);
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -2162,7 +2355,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 }
 
 @media (max-width: 480px) {
-  .tab-btn { padding: var(--sp-3) var(--sp-4); font-size: 12px; }
+  .strip-step { padding: var(--sp-3) var(--sp-3); font-size: 11px; }
 }
 
 /* ── Nav auth ───────────────────────────────────────── */
@@ -2876,6 +3069,44 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   ═══════════════════════════════════════════ -->
   <div class="session-panel" id="panelS3">
 
+    <!-- Vertical progress sidebar (desktop) -->
+    <nav class="progress-sidebar" id="progressSidebar" aria-label="Progress steps">
+      <button class="sidebar-step sidebar-active" id="sidebar-profile" onclick="switchTab('profile')" aria-current="step">
+        <span class="sidebar-tick" id="tick-profile"></span>
+        <span class="sidebar-step-label">Profile &amp; Direction</span>
+      </button>
+      <button class="sidebar-step sidebar-locked" id="sidebar-skills" onclick="switchTab('skills')">
+        <span class="sidebar-tick" id="tick-skills"></span>
+        <span class="sidebar-step-label">Skills</span>
+      </button>
+      <button class="sidebar-step sidebar-locked" id="sidebar-companies" onclick="switchTab('companies')">
+        <span class="sidebar-tick" id="tick-companies"></span>
+        <span class="sidebar-step-label">Companies</span>
+      </button>
+      <button class="sidebar-step sidebar-locked" id="sidebar-roles" onclick="switchTab('roles')">
+        <span class="sidebar-tick" id="tick-roles"></span>
+        <span class="sidebar-step-label">Live Roles</span>
+      </button>
+      <button class="sidebar-step sidebar-locked" id="sidebar-next" onclick="switchTab('next')">
+        <span class="sidebar-tick" id="tick-next"></span>
+        <span class="sidebar-step-label">Next Steps</span>
+      </button>
+    </nav>
+
+    <!-- Horizontal progress strip (mobile) -->
+    <div class="progress-strip" id="progressStrip">
+      <div class="progress-strip-inner">
+        <button class="strip-step strip-active" id="strip-profile" onclick="switchTab('profile')">Profile</button>
+        <button class="strip-step strip-locked"  id="strip-skills"    onclick="switchTab('skills')">Skills</button>
+        <button class="strip-step strip-locked"  id="strip-companies" onclick="switchTab('companies')">Companies</button>
+        <button class="strip-step strip-locked"  id="strip-roles"     onclick="switchTab('roles')">Live Roles</button>
+        <button class="strip-step strip-locked"  id="strip-next"      onclick="switchTab('next')">Next Steps</button>
+      </div>
+    </div>
+
+    <!-- Main content (offset from sidebar on desktop) -->
+    <div class="dash-shell">
+
     <!-- Dashboard header -->
     <div class="dash-header">
       <div class="container">
@@ -2893,29 +3124,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <div class="dash-meta" id="dashMeta" aria-label="Profile summary statistics">
             <!-- Populated by JS -->
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab bar -->
-    <div class="tab-bar" role="navigation" aria-label="Dashboard sections">
-      <div class="container">
-        <div class="tab-bar-inner" role="tablist">
-          <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="panel-profile"   onclick="switchTab('profile')"   id="tab-profile">
-            <span class="tab-num">①</span> Profile &amp; Direction
-          </button>
-          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-skills"    onclick="switchTab('skills')"    id="tab-skills">
-            <span class="tab-num">②</span> Skills
-          </button>
-          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-companies" onclick="switchTab('companies')" id="tab-companies">
-            <span class="tab-num">③</span> Companies
-          </button>
-          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-roles"     onclick="switchTab('roles')"     id="tab-roles">
-            <span class="tab-num">④</span> Live Roles
-          </button>
-          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="panel-next"      onclick="switchTab('next')"      id="tab-next">
-            <span class="tab-num">⑤</span> Next Steps
-          </button>
         </div>
       </div>
     </div>
@@ -2978,6 +3186,10 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             <button class="btn-primary refine-btn" id="refineBtn" onclick="openQuestionnaire()">Start reflection →</button>
           </div>
 
+          <div class="section-next-wrap">
+            <button class="btn-next-section" onclick="switchTab('skills')">Next: Skills →</button>
+          </div>
+
         </div><!-- /panel-profile -->
 
 
@@ -2998,6 +3210,10 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             </div>
           </div>
           <div class="advice-block" id="skillsAdvice"></div>
+
+          <div class="section-next-wrap">
+            <button class="btn-next-section" onclick="switchTab('companies')">Next: Companies →</button>
+          </div>
         </div><!-- /panel-skills -->
 
 
@@ -3011,6 +3227,10 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             </p>
           </div>
           <div class="company-grid" id="companyGrid"></div>
+
+          <div class="section-next-wrap">
+            <button class="btn-next-section" onclick="switchTab('roles')">Next: Live Roles →</button>
+          </div>
         </div><!-- /panel-companies -->
 
 
@@ -3033,31 +3253,14 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             </div>
             <div class="roles-count" id="rolesCount"></div>
           </div>
-          <div class="table-wrap">
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Fit</th>
-                    <th>Role</th>
-                    <th>Company</th>
-                    <th>Posted</th>
-                    <th>Style</th>
-                    <th>Salary</th>
-                    <th>Apply</th>
-                    <th>Contact</th>
-                    <th>Status</th>
-                    <th></th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="rolesBody"></tbody>
-              </table>
-            </div>
-          </div>
+          <div class="roles-card-grid" id="rolesBody"></div>
           <div class="export-bar">
             <button class="btn-outline" onclick="exportCSV()">Export CSV</button>
             <button class="btn-outline" onclick="copyTable()">Copy for Sheets</button>
+          </div>
+
+          <div class="section-next-wrap">
+            <button class="btn-next-section" onclick="switchTab('next')">Next: Next Steps →</button>
           </div>
         </div><!-- /panel-roles -->
 
@@ -3080,6 +3283,8 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 
       </div><!-- /container -->
     </main>
+
+    </div><!-- /dash-shell -->
 
     <footer class="footer">
       <div class="container">
@@ -3436,21 +3641,65 @@ function generateOutreach(jobs, analysis) {
 
 
 
-// SESSION 3 — TAB SWITCHING
+// SESSION 3 — SEQUENTIAL NAVIGATION
 // ══════════════════════════════════════════════════════
 
 const TABS = ['profile','skills','companies','roles','next'];
+const TABS_NEXT = { profile: 'Skills', skills: 'Companies', companies: 'Live Roles', roles: 'Next Steps', next: null };
+const tabsSeen = new Set();
+let allTabsUnlocked = false;
+
+function isTabUnlocked(name) {
+  if (allTabsUnlocked) return true;
+  const idx = TABS.indexOf(name);
+  if (idx <= 0) return true;
+  return tabsSeen.has(TABS[idx - 1]);
+}
+
+function updateSidebarSteps(activeName) {
+  TABS.forEach((t, idx) => {
+    const sBtn   = document.getElementById('sidebar-' + t);
+    const stBtn  = document.getElementById('strip-' + t);
+    const tickEl = document.getElementById('tick-' + t);
+    const unlocked = isTabUnlocked(t);
+    const isActive  = t === activeName;
+    const isSeen    = tabsSeen.has(t);
+
+    if (sBtn) {
+      sBtn.classList.toggle('sidebar-active',   isActive);
+      sBtn.classList.toggle('sidebar-complete', isSeen && !isActive);
+      sBtn.classList.toggle('sidebar-locked',   !unlocked && !isActive);
+      sBtn.disabled = !unlocked && !isActive;
+      sBtn.setAttribute('aria-current', isActive ? 'step' : 'false');
+    }
+    if (stBtn) {
+      stBtn.classList.toggle('strip-active', isActive);
+      stBtn.classList.toggle('strip-locked', !unlocked && !isActive);
+      stBtn.disabled = !unlocked && !isActive;
+    }
+    if (tickEl) {
+      tickEl.textContent = (isSeen && !isActive) ? '✓' : '';
+    }
+  });
+}
 
 function switchTab(name) {
+  if (!isTabUnlocked(name)) return;
+
   TABS.forEach(t => {
-    const btn   = document.getElementById('tab-' + t);
     const panel = document.getElementById('panel-' + t);
-    const active = (t === name);
-    btn.classList.toggle('active', active);
-    btn.setAttribute('aria-selected', active ? 'true' : 'false');
-    panel.classList.toggle('active', active);
+    if (panel) panel.classList.toggle('active', t === name);
   });
-  document.getElementById('dashMain').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  tabsSeen.add(name);
+
+  if (TABS.every(t => tabsSeen.has(t))) {
+    allTabsUnlocked = true;
+  }
+
+  updateSidebarSteps(name);
+  const main = document.getElementById('dashMain');
+  if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 
@@ -3757,9 +4006,9 @@ function renderRoles(jobs, data) {
 
   const body = document.getElementById('rolesBody');
   if (!jobs.length) {
-    body.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:48px; color:var(--ink-4);">
+    body.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:48px; color:var(--ink-4);">
       No verified live listings found. Try broadening your location or direction and run again.
-    </td></tr>`;
+    </div>`;
     return;
   }
 
@@ -3767,82 +4016,77 @@ function renderRoles(jobs, data) {
     const score    = Number(j.relevanceScore) || 0;
     const fitClass = score >= 8 ? 'fit-strong' : score >= 5 ? 'fit-good' : 'fit-broad';
     const fitLabel = score >= 8 ? '▲ Strong' : score >= 5 ? '◆ Good' : '○ Broad';
-    const reason   = (j.relevanceReason || '').slice(0, 120) + ((j.relevanceReason || '').length > 120 ? '…' : '');
+    const reason   = (j.relevanceReason || '').slice(0, 110) + ((j.relevanceReason || '').length > 110 ? '…' : '');
 
     const outreachMsg = buildOutreachMsg(j, profile);
     const cvTipsHtml  = buildCVTips(j, profile, skills);
     const coverLetter = buildCoverLetter(j, profile);
 
-    return `<tr class="job-row" onclick="toggleDrawer(${idx})" title="Click to see outreach &amp; apply details">
-      <td>
-        <span class="fit-badge ${fitClass}">${fitLabel}</span>
-        ${reason ? `<div class="fit-reason">${esc(reason)}</div>` : ''}
-      </td>
-      <td>
-        <div class="job-title">${esc(j.title || '—')}</div>
-        <div class="job-loc">${esc(j.location || '—')}</div>
-      </td>
-      <td><span class="job-company">${esc(j.company || '—')}</span></td>
-      <td><span class="job-date">${esc(j.datePosted || '—')}</span></td>
-      <td style="font-size:13px; font-weight:300;">${esc(j.workStyle || '—')}</td>
-      <td style="font-size:13px; font-weight:300; white-space:nowrap;">${esc(j.salary || 'Not listed')}</td>
-      <td>
-        ${j.applyUrl && j.applyUrl !== 'Not listed'
-          ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Apply →</a>`
-          : `<span style="color:var(--ink-5); font-size:12px; font-family:var(--font-mono);">Not found</span>`}
-      </td>
-      <td>
-        <div class="contact-name">${esc(j.contactName || 'Not found')}</div>
-        ${j.contactTitle ? `<div class="contact-role-txt">${esc(j.contactTitle)}</div>` : ''}
-        ${j.contactLinkedIn && j.contactLinkedIn !== 'Not listed'
-          ? `<a class="contact-li" href="${esc(j.contactLinkedIn)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">LinkedIn →</a>`
-          : ''}
-      </td>
-      <td onclick="event.stopPropagation()">
-        <select class="status-sel" onchange="updateStatus(this)" aria-label="Application status for ${esc(j.title)}">
-          <option value="">Not applied</option>
-          <option value="applied">Applied</option>
-          <option value="interview">Interview</option>
-          <option value="offer">Offer</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </td>
-      <td><span class="expand-toggle" id="toggle-${idx}">▼ Outreach</span></td>
-      <td onclick="event.stopPropagation()">
-        <button class="star-btn" id="star-${idx}" onclick="toggleSave(${idx})" title="Save this role" aria-label="Save ${esc(j.title)}">☆</button>
-      </td>
-    </tr>
-    <tr class="drawer-row" id="drawer-${idx}">
-      <td colspan="11">
-        <div class="job-drawer">
-          <div class="drawer-clip">
-            <div class="drawer-inner">
-              <div class="drawer-section">
-                <div class="drawer-section-label">Outreach message</div>
-                <div class="drawer-msg-box" id="dmsg-${idx}">${esc(outreachMsg)}</div>
-                <button class="btn-copy" onclick="copyDrawerMsg(${idx}, this)">Copy message</button>
-              </div>
-              <div class="drawer-section">
-                <div class="drawer-section-label">CV tailoring tips</div>
-                <div class="drawer-tips">${cvTipsHtml}</div>
-              </div>
-              <div class="drawer-section">
-                <div class="drawer-section-label">Cover letter draft</div>
-                <div class="drawer-cover" id="dcover-${idx}">${esc(coverLetter)}</div>
-                <button class="btn-copy" onclick="copyDrawerCover(${idx}, this)">Copy draft</button>
-              </div>
+    return `<div class="role-card-wrapper job-row"
+        data-title="${esc(j.title || '')}"
+        data-company="${esc(j.company || '')}"
+        data-location="${esc(j.location || '')}"
+        data-style="${esc(j.workStyle || '')}"
+        data-posted="${esc(j.datePosted || '')}"
+        data-salary="${esc(j.salary || '')}"
+        data-apply-url="${esc(j.applyUrl || '')}"
+        data-contact-name="${esc(j.contactName || '')}"
+        data-contact-role="${esc(j.contactTitle || '')}"
+        data-contact-li="${esc(j.contactLinkedIn || '')}"
+        data-idx="${idx}">
+      <div class="role-card">
+        <button class="star-btn role-card-star" id="star-${idx}" onclick="toggleSave(${idx})" title="Save this role" aria-label="Save ${esc(j.title)}">☆</button>
+        <div class="role-card-company">${esc(j.company || '—')}</div>
+        <div class="role-card-title">${esc(j.title || '—')}</div>
+        <div class="role-card-meta">
+          ${j.location ? `<span>${esc(j.location)}</span>` : ''}
+          ${j.salary && j.salary !== 'Not listed' ? `<span>${esc(j.salary)}</span>` : ''}
+          ${j.workStyle ? `<span>${esc(j.workStyle)}</span>` : ''}
+        </div>
+        ${reason ? `<div class="role-card-reason">${esc(reason)}</div>` : ''}
+        <div class="role-card-bottom">
+          <span class="fit-badge ${fitClass}">${fitLabel}</span>
+          ${j.applyUrl && j.applyUrl !== 'Not listed'
+            ? `<a class="apply-link" href="${esc(j.applyUrl)}" target="_blank" rel="noopener">Apply →</a>`
+            : ''}
+          <select class="status-sel" onchange="updateStatus(this)" aria-label="Status for ${esc(j.title)}" style="margin-left:auto;">
+            <option value="">Not applied</option>
+            <option value="applied">Applied</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button class="btn-outline expand-toggle" id="toggle-${idx}" onclick="toggleDrawer(${idx})" style="padding:6px 14px; font-size:11px; flex-shrink:0;">▼ Outreach</button>
+        </div>
+      </div>
+      <div class="role-card-drawer" id="drawer-${idx}">
+        <div class="role-card-drawer-clip">
+          <div class="drawer-inner">
+            <div class="drawer-section">
+              <div class="drawer-section-label">Outreach message</div>
+              <div class="drawer-msg-box" id="dmsg-${idx}">${esc(outreachMsg)}</div>
+              <button class="btn-copy" onclick="copyDrawerMsg(${idx}, this)">Copy message</button>
+            </div>
+            <div class="drawer-section">
+              <div class="drawer-section-label">CV tailoring tips</div>
+              <div class="drawer-tips">${cvTipsHtml}</div>
+            </div>
+            <div class="drawer-section">
+              <div class="drawer-section-label">Cover letter draft</div>
+              <div class="drawer-cover" id="dcover-${idx}">${esc(coverLetter)}</div>
+              <button class="btn-copy" onclick="copyDrawerCover(${idx}, this)">Copy draft</button>
             </div>
           </div>
         </div>
-      </td>
-    </tr>`;
+      </div>
+    </div>`;
   }).join('');
 }
 
 function toggleDrawer(idx) {
-  const row    = document.getElementById('drawer-' + idx);
+  const drawer = document.getElementById('drawer-' + idx);
   const toggle = document.getElementById('toggle-' + idx);
-  const open   = row.classList.toggle('open');
+  const open   = drawer.classList.toggle('open');
   toggle.textContent = open ? '▲ Outreach' : '▼ Outreach';
 }
 
@@ -4137,22 +4381,20 @@ function toggleStep(i, checkbox) {
 function exportCSV() {
   const headers = ['Fit Score','Title','Company','Location','Style','Posted','Salary','Apply URL','Contact Name','Contact Role','LinkedIn','Status'];
   const rows = [headers];
-  document.querySelectorAll('#rolesBody tr.job-row').forEach(tr => {
-    const tds = tr.querySelectorAll('td');
-    if (tds.length < 10) return;
+  document.querySelectorAll('#rolesBody .job-row').forEach(el => {
     rows.push([
-      tds[0].querySelector('.fit-badge')?.textContent?.trim() || '',
-      tds[1].querySelector('.job-title')?.textContent?.trim() || '',
-      tds[2].querySelector('.job-company')?.textContent?.trim() || '',
-      tds[1].querySelector('.job-loc')?.textContent?.trim() || '',
-      tds[4].textContent.trim(),
-      tds[3].textContent.trim(),
-      tds[5].textContent.trim(),
-      tds[6].querySelector('a')?.href || '',
-      tds[7].querySelector('.contact-name')?.textContent?.trim() || '',
-      tds[7].querySelector('.contact-role-txt')?.textContent?.trim() || '',
-      tds[7].querySelector('.contact-li')?.href || '',
-      tds[8].querySelector('select')?.value || '',
+      el.querySelector('.fit-badge')?.textContent?.trim() || '',
+      el.dataset.title   || '',
+      el.dataset.company || '',
+      el.dataset.location || '',
+      el.dataset.style   || '',
+      el.dataset.posted  || '',
+      el.dataset.salary  || '',
+      el.dataset.applyUrl || '',
+      el.dataset.contactName || '',
+      el.dataset.contactRole || '',
+      el.dataset.contactLi   || '',
+      el.querySelector('select')?.value || '',
     ].map(v => `"${String(v).replace(/"/g,'""')}"`));
   });
   const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
@@ -4163,14 +4405,29 @@ function exportCSV() {
 }
 
 function copyTable() {
-  const table = document.querySelector('#rolesBody')?.closest('table');
-  if (!table) return;
-  const range = document.createRange();
-  range.selectNode(table);
-  window.getSelection().removeAllRanges();
-  window.getSelection().addRange(range);
-  try { document.execCommand('copy'); } catch(e) {}
-  window.getSelection().removeAllRanges();
+  const headers = ['Fit','Title','Company','Location','Style','Posted','Salary','Apply URL','Status'];
+  const rows = [headers.join('\t')];
+  document.querySelectorAll('#rolesBody .job-row').forEach(el => {
+    rows.push([
+      el.querySelector('.fit-badge')?.textContent?.trim() || '',
+      el.dataset.title   || '',
+      el.dataset.company || '',
+      el.dataset.location || '',
+      el.dataset.style   || '',
+      el.dataset.posted  || '',
+      el.dataset.salary  || '',
+      el.dataset.applyUrl || '',
+      el.querySelector('select')?.value || '',
+    ].join('\t'));
+  });
+  const text = rows.join('\n');
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+  });
 }
 
 
@@ -4186,6 +4443,10 @@ function render(data) {
   const jobs     = Array.isArray(data.jobs)     ? [...data.jobs].sort((a,b) => (Number(b.relevanceScore)||0) - (Number(a.relevanceScore)||0)) : [];
   const outreach = Array.isArray(data.outreach) ? data.outreach : [];
 
+  // Reset sequential nav state for new results
+  tabsSeen.clear();
+  allTabsUnlocked = false;
+
   renderMeta(profile);
   renderProfile(profile);
   renderSkills(skills, profile);
@@ -4193,7 +4454,7 @@ function render(data) {
   renderRoles(jobs, data);
   renderNextSteps(data);
 
-  // Reset to first tab
+  // Reset to first tab (marks profile as seen, unlocks skills)
   switchTab('profile');
 }
 
