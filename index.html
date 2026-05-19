@@ -2510,6 +2510,105 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 }
 .guest-banner-link:hover { color: var(--accent-dk); }
 
+/* ── Contextual profile chips ────────────────────────── */
+.ctx-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--ink-5);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.18s var(--ease);
+}
+.ctx-chip:hover { border-color: var(--accent-lt); color: var(--accent); }
+.ctx-chip.on { background: var(--accent-dk); color: var(--bg); border-color: var(--accent-dk); }
+
+.context-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.context-prompt-lead {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-3);
+  line-height: 1.65;
+  margin-bottom: var(--sp-4);
+  max-width: 540px;
+}
+
+/* ── Completeness bar ────────────────────────────────── */
+.completeness-wrap {
+  margin-bottom: var(--sp-5);
+}
+.completeness-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: var(--sp-2);
+}
+.completeness-track {
+  height: 4px;
+  background: var(--ink-5);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.completeness-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s var(--ease-out);
+  width: 0%;
+}
+
+/* ── Deal-breaker bar (roles tab inline) ─────────────── */
+.deal-breaker-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--ink-5);
+  border-bottom: 1px solid var(--ink-5);
+  margin-bottom: var(--sp-6);
+}
+.deal-breaker-lead {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+
+/* ── Aspiration textarea ─────────────────────────────── */
+.aspiration-textarea {
+  width: 100%;
+  min-height: 80px;
+  background: var(--bg-warm);
+  border: 1px solid var(--ink-5);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink);
+  line-height: 1.75;
+  resize: vertical;
+  transition: border-color 0.18s var(--ease);
+  margin-top: var(--sp-3);
+}
+.aspiration-textarea:focus { outline: none; border-color: var(--accent-lt); }
+.aspiration-textarea::placeholder { color: var(--ink-4); }
+
 /* ── Refine card ────────────────────────────────────── */
 .refine-card {
   border-left: 3px solid var(--accent-lt);
@@ -3168,13 +3267,17 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             <div class="values-tags" id="valuesTags"></div>
           </div>
 
-          <!-- Refine card -->
+          <!-- Deepen profile card -->
           <div class="card refine-card" id="refineCard" style="margin-top: var(--sp-5);">
             <div class="enriched-badge" id="enrichedBadge" style="display:none;">✓ Profile enriched with self-reflection</div>
-            <div class="sec-label">Refine your profile</div>
+            <div class="sec-label">Deepen your profile</div>
             <h2 class="sec-heading" style="font-size: clamp(18px, 2.5vw, 26px); margin-bottom: var(--sp-2);">Your CV shows what you've done.</h2>
             <h2 class="sec-heading" style="font-size: clamp(18px, 2.5vw, 26px); margin-bottom: var(--sp-4);"><em>These questions reveal who you are.</em></h2>
             <p class="refine-sub">5 questions, 3–5 minutes. Your answers change your direction suggestions, values analysis, and company matches — making everything significantly more specific to you.</p>
+            <div class="completeness-wrap">
+              <div class="completeness-label" id="completenessLabel">Your profile is 0% complete</div>
+              <div class="completeness-track"><div class="completeness-fill" id="completenessBar"></div></div>
+            </div>
             <button class="btn-primary refine-btn" id="refineBtn" onclick="openQuestionnaire()">Start reflection →</button>
           </div>
 
@@ -3203,6 +3306,16 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           </div>
           <div class="advice-block" id="skillsAdvice"></div>
 
+          <!-- Aspiration contextual prompt -->
+          <div class="card" id="aspirationPrompt" style="margin-top:var(--sp-5); border-left:3px solid var(--accent-lt);">
+            <div class="sec-label">Your direction</div>
+            <p class="context-prompt-lead">Tell us where you want to be in 2 years and we'll prioritise your gaps accordingly.</p>
+            <textarea class="aspiration-textarea" id="aspirationInput" rows="3" placeholder="In 2 years, I want to be… (2–3 sentences)"></textarea>
+            <div style="margin-top:var(--sp-3);">
+              <button class="btn-outline" id="aspirationSaveBtn" onclick="saveAspiration()" style="padding:8px 20px; font-size:12px;">Save</button>
+            </div>
+          </div>
+
           <div class="section-next-wrap">
             <button class="btn-next-section" onclick="switchTab('companies')">Next: Companies →</button>
           </div>
@@ -3219,6 +3332,22 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             </p>
           </div>
           <div class="company-grid" id="companyGrid"></div>
+
+          <!-- Values contextual prompt -->
+          <div class="card" id="valuesPrompt" style="margin-top:var(--sp-5); display:none; border-left:3px solid var(--accent-lt);">
+            <div class="sec-label">Refine these matches</div>
+            <p class="context-prompt-lead">These matches are based on your CV. Tell us your values and we'll re-weight them.</p>
+            <div class="context-chips" id="valuesChips">
+              <span class="ctx-chip" data-value="Impact" onclick="toggleValueChip(this)">Impact</span>
+              <span class="ctx-chip" data-value="Autonomy" onclick="toggleValueChip(this)">Autonomy</span>
+              <span class="ctx-chip" data-value="Progression" onclick="toggleValueChip(this)">Progression</span>
+              <span class="ctx-chip" data-value="Stability" onclick="toggleValueChip(this)">Stability</span>
+              <span class="ctx-chip" data-value="Creativity" onclick="toggleValueChip(this)">Creativity</span>
+              <span class="ctx-chip" data-value="Collaboration" onclick="toggleValueChip(this)">Collaboration</span>
+              <span class="ctx-chip" data-value="Purpose" onclick="toggleValueChip(this)">Purpose</span>
+              <span class="ctx-chip" data-value="Prestige" onclick="toggleValueChip(this)">Prestige</span>
+            </div>
+          </div>
 
           <div class="section-next-wrap">
             <button class="btn-next-section" onclick="switchTab('roles')">Next: Live Roles →</button>
@@ -3245,6 +3374,19 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             </div>
             <div class="roles-count" id="rolesCount"></div>
           </div>
+
+          <!-- Deal-breaker filter bar -->
+          <div class="deal-breaker-bar" id="dealBreakerBar" style="display:none;">
+            <span class="deal-breaker-lead">Exclude:</span>
+            <div class="context-chips" id="dealBreakerChips">
+              <span class="ctx-chip" data-filter="agency" onclick="toggleDealBreaker(this)">No agencies</span>
+              <span class="ctx-chip" data-filter="finance" onclick="toggleDealBreaker(this)">No finance</span>
+              <span class="ctx-chip" data-filter="startup" onclick="toggleDealBreaker(this)">No startups</span>
+              <span class="ctx-chip" data-filter="corporate" onclick="toggleDealBreaker(this)">No large corporates</span>
+              <span class="ctx-chip" data-filter="travel" onclick="toggleDealBreaker(this)">No travel required</span>
+            </div>
+          </div>
+
           <div class="roles-card-grid" id="rolesBody"></div>
           <div class="export-bar">
             <button class="btn-outline" onclick="exportCSV()">Export CSV</button>
@@ -3530,7 +3672,7 @@ async function runSearch() {
       fetch('/api/analyse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cvText, direction, location, workStyle, empType, salary, extra })
+        body: JSON.stringify({ cvText, direction, location, workStyle, empType, salary, extra, userProfile: window.ciProfile || {} })
       }),
       new Promise(r => setTimeout(r, 1500))
     ]);
@@ -4033,6 +4175,7 @@ function renderRoles(jobs, data) {
         data-contact-name="${esc(j.contactName || '')}"
         data-contact-role="${esc(j.contactTitle || '')}"
         data-contact-li="${esc(j.contactLinkedIn || '')}"
+        data-reason="${esc(j.relevanceReason || '')}"
         data-idx="${idx}">
       <div class="role-card">
         <button class="star-btn role-card-star" id="star-${idx}" onclick="toggleSave(${idx})" title="Save this role" aria-label="Save ${esc(j.title)}">☆</button>
@@ -4454,6 +4597,15 @@ function render(data) {
   renderRoles(jobs, data);
   renderNextSteps(data);
 
+  // Show contextual prompts now that results exist
+  const vp = document.getElementById('valuesPrompt');
+  const db = document.getElementById('dealBreakerBar');
+  if (vp) vp.style.display = '';
+  if (db) db.style.display = '';
+
+  // Apply any saved profile preferences to the freshly rendered results
+  applyProfileToUI();
+
   // Reset to first tab (marks profile as seen, unlocks skills)
   switchTab('profile');
 }
@@ -4478,7 +4630,7 @@ async function initSupabase() {
     const { data: { session } } = await sbClient.auth.getSession();
     sbSession = session;
     updateNavAuth(session);
-    if (session) { loadSavedJobsFromDb(); }
+    if (session) { loadSavedJobsFromDb(); loadProfile(); }
 
     // Fix 1: SIGNED_IN fires in same tab after magic link redirect
     sbClient.auth.onAuthStateChange(async (event, session) => {
@@ -4486,6 +4638,7 @@ async function initSupabase() {
       updateNavAuth(session);
       if (event === 'SIGNED_IN') {
         loadSavedJobsFromDb();
+        loadProfile(); // loads Supabase profile + merges any localStorage guest data
         closeAuthOverlay(); // resolves _authResolve → advances to form
       }
     });
@@ -4505,6 +4658,7 @@ function startAuthPoll() {
         sbSession = session;
         updateNavAuth(session);
         loadSavedJobsFromDb();
+        loadProfile();
         clearInterval(_authPollInterval);
         _authPollInterval = null;
         closeAuthOverlay();
@@ -4527,6 +4681,7 @@ async function checkSessionNow() {
       sbSession = session;
       updateNavAuth(session);
       loadSavedJobsFromDb();
+      loadProfile();
       closeAuthOverlay();
     } else {
       if (btn) btn.textContent = 'Not signed in yet — check your email';
@@ -4681,6 +4836,226 @@ async function persistUnsaveJob(jobId) {
 // Sign-in is prompted via the nav link and the post-results banner.
 
 initSupabase();
+
+// ══════════════════════════════════════════════════════
+// PERSISTENT USER PROFILE
+// ══════════════════════════════════════════════════════
+
+const PROFILE_KEY = 'ci_profile';
+window.ciProfile = {};
+
+function calcProfileCompleteness(p) {
+  let score = 0;
+  if ((p.values || []).length > 0) score += 20;
+  const sk = p.selfKnowledge || {};
+  if ([sk.q1, sk.q2, sk.q3, sk.q4, sk.q5].some(a => a?.length > 0)) score += 30;
+  if ((p.dealBreakers || []).length > 0) score += 10;
+  if (p.salaryFloor || p.salaryCeiling) score += 10;
+  if (p.rightToWork) score += 10;
+  if (p.aspiration) score += 10;
+  if (p.workStyle?.preference || p.workStyle?.teamSize || p.workStyle?.companyStage) score += 10;
+  return Math.min(score, 100);
+}
+
+async function loadProfile() {
+  if (sbSession) {
+    try {
+      const res = await fetch('/api/profile', { headers: getAuthHeader() });
+      if (res.ok) {
+        const { profile } = await res.json();
+        window.ciProfile = profile || {};
+        // Merge any guest data from localStorage
+        const guestRaw = localStorage.getItem(PROFILE_KEY);
+        if (guestRaw) {
+          let guestProfile = {};
+          try { guestProfile = JSON.parse(guestRaw); } catch (_) {}
+          if (Object.keys(guestProfile).length > 0) {
+            const mergedUpdates = { ...guestProfile };
+            delete mergedUpdates.profileCompleteness;
+            await saveProfile(mergedUpdates);
+          }
+          localStorage.removeItem(PROFILE_KEY);
+        }
+        updateCompletenessUI();
+        restoreProfileChips();
+        return;
+      }
+    } catch (_) {}
+  }
+  // Guest: load from localStorage
+  try {
+    window.ciProfile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+  } catch (_) { window.ciProfile = {}; }
+  updateCompletenessUI();
+  restoreProfileChips();
+}
+
+async function saveProfile(updates) {
+  const merged = { ...window.ciProfile, ...updates };
+  merged.profileCompleteness = calcProfileCompleteness(merged);
+  window.ciProfile = merged;
+
+  if (sbSession) {
+    try {
+      await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(updates)
+      });
+    } catch (_) {}
+  } else {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(merged));
+  }
+
+  updateCompletenessUI();
+}
+
+function updateCompletenessUI() {
+  const pct = window.ciProfile.profileCompleteness ?? calcProfileCompleteness(window.ciProfile);
+  const bar = document.getElementById('completenessBar');
+  const label = document.getElementById('completenessLabel');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = 'Your profile is ' + pct + '% complete';
+}
+
+function restoreProfileChips() {
+  const savedValues = window.ciProfile.values || [];
+  document.querySelectorAll('#valuesChips .ctx-chip').forEach(chip => {
+    chip.classList.toggle('on', savedValues.includes(chip.dataset.value));
+  });
+
+  const savedBreakers = window.ciProfile.dealBreakers || [];
+  document.querySelectorAll('#dealBreakerChips .ctx-chip').forEach(chip => {
+    chip.classList.toggle('on', savedBreakers.includes(chip.dataset.filter));
+  });
+
+  const aspirationInput = document.getElementById('aspirationInput');
+  if (aspirationInput && window.ciProfile.aspiration) {
+    aspirationInput.value = window.ciProfile.aspiration;
+  }
+}
+
+function applyProfileToUI() {
+  restoreProfileChips();
+
+  const activeBreakers = [...document.querySelectorAll('#dealBreakerChips .ctx-chip.on')].map(c => c.dataset.filter);
+  if (activeBreakers.length) applyDealBreakerFilter(activeBreakers);
+
+  const activeValues = [...document.querySelectorAll('#valuesChips .ctx-chip.on')].map(c => c.dataset.value);
+  if (activeValues.length) reweightCompanies(activeValues);
+
+  updateCompletenessUI();
+}
+
+// Load profile for guest on page load
+loadProfile();
+
+
+// ══════════════════════════════════════════════════════
+// VALUES CHIP — re-weight company suggestions
+// ══════════════════════════════════════════════════════
+
+const VALUE_KEYWORDS = {
+  Impact:        ['impact', 'mission', 'change', 'outcome', 'difference', 'results'],
+  Autonomy:      ['autonomy', 'independent', 'ownership', 'self-direct', 'freedom', 'trust'],
+  Progression:   ['progression', 'growth', 'development', 'career', 'promote', 'learning', 'advance'],
+  Stability:     ['stability', 'stable', 'established', 'secure', 'mature', 'scale'],
+  Creativity:    ['creative', 'creativity', 'innovation', 'design', 'experiment', 'build'],
+  Collaboration: ['collaboration', 'team', 'collective', 'community', 'together', 'culture'],
+  Purpose:       ['purpose', 'meaning', 'social', 'ethical', 'values', 'mission', 'impact'],
+  Prestige:      ['prestige', 'prestigious', 'top', 'leading', 'renowned', 'brand', 'global']
+};
+
+function toggleValueChip(chip) {
+  chip.classList.toggle('on');
+  const selected = [...document.querySelectorAll('#valuesChips .ctx-chip.on')].map(c => c.dataset.value);
+  saveProfile({ values: selected });
+  reweightCompanies(selected);
+}
+
+function reweightCompanies(selectedValues) {
+  if (!window.ciResult) return;
+  const companies = Array.isArray(window.ciResult.companyValues) ? [...window.ciResult.companyValues] : [];
+  if (!selectedValues.length) {
+    renderCompanies(window.ciResult);
+    return;
+  }
+
+  const scored = companies.map(c => {
+    const text = [(c.why || ''), (c.culture || ''), ...(c.values || [])].join(' ').toLowerCase();
+    let matchScore = 0;
+    selectedValues.forEach(val => {
+      (VALUE_KEYWORDS[val] || []).forEach(kw => { if (text.includes(kw)) matchScore++; });
+    });
+    return { ...c, _matchScore: matchScore };
+  });
+
+  scored.sort((a, b) => b._matchScore - a._matchScore);
+  renderCompanies({ ...window.ciResult, companyValues: scored });
+}
+
+
+// ══════════════════════════════════════════════════════
+// DEAL-BREAKER CHIPS — client-side role filter
+// ══════════════════════════════════════════════════════
+
+const BREAKER_KEYWORDS = {
+  agency:    ['agency', 'agencies', 'recruitment', 'staffing', 'talent solutions', 'headhunting', 'recruiter'],
+  finance:   ['finance', 'banking', 'hedge fund', 'asset management', 'insurance', 'investment bank', 'fintech', 'financial services'],
+  startup:   ['startup', 'start-up', 'seed stage', 'series a', 'series b', 'early-stage', 'pre-revenue'],
+  corporate: ['plc', 'ftse', 'global enterprise', 'multinational', 'large corporate', 'fortune 500'],
+  travel:    ['frequent travel', 'travel required', 'travel to client', 'client site', 'on the road', 'travel expected']
+};
+
+function toggleDealBreaker(chip) {
+  chip.classList.toggle('on');
+  const selected = [...document.querySelectorAll('#dealBreakerChips .ctx-chip.on')].map(c => c.dataset.filter);
+  saveProfile({ dealBreakers: selected });
+  applyDealBreakerFilter(selected);
+}
+
+function applyDealBreakerFilter(activeFilters) {
+  const rows = document.querySelectorAll('#rolesBody .role-card-wrapper');
+  rows.forEach(row => {
+    const text = [
+      row.dataset.title   || '',
+      row.dataset.company || '',
+      row.dataset.style   || '',
+      row.dataset.reason  || ''
+    ].join(' ').toLowerCase();
+
+    const shouldHide = activeFilters.some(filter =>
+      (BREAKER_KEYWORDS[filter] || []).some(kw => text.includes(kw))
+    );
+    row.style.display = shouldHide ? 'none' : '';
+  });
+
+  // Update visible count
+  const visible = [...rows].filter(r => r.style.display !== 'none').length;
+  const countEl = document.getElementById('rolesCount');
+  if (countEl) {
+    const total = rows.length;
+    const filtered = total - visible;
+    countEl.innerHTML = filtered > 0
+      ? `<strong>${visible}</strong> of ${total} role${total !== 1 ? 's' : ''} shown · ${filtered} filtered out`
+      : `<strong>${visible}</strong> live role${visible !== 1 ? 's' : ''} found · sorted best match first`;
+  }
+}
+
+
+// ══════════════════════════════════════════════════════
+// ASPIRATION SAVE
+// ══════════════════════════════════════════════════════
+
+function saveAspiration() {
+  const val = (document.getElementById('aspirationInput')?.value || '').trim();
+  saveProfile({ aspiration: val });
+  const btn = document.getElementById('aspirationSaveBtn');
+  if (btn) {
+    btn.textContent = 'Saved ✓';
+    setTimeout(() => { btn.textContent = 'Save'; }, 2000);
+  }
+}
 
 
 // ══════════════════════════════════════════════════════
@@ -4953,6 +5328,11 @@ async function qFinish() {
       renderProfile(window.ciResult.profile);
       renderCompanies(window.ciResult);
     }
+
+    // Persist self-knowledge answers to user profile
+    const sk = { completedAt: new Date().toISOString() };
+    qAnswers.forEach((a, i) => { sk['q' + (i + 1)] = a || ''; });
+    saveProfile({ selfKnowledge: sk });
 
     qCloseModal();
 

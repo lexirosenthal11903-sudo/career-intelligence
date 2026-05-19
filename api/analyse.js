@@ -1,10 +1,29 @@
+function buildUserProfileSection(p) {
+  if (!p || typeof p !== 'object') return '';
+  const lines = [];
+  if ((p.values || []).length) lines.push(`Values: ${p.values.join(', ')}`);
+  if (p.aspiration) lines.push(`Career aspiration (2-year goal): ${p.aspiration}`);
+  if ((p.dealBreakers || []).length) lines.push(`Deal-breakers: ${p.dealBreakers.join(', ')}`);
+  if (p.rightToWork) lines.push(`Right to work: ${p.rightToWork}`);
+  if (p.salaryFloor || p.salaryCeiling) lines.push(`Salary range: ${p.salaryFloor || '?'} – ${p.salaryCeiling || '?'} ${p.currency || 'GBP'}`);
+  if (p.workStyle?.preference) lines.push(`Work preference: ${p.workStyle.preference}`);
+  if (p.workStyle?.teamSize) lines.push(`Preferred team size: ${p.workStyle.teamSize}`);
+  if (p.workStyle?.companyStage) lines.push(`Preferred company stage: ${p.workStyle.companyStage}`);
+  const sk = p.selfKnowledge || {};
+  ['q1','q2','q3','q4','q5'].forEach((k, i) => {
+    if (sk[k]) lines.push(`Self-knowledge Q${i+1}: ${sk[k]}`);
+  });
+  if (!lines.length) return '';
+  return `\n\nUSER PROFILE (persistent preferences — factor these heavily into directions, company suggestions, and values signals):\n${lines.join('\n')}`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   const enrichOnly = req.query?.enrichOnly === 'true';
-  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge, profile: incomingProfile } = req.body;
+  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge, profile: incomingProfile, userProfile } = req.body;
 
   // ── ENRICH-ONLY mode: fast re-analysis from questionnaire answers only ──────
   if (enrichOnly) {
@@ -100,6 +119,8 @@ Rules for the analysis:
     ? `\n\nSELF-KNOWLEDGE (what this person told us about themselves — use this to make the summary, directions, and values significantly more personal):\n${selfKnowledge.map((a, i) => a ? `Q${i+1}: ${a}` : null).filter(Boolean).join('\n')}`
     : '';
 
+  const userProfileSection = userProfile ? buildUserProfileSection(userProfile) : '';
+
   const userPrompt = `Please analyse my background carefully.
 ${cvText ? `CV:\n${cvText.slice(0, 8000)}` : ''}
 ${direction ? `Direction: ${direction}` : 'Direction: Not stated — infer from CV'}
@@ -107,7 +128,7 @@ ${location ? `Location: ${location}` : ''}
 ${workStyle?.length ? `Work style: ${workStyle.join(', ')}` : ''}
 ${empType?.length ? `Employment type: ${empType.join(', ')}` : ''}
 ${salary ? `Salary: ${salary}` : ''}
-${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}`;
+${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
 
   const tool = {
     name: 'submit_career_analysis',
