@@ -45,7 +45,9 @@ if (!response.ok) {
         company:     job.company?.display_name || 'Not listed',
         location:    job.location?.display_name || searchLocation,
         salary:      job.salary_min && job.salary_max
-                       ? `£${Math.round(job.salary_min/1000)}k–£${Math.round(job.salary_max/1000)}k`
+                       ? (Math.round(job.salary_min/1000) === Math.round(job.salary_max/1000)
+                           ? `£${Math.round(job.salary_min/1000)}k`
+                           : `£${Math.round(job.salary_min/1000)}k–£${Math.round(job.salary_max/1000)}k`)
                        : job.salary_min
                          ? `From £${Math.round(job.salary_min/1000)}k`
                          : 'Not listed',

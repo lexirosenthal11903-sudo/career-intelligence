@@ -71,13 +71,27 @@ Return a JSON array scoring each job 1-10 for fit. Be honest — not everything 
       return res.status(500).json({ error: 'Failed to parse scoring response', raw: text });
     }
 
+    const SENIOR_PATTERN = /\b(manager|senior|director|head of|vp|vice president|principal|lead)\b/i;
+    const isJuniorProfile =
+      /graduate|early.?career/i.test(profile.seniorityLevel || '') ||
+      /^0[-–]?2\b/.test(profile.yearsExperience || '') ||
+      /^[01]\s*year/i.test(profile.yearsExperience || '');
+
     // Merge scores back into jobs
     const scored = jobs.map(job => {
       const score = scores.find(s => String(s.id) === String(job.id));
+      let relevanceScore  = score?.relevanceScore  || 5;
+      let relevanceReason = score?.relevanceReason || 'Matched to your profile';
+
+      if (isJuniorProfile && SENIOR_PATTERN.test(job.title || '') && relevanceScore >= 8) {
+        relevanceScore  = 4;
+        relevanceReason = relevanceReason + ' Note: this role\'s seniority level is likely above your current experience.';
+      }
+
       return {
         ...job,
-        relevanceScore:  score?.relevanceScore  || 5,
-        relevanceReason: score?.relevanceReason || 'Matched to your profile',
+        relevanceScore,
+        relevanceReason,
         contactName:     score?.contactName     || 'Not found',
         contactTitle:    score?.contactTitle    || 'Not found',
         contactLinkedIn: score?.contactLinkedIn || 'Not found'
