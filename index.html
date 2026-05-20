@@ -4606,7 +4606,7 @@ function render(data) {
 let sbClient = null;
 let sbSession = null;
 let _authResolve = null;
-let _authPollInterval = null;
+let _pendingEmail = null;
 
 async function initSupabase() {
   try {
@@ -4635,50 +4635,6 @@ async function initSupabase() {
   }
 }
 
-// Fix 3: poll getSession() every 2 s while confirm screen is open
-// catches the case where the magic link opened in a different tab
-function startAuthPoll() {
-  if (!sbClient || _authPollInterval) return;
-  _authPollInterval = setInterval(async () => {
-    try {
-      const { data: { session } } = await sbClient.auth.getSession();
-      if (session && !sbSession) {
-        sbSession = session;
-        updateNavAuth(session);
-        loadSavedJobsFromDb();
-        loadProfile();
-        clearInterval(_authPollInterval);
-        _authPollInterval = null;
-        closeAuthOverlay();
-      }
-    } catch (_) {}
-  }, 2000);
-}
-
-function stopAuthPoll() {
-  if (_authPollInterval) { clearInterval(_authPollInterval); _authPollInterval = null; }
-}
-
-async function checkSessionNow() {
-  if (!sbClient) return;
-  const btn = document.querySelector('#authConfirm .auth-submit-btn');
-  if (btn) btn.textContent = 'Checking…';
-  try {
-    const { data: { session } } = await sbClient.auth.getSession();
-    if (session) {
-      sbSession = session;
-      updateNavAuth(session);
-      loadSavedJobsFromDb();
-      loadProfile();
-      closeAuthOverlay();
-    } else {
-      if (btn) btn.textContent = 'Not signed in yet — check your email';
-      setTimeout(() => { if (btn) btn.textContent = 'I\'ve already clicked the link'; }, 2500);
-    }
-  } catch (e) {
-    if (btn) btn.textContent = 'I\'ve already clicked the link';
-  }
-}
 
 function updateNavAuth(session) {
   const el = document.getElementById('navAuth');
@@ -4707,10 +4663,7 @@ function openAuthOverlay() {
   return new Promise(resolve => { _authResolve = resolve; });
 }
 
-// Always resolves _authResolve so the goToForm chain advances regardless
-// of whether the user signed in or skipped
 function closeAuthOverlay() {
-  stopAuthPoll();
   document.getElementById('authOverlay').hidden = true;
   document.body.style.overflow = '';
   if (_authResolve) { _authResolve(); _authResolve = null; }
@@ -4730,16 +4683,45 @@ async function submitAuthEmail() {
   try {
     const { error } = await sbClient.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.href.split('?')[0].split('#')[0] }
+      options: { shouldCreateUser: true }
     });
     if (error) throw error;
+    _pendingEmail = email;
     document.getElementById('authForm').style.display = 'none';
     document.getElementById('authConfirm').style.display = '';
-    startAuthPoll(); // catch cross-tab sign-in
+    document.getElementById('authOtpInput').value = '';
+    document.getElementById('authOtpStatus').textContent = '';
+    document.getElementById('authOtpInput').focus();
   } catch (err) {
     document.getElementById('authStatus').textContent = err.message || 'Something went wrong. Try again.';
     btn.disabled = false;
-    btn.textContent = 'Send me a link';
+    btn.textContent = 'Send me a code';
+  }
+}
+
+async function verifyOtp() {
+  if (!sbClient || !_pendingEmail) return;
+  const token = document.getElementById('authOtpInput').value.trim();
+  if (!token || token.length !== 6) {
+    document.getElementById('authOtpStatus').textContent = 'Please enter the 6-digit code.';
+    return;
+  }
+  const btn = document.getElementById('authVerifyBtn');
+  btn.disabled = true;
+  btn.textContent = 'Verifying…';
+  document.getElementById('authOtpStatus').textContent = '';
+  try {
+    const { data, error } = await sbClient.auth.verifyOtp({ email: _pendingEmail, token, type: 'email' });
+    if (error) throw error;
+    sbSession = data.session;
+    updateNavAuth(data.session);
+    loadSavedJobsFromDb();
+    loadProfile();
+    closeAuthOverlay();
+  } catch (err) {
+    document.getElementById('authOtpStatus').textContent = err.message || 'Invalid code. Try again.';
+    btn.disabled = false;
+    btn.textContent = 'Verify';
   }
 }
 
@@ -5351,17 +5333,17 @@ async function qFinish() {
       <input type="email" class="auth-email-input" id="authEmail" placeholder="your@email.com" autocomplete="email">
       <div class="auth-status" id="authStatus"></div>
       <div class="auth-actions">
-        <button class="auth-submit-btn" id="authSubmitBtn" onclick="submitAuthEmail()">Send me a link</button>
+        <button class="auth-submit-btn" id="authSubmitBtn" onclick="submitAuthEmail()">Send me a code</button>
         <button class="auth-skip-link" onclick="closeAuthOverlay()">Continue without signing in</button>
       </div>
     </div>
     <div id="authConfirm" style="display:none;">
-      <div class="auth-confirm">
-        <div class="auth-confirm-icon">✦</div>
-        <div class="auth-confirm-text">Check your email — we've sent you a sign-in link.<br><br>This screen will advance automatically once you click it.</div>
-      </div>
-      <div style="text-align:center; margin-top:var(--sp-6); display:flex; flex-direction:column; gap:var(--sp-3); align-items:center;">
-        <button class="auth-submit-btn" style="max-width:280px;" onclick="checkSessionNow()">I've already clicked the link</button>
+      <div class="auth-heading">Check your email.</div>
+      <p class="auth-sub">We sent a 6-digit code to your email. Enter it below.</p>
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="auth-email-input" id="authOtpInput" placeholder="000000" autocomplete="one-time-code">
+      <div class="auth-status" id="authOtpStatus"></div>
+      <div class="auth-actions">
+        <button class="auth-submit-btn" id="authVerifyBtn" onclick="verifyOtp()">Verify</button>
         <button class="auth-skip-link" onclick="closeAuthOverlay()">Continue without signing in</button>
       </div>
     </div>
