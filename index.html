@@ -4657,6 +4657,9 @@ function openAuthOverlay() {
   document.getElementById('authEmail').value = '';
   document.getElementById('authStatus').textContent = '';
   document.getElementById('authHeading').textContent = 'Create your account.';
+  const submitBtn = document.getElementById('authSubmitBtn');
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Send me a code';
   overlay.hidden = false;
   document.body.style.overflow = 'hidden';
   document.getElementById('authEmail').focus();
