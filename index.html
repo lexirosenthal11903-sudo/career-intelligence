@@ -2787,7 +2787,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
         </a>
 
         <!-- S1 nav right -->
-        <span class="nav-status" id="navS1Right"></span>
 
         <!-- S2 nav right -->
         <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
@@ -3451,7 +3450,6 @@ function showSession(n) {
     document.getElementById(id).classList.toggle('active', i + 1 === n);
   });
   // Nav bar adapts
-  document.getElementById('navS1Right').style.display = n === 1 ? '' : 'none';
   document.getElementById('navS2Right').style.display = n === 2 ? '' : 'none';
   document.getElementById('navS3Right').style.display = n === 3 ? '' : 'none';
 
