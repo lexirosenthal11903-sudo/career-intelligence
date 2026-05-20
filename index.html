@@ -3669,7 +3669,38 @@ async function runSearch() {
     if (!analysis.profile) throw new Error('Could not read your profile. Please try again.');
 
     setStep(2);
-    const keywords = analysis.profile.searchKeywords || analysis.profile.topRoleTitles || ['graduate'];
+    const baseKeywords = (analysis.profile.searchKeywords || analysis.profile.topRoleTitles || ['analyst']).slice(0, 2);
+    const senLvl = (analysis.profile.seniorityLevel || '').toLowerCase();
+    const yrsExp = (analysis.profile.yearsExperience || '');
+
+    let senTier;
+    if (/graduate|entry.?level|early.?career/i.test(senLvl) || /^0\s*[-–]\s*2|^[012]\s*year/i.test(yrsExp)) {
+      senTier = 'graduate';
+    } else if (/director|executive|c.?suite|\bvp\b|vice\s*pres|chief/i.test(senLvl) || /\b1[0-9]\+?|\b10\s*\+/i.test(yrsExp)) {
+      senTier = 'director';
+    } else if (/\bsenior\b|\bprincipal\b|\blead\b/i.test(senLvl) || /\b[789]\s*[-–]|^[789]\s*year/i.test(yrsExp)) {
+      senTier = 'senior';
+    } else {
+      senTier = 'mid';
+    }
+
+    const TIER = {
+      graduate: { prefix: ['junior', 'graduate'], extras: ['graduate scheme'], salaryMax: 45000 },
+      mid:      { prefix: [],                      extras: [],                  salaryMin: 35000, salaryMax: 80000 },
+      senior:   { prefix: ['senior', 'lead'],      extras: [],                  salaryMin: 60000, salaryMax: 120000 },
+      director: { prefix: [],                      extras: ['director', 'head of'], salaryMin: 80000 }
+    };
+    const tcfg = TIER[senTier];
+
+    let adjustedKeywords;
+    if (tcfg.prefix.length) {
+      adjustedKeywords = baseKeywords.map((k, i) => `${tcfg.prefix[i] || tcfg.prefix[0]} ${k}`);
+      if (tcfg.extras.length) adjustedKeywords.push(tcfg.extras[0]);
+    } else {
+      adjustedKeywords = [...baseKeywords, ...tcfg.extras];
+    }
+    adjustedKeywords = adjustedKeywords.slice(0, 3);
+
     let rawJobs = [];
     const jobsStart = Date.now();
     try {
@@ -3677,8 +3708,10 @@ async function runSearch() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          keywords: keywords.slice(0, 3),
-          location: analysis.profile.locationSearch || location || 'london'
+          keywords: adjustedKeywords,
+          location: analysis.profile.locationSearch || location || 'london',
+          salaryMin: tcfg.salaryMin,
+          salaryMax: tcfg.salaryMax
         })
       });
       if (jobsRes.ok) {

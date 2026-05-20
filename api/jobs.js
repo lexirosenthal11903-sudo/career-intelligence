@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { keywords, location } = req.body;
+  const { keywords, location, salaryMin, salaryMax } = req.body;
 
   const appId  = process.env.ADZUNA_APP_ID;
   const apiKey = process.env.ADZUNA_API_KEY;
@@ -25,6 +25,8 @@ export default async function handler(req, res) {
         results_per_page: '5',
         max_days_old: '30'
       });
+      if (salaryMin) params.set('salary_min', String(salaryMin));
+      if (salaryMax) params.set('salary_max', String(salaryMax));
 
       const url = `https://api.adzuna.com/v1/api/jobs/gb/search/1?${params.toString()}`;
 
