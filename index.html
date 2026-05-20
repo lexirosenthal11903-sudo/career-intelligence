@@ -256,8 +256,6 @@ body::before {
   align-items: center;
   gap: var(--sp-4);
   margin-bottom: var(--sp-10);
-  opacity: 0;
-  animation: fadeUp 0.8s var(--ease-out) 0.1s forwards;
 }
 
 .hero-rule-line {
@@ -275,8 +273,6 @@ body::before {
   color: var(--ink);
   max-width: 820px;
   margin-bottom: var(--sp-10);
-  opacity: 0;
-  animation: fadeUp 0.9s var(--ease-out) 0.2s forwards;
 }
 
 .hero-headline em {
@@ -301,8 +297,6 @@ body::before {
   color: var(--ink-2);
   line-height: 1.75;
   margin-bottom: var(--sp-12);
-  opacity: 0;
-  animation: fadeUp 0.9s var(--ease-out) 0.35s forwards;
 }
 
 .hero-cta {
@@ -310,8 +304,6 @@ body::before {
   align-items: center;
   gap: var(--sp-6);
   flex-wrap: wrap;
-  opacity: 0;
-  animation: fadeUp 0.9s var(--ease-out) 0.5s forwards;
 }
 
 .btn-primary {
@@ -2795,7 +2787,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
         </a>
 
         <!-- S1 nav right -->
-        <span class="nav-status" id="navS1Right">Proof of concept</span>
+        <span class="nav-status" id="navS1Right"></span>
 
         <!-- S2 nav right -->
         <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
@@ -2936,7 +2928,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <div class="page-header">
             <div class="page-header-rule" aria-hidden="true">
               <div class="page-header-rule-line"></div>
-              <span class="eyebrow">Step 1 of 1</span>
             </div>
             <h1>
               Tell us who you are.<br>
@@ -2956,16 +2947,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
             <div class="form-section">
               <div class="form-section-label">Your background</div>
               <div class="field">
-                <label>Upload your CV as a PDF</label>
-                <div class="pdf-upload-area" id="pdfUploadArea">
-                  <input type="file" id="pdfFileInput" accept=".pdf" onchange="handlePdfUpload(this)">
-                  <span class="pdf-upload-icon">↑</span>
-                  <div class="pdf-upload-text"><strong>Choose a PDF</strong> or drag it here</div>
-                </div>
-                <div class="pdf-status" id="pdfStatus"></div>
-
-                <div class="cv-divider">or paste manually</div>
-
                 <label for="cvText">
                   Paste your CV here
                   <span class="opt"> — plain text works best</span>
@@ -2981,6 +2962,15 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
                   ></textarea>
                   <div class="cv-counter" id="cvCounter" aria-live="polite">0 words</div>
                 </div>
+
+                <div class="cv-divider">Or upload a PDF instead</div>
+
+                <div class="pdf-upload-area" id="pdfUploadArea">
+                  <input type="file" id="pdfFileInput" accept=".pdf" onchange="handlePdfUpload(this)">
+                  <span class="pdf-upload-icon">↑</span>
+                  <div class="pdf-upload-text"><strong>Choose a PDF</strong> or drag it here</div>
+                </div>
+                <div class="pdf-status" id="pdfStatus"></div>
               </div>
             </div>
 
