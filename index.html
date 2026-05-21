@@ -1996,7 +1996,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   font-size: 9.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-5);
+  color: #6B6660;
   border: 1px solid var(--ink-5);
   border-radius: 100px;
   padding: 3px 12px;
@@ -3709,7 +3709,8 @@ async function runSearch() {
           keywords: adjustedKeywords,
           location: analysis.profile.locationSearch || location || 'london',
           salaryMin: tcfg.salaryMin,
-          salaryMax: tcfg.salaryMax
+          salaryMax: tcfg.salaryMax,
+          whatOr: senTier === 'graduate' ? 'graduate junior entry-level analyst associate' : undefined
         })
       });
       if (jobsRes.ok) {
