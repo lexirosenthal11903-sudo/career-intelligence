@@ -141,10 +141,17 @@ body::after {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: var(--sp-5) 0;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
+  height: 62px;
+  padding: 0;
+  background: rgba(238,240,248,0.76);
+  backdrop-filter: blur(28px) saturate(1.8);
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  border-bottom: 1px solid rgba(255,255,255,0.75);
+  box-shadow: var(--sh-nav), inset 0 -1px 0 rgba(165,175,220,0.12);
+  transition: box-shadow 0.3s var(--ease);
 }
+
+.nav > .container { height: 100%; display: flex; align-items: center; }
 
 .nav.scrolled,
 .nav.always-frosted {
@@ -163,8 +170,8 @@ body::after {
 
 .wordmark {
   display: flex;
-  align-items: baseline;
-  gap: 2px;
+  align-items: center;
+  gap: 7px;
   text-decoration: none;
   color: var(--ink);
   flex-shrink: 0;
@@ -172,17 +179,19 @@ body::after {
 }
 
 .wordmark-main {
-  font-family: var(--font-serif);
-  font-size: 17px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .wordmark-dot {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--accent);
+  background: linear-gradient(135deg,var(--blue),var(--purple));
+  box-shadow: 0 0 8px rgba(103,65,217,0.35);
   flex-shrink: 0;
   align-self: flex-end;
   margin-bottom: 3px;
@@ -270,8 +279,9 @@ body::after {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 120px 0 80px;
+  padding: 130px 52px 110px 52px;
   position: relative;
+  overflow: hidden;
 }
 
 .hero-rule {
@@ -2818,6 +2828,178 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 }
 @keyframes qPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 .q-pulse { animation: qPulse 1.6s ease infinite; }
+
+/* ═══════════════════════════════════════════════
+   HERO v4 — REFERENCE LAYOUT
+═══════════════════════════════════════════════ */
+/* Nav center pill */
+.nav-center{position:absolute;left:50%;transform:translateX(-50%);pointer-events:none}
+.nav-pill{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--blue);background:var(--blue-soft);
+  border:1px solid rgba(59,91,219,.16);border-radius:100px;padding:5px 14px;
+  white-space:nowrap;
+}
+
+/* Orbs */
+.orb{position:absolute;border-radius:50%;pointer-events:none}
+.orb-1{width:660px;height:660px;top:-180px;right:-80px;
+  background:radial-gradient(circle,rgba(125,150,255,0.22) 0%,transparent 68%);
+  animation:drift 15s ease-in-out infinite alternate}
+.orb-2{width:500px;height:500px;bottom:-90px;left:-130px;
+  background:radial-gradient(circle,rgba(170,135,255,0.17) 0%,transparent 68%);
+  animation:drift 20s ease-in-out 3s infinite alternate-reverse}
+.orb-3{width:300px;height:300px;top:35%;right:380px;
+  background:radial-gradient(circle,rgba(100,155,255,0.11) 0%,transparent 68%);
+  animation:drift 25s ease-in-out 6s infinite alternate}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(18px,14px) scale(1.04)}}
+
+/* Hero inner */
+.hero-inner{max-width:1240px;margin:0 auto;width:100%;position:relative;z-index:1}
+
+/* Eyebrow row */
+.eyebrow-row{display:flex;align-items:center;gap:14px;margin-bottom:52px;opacity:0;animation:up .7s cubic-bezier(0,0,.2,1) .12s forwards}
+.eyebrow-line{width:26px;height:1px;background:linear-gradient(90deg,var(--blue-lt),var(--purple-lt));opacity:.55}
+.eyebrow-text{font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+
+/* Headline */
+.hero-hl{
+  font-family:var(--font-head);
+  font-size:clamp(50px,6.6vw,88px);
+  font-weight:700;line-height:1.02;letter-spacing:-.018em;
+  color:var(--ink);max-width:800px;margin-bottom:52px;
+  opacity:0;animation:up .9s cubic-bezier(0,0,.2,1) .22s forwards;
+}
+.hero-hl .accent{color:var(--blue);-webkit-text-fill-color:var(--blue)}
+
+/* Sub copy */
+.hero-sub{
+  max-width:420px;font-size:16px;font-weight:300;
+  color:var(--ink-2);line-height:1.8;margin-bottom:52px;
+  opacity:0;animation:up .9s cubic-bezier(0,0,.2,1) .36s forwards;
+}
+
+/* CTA row */
+.cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;opacity:0;animation:up .9s cubic-bezier(0,0,.2,1) .5s forwards}
+
+/* Primary button (enhanced) */
+.btn-p{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--blue) 0%,#4D6EE8 100%);
+  color:#fff;font-family:var(--font-sans);font-size:14px;font-weight:500;
+  letter-spacing:.01em;padding:16px 38px;border-radius:11px;border:none;cursor:pointer;
+  box-shadow:0 4px 22px var(--blue-glow),0 1px 4px rgba(59,91,219,.2),inset 0 1px 0 rgba(255,255,255,.16);
+  transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;text-decoration:none;
+}
+.btn-p::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.13) 0%,transparent 55%);pointer-events:none}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 34px var(--blue-glow),0 2px 8px rgba(59,91,219,.18),inset 0 1px 0 rgba(255,255,255,.16)}
+
+/* Ghost button */
+.btn-g{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--glass-75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border);color:var(--ink-2);
+  font-family:var(--font-sans);font-size:14px;font-weight:400;
+  padding:15px 28px;border-radius:11px;cursor:pointer;text-decoration:none;
+  box-shadow:var(--sh-sm);transition:transform .2s,box-shadow .2s,background .2s;
+}
+.btn-g:hover{transform:translateY(-1px);box-shadow:var(--sh-md);background:rgba(255,255,255,.88)}
+
+/* Floating insight card */
+.card-float{
+  position:absolute;right:52px;top:50%;transform:translateY(-50%);
+  width:316px;z-index:2;
+  opacity:0;animation:floatIn 1s cubic-bezier(0,0,.2,1) .72s forwards;
+}
+@keyframes floatIn{from{opacity:0;transform:translateY(-45%) translateX(16px)}to{opacity:1;transform:translateY(-50%) translateX(0)}}
+
+/* Glass card (insight brief) */
+.gc{
+  background:var(--glass-90);
+  backdrop-filter:blur(32px) saturate(1.6);-webkit-backdrop-filter:blur(32px) saturate(1.6);
+  border:1px solid var(--border);border-radius:18px;
+  box-shadow:var(--sh-lg),inset 0 1px 0 var(--edge);overflow:hidden;
+}
+.gc-head{
+  padding:14px 18px 12px;border-bottom:1px solid rgba(175,182,220,.2);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.5);
+}
+.gc-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.gc-badge{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;
+  color:var(--green);background:var(--green-soft);
+  border:1px solid rgba(43,154,82,.2);padding:3px 11px;border-radius:100px;
+}
+.gc-body{padding:16px 18px}
+.av-row{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.av{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#BCC9FF,#D5BEFF);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--blue);
+  box-shadow:0 2px 8px rgba(140,160,255,.28);
+}
+.av-name{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.av-sub{font-size:11px;color:var(--ink-3)}
+.match-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 13px;margin-bottom:10px;
+  background:linear-gradient(135deg,rgba(59,91,219,.06),rgba(103,65,217,.05));
+  border:1px solid rgba(100,120,235,.14);border-radius:10px;
+}
+.match-num{font-family:var(--font-head);font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--blue);line-height:1}
+.match-lbl{font-family:var(--font-mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);margin-bottom:4px}
+.match-sub{font-size:11px;color:var(--ink-3);text-align:right;margin-bottom:5px}
+.bar{height:4px;width:108px;background:rgba(175,182,220,.28);border-radius:100px;overflow:hidden}
+.bar-fill{height:100%;width:78%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:100px}
+.ins-row{padding:11px 0;border-bottom:1px solid rgba(175,182,220,.18)}
+.ins-row:last-child{border-bottom:none;padding-bottom:0}
+.ins-lbl{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);margin-bottom:4px}
+.ins-val{font-size:12.5px;font-weight:400;color:var(--ink);line-height:1.4}
+.ins-tag{
+  display:inline-block;margin-top:6px;
+  font-family:var(--font-mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 10px;border-radius:100px;
+  background:linear-gradient(135deg,rgba(59,91,219,.07),rgba(103,65,217,.06));
+  color:var(--blue);border:1px solid rgba(100,120,235,.16);
+}
+
+/* Stats bar */
+.stats{
+  position:relative;z-index:2;
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);
+  border-top:1px solid rgba(255,255,255,.85);border-bottom:1px solid rgba(165,175,220,.2);
+  box-shadow:0 6px 28px rgba(70,85,150,.07),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.stats-inner{max-width:1240px;margin:0 auto;padding:0 52px;display:flex;align-items:stretch}
+.stat{display:flex;align-items:center;gap:16px;padding:32px 52px 32px 0;flex:1}
+.stat+.stat{padding-left:52px;border-left:1px solid rgba(165,175,220,.25)}
+.stat-n{
+  font-family:var(--font-head);font-size:32px;font-weight:700;
+  line-height:1;letter-spacing:-.03em;
+  background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.stat-n sup{font-size:14px;vertical-align:super;font-family:var(--font-sans);font-weight:600;-webkit-text-fill-color:initial;color:var(--blue)}
+.stat-lbl{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);line-height:1.65;max-width:100px}
+.stat-scroll{margin-left:auto;align-self:center;font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);display:flex;align-items:center;gap:6px}
+
+/* Hero v4 animations */
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* Mobile — hide floating card on small screens */
+@media(max-width:900px){.card-float{display:none}}
+@media(max-width:640px){
+  .hero-inner{padding:0 var(--sp-5)}
+  .eyebrow-row{margin-bottom:32px}
+  .hero-hl{margin-bottom:32px}
+  .hero-sub{margin-bottom:32px}
+  .stats-inner{padding:0 var(--sp-5)}
+  .stat{padding:24px 24px 24px 0}
+  .stat+.stat{padding-left:24px}
+}
 </style>
 </head>
 
@@ -2835,6 +3017,8 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <span class="wordmark-main">Career Intelligence</span>
           <span class="wordmark-dot" aria-hidden="true"></span>
         </a>
+
+        <div class="nav-center"><div class="nav-pill">Pre-seed build — May 2026</div></div>
 
         <!-- S1 nav right -->
 
@@ -2863,59 +3047,94 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 
       <!-- HERO -->
       <section class="hero" aria-labelledby="hero-headline">
-        <div class="container">
+        <div class="orb orb-1" aria-hidden="true"></div>
+        <div class="orb orb-2" aria-hidden="true"></div>
+        <div class="orb orb-3" aria-hidden="true"></div>
 
-          <div class="hero-rule" aria-hidden="true">
-            <div class="hero-rule-line"></div>
-            <span class="eyebrow">Career Intelligence Platform</span>
+        <div class="hero-inner">
+          <div class="eyebrow-row" aria-hidden="true">
+            <div class="eyebrow-line"></div>
+            <span class="eyebrow-text">Career Intelligence Platform</span>
           </div>
 
-          <h1 class="hero-headline" id="hero-headline">
-            Your career<br>
-            deserves more<br>
-            <em>than a job board.</em>
+          <h1 class="hero-hl" id="hero-headline">
+            Your career deserves<br>
+            more than a <span class="accent">job board.</span>
           </h1>
 
-          <p class="hero-body">
+          <p class="hero-sub">
             Upload your CV. In sixty seconds, you'll know where you fit,
             what to build, and exactly who to reach out to — with the
             message already written.
           </p>
 
-          <div class="hero-cta">
-            <button class="btn-primary" id="getStarted" onclick="goToForm()">
-              Get started
-              <span class="btn-arrow" aria-hidden="true">→</span>
-            </button>
-            <a href="#about" class="link-secondary">How it works</a>
+          <div class="cta-row">
+            <button class="btn-p" id="getStarted" onclick="goToForm()">Get started &nbsp;→</button>
+            <a href="#about" class="btn-g">How it works</a>
           </div>
+        </div>
 
-
-          <div class="hero-footnote" aria-label="Context statistics">
-            <div class="hero-stat">
-              <span class="hero-stat-n">24.4</span>
-              <span class="hero-stat-label">weeks — average job search in 2026</span>
+        <!-- FLOATING INSIGHT CARD -->
+        <div class="card-float" aria-hidden="true">
+          <div class="gc">
+            <div class="gc-head">
+              <span class="gc-label">Your intelligence brief</span>
+              <span class="gc-badge">Ready</span>
             </div>
-            <div class="hero-stat-divider" aria-hidden="true"></div>
-            <div class="hero-stat">
-              <span class="hero-stat-n">80%</span>
-              <span class="hero-stat-label">of roles never publicly posted</span>
-            </div>
-            <div class="hero-stat-divider" aria-hidden="true"></div>
-            <div class="hero-stat">
-              <span class="hero-stat-n">75%</span>
-              <span class="hero-stat-label">of applications filtered before a human reads them</span>
-            </div>
-            <div class="hero-scroll-hint" aria-hidden="true">
-              <svg width="10" height="14" viewBox="0 0 10 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 1v12M1 9l4 4 4-4" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Scroll
+            <div class="gc-body">
+              <div class="av-row">
+                <div class="av">AK</div>
+                <div>
+                  <div class="av-name">Alex Kim</div>
+                  <div class="av-sub">Strategy &amp; Ops · 4 years</div>
+                </div>
+              </div>
+              <div class="match-row">
+                <div>
+                  <div class="match-lbl">Match score</div>
+                  <div class="match-num">78%</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="match-sub">Strategic Operations</div>
+                  <div class="bar"><div class="bar-fill"></div></div>
+                </div>
+              </div>
+              <div class="ins-row">
+                <div class="ins-lbl">Best fit direction</div>
+                <div class="ins-val">Strategic Operations at Series A–B</div>
+                <span class="ins-tag">High match</span>
+              </div>
+              <div class="ins-row">
+                <div class="ins-lbl">Strongest signal</div>
+                <div class="ins-val">Problem framing before being asked — top 12%</div>
+              </div>
+              <div class="ins-row">
+                <div class="ins-lbl">Next step</div>
+                <div class="ins-val">3 outreach messages drafted &amp; ready</div>
+              </div>
             </div>
           </div>
-
         </div>
       </section>
+
+      <!-- STATS BAR -->
+      <div class="stats" aria-label="Context statistics">
+        <div class="stats-inner">
+          <div class="stat">
+            <span class="stat-n">24.4<sup>wk</sup></span>
+            <span class="stat-lbl">Average job search in 2026</span>
+          </div>
+          <div class="stat">
+            <span class="stat-n">80<sup>%</sup></span>
+            <span class="stat-lbl">Roles never publicly posted</span>
+          </div>
+          <div class="stat">
+            <span class="stat-n">75<sup>%</sup></span>
+            <span class="stat-lbl">Applications filtered before a human reads them</span>
+          </div>
+          <div class="stat-scroll">↓ Scroll</div>
+        </div>
+      </div>
 
 
       <!-- POSITIONING SECTION -->
