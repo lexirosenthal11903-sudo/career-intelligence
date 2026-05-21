@@ -1076,9 +1076,9 @@ input[type="text"]::placeholder {
 }
 
 .dash-title em {
-  font-style: italic;
+  font-style: normal;
   color: var(--accent);
-  font-weight: 300;
+  font-weight: 700;
 }
 
 .dash-meta {
@@ -1125,8 +1125,10 @@ input[type="text"]::placeholder {
   left: 0;
   bottom: 0;
   width: 220px;
-  background: #F0EBE3;
-  border-right: 1px solid #E8E2D9;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255,255,255,0.7);
   z-index: 50;
   padding: 32px 0;
   display: flex;
@@ -1428,9 +1430,9 @@ input[type="text"]::placeholder {
 }
 
 .sec-heading em {
-  font-style: italic;
+  font-style: normal;
   color: var(--accent);
-  font-weight: 300;
+  font-weight: 700;
 }
 
 /* Pills */
@@ -3230,7 +3232,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <span class="wordmark-dot" aria-hidden="true"></span>
         </a>
 
-        <div class="nav-center"><div class="nav-pill">Pre-seed build — May 2026</div></div>
+        <div class="nav-center" id="navCenter"><div class="nav-pill">Pre-seed build — May 2026</div></div>
 
         <!-- S1 nav right -->
 
@@ -3348,106 +3350,6 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
         </div>
       </div>
 
-
-      <!-- WHAT THIS IS -->
-      <section class="sec sec-elevated" id="about">
-        <div class="sec-inner">
-          <div class="sec-ey">What this is</div>
-          <div class="pos-grid">
-            <div>
-              <h2 class="pos-hl">Career intelligence.<br><span class="gc">Not a faster<br>job board.</span></h2>
-            </div>
-            <div>
-              <p class="pos-body">A faster job board helps you apply to more things more quickly. Career intelligence helps you understand where you actually fit, what you actually want, and then act on that with clarity and intention.</p>
-              <p class="pos-body">The job search becomes a byproduct of knowing yourself — not the starting point. Upload your CV, or describe your background in a few sentences. The platform does the rest.</p>
-              <div class="bq"><p>"When you don't have a job and you're looking without a specific direction, day to day you lose motivation. I want it to build and maintain that momentum — and keep people going every day."</p></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- HOW IT WORKS -->
-      <section class="sec" style="padding-top:0">
-        <div class="sec-inner">
-          <div class="sec-ey">How it works</div>
-          <div class="steps-grid">
-            <div class="step-card">
-              <div class="sn">01 — Input</div>
-              <div class="st">Paste your CV</div>
-              <p class="sb">Plain text, no upload required. Describe your background in your own words. The platform reads you, not your formatting.</p>
-            </div>
-            <div class="step-card feat">
-              <div class="sn">02 — Analysis</div>
-              <div class="st">Understand your position</div>
-              <p class="sb">Skills mapped, direction clarified, company values matched. Where you fit — and where you'll thrive — made visible.</p>
-            </div>
-            <div class="step-card">
-              <div class="sn">03 — Act</div>
-              <div class="st">Move with intention</div>
-              <p class="sb">Live roles, targeted outreach, messages already written. Job search as a byproduct of clarity — not desperation.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- DASHBOARD MOCKUP -->
-      <section class="sec sec-elevated">
-        <div class="sec-inner">
-          <div class="sec-ey">Your intelligence dashboard</div>
-          <div class="mock-shell">
-            <div class="dash-bar">
-              <span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span>
-              <div class="dash-url">career-intelligence.app / dashboard</div>
-              <div class="dash-status">Analysis complete</div>
-            </div>
-            <div class="tabs-row">
-              <div class="tab on">Profile &amp; Direction</div>
-              <div class="tab">Skills Analysis</div>
-              <div class="tab">Company Matching</div>
-              <div class="tab">Live Roles</div>
-              <div class="tab">Outreach</div>
-              <div class="tab">Next Steps</div>
-            </div>
-            <div class="dash-body">
-              <div class="mock-sidebar">
-                <div class="sb-prof">
-                  <div class="sb-av">AK</div>
-                  <div>
-                    <div class="sb-name">Alex Kim</div>
-                    <div class="sb-role">Strategy &amp; Ops · 4 yrs</div>
-                  </div>
-                </div>
-                <div class="sb-sec">
-                  <div class="sb-sec-lbl">Your profile</div>
-                  <div class="sb-it on"><span class="sb-d b"></span>Direction</div>
-                  <div class="sb-it"><span class="sb-d"></span>Skills</div>
-                  <div class="sb-it"><span class="sb-d"></span>Values</div>
-                </div>
-                <div class="sb-sec">
-                  <div class="sb-sec-lbl">Opportunities</div>
-                  <div class="sb-it"><span class="sb-d g"></span>Live Roles<span class="sb-cnt">12</span></div>
-                  <div class="sb-it"><span class="sb-d"></span>Outreach</div>
-                  <div class="sb-it"><span class="sb-d"></span>Next Steps</div>
-                </div>
-              </div>
-              <div class="mock-cards">
-                <div class="dc">
-                  <div class="dc-lbl">Career direction</div>
-                  <div class="dc-title">Strategic Operations</div>
-                  <p class="dc-body">Strong analytical foundation with demonstrated ability to build systems from scratch. Suited to early-stage environments where structure needs creating, not inheriting.</p>
-                  <span class="tag tb">High fit</span><span class="tag tn">Series A–B</span>
-                </div>
-                <div class="dc">
-                  <div class="dc-lbl">Strongest signal</div>
-                  <div class="dc-title">Problem Framing</div>
-                  <p class="dc-body">You identify systemic gaps before being asked to. This is rare and highly valued in product and strategy roles across early-stage companies.</p>
-                  <span class="tag tg">Top 12%</span><span class="tag tp">Rare skill</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <!-- FOOTER -->
       <div class="footer-wrap">
@@ -4007,6 +3909,7 @@ function showSession(n) {
   // Nav bar adapts
   document.getElementById('navS2Right').style.display = n === 2 ? '' : 'none';
   document.getElementById('navS3Right').style.display = n === 3 ? '' : 'none';
+  document.getElementById('navCenter').style.display = n === 1 ? '' : 'none';
 
   // Nav frosted glass always on when not landing
   const nav = document.getElementById('nav');
