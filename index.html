@@ -3683,7 +3683,7 @@ async function runSearch() {
     }
 
     const TIER = {
-      graduate: { prefix: ['junior', 'graduate'], extras: ['graduate scheme'], salaryMax: 45000 },
+      graduate: { prefix: ['junior', 'graduate'], extras: [], salaryMax: 45000 },
       mid:      { prefix: [],                      extras: [],                  salaryMin: 35000, salaryMax: 80000 },
       senior:   { prefix: ['senior', 'lead'],      extras: [],                  salaryMin: 60000, salaryMax: 120000 },
       director: { prefix: [],                      extras: ['director', 'head of'], salaryMin: 80000 }
@@ -3694,6 +3694,7 @@ async function runSearch() {
     if (tcfg.prefix.length) {
       adjustedKeywords = baseKeywords.map((k, i) => `${tcfg.prefix[i] || tcfg.prefix[0]} ${k}`);
       if (tcfg.extras.length) adjustedKeywords.push(tcfg.extras[0]);
+      if (senTier === 'graduate' && baseKeywords[0]) adjustedKeywords.push(`entry level ${baseKeywords[0]}`);
     } else {
       adjustedKeywords = [...baseKeywords, ...tcfg.extras];
     }
@@ -3709,8 +3710,7 @@ async function runSearch() {
           keywords: adjustedKeywords,
           location: analysis.profile.locationSearch || location || 'london',
           salaryMin: tcfg.salaryMin,
-          salaryMax: tcfg.salaryMax,
-          whatOr: senTier === 'graduate' ? 'graduate junior entry-level analyst associate' : undefined
+          salaryMax: tcfg.salaryMax
         })
       });
       if (jobsRes.ok) {
