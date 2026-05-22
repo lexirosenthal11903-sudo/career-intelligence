@@ -1722,15 +1722,15 @@ input[type="text"]::placeholder {
 .gap-list { display: flex; flex-direction: column; gap: 0; }
 
 .gap-item {
-  padding: var(--sp-5) 0;
-  border-top: 1px solid var(--bg-deep);
+  padding: 20px 0;
+  border-top: 1px solid var(--ink-5);
 }
 .gap-item:first-child { border-top: none; padding-top: 0; }
 
-.gap-skill-name { font-family: var(--font-sans); font-size: 13.5px; font-weight: 500; color: var(--amber); margin-bottom: var(--sp-2); }
-.gap-why, .gap-how { font-size: 12.5px; font-weight: 300; color: var(--ink-3); line-height: 1.7; }
-.gap-how { color: var(--ink-2); margin-top: var(--sp-1); }
-.gap-meta-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-5); margin-bottom: 3px; }
+.gap-skill-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.01em; }
+.gap-meta-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 4px; }
+.gap-why { font-size: 12px; font-weight: 300; color: var(--ink-3); line-height: 1.75; margin-top: 0; }
+.gap-how { font-size: 12px; font-weight: 300; color: var(--ink-2); line-height: 1.75; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--ink-5); }
 
 /* ── COMPANIES TAB ── */
 .companies-intro { margin-bottom: var(--sp-8); }
@@ -2308,47 +2308,61 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
 .drawer-row.open .job-drawer { grid-template-rows: 1fr; }
 .drawer-clip { overflow: hidden; min-height: 0; }
 .drawer-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--sp-6);
-  padding: var(--sp-6) var(--sp-8) var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 24px;
   border-top: 1px solid var(--bg-deep);
 }
-@media (max-width: 900px) { .drawer-inner { grid-template-columns: 1fr; } }
-.drawer-section { display: flex; flex-direction: column; gap: var(--sp-3); }
+.drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: 20px 0;
+  border-top: 1px solid rgba(165,175,220,0.2);
+}
+.drawer-section:first-child { border-top: none; padding-top: 0; }
 .drawer-section-label {
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-4);
+  margin-bottom: var(--sp-1);
 }
 .drawer-msg-box {
-  background: var(--bg-warm);
+  background: rgba(255,255,255,0.8);
   border: 1px solid var(--ink-5);
-  border-radius: var(--r-md);
-  padding: var(--sp-5) var(--sp-6);
+  border-radius: 12px;
+  padding: 16px;
   font-size: 13px;
   font-weight: 300;
   color: var(--ink-2);
   line-height: 1.85;
   white-space: pre-wrap;
-  flex: 1;
 }
-.drawer-tips { font-size: 13.5px; font-weight: 300; color: var(--ink-2); line-height: 1.75; flex: 1; }
+.drawer-tips {
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--ink-5);
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 13.5px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.75;
+}
 .drawer-tips ul { padding-left: var(--sp-5); }
 .drawer-tips li { margin-bottom: var(--sp-2); }
 .drawer-cover {
-  background: var(--bg-warm);
+  background: rgba(255,255,255,0.8);
   border: 1px solid var(--ink-5);
-  border-radius: var(--r-md);
-  padding: var(--sp-5) var(--sp-6);
+  border-radius: 12px;
+  padding: 16px;
   font-size: 13px;
   font-weight: 300;
   color: var(--ink-2);
   line-height: 1.85;
   white-space: pre-wrap;
-  flex: 1;
 }
 
 .momentum-block {
@@ -2476,6 +2490,52 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
 }
 .nav-signin-btn:hover { background: rgba(59,91,219,0.12); border-color: var(--blue); }
 .nav.always-frosted .nav-signin-btn { display: none; }
+
+/* ── Sidebar profile card ───────────────────────────── */
+.sidebar-profile-card {
+  background: rgba(255,255,255,0.68);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: 11px;
+  padding: 11px 12px;
+  margin: 14px 14px 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(70,85,150,0.06);
+}
+.sidebar-profile-av {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg,#BCC9FF,#D5BEFF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+}
+.sidebar-profile-info { flex: 1; min-width: 0; }
+.sidebar-profile-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+.sidebar-profile-role {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ── Nav auth ───────────────────────────────────────── */
 .nav-auth {
@@ -3703,6 +3763,13 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
         <span class="sidebar-brand-text">Career Intelligence</span>
         <span class="sidebar-brand-dot"></span>
       </div>
+      <div class="sidebar-profile-card">
+        <div class="sidebar-profile-av" id="sidebarInitials">—</div>
+        <div class="sidebar-profile-info">
+          <div class="sidebar-profile-name" id="sidebarName">Your profile</div>
+          <div class="sidebar-profile-role" id="sidebarRole">Analysing…</div>
+        </div>
+      </div>
       <div class="sidebar-section-label">Your results</div>
       <div class="sidebar-nav">
         <button class="sidebar-step sidebar-active" id="sidebar-profile" onclick="switchTab('profile')" aria-current="step">
@@ -3721,6 +3788,10 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
           <span class="sidebar-tick" id="tick-roles"></span>
           <span class="sidebar-step-label">Live Roles</span>
         </button>
+        <button class="sidebar-step sidebar-locked" id="sidebar-outreach" onclick="switchTab('outreach')">
+          <span class="sidebar-tick" id="tick-outreach"></span>
+          <span class="sidebar-step-label">Outreach</span>
+        </button>
         <button class="sidebar-step sidebar-locked" id="sidebar-next" onclick="switchTab('next')">
           <span class="sidebar-tick" id="tick-next"></span>
           <span class="sidebar-step-label">Next Steps</span>
@@ -3735,6 +3806,7 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
         <button class="strip-step strip-locked"  id="strip-skills"    onclick="switchTab('skills')">Skills</button>
         <button class="strip-step strip-locked"  id="strip-companies" onclick="switchTab('companies')">Companies</button>
         <button class="strip-step strip-locked"  id="strip-roles"     onclick="switchTab('roles')">Live Roles</button>
+        <button class="strip-step strip-locked"  id="strip-outreach"  onclick="switchTab('outreach')">Outreach</button>
         <button class="strip-step strip-locked"  id="strip-next"      onclick="switchTab('next')">Next Steps</button>
       </div>
     </div>
@@ -3933,7 +4005,23 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
         </div><!-- /panel-roles -->
 
 
-        <!-- TAB 5: NEXT STEPS -->
+        <!-- TAB 5: OUTREACH -->
+        <div class="tab-panel" id="panel-outreach" role="tabpanel" aria-labelledby="tab-outreach">
+          <div class="outreach-intro">
+            <div class="sec-label">Outreach</div>
+            <h2 class="sec-heading">Reach out,<br><em>the right way.</em></h2>
+            <p style="font-size:14.5px; font-weight:300; color:var(--ink-3); line-height:1.8; max-width:500px; margin-top:var(--sp-3);">
+              Personalised messages ready to send — tailored to each company and role.
+            </p>
+          </div>
+          <div class="outreach-list" id="outreachList"></div>
+          <div class="section-next-wrap">
+            <button class="btn-next-section" onclick="switchTab('next')">Next: Next Steps →</button>
+          </div>
+        </div><!-- /panel-outreach -->
+
+
+        <!-- TAB 6: NEXT STEPS -->
         <div class="tab-panel" id="panel-next" role="tabpanel" aria-labelledby="tab-next">
           <div class="next-intro">
             <div class="sec-label">Today's actions</div>
@@ -4354,8 +4442,8 @@ function generateOutreach(jobs, analysis) {
 // SESSION 3 — SEQUENTIAL NAVIGATION
 // ══════════════════════════════════════════════════════
 
-const TABS = ['profile','skills','companies','roles','next'];
-const TABS_NEXT = { profile: 'Skills', skills: 'Companies', companies: 'Live Roles', roles: 'Next Steps', next: null };
+const TABS = ['profile','skills','companies','roles','outreach','next'];
+const TABS_NEXT = { profile: 'Skills', skills: 'Companies', companies: 'Live Roles', roles: 'Outreach', outreach: 'Next Steps', next: null };
 const tabsSeen = new Set();
 let allTabsUnlocked = false;
 
@@ -5163,7 +5251,17 @@ function render(data) {
   renderSkills(skills, profile);
   renderCompanies(data);
   renderRoles(jobs, data);
+  renderOutreach(data.outreach?.length ? data.outreach : generateOutreach(jobs, data));
   renderNextSteps(data);
+
+  // Populate sidebar profile card
+  const initials = (profile.topRoleTitles?.[0] || '').slice(0,2).toUpperCase() || '—';
+  const sidebarEl = document.getElementById('sidebarInitials');
+  const nameEl = document.getElementById('sidebarName');
+  const roleEl = document.getElementById('sidebarRole');
+  if (sidebarEl) sidebarEl.textContent = initials;
+  if (nameEl) nameEl.textContent = profile.topRoleTitles?.[0] || 'Your profile';
+  if (roleEl) roleEl.textContent = profile.seniorityLevel || '—';
 
   // Show contextual prompts now that results exist
   const vp = document.getElementById('valuesPrompt');
