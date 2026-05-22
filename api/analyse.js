@@ -68,7 +68,7 @@ export default async function handler(req, res) {
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-sonnet-4-5',
           max_tokens: 1500,
           system: `You are a career intelligence platform. Update this person's career profile using their self-knowledge answers. Write entirely in second person ("you", "your"). Be specific and personal — these answers reveal the person behind the CV. Return 3 suggestedDirections and 4-6 valuesSignals as specific sentence observations.`,
           tools: [enrichTool],
@@ -232,7 +232,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-4-5',
         max_tokens: 4000,
         system: systemPrompt,
         tools: [tool],
@@ -297,7 +297,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
             'anthropic-version': '2023-06-01'
           },
           body: JSON.stringify({
-            model: 'claude-haiku-4-5-20251001',
+            model: 'claude-sonnet-4-5',
             max_tokens: 1500,
             system: 'You are a career coach. You MUST return exactly 4 skill gaps using tiers: Foundation, Intermediate, Advanced, Future. Every person has gaps. Include a real resource URL in each howToBuild.',
             tools: [gapTool],
