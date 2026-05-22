@@ -243,7 +243,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
 
     const data = await response.json();
 
-    if (data.error) {
+    if (data.error) { console.log("[analyse] Anthropic error:", JSON.stringify(data.error));
       return res.status(500).json({ error: data.error.message || 'API error' });
     }
 
