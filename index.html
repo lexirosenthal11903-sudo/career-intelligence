@@ -165,8 +165,14 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sp-6);
   width: 100%;
+}
+
+.nav-end {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-shrink: 0;
 }
 
 .wordmark {
@@ -280,7 +286,7 @@ body::after {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 130px 52px 110px 24px;
+  padding: 130px 52px 110px 48px;
   position: relative;
   overflow: hidden;
 }
@@ -992,7 +998,7 @@ input[type="text"]::placeholder {
 .load-step.pending .step-title { color: var(--ink-4); }
 .load-step.pending .step-sub { opacity: 0; }
 
-.load-step.active .step-dot-wrap { background: rgba(139,111,71,0.1); border: 1px solid rgba(139,111,71,0.3); box-shadow: 0 0 14px rgba(139,111,71,0.15); }
+.load-step.active .step-dot-wrap { background: rgba(59,91,219,0.08); border: 1px solid rgba(59,91,219,0.24); box-shadow: 0 0 14px rgba(59,91,219,0.14); }
 .load-step.active .step-num { display: none; }
 .load-step.active .step-dot { display: block; animation: breathe 1.4s ease-in-out infinite; }
 .load-step.active .step-tick { display: none; }
@@ -1038,9 +1044,9 @@ input[type="text"]::placeholder {
    SESSION 3 — RESULTS DASHBOARD
 ═══════════════════════════════════════════════ */
 .dash-header {
-  padding-top: 80px;
-  padding-bottom: var(--sp-8);
-  border-bottom: 1px solid var(--ink-5);
+  padding-top: 88px;
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid rgba(165,175,220,0.2);
   opacity: 0;
   animation: fadeUp 0.7s var(--ease-out) 0.1s forwards;
 }
@@ -1049,9 +1055,9 @@ input[type="text"]::placeholder {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--sp-8);
+  gap: var(--sp-6);
   flex-wrap: wrap;
-  padding-top: var(--sp-10);
+  padding-top: var(--sp-8);
 }
 
 .dash-eyebrow {
@@ -1077,9 +1083,9 @@ input[type="text"]::placeholder {
 }
 
 .dash-title em {
-  font-style: normal;
-  color: var(--accent);
-  font-weight: 700;
+  font-style: italic;
+  color: var(--blue);
+  font-weight: 400;
 }
 
 .dash-meta {
@@ -1125,13 +1131,14 @@ input[type="text"]::placeholder {
   top: 61px;
   left: 0;
   bottom: 0;
-  width: 220px;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255,255,255,0.7);
+  width: 232px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-right: 1px solid rgba(255,255,255,0.82);
+  box-shadow: 2px 0 16px rgba(70,85,150,0.06);
   z-index: 50;
-  padding: 32px 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1139,13 +1146,54 @@ input[type="text"]::placeholder {
   animation: fadeIn 0.5s var(--ease-out) 0.3s forwards;
 }
 
+/* Sidebar brand header */
+.sidebar-brand {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(165,175,220,0.18);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.sidebar-brand-text {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  line-height: 1;
+}
+.sidebar-brand-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,var(--blue),var(--purple));
+  box-shadow: 0 0 6px rgba(103,65,217,0.35);
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
+/* Sidebar section label */
+.sidebar-section-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-5);
+  padding: 18px 20px 8px;
+}
+
+.sidebar-nav { flex: 1; padding: 4px 0; }
+
 .sidebar-step {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 13px 24px 13px 21px;
+  padding: 12px 20px 12px 18px;
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 300;
   color: var(--ink-3);
   background: none;
@@ -1163,14 +1211,14 @@ input[type="text"]::placeholder {
 .sidebar-step.sidebar-active {
   border-left-color: var(--blue);
   color: var(--blue);
-  font-weight: 400;
-  background: rgba(59,91,219,0.06);
+  font-weight: 500;
+  background: rgba(59,91,219,0.07);
 }
 
 .sidebar-step.sidebar-complete { color: var(--ink-2); }
 
 .sidebar-step.sidebar-locked {
-  color: #9A9590;
+  color: var(--ink-5);
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -1178,8 +1226,8 @@ input[type="text"]::placeholder {
 .sidebar-tick {
   flex-shrink: 0;
   width: 14px;
-  font-size: 12px;
-  color: #5C7A62;
+  font-size: 11px;
+  color: var(--green);
   line-height: 1;
 }
 
@@ -1191,7 +1239,7 @@ input[type="text"]::placeholder {
   position: sticky;
   top: 61px;
   z-index: 90;
-  background: rgba(247, 244, 239, 0.96);
+  background: rgba(238,240,248,0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--ink-5);
@@ -1229,7 +1277,7 @@ input[type="text"]::placeholder {
 .strip-step.strip-locked { color: #9A9590; cursor: not-allowed; pointer-events: none; }
 
 /* ── DASH SHELL — content offset for sidebar ── */
-.dash-shell { margin-left: 220px; }
+.dash-shell { margin-left: 232px; }
 
 @media (max-width: 768px) {
   .progress-sidebar { display: none; }
@@ -1367,7 +1415,7 @@ input[type="text"]::placeholder {
 
 /* ── DASH MAIN ── */
 .dash-main {
-  padding: var(--sp-12) 0 var(--sp-24);
+  padding: var(--sp-8) 0 var(--sp-24);
   opacity: 0;
   animation: fadeUp 0.7s var(--ease-out) 0.4s forwards;
 }
@@ -1378,7 +1426,7 @@ input[type="text"]::placeholder {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #8B6F47;
+  color: var(--ink-4);
 }
 
 .tab-panel { display: none; }
@@ -1452,7 +1500,7 @@ input[type="text"]::placeholder {
 .pill-green   { background: var(--green-bg); color: var(--green);  border: 1px solid rgba(61,107,79,0.2); }
 .pill-amber   { background: var(--amber-bg); color: var(--amber);  border: 1px solid rgba(154,107,46,0.2); }
 .pill-neutral { background: var(--surface2); color: var(--ink-3);  border: 1px solid var(--ink-5); }
-.pill-accent  { background: rgba(139,111,71,0.08); color: var(--accent); border: 1px solid rgba(139,111,71,0.2); }
+.pill-accent  { background: var(--blue-soft); color: var(--blue); border: 1px solid rgba(59,91,219,0.2); }
 
 .advice-block {
   background: var(--surface2);
@@ -1499,9 +1547,9 @@ input[type="text"]::placeholder {
 
 .seniority-badge {
   display: inline-block;
-  background: rgba(139,111,71,0.1);
-  color: var(--accent-dk);
-  border: 1px solid rgba(139,111,71,0.25);
+  background: var(--blue-soft);
+  color: var(--blue);
+  border: 1px solid rgba(59,91,219,0.2);
   border-radius: var(--r-sm);
   padding: 6px 16px;
   font-family: var(--font-serif);
@@ -1724,9 +1772,9 @@ input[type="text"]::placeholder {
   font-size: 9.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
-  background: rgba(139,111,71,0.1);
-  border: 1px solid rgba(139,111,71,0.2);
+  color: var(--blue);
+  background: var(--blue-soft);
+  border: 1px solid rgba(59,91,219,0.18);
   border-radius: 100px;
   padding: 5px 12px;
   white-space: nowrap;
@@ -1838,7 +1886,7 @@ td {
 
 tr:last-child td { border-bottom: none; }
 tbody tr { transition: background 0.15s; }
-tbody tr:hover td { background: rgba(139,111,71,0.025); }
+tbody tr:hover td { background: rgba(59,91,219,0.025); }
 
 .fit-badge {
   display: inline-flex;
@@ -2199,8 +2247,8 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   position: relative;
   margin-bottom: var(--sp-4);
 }
-.pdf-upload-area:hover { border-color: var(--accent-lt); background: rgba(196,168,130,0.04); }
-.pdf-upload-area.dragover { border-color: var(--accent); background: rgba(196,168,130,0.08); }
+.pdf-upload-area:hover { border-color: var(--accent-lt); background: rgba(59,91,219,0.04); }
+.pdf-upload-area.dragover { border-color: var(--accent); background: rgba(59,91,219,0.07); }
 .pdf-upload-icon { font-size: 20px; color: var(--ink-4); flex-shrink: 0; }
 .pdf-upload-text { font-size: 13px; color: var(--ink-3); font-weight: 300; }
 .pdf-upload-text strong { color: var(--ink-2); font-weight: 400; }
@@ -2560,7 +2608,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-4);
-  background: rgba(196,168,130,0.08);
+  background: rgba(59,91,219,0.07);
   border: 1px solid var(--accent-lt);
   border-radius: var(--r-md);
   padding: var(--sp-3) var(--sp-5);
@@ -2711,7 +2759,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--accent);
-  background: rgba(196,168,130,0.12);
+  background: rgba(59,91,219,0.10);
   border: 1px solid var(--accent-lt);
   border-radius: 100px;
   padding: 5px 12px;
@@ -3069,7 +3117,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 .bq p{font-size:14.5px;font-weight:300;font-style:italic;color:var(--ink-2);line-height:1.8}
 
 /* How it works */
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
 .step-card{
   background:var(--glass-75);
   backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);
@@ -3255,20 +3303,23 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 
         <div class="nav-center" id="navCenter"><div class="nav-pill">Pre-seed build — May 2026</div></div>
 
-        <!-- S1 nav right: sign in -->
-        <button class="nav-signin-btn" id="navS1Right" onclick="openAuthOverlay()">Sign In</button>
+        <!-- Right side — single wrapper keeps pill from overlapping -->
+        <div class="nav-end">
+          <!-- S1: sign in -->
+          <button class="nav-signin-btn" id="navS1Right" onclick="openAuthOverlay()">Sign In</button>
 
-        <!-- S2 nav right -->
-        <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
+          <!-- S2: back to home -->
+          <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
 
-        <!-- S3 nav right -->
-        <div class="nav-right" id="navS3Right" style="display:none;">
-          <span class="nav-cta-note eyebrow">Your results</span>
-          <button class="btn-restart" onclick="goToForm()">← Start again</button>
+          <!-- S3: restart -->
+          <div class="nav-right" id="navS3Right" style="display:none;">
+            <span class="nav-cta-note eyebrow">Your results</span>
+            <button class="btn-restart" onclick="goToForm()">← Start again</button>
+          </div>
+
+          <!-- Auth state (updated by JS when Supabase resolves) -->
+          <div class="nav-auth" id="navAuth" style="display:none;"></div>
         </div>
-
-        <!-- Auth state (updated by JS when Supabase resolves) -->
-        <div class="nav-auth" id="navAuth" style="display:none;"></div>
 
       </div>
     </div>
@@ -3318,28 +3369,22 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
               <span class="gc-badge">Ready</span>
             </div>
             <div class="gc-body">
-              <div class="match-row">
-                <div>
-                  <div class="match-lbl">Directions identified</div>
-                  <div class="match-num">3</div>
-                </div>
-                <div style="text-align:right">
-                  <div class="match-sub">High confidence</div>
-                  <div class="bar"><div class="bar-fill"></div></div>
-                </div>
+              <div class="ins-row">
+                <div class="ins-lbl">Directions identified</div>
+                <div class="ins-val" style="font-size:20px;font-weight:600;color:var(--blue);letter-spacing:-.02em">3</div>
+                <span class="ins-tag">High confidence</span>
               </div>
               <div class="ins-row">
                 <div class="ins-lbl">Skills mapped</div>
-                <div class="ins-val">12 transferable skills identified</div>
-                <span class="ins-tag">Full coverage</span>
+                <div class="ins-val" style="font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-.02em">12</div>
               </div>
               <div class="ins-row">
                 <div class="ins-lbl">Live roles found</div>
-                <div class="ins-val">8 matched opportunities right now</div>
+                <div class="ins-val" style="font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-.02em">8</div>
               </div>
-              <div class="ins-row">
+              <div class="ins-row" style="border-bottom:none;padding-bottom:0">
                 <div class="ins-lbl">Outreach ready</div>
-                <div class="ins-val">Messages drafted &amp; ready to send</div>
+                <div class="ins-val">Messages drafted &amp; waiting</div>
               </div>
             </div>
           </div>
@@ -3657,26 +3702,33 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 
     <!-- Vertical progress sidebar (desktop) -->
     <nav class="progress-sidebar" id="progressSidebar" aria-label="Progress steps">
-      <button class="sidebar-step sidebar-active" id="sidebar-profile" onclick="switchTab('profile')" aria-current="step">
-        <span class="sidebar-tick" id="tick-profile"></span>
-        <span class="sidebar-step-label">Profile &amp; Direction</span>
-      </button>
-      <button class="sidebar-step sidebar-locked" id="sidebar-skills" onclick="switchTab('skills')">
-        <span class="sidebar-tick" id="tick-skills"></span>
-        <span class="sidebar-step-label">Skills</span>
-      </button>
-      <button class="sidebar-step sidebar-locked" id="sidebar-companies" onclick="switchTab('companies')">
-        <span class="sidebar-tick" id="tick-companies"></span>
-        <span class="sidebar-step-label">Companies</span>
-      </button>
-      <button class="sidebar-step sidebar-locked" id="sidebar-roles" onclick="switchTab('roles')">
-        <span class="sidebar-tick" id="tick-roles"></span>
-        <span class="sidebar-step-label">Live Roles</span>
-      </button>
-      <button class="sidebar-step sidebar-locked" id="sidebar-next" onclick="switchTab('next')">
-        <span class="sidebar-tick" id="tick-next"></span>
-        <span class="sidebar-step-label">Next Steps</span>
-      </button>
+      <div class="sidebar-brand" aria-hidden="true">
+        <span class="sidebar-brand-text">Career Intelligence</span>
+        <span class="sidebar-brand-dot"></span>
+      </div>
+      <div class="sidebar-section-label">Your results</div>
+      <div class="sidebar-nav">
+        <button class="sidebar-step sidebar-active" id="sidebar-profile" onclick="switchTab('profile')" aria-current="step">
+          <span class="sidebar-tick" id="tick-profile"></span>
+          <span class="sidebar-step-label">Profile &amp; Direction</span>
+        </button>
+        <button class="sidebar-step sidebar-locked" id="sidebar-skills" onclick="switchTab('skills')">
+          <span class="sidebar-tick" id="tick-skills"></span>
+          <span class="sidebar-step-label">Skills</span>
+        </button>
+        <button class="sidebar-step sidebar-locked" id="sidebar-companies" onclick="switchTab('companies')">
+          <span class="sidebar-tick" id="tick-companies"></span>
+          <span class="sidebar-step-label">Companies</span>
+        </button>
+        <button class="sidebar-step sidebar-locked" id="sidebar-roles" onclick="switchTab('roles')">
+          <span class="sidebar-tick" id="tick-roles"></span>
+          <span class="sidebar-step-label">Live Roles</span>
+        </button>
+        <button class="sidebar-step sidebar-locked" id="sidebar-next" onclick="switchTab('next')">
+          <span class="sidebar-tick" id="tick-next"></span>
+          <span class="sidebar-step-label">Next Steps</span>
+        </button>
+      </div>
     </nav>
 
     <!-- Horizontal progress strip (mobile) -->
