@@ -166,6 +166,7 @@ body::after {
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-6);
+  width: 100%;
 }
 
 .wordmark {
@@ -207,7 +208,7 @@ body::after {
   border: 1px solid var(--accent-lt);
   border-radius: 100px;
   padding: 4px 12px;
-  background: rgba(139, 111, 71, 0.06);
+  background: var(--blue-soft);
 }
 
 .nav-back {
@@ -279,7 +280,7 @@ body::after {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 130px 52px 110px 52px;
+  padding: 130px 52px 110px 24px;
   position: relative;
   overflow: hidden;
 }
@@ -732,9 +733,9 @@ textarea.tall { min-height: 200px; }
 
 textarea:focus,
 input[type="text"]:focus {
-  border-color: var(--accent-lt);
+  border-color: var(--blue);
   background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
+  box-shadow: 0 0 0 3px rgba(59,91,219,0.1);
 }
 
 textarea::placeholder,
@@ -824,9 +825,9 @@ input[type="text"]::placeholder {
 }
 
 .chip:hover {
-  border-color: var(--accent-lt);
+  border-color: var(--blue);
   color: var(--ink-2);
-  background: rgba(139, 111, 71, 0.05);
+  background: var(--blue-soft);
 }
 
 .chip.on {
@@ -1157,13 +1158,13 @@ input[type="text"]::placeholder {
   transition: color 0.18s, border-color 0.18s, background 0.18s;
 }
 
-.sidebar-step:hover:not(.sidebar-locked) { color: var(--ink-2); background: rgba(139,111,71,0.04); }
+.sidebar-step:hover:not(.sidebar-locked) { color: var(--ink-2); background: var(--blue-soft); }
 
 .sidebar-step.sidebar-active {
-  border-left-color: #8B6F47;
-  color: #8B6F47;
+  border-left-color: var(--blue);
+  color: var(--blue);
   font-weight: 400;
-  background: rgba(139,111,71,0.06);
+  background: rgba(59,91,219,0.06);
 }
 
 .sidebar-step.sidebar-complete { color: var(--ink-2); }
@@ -1224,7 +1225,7 @@ input[type="text"]::placeholder {
 }
 
 .strip-step:hover:not(.strip-locked) { color: var(--ink-2); }
-.strip-step.strip-active { color: #8B6F47; font-weight: 400; border-bottom-color: #8B6F47; }
+.strip-step.strip-active { color: var(--blue); font-weight: 400; border-bottom-color: var(--blue); }
 .strip-step.strip-locked { color: #9A9590; cursor: not-allowed; pointer-events: none; }
 
 /* ── DASH SHELL — content offset for sidebar ── */
@@ -1261,7 +1262,7 @@ input[type="text"]::placeholder {
   transition: background 0.18s, border-color 0.18s, transform 0.18s;
 }
 
-.btn-next-section:hover { background: rgba(139,111,71,0.1); border-color: var(--accent); transform: translateX(2px); }
+.btn-next-section:hover { background: rgba(59,91,219,0.1); border-color: var(--blue); transform: translateX(2px); }
 
 /* ── ROLES CARD GRID ── */
 .roles-card-grid {
@@ -2410,6 +2411,24 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   .strip-step { padding: var(--sp-3) var(--sp-3); font-size: 11px; }
 }
 
+/* ── Nav signin button (S1) ─────────────────────────── */
+.nav-signin-btn {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: var(--blue-soft);
+  border: 1px solid rgba(59,91,219,0.2);
+  border-radius: 100px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+  white-space: nowrap;
+}
+.nav-signin-btn:hover { background: rgba(59,91,219,0.12); border-color: var(--blue); }
+.nav.always-frosted .nav-signin-btn { display: none; }
+
 /* ── Nav auth ───────────────────────────────────────── */
 .nav-auth {
   display: flex;
@@ -2439,8 +2458,9 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(28,26,23,0.55);
-  backdrop-filter: blur(4px);
+  background: rgba(24,27,40,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -2489,12 +2509,12 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   margin-bottom: var(--sp-4);
   transition: border-color 0.2s;
 }
-.auth-email-input:focus { border-color: var(--accent-lt); }
+.auth-email-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,91,219,0.1); }
 .auth-actions { display: flex; flex-direction: column; gap: var(--sp-3); }
 .auth-submit-btn {
   width: 100%;
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--blue);
+  color: #fff;
   font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 400;
@@ -2502,10 +2522,11 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
   border-radius: var(--r-md);
   border: none;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 18px var(--blue-glow);
 }
-.auth-submit-btn:hover { background: var(--accent-dk); }
-.auth-submit-btn:disabled { opacity: 0.5; cursor: default; }
+.auth-submit-btn:hover { background: #2B46B8; box-shadow: 0 6px 22px var(--blue-glow); }
+.auth-submit-btn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
 .auth-skip-link {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -2857,7 +2878,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(18px,14px) scale(1.04)}}
 
 /* Hero inner */
-.hero-inner{max-width:1240px;margin:0 auto;width:100%;position:relative;z-index:1}
+.hero-inner{max-width:1240px;margin:0;width:100%;position:relative;z-index:1}
 
 /* Eyebrow row */
 .eyebrow-row{display:flex;align-items:center;gap:14px;margin-bottom:52px;opacity:0;animation:up .7s cubic-bezier(0,0,.2,1) .12s forwards}
@@ -3234,7 +3255,8 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
 
         <div class="nav-center" id="navCenter"><div class="nav-pill">Pre-seed build — May 2026</div></div>
 
-        <!-- S1 nav right -->
+        <!-- S1 nav right: sign in -->
+        <button class="nav-signin-btn" id="navS1Right" onclick="openAuthOverlay()">Sign In</button>
 
         <!-- S2 nav right -->
         <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
@@ -3245,7 +3267,7 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
           <button class="btn-restart" onclick="goToForm()">← Start again</button>
         </div>
 
-        <!-- Auth state — always visible -->
+        <!-- Auth state (updated by JS when Supabase resolves) -->
         <div class="nav-auth" id="navAuth" style="display:none;"></div>
 
       </div>
@@ -3296,35 +3318,28 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
               <span class="gc-badge">Ready</span>
             </div>
             <div class="gc-body">
-              <div class="av-row">
-                <div class="av">AK</div>
-                <div>
-                  <div class="av-name">Alex Kim</div>
-                  <div class="av-sub">Strategy &amp; Ops · 4 years</div>
-                </div>
-              </div>
               <div class="match-row">
                 <div>
-                  <div class="match-lbl">Match score</div>
-                  <div class="match-num">78%</div>
+                  <div class="match-lbl">Directions identified</div>
+                  <div class="match-num">3</div>
                 </div>
                 <div style="text-align:right">
-                  <div class="match-sub">Strategic Operations</div>
+                  <div class="match-sub">High confidence</div>
                   <div class="bar"><div class="bar-fill"></div></div>
                 </div>
               </div>
               <div class="ins-row">
-                <div class="ins-lbl">Best fit direction</div>
-                <div class="ins-val">Strategic Operations at Series A–B</div>
-                <span class="ins-tag">High match</span>
+                <div class="ins-lbl">Skills mapped</div>
+                <div class="ins-val">12 transferable skills identified</div>
+                <span class="ins-tag">Full coverage</span>
               </div>
               <div class="ins-row">
-                <div class="ins-lbl">Strongest signal</div>
-                <div class="ins-val">Problem framing before being asked — top 12%</div>
+                <div class="ins-lbl">Live roles found</div>
+                <div class="ins-val">8 matched opportunities right now</div>
               </div>
               <div class="ins-row">
-                <div class="ins-lbl">Next step</div>
-                <div class="ins-val">3 outreach messages drafted &amp; ready</div>
+                <div class="ins-lbl">Outreach ready</div>
+                <div class="ins-val">Messages drafted &amp; ready to send</div>
               </div>
             </div>
           </div>
@@ -3350,6 +3365,30 @@ tbody tr:hover td { background: rgba(139,111,71,0.025); }
         </div>
       </div>
 
+
+      <!-- HOW IT WORKS -->
+      <section class="sec sec-elevated" id="about" aria-labelledby="steps-heading">
+        <div class="sec-inner">
+          <div class="sec-ey" id="steps-heading">How it works</div>
+          <div class="steps-grid">
+            <div class="step-card reveal">
+              <div class="sn">01</div>
+              <div class="st">Upload your CV</div>
+              <div class="sb">Paste your CV or describe your experience in plain text. Takes about 60 seconds — no formatting needed.</div>
+            </div>
+            <div class="step-card feat reveal reveal-delay-1">
+              <div class="sn">02</div>
+              <div class="st">Intelligence runs</div>
+              <div class="sb">We map your skills, identify three career directions, and surface live roles that genuinely match — with reasoning.</div>
+            </div>
+            <div class="step-card reveal reveal-delay-2">
+              <div class="sn">03</div>
+              <div class="st">Act with precision</div>
+              <div class="sb">Get your brief: directions ranked, target companies profiled, and outreach messages drafted and ready to send.</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- FOOTER -->
       <div class="footer-wrap">
