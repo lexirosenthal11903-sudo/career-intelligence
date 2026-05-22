@@ -2780,9 +2780,9 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
 }
 .q-overlay[hidden] { display: none; }
 .q-modal {
-  background: var(--surface);
+  background: rgba(255,255,255,0.97);
   border: 1px solid var(--ink-5);
-  border-radius: var(--r-xl);
+  border-radius: 18px;
   padding: var(--sp-10);
   max-width: 600px;
   width: 100%;
@@ -2806,8 +2806,8 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
   background: var(--ink-5);
   transition: background 0.3s;
 }
-.q-pip.done { background: var(--accent); }
-.q-pip.active { background: var(--accent-lt); }
+.q-pip.done { background: var(--blue); }
+.q-pip.active { background: var(--blue); }
 .q-skip-all {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -2872,7 +2872,7 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  background: var(--ink);
+  background: var(--blue);
   color: var(--bg);
   font-family: var(--font-sans);
   font-size: 14px;
@@ -2883,7 +2883,7 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
   cursor: pointer;
   transition: background 0.2s;
 }
-.q-btn-next:hover { background: var(--accent-dk); }
+.q-btn-next:hover { background: #2B46B8; }
 .q-btn-next:disabled { opacity: 0.5; cursor: default; }
 .q-enriching {
   text-align: center;
@@ -3305,9 +3305,6 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
 
         <!-- Right side — single wrapper keeps pill from overlapping -->
         <div class="nav-end">
-          <!-- S1: sign in -->
-          <button class="nav-signin-btn" id="navS1Right" onclick="openAuthOverlay()">Sign In</button>
-
           <!-- S2: back to home -->
           <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
 
@@ -3318,7 +3315,7 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
           </div>
 
           <!-- Auth state (updated by JS when Supabase resolves) -->
-          <div class="nav-auth" id="navAuth" style="display:none;"></div>
+          <div class="nav-auth" id="navAuth"><button class="nav-auth-link" onclick="openAuthOverlay()">Sign in</button></div>
         </div>
 
       </div>
@@ -3357,7 +3354,7 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
 
           <div class="cta-row">
             <button class="btn-p" id="getStarted" onclick="goToForm()">Get started &nbsp;→</button>
-            <a href="#about" class="btn-g">How it works</a>
+            <a href="javascript:void(0)" class="btn-g" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">How it works</a>
           </div>
         </div>
 
