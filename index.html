@@ -4327,6 +4327,7 @@ async function runSearch() {
       if (jobsRes.ok) {
         const jobsData = await jobsRes.json();
         rawJobs = jobsData.jobs || [];
+        console.log('[debug] rawJobs count:', rawJobs.length, 'first:', rawJobs[0]);
       } else {
         console.warn('Job search unavailable:', jobsRes.status);
       }
