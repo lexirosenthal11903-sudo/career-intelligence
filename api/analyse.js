@@ -243,7 +243,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
 
     const data = await response.json();
 
-    if (data.error) { console.log("[analyse] Anthropic error:", JSON.stringify(data.error));
+    if (data.error) {
       return res.status(500).json({ error: data.error.message || 'API error' });
     }
 
@@ -254,13 +254,8 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
 
     let result = toolUse.input;
 
-    console.log('[analyse] full input keys:', Object.keys(result));
-    console.log('[analyse] skills:', JSON.stringify(result.skills));
-    console.log('[analyse] skills.gaps raw:', JSON.stringify(result.skills?.gaps));
-
     // ── Skills fallback: if gaps are missing, run a focused second call ────────
     if (!result.skills?.gaps?.length) {
-      console.log('[analyse] gaps missing — running fallback gap call');
       try {
         const profile = result.profile || {};
         const gapTool = {
@@ -311,11 +306,10 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
         const gapData = await gapRes.json();
         const gapToolUse = gapData.content?.find(b => b.type === 'tool_use' && b.name === 'submit_gaps');
         if (gapToolUse?.input) {
-          console.log('[analyse] fallback gaps:', JSON.stringify(gapToolUse.input));
           result = { ...result, skills: gapToolUse.input };
         }
       } catch (gapErr) {
-        console.log('[analyse] fallback gap call failed:', gapErr.message);
+        // fallback gap call failed — continue with original result
       }
     }
 
