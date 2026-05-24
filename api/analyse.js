@@ -109,6 +109,7 @@ Rules for the analysis:
 - summary: write in second person, directly to the user. E.g. "You've built a strong foundation in..." or "Your background spans..." — warm, honest, specific. Never "The candidate" or "They have."
 - skills.advice: also second person and direct — "You're strongest when..." or "The gap to close first is..."
 - companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."
+- companyValues[]: name 3 to 5 real UK employers by name that suit this person. Never include recruitment agencies, staffing firms, or job boards. Each must be a real organisation this person could actually apply to.
 - CRITICAL: The gaps array MUST contain exactly 4 items. No exceptions. Even the strongest candidate has skills to develop. If you think someone has no gaps, you are wrong — look harder. Use the four tiers: Foundation (something core to consolidate), Intermediate (something that would meaningfully strengthen them), Advanced (something that would make them exceptional), Future (something to develop over 1-2 years). Each gap MUST have skill, tier, why, and howToBuild with a real URL.
 - If self-knowledge answers are provided, use them to make the summary, directions, and valuesSignals significantly more personal and specific. These answers reveal what the CV cannot — the person's actual motivations, natural strengths, and vision for their life. Weight them heavily.
 - valuesSignals MUST always contain 4-6 specific observations about this person's character, work ethic, and values as revealed by their CV and questionnaire answers. Each signal should be a specific observation, not a generic trait. Example: "Chose postgraduate study over a full-time offer — prioritises long-term positioning over short-term gain" not just "Ambitious". Never return an empty valuesSignals array.
@@ -197,14 +198,15 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
         },
         companyValues: {
           type: 'array',
+          description: '3 to 5 real, named UK employers (not recruitment agencies) that genuinely suit this person based on their CV, values, and direction. Use actual company names only.',
           items: {
             type: 'object',
             properties: {
-              name:    { type: 'string' },
-              why:     { type: 'string' },
-              culture: { type: 'string' },
-              values:  { type: 'array', items: { type: 'string' } },
-              openRole:{ type: 'string' }
+              name:    { type: 'string', description: 'The real, specific name of the employer — e.g. Monzo, Bain and Company, Penguin Random House. Never a recruitment agency.' },
+              why:     { type: 'string', description: 'Why this specific company suits this person — reference something specific about the company and something specific from their CV.' },
+              culture: { type: 'string', description: "One sentence on the company's working culture and environment." },
+              values:  { type: 'array',  description: '3 to 5 values or traits this company is known for.', items: { type: 'string' } },
+              openRole:{ type: 'string', description: 'A realistic job title this person could apply for at this company given their background.' }
             },
             required: ['name', 'why']
           }
