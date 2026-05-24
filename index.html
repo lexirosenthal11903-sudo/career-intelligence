@@ -4278,7 +4278,7 @@ async function runSearch() {
     if (!analysis.profile) throw new Error('Could not read your profile. Please try again.');
 
     setStep(2);
-    const baseKeywords = (analysis.profile.searchKeywords || analysis.profile.topRoleTitles || ['analyst']).slice(0, 2);
+    const baseKeywords = (analysis.profile.searchKeywords || analysis.profile.topRoleTitles || ['analyst']).slice(0, 5);
     const senLvl = (analysis.profile.seniorityLevel || '').toLowerCase();
     const yrsExp = (analysis.profile.yearsExperience || '');
 
@@ -4309,7 +4309,7 @@ async function runSearch() {
     } else {
       adjustedKeywords = [...baseKeywords, ...tcfg.extras];
     }
-    adjustedKeywords = adjustedKeywords.slice(0, 3);
+    adjustedKeywords = adjustedKeywords.slice(0, 5);
 
     let rawJobs = [];
     const jobsStart = Date.now();
