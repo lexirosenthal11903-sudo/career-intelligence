@@ -3788,10 +3788,6 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
           <span class="sidebar-tick" id="tick-roles"></span>
           <span class="sidebar-step-label">Live Roles</span>
         </button>
-        <button class="sidebar-step sidebar-locked" id="sidebar-outreach" onclick="switchTab('outreach')">
-          <span class="sidebar-tick" id="tick-outreach"></span>
-          <span class="sidebar-step-label">Outreach</span>
-        </button>
         <button class="sidebar-step sidebar-locked" id="sidebar-next" onclick="switchTab('next')">
           <span class="sidebar-tick" id="tick-next"></span>
           <span class="sidebar-step-label">Next Steps</span>
@@ -3806,7 +3802,6 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
         <button class="strip-step strip-locked"  id="strip-skills"    onclick="switchTab('skills')">Skills</button>
         <button class="strip-step strip-locked"  id="strip-companies" onclick="switchTab('companies')">Companies</button>
         <button class="strip-step strip-locked"  id="strip-roles"     onclick="switchTab('roles')">Live Roles</button>
-        <button class="strip-step strip-locked"  id="strip-outreach"  onclick="switchTab('outreach')">Outreach</button>
         <button class="strip-step strip-locked"  id="strip-next"      onclick="switchTab('next')">Next Steps</button>
       </div>
     </div>
@@ -4003,22 +3998,6 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
             <button class="btn-next-section" onclick="switchTab('next')">Next: Next Steps →</button>
           </div>
         </div><!-- /panel-roles -->
-
-
-        <!-- TAB 5: OUTREACH -->
-        <div class="tab-panel" id="panel-outreach" role="tabpanel" aria-labelledby="tab-outreach">
-          <div class="outreach-intro">
-            <div class="sec-label">Outreach</div>
-            <h2 class="sec-heading">Reach out,<br><em>the right way.</em></h2>
-            <p style="font-size:14.5px; font-weight:300; color:var(--ink-3); line-height:1.8; max-width:500px; margin-top:var(--sp-3);">
-              Personalised messages ready to send — tailored to each company and role.
-            </p>
-          </div>
-          <div class="outreach-list" id="outreachList"></div>
-          <div class="section-next-wrap">
-            <button class="btn-next-section" onclick="switchTab('next')">Next: Next Steps →</button>
-          </div>
-        </div><!-- /panel-outreach -->
 
 
         <!-- TAB 6: NEXT STEPS -->
@@ -4442,8 +4421,8 @@ function generateOutreach(jobs, analysis) {
 // SESSION 3 — SEQUENTIAL NAVIGATION
 // ══════════════════════════════════════════════════════
 
-const TABS = ['profile','skills','companies','roles','outreach','next'];
-const TABS_NEXT = { profile: 'Skills', skills: 'Companies', companies: 'Live Roles', roles: 'Outreach', outreach: 'Next Steps', next: null };
+const TABS = ['profile','skills','companies','roles','next'];
+const TABS_NEXT = { profile: 'Skills', skills: 'Companies', companies: 'Live Roles', roles: 'Next Steps', next: null };
 const tabsSeen = new Set();
 let allTabsUnlocked = false;
 
@@ -4958,6 +4937,7 @@ function updateStatus(sel) {
 
 function renderOutreach(outreach) {
   const list = document.getElementById('outreachList');
+  if (!list) return;
   if (!outreach || !outreach.length) {
     list.innerHTML = `<div class="advice-block">
       <p>Outreach messages weren't generated this run. Try running the search again — or check the Live Roles tab for apply links you can use directly.</p>
