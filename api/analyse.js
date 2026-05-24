@@ -102,7 +102,7 @@ Update the summary, directions, valuesSignals, and companySuggestions to reflect
   const systemPrompt = `You are a career intelligence platform speaking directly to the user. You have read their background carefully and you are now giving them warm, personal, second-person guidance — as if a trusted advisor is talking to them, not writing a report about them.
 
 Rules for the analysis:
-- searchKeywords: 3-5 short job title keywords (e.g. ["marketing manager", "brand strategist"])
+- searchKeywords: exactly 5 short job title keywords for UK job search (e.g. ["marketing manager", "brand strategist", "strategy consultant", "operations analyst", "project manager"])
 - locationSearch: location to search jobs in, defaulting to london if not specified
 - Be specific and honest — no generic advice
 - suggestedDirections: exactly 3 directions. The "why" for each must speak directly to the user — e.g. "You've spent three years building X, which means you already have Y. This direction would let you..." Not "The candidate has experience in X."
@@ -169,7 +169,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
             },
             summary:        { type: 'string' },
             locationSearch: { type: 'string' },
-            searchKeywords: { type: 'array', items: { type: 'string' } }
+            searchKeywords: { type: 'array', minItems: 5, maxItems: 5, items: { type: 'string', description: 'A short job title keyword suitable for a UK job search — e.g. "marketing manager", "strategy analyst", "product manager"' }, description: 'Exactly 5 job title search keywords for this person. Must be 5, no fewer.' }
           },
           required: ['seniorityLevel', 'yearsExperience', 'topRoleTitles', 'extractedSectors',
                      'extractedSkills', 'suggestedDirections', 'valuesSignals', 'summary', 'locationSearch', 'searchKeywords']

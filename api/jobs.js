@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const searchLocation = location || 'london';
     const allJobs = [];
 
-    for (const keyword of keywords.slice(0, 3)) {
+    for (const keyword of keywords.slice(0, 5)) {
       const params = new URLSearchParams({
         app_id: appId,
         app_key: apiKey,
