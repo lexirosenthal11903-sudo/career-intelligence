@@ -34,6 +34,8 @@ export default async function handler(req, res) {
         headers: { 'Accept': 'application/json' }
       });
 
+      console.log('[jobs] keyword:', keyword, 'status:', response.status);
+
 if (!response.ok) {
   const errText = await response.text();
   console.error('Adzuna error:', response.status, errText);
