@@ -1132,12 +1132,10 @@ input[type="text"]::placeholder {
   top: 61px;
   left: 0;
   bottom: 0;
-  width: 232px;
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-  border-right: 1px solid rgba(255,255,255,0.82);
-  box-shadow: 2px 0 16px rgba(70,85,150,0.06);
+  width: 196px;
+  background: #FFFFFF;
+  border-right: 1px solid rgba(165,175,220,0.20);
+  box-shadow: 2px 0 12px rgba(70,85,150,0.05);
   z-index: 50;
   padding: 0;
   display: flex;
@@ -1182,8 +1180,8 @@ input[type="text"]::placeholder {
   font-size: 8.5px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink-5);
-  padding: 18px 20px 8px;
+  color: var(--ink-4);
+  padding: 20px 16px 7px;
 }
 
 .sidebar-nav { flex: 1; padding: 4px 0; }
@@ -1191,12 +1189,12 @@ input[type="text"]::placeholder {
 .sidebar-step {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 20px 12px 18px;
+  gap: 8px;
+  padding: 10px 12px 10px 14px;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 300;
-  color: var(--ink-3);
+  color: var(--ink-2);
   background: none;
   border: none;
   border-left: 3px solid transparent;
@@ -1219,7 +1217,7 @@ input[type="text"]::placeholder {
 .sidebar-step.sidebar-complete { color: var(--ink-2); }
 
 .sidebar-step.sidebar-locked {
-  color: var(--ink-5);
+  color: var(--ink-4);
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -1233,6 +1231,102 @@ input[type="text"]::placeholder {
 }
 
 .sidebar-step-label { flex: 1; }
+
+/* ── Sidebar nav badge ── */
+.sidebar-nav-badge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 100px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+.sidebar-nav-badge.green {
+  background: var(--green-soft);
+  color: var(--green);
+  border: 1px solid rgba(43,154,82,0.18);
+}
+.sidebar-nav-badge.amber {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border: 1px solid rgba(122,96,16,0.18);
+}
+
+/* ── Sidebar completion prompt ── */
+.sidebar-completion {
+  padding: 14px 16px 12px;
+  border-top: 1px solid rgba(165,175,220,0.15);
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.sidebar-completion:hover { background: rgba(59,91,219,0.03); }
+.sidebar-completion-text {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 300;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.sidebar-completion-track {
+  height: 3px;
+  background: rgba(165,175,220,0.25);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.sidebar-completion-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s var(--ease-out);
+}
+
+/* ── Sidebar bottom bar ── */
+.sidebar-bottom {
+  padding: 12px 14px;
+  border-top: 1px solid rgba(165,175,220,0.15);
+  flex-shrink: 0;
+}
+.sidebar-bottom-email {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--ink-4);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 5px;
+}
+.sidebar-bottom-link {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.sidebar-bottom-link:hover { color: var(--accent); }
+.sidebar-bottom-signin {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  line-height: 1.5;
+  transition: color 0.15s;
+}
+.sidebar-bottom-signin:hover { color: var(--accent); }
 
 /* ── MOBILE PROGRESS STRIP ── */
 .progress-strip {
@@ -1277,14 +1371,8 @@ input[type="text"]::placeholder {
 .strip-step.strip-active { color: var(--blue); font-weight: 400; border-bottom-color: var(--blue); }
 .strip-step.strip-locked { color: #9A9590; cursor: not-allowed; pointer-events: none; }
 
-/* ── DASH SHELL — content offset for sidebar ── */
-.dash-shell { margin-left: 232px; }
-
-@media (max-width: 768px) {
-  .progress-sidebar { display: none; }
-  .progress-strip   { display: block; }
-  .dash-shell       { margin-left: 0; }
-}
+/* ── DASH SHELL — content offset from sidebar ── */
+.dash-shell { margin-left: 196px; }
 
 /* ── SECTION NEXT BUTTON ── */
 .section-next-wrap {
@@ -2494,29 +2582,31 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
 
 /* ── Sidebar profile card ───────────────────────────── */
 .sidebar-profile-card {
-  background: rgba(255,255,255,0.68);
-  border: 1px solid rgba(255,255,255,0.9);
-  border-radius: 11px;
-  padding: 11px 12px;
-  margin: 14px 14px 2px;
+  background: rgba(238,241,255,0.55);
+  border-top: 1px solid rgba(165,175,220,0.18);
+  border-bottom: 1px solid rgba(165,175,220,0.18);
+  padding: 12px 14px;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 2px 8px rgba(70,85,150,0.06);
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.sidebar-profile-card:hover { background: rgba(59,91,219,0.05); }
 .sidebar-profile-av {
   width: 36px;
   height: 36px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: linear-gradient(135deg,#BCC9FF,#D5BEFF);
+  background: #3B5BDB;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-head);
   font-size: 13px;
   font-weight: 700;
-  color: var(--blue);
+  color: #FFFFFF;
 }
 .sidebar-profile-info { flex: 1; min-width: 0; }
 .sidebar-profile-name {
@@ -3754,21 +3844,27 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
   ═══════════════════════════════════════════ -->
   <div class="session-panel" id="panelS3">
 
-    <!-- Vertical progress sidebar (desktop) -->
-    <nav class="progress-sidebar" id="progressSidebar" aria-label="Progress steps">
+    <!-- Sidebar navigation -->
+    <nav class="progress-sidebar" id="progressSidebar" aria-label="Dashboard navigation">
+
+      <!-- Logo -->
       <div class="sidebar-brand" aria-hidden="true">
         <span class="sidebar-brand-text">Career Intelligence</span>
         <span class="sidebar-brand-dot"></span>
       </div>
-      <div class="sidebar-profile-card">
-        <div class="sidebar-profile-av" id="sidebarInitials">—</div>
+
+      <!-- Profile card -->
+      <div class="sidebar-profile-card" onclick="console.log('profile clicked')" title="Profile">
+        <div class="sidebar-profile-av" id="sidebarInitials">?</div>
         <div class="sidebar-profile-info">
           <div class="sidebar-profile-name" id="sidebarName">Your profile</div>
-          <div class="sidebar-profile-role" id="sidebarRole">Analysing…</div>
+          <div class="sidebar-profile-role" id="sidebarRole">—</div>
         </div>
       </div>
-      <div class="sidebar-section-label">Your results</div>
+
+      <!-- Navigation -->
       <div class="sidebar-nav">
+        <div class="sidebar-section-label">Your Profile</div>
         <button class="sidebar-step sidebar-active" id="sidebar-profile" onclick="switchTab('profile')" aria-current="step">
           <span class="sidebar-tick" id="tick-profile"></span>
           <span class="sidebar-step-label">Profile &amp; Direction</span>
@@ -3777,6 +3873,8 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
           <span class="sidebar-tick" id="tick-skills"></span>
           <span class="sidebar-step-label">Skills</span>
         </button>
+
+        <div class="sidebar-section-label">Opportunities</div>
         <button class="sidebar-step sidebar-locked" id="sidebar-companies" onclick="switchTab('companies')">
           <span class="sidebar-tick" id="tick-companies"></span>
           <span class="sidebar-step-label">Companies</span>
@@ -3784,26 +3882,35 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
         <button class="sidebar-step sidebar-locked" id="sidebar-roles" onclick="switchTab('roles')">
           <span class="sidebar-tick" id="tick-roles"></span>
           <span class="sidebar-step-label">Live Roles</span>
+          <span class="sidebar-nav-badge green" id="rolesBadge" style="display:none;">0</span>
+        </button>
+        <button class="sidebar-step sidebar-locked" id="sidebar-applications" onclick="switchTab('applications')">
+          <span class="sidebar-tick" id="tick-applications"></span>
+          <span class="sidebar-step-label">My Applications</span>
+          <span class="sidebar-nav-badge amber">0</span>
         </button>
         <button class="sidebar-step sidebar-locked" id="sidebar-next" onclick="switchTab('next')">
           <span class="sidebar-tick" id="tick-next"></span>
           <span class="sidebar-step-label">Next Steps</span>
         </button>
       </div>
+
+      <!-- Completion prompt -->
+      <div class="sidebar-completion" onclick="openQuestionnaire()" title="Deepen your profile">
+        <div class="sidebar-completion-text">Deepen your answers →</div>
+        <div class="sidebar-completion-track">
+          <div class="sidebar-completion-fill" id="sidebarCompletionFill" style="width:20%;"></div>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="sidebar-bottom" id="sidebarBottom">
+        <button class="sidebar-bottom-signin" onclick="openAuthOverlay()">Sign in to save your results</button>
+      </div>
+
     </nav>
 
-    <!-- Horizontal progress strip (mobile) -->
-    <div class="progress-strip" id="progressStrip">
-      <div class="progress-strip-inner">
-        <button class="strip-step strip-active" id="strip-profile" onclick="switchTab('profile')">Profile</button>
-        <button class="strip-step strip-locked"  id="strip-skills"    onclick="switchTab('skills')">Skills</button>
-        <button class="strip-step strip-locked"  id="strip-companies" onclick="switchTab('companies')">Companies</button>
-        <button class="strip-step strip-locked"  id="strip-roles"     onclick="switchTab('roles')">Live Roles</button>
-        <button class="strip-step strip-locked"  id="strip-next"      onclick="switchTab('next')">Next Steps</button>
-      </div>
-    </div>
-
-    <!-- Main content (offset from sidebar on desktop) -->
+    <!-- Main content (offset from sidebar) -->
     <div class="dash-shell">
 
     <!-- Main content -->
@@ -3995,6 +4102,24 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
             <button class="btn-next-section" onclick="switchTab('next')">Next: Next Steps →</button>
           </div>
         </div><!-- /panel-roles -->
+
+
+        <!-- TAB 5: MY APPLICATIONS -->
+        <div class="tab-panel" id="panel-applications" role="tabpanel" aria-labelledby="tab-applications">
+          <div style="padding-top: var(--sp-8);">
+            <div class="sec-label">My Applications</div>
+            <h2 class="sec-heading">Track your<br><em>applications.</em></h2>
+            <div class="card" style="margin-top: var(--sp-5);">
+              <div class="empty-state">
+                <span class="empty-state-icon" aria-hidden="true">—</span>
+                <p>Application tracking coming soon. Roles you apply to from the Live Roles tab will appear here.</p>
+              </div>
+            </div>
+          </div>
+          <div class="section-next-wrap">
+            <button class="btn-next-section" onclick="switchTab('next')">Next: Next Steps →</button>
+          </div>
+        </div><!-- /panel-applications -->
 
 
         <!-- TAB 6: NEXT STEPS -->
@@ -4418,8 +4543,8 @@ function generateOutreach(jobs, analysis) {
 // SESSION 3 — SEQUENTIAL NAVIGATION
 // ══════════════════════════════════════════════════════
 
-const TABS = ['profile','skills','companies','roles','next'];
-const TABS_NEXT = { profile: 'Skills', skills: 'Companies', companies: 'Live Roles', roles: 'Next Steps', next: null };
+const TABS = ['profile','skills','companies','roles','applications','next'];
+const TABS_NEXT = { profile: 'Skills', skills: 'Companies', companies: 'Live Roles', roles: 'My Applications', applications: 'Next Steps', next: null };
 const tabsSeen = new Set();
 let allTabsUnlocked = false;
 
@@ -5228,16 +5353,18 @@ function render(data) {
   renderSkills(skills, profile);
   renderCompanies(data);
   renderRoles(jobs, data);
+  updateRolesBadge(jobs.length);
   renderOutreach(data.outreach?.length ? data.outreach : generateOutreach(jobs, data));
   renderNextSteps(data);
 
   // Populate sidebar profile card
-  const initials = (profile.topRoleTitles?.[0] || '').slice(0,2).toUpperCase() || '—';
   const sidebarEl = document.getElementById('sidebarInitials');
   const nameEl = document.getElementById('sidebarName');
   const roleEl = document.getElementById('sidebarRole');
-  if (sidebarEl) sidebarEl.textContent = initials;
-  if (nameEl) nameEl.textContent = profile.topRoleTitles?.[0] || 'Your profile';
+  const firstName = sbSession?.user?.email?.split('@')[0] || 'Your profile';
+  const initial = sbSession?.user?.email?.[0]?.toUpperCase() || '?';
+  if (sidebarEl) sidebarEl.textContent = initial;
+  if (nameEl) nameEl.textContent = firstName;
   if (roleEl) roleEl.textContent = profile.seniorityLevel || '—';
 
   // Show contextual prompts now that results exist
@@ -5251,6 +5378,34 @@ function render(data) {
 
   // Reset to first tab (marks profile as seen, unlocks skills)
   switchTab('profile');
+}
+
+
+// ══════════════════════════════════════════════════════
+// SIDEBAR HELPERS
+// ══════════════════════════════════════════════════════
+
+function updateRolesBadge(count) {
+  const badge = document.getElementById('rolesBadge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function updateSidebarBottom(session) {
+  const el = document.getElementById('sidebarBottom');
+  if (!el) return;
+  if (session?.user) {
+    el.innerHTML = `
+      <span class="sidebar-bottom-email">${esc(session.user.email)}</span>
+      <button class="sidebar-bottom-link" onclick="signOut()">Sign out</button>`;
+  } else {
+    el.innerHTML = `<button class="sidebar-bottom-signin" onclick="openAuthOverlay()">Sign in to save your results</button>`;
+  }
 }
 
 
@@ -5303,6 +5458,7 @@ function updateNavAuth(session) {
     el.style.display = 'flex';
     el.innerHTML = `<button class="nav-auth-link" onclick="openAuthOverlay()">Sign in</button>`;
   }
+  updateSidebarBottom(session);
 }
 
 function openAuthOverlay() {
@@ -5544,6 +5700,8 @@ function updateCompletenessUI() {
   const label = document.getElementById('completenessLabel');
   if (bar) bar.style.width = pct + '%';
   if (label) label.textContent = 'Your profile is ' + pct + '% complete';
+  const sidebarFill = document.getElementById('sidebarCompletionFill');
+  if (sidebarFill) sidebarFill.style.width = pct + '%';
 }
 
 function restoreProfileChips() {
