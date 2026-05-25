@@ -1768,6 +1768,213 @@ input[type="text"]::placeholder {
   margin-top: var(--sp-4);
 }
 
+/* ── PROFILE TAB v2 ── */
+.profile-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+.profile-stat-col { text-align: left; }
+.profile-stat-val {
+  font-family: var(--font-head);
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.profile-stat-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+.profile-lead-card {
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  padding: 32px;
+  margin-bottom: var(--sp-5);
+  box-shadow: var(--sh-sm);
+}
+.profile-lead-h1 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: clamp(22px, 2.8vw, 34px);
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: var(--sp-4);
+}
+.profile-lead-line2 { color: var(--accent); font-style: italic; }
+.profile-lead-body {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.75;
+  margin-bottom: var(--sp-5);
+}
+.profile-lead-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  border-top: 1px solid rgba(165,175,220,0.15);
+  padding-top: var(--sp-4);
+}
+.profile-lead-signal {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-2);
+  background: var(--surface2);
+  border: 1px solid rgba(165,175,220,0.20);
+  border-radius: 100px;
+  padding: 5px 12px;
+  line-height: 1.4;
+}
+.profile-section-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: var(--sp-3);
+  margin-top: var(--sp-6);
+}
+.profile-section-label:first-of-type { margin-top: 0; }
+.profile-roles-card {
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-sm);
+  overflow: hidden;
+  margin-bottom: var(--sp-5);
+}
+.profile-role-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(165,175,220,0.12);
+  transition: background 0.15s;
+  user-select: none;
+}
+.profile-role-row:last-of-type { border-bottom: none; }
+.profile-role-row:hover { background: var(--surface2); }
+.profile-role-name {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.profile-role-chevron {
+  font-size: 11px;
+  color: var(--ink-4);
+  transition: transform 0.2s;
+  margin-left: var(--sp-3);
+}
+.profile-role-row.open .profile-role-chevron { transform: rotate(180deg); }
+.profile-role-expand {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.28s ease;
+  border-bottom: 1px solid rgba(165,175,220,0.12);
+}
+.profile-role-expand.open { max-height: 360px; }
+.profile-role-expand-inner {
+  padding: 14px 20px 18px;
+  background: var(--surface2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile-role-sub { display: flex; flex-direction: column; gap: 3px; }
+.profile-role-sub-label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+}
+.profile-role-sub-text {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+.profile-role-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+  align-self: flex-start;
+}
+.profile-role-link:hover { text-decoration: underline; }
+.profile-directions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+.direction-card-v2 {
+  background: #FFFFFF;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-sm);
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+.direction-card-v2:hover { box-shadow: var(--sh-md); }
+.direction-card-v2-title {
+  font-family: var(--font-head);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.direction-card-v2-why {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.7;
+  flex: 1;
+}
+.direction-fit-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 100px;
+  padding: 4px 10px;
+  align-self: flex-start;
+}
+.direction-fit-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.direction-fit-tag.green { background: var(--green-soft); color: var(--green); }
+.direction-fit-tag.green .direction-fit-dot { background: var(--green); }
+.direction-fit-tag.blue { background: var(--blue-soft); color: var(--blue); }
+.direction-fit-tag.blue .direction-fit-dot { background: var(--blue); }
+.direction-fit-tag.amber { background: var(--amber-bg); color: var(--amber); }
+.direction-fit-tag.amber .direction-fit-dot { background: var(--amber); }
+@media (max-width: 640px) {
+  .profile-stats-bar { grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
+  .profile-lead-card { padding: 22px 18px; }
+  .profile-directions-grid { grid-template-columns: 1fr; }
+}
+
 /* ── SKILLS TAB ── */
 .skills-header { margin-bottom: var(--sp-8); }
 
@@ -3920,60 +4127,42 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
         <!-- TAB 1: PROFILE & DIRECTION -->
         <div class="tab-panel active" id="panel-profile" role="tabpanel" aria-labelledby="tab-profile">
 
-          <!-- Dashboard header — Profile tab only -->
-          <div class="dash-header">
-            <div class="dash-header-inner">
-              <div class="dash-title-group">
-                <div class="dash-eyebrow" aria-hidden="true">
-                  <div class="dash-eyebrow-line"></div>
-                  <span class="eyebrow">Career Intelligence — Your results</span>
-                </div>
-                <h1 class="dash-title">
-                  Here's where<br>
-                  <em>you fit.</em>
-                </h1>
-              </div>
-              <div class="dash-meta" id="dashMeta" aria-label="Profile summary statistics">
-                <!-- Populated by JS -->
-              </div>
+          <!-- Zone 1: Stats bar -->
+          <div class="profile-stats-bar">
+            <div class="profile-stat-col">
+              <div class="profile-stat-val" id="statSeniority">—</div>
+              <div class="profile-stat-label">Seniority</div>
+            </div>
+            <div class="profile-stat-col">
+              <div class="profile-stat-val" id="statExperience">—</div>
+              <div class="profile-stat-label">Experience</div>
+            </div>
+            <div class="profile-stat-col">
+              <div class="profile-stat-val" id="statDirections">—</div>
+              <div class="profile-stat-label">Directions mapped</div>
             </div>
           </div>
 
-          <div class="card profile-hero-card">
-            <div class="sec-label">Who you are</div>
-            <div class="profile-badges" id="profileBadges"></div>
-            <div class="profile-summary" id="profileSummary"></div>
-            <div class="target-roles">
-              <div class="sec-label" style="margin-bottom: var(--sp-3);">Roles you're competitive for</div>
-              <div class="roles-list" id="rolesList"></div>
+          <!-- Zone 2: Lead statement card -->
+          <div class="profile-lead-card">
+            <div class="profile-lead-h1">
+              <span id="profileLeadLine1">Your background</span><br>
+              <span class="profile-lead-line2" id="profileLeadLine2">tells a story.</span>
             </div>
+            <div class="profile-lead-body" id="profileLeadBody"></div>
+            <div class="profile-lead-signals" id="profileLeadSignals"></div>
           </div>
 
-          <div class="card">
-            <div class="sec-label">Suggested directions</div>
-            <h2 class="sec-heading">Where you could go<br><em>from here.</em></h2>
-            <div class="directions-grid" id="directionsGrid"></div>
-          </div>
+          <!-- Zone 3: Roles accordion -->
+          <div class="profile-section-label">Roles you're competitive for</div>
+          <div class="profile-roles-card" id="profileRolesCard"></div>
 
-          <div class="two-col" style="margin-top: var(--sp-5);">
-            <div class="card">
-              <div class="sec-label">Sectors identified in your CV</div>
-              <div id="sectorPills"></div>
-            </div>
-            <div class="card">
-              <div class="sec-label">Skills extracted from your CV</div>
-              <div id="skillsPills"></div>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top: var(--sp-5);">
-            <div class="sec-label">Values &amp; character signals</div>
-            <h2 class="sec-heading" style="font-size: clamp(20px, 2.5vw, 30px); margin-bottom: var(--sp-4);">What this platform read<br><em>between the lines.</em></h2>
-            <div class="values-tags" id="valuesTags"></div>
-          </div>
+          <!-- Zone 4: Suggested directions -->
+          <div class="profile-section-label">Suggested directions</div>
+          <div class="profile-directions-grid" id="directionsGrid"></div>
 
           <!-- Deepen profile card -->
-          <div class="card refine-card" id="refineCard" style="margin-top: var(--sp-5);">
+          <div class="card refine-card" id="refineCard">
             <div class="enriched-badge" id="enrichedBadge" style="display:none;">✓ Profile enriched with self-reflection</div>
             <div class="sec-label">Deepen your profile</div>
             <h2 class="sec-heading" style="font-size: clamp(18px, 2.5vw, 26px); margin-bottom: var(--sp-2);">Your CV shows what you've done.</h2>
@@ -4623,160 +4812,176 @@ function emptyState(title, desc) {
 // ══════════════════════════════════════════════════════
 
 function renderMeta(profile) {
-  const meta = document.getElementById('dashMeta');
-  const items = [
-    { val: profile.seniorityLevel || '—', label: 'Seniority' },
-    { val: profile.yearsExperience || '—', label: 'Experience' },
-    { val: (profile.topRoleTitles || []).length + ' roles', label: 'Target titles mapped' },
-  ];
-  meta.innerHTML = items.map((item, i) => `
-    ${i > 0 ? '<div class="dash-meta-divider" aria-hidden="true"></div>' : ''}
-    <div class="dash-meta-item">
-      <div class="dash-meta-val">${esc(item.val)}</div>
-      <div class="dash-meta-label">${esc(item.label)}</div>
-    </div>
-  `).join('');
+  const s = document.getElementById('statSeniority');
+  const e = document.getElementById('statExperience');
+  const d = document.getElementById('statDirections');
+  if (s) s.textContent = profile.seniorityLevel || '—';
+  if (e) e.textContent = profile.yearsExperience || '—';
+  const dirs = (profile.suggestedDirections || profile.directions || []).length;
+  if (d) d.textContent = dirs || '—';
 }
 
 function renderProfile(profile) {
-  document.getElementById('profileBadges').innerHTML = `
-    <div class="profile-badge-item">
-      <div class="profile-badge-label">Seniority</div>
-      <div class="seniority-badge">${esc(profile.seniorityLevel || 'Mid-level')}</div>
-    </div>
-    <div class="profile-badge-item">
-      <div class="profile-badge-label">Experience</div>
-      <div class="profile-badge-val">${esc(profile.yearsExperience || '—')}</div>
-    </div>
-    ${(profile.locationSearch || profile.location) ? `
-    <div class="profile-badge-item">
-      <div class="profile-badge-label">Location</div>
-      <div class="profile-badge-val">${esc(profile.locationSearch || profile.location)}</div>
-    </div>` : ''}
-  `;
+  // Zone 2: Lead statement card
+  const summary = profile.summary || '';
+  const line1El = document.getElementById('profileLeadLine1');
+  const line2El = document.getElementById('profileLeadLine2');
+  const bodyEl  = document.getElementById('profileLeadBody');
+  const signalsEl = document.getElementById('profileLeadSignals');
 
-  document.getElementById('profileSummary').textContent = profile.summary || '';
+  const firstSentenceEnd = summary.search(/[.!?]/);
+  if (firstSentenceEnd > 0 && line1El && line2El) {
+    const firstSentence = summary.slice(0, firstSentenceEnd + 1);
+    const rest = summary.slice(firstSentenceEnd + 1).trim();
+    const mid = Math.ceil(firstSentence.length / 2);
+    const splitAt = firstSentence.lastIndexOf(' ', mid);
+    line1El.textContent = firstSentence.slice(0, splitAt > 0 ? splitAt : mid);
+    line2El.textContent = firstSentence.slice(splitAt > 0 ? splitAt + 1 : mid);
+    if (bodyEl) bodyEl.textContent = rest || summary;
+  } else {
+    if (line1El) line1El.textContent = 'Your background';
+    if (line2El) line2El.textContent = profile.topRoleTitles?.[0] || 'tells a story.';
+    if (bodyEl)  bodyEl.textContent = summary;
+  }
 
+  const values = profile.valuesSignals || [];
+  if (signalsEl) {
+    if (values.length) {
+      signalsEl.style.display = '';
+      signalsEl.innerHTML = values.map(v =>
+        `<span class="profile-lead-signal">${esc(typeof v === 'string' ? v : v.type || v)}</span>`
+      ).join('');
+    } else {
+      signalsEl.style.display = 'none';
+    }
+  }
+
+  // Zone 3: Roles accordion
   const roleDescriptions = {
     'Strategy Consultant': {
-      day: 'Working with senior leadership at client organisations to diagnose business problems, build data-driven recommendations, and present findings to C-suite stakeholders. Projects typically run 6–12 weeks.',
+      day: 'Working with senior leadership at client organisations to diagnose business problems, build data-driven recommendations, and present findings to C-suite stakeholders.',
       salary: '£45,000 – £90,000 depending on level and firm',
-      suits: 'People who enjoy variety, structured problem-solving, and want broad exposure to industries early in their career.'
+      fits: 'People who enjoy variety, structured problem-solving, and want broad exposure to industries early in their career.'
     },
     'Management Consultant': {
-      day: 'Leading workstreams on transformation, cost reduction, or growth strategy projects. Heavy on analysis, client communication, and slide-building. Frequent travel to client sites.',
+      day: 'Leading workstreams on transformation, cost reduction, or growth strategy projects. Heavy on analysis, client communication, and slide-building.',
       salary: '£40,000 – £120,000+ depending on firm tier and experience',
-      suits: 'High-energy generalists who are comfortable with ambiguity and thrive under client pressure.'
+      fits: 'High-energy generalists who are comfortable with ambiguity and thrive under client pressure.'
     },
     'Business Analyst': {
-      day: 'Gathering requirements from stakeholders, mapping processes, analysing data to identify inefficiencies, and translating business needs into technical or operational solutions.',
+      day: 'Gathering requirements from stakeholders, mapping processes, analysing data to identify inefficiencies, and translating business needs into solutions.',
       salary: '£30,000 – £60,000',
-      suits: 'Detail-oriented people who enjoy bridging the gap between business teams and technical delivery.'
+      fits: 'Detail-oriented people who enjoy bridging the gap between business teams and technical delivery.'
     },
     'Operations Analyst': {
-      day: 'Monitoring operational metrics, identifying bottlenecks, building dashboards, and working with cross-functional teams to improve processes and reduce cost.',
+      day: 'Monitoring operational metrics, identifying bottlenecks, building dashboards, and working with cross-functional teams to improve processes.',
       salary: '£28,000 – £55,000',
-      suits: 'Systematic thinkers who like optimising how things work behind the scenes.'
+      fits: 'Systematic thinkers who like optimising how things work behind the scenes.'
     },
     'Associate Consultant': {
-      day: 'Entry-level consulting work — research, data analysis, building client presentations, supporting senior consultants on projects across industries.',
+      day: 'Research, data analysis, building client presentations, and supporting senior consultants on projects across industries.',
       salary: '£35,000 – £55,000',
-      suits: 'Graduates or early-career professionals looking to build broad commercial and analytical skills fast.'
+      fits: 'Graduates or early-career professionals looking to build broad commercial and analytical skills fast.'
     },
     'Product Manager': {
-      day: 'Owning a product roadmap, running discovery with users, writing specs, working daily with engineering and design, and tracking metrics to decide what to build next.',
+      day: 'Owning a product roadmap, running discovery with users, writing specs, working daily with engineering and design, and tracking metrics.',
       salary: '£45,000 – £110,000',
-      suits: 'People who love synthesising user insight and business strategy, and are comfortable without direct authority.'
+      fits: 'People who love synthesising user insight and business strategy, comfortable without direct authority.'
     },
     'Marketing Manager': {
-      day: 'Planning and executing campaigns, managing budgets, working with creative and content teams, analysing performance data, and owning channel strategy (paid, owned, earned).',
+      day: 'Planning and executing campaigns, managing budgets, working with creative and content teams, and analysing performance data.',
       salary: '£35,000 – £70,000',
-      suits: 'Creative and analytical people who want to own the narrative around a product or brand.'
+      fits: 'Creative and analytical people who want to own the narrative around a product or brand.'
     },
     'Data Analyst': {
-      day: 'Writing SQL queries, building dashboards in Tableau or Looker, running ad hoc analyses for business teams, and presenting findings to non-technical stakeholders.',
+      day: 'Writing SQL queries, building dashboards in Tableau or Looker, running ad hoc analyses for business teams, and presenting findings to stakeholders.',
       salary: '£30,000 – £65,000',
-      suits: 'Curious people who like turning raw data into decisions and can communicate clearly in both numbers and plain English.'
+      fits: 'Curious people who like turning raw data into decisions and can communicate in both numbers and plain English.'
     },
     'UX Designer': {
-      day: 'Conducting user research, creating wireframes and prototypes in Figma, running usability tests, and collaborating with product and engineering to ship well-designed experiences.',
+      day: 'Conducting user research, creating wireframes and prototypes in Figma, running usability tests, and collaborating with product and engineering.',
       salary: '£35,000 – £75,000',
-      suits: 'Empathetic problem-solvers who care deeply about how products feel to use, not just how they work.'
+      fits: 'Empathetic problem-solvers who care deeply about how products feel to use.'
     },
     'Software Engineer': {
-      day: 'Writing and reviewing code, shipping features in two-week sprints, debugging production issues, and collaborating with product and design to build and scale systems.',
+      day: 'Writing and reviewing code, shipping features in two-week sprints, debugging production issues, and collaborating with product and design.',
       salary: '£40,000 – £120,000+ depending on stack and seniority',
-      suits: 'People who want to build things that scale, enjoy deep technical problem-solving, and are comfortable with continuous learning.'
+      fits: 'People who want to build things that scale and enjoy deep technical problem-solving.'
     }
   };
 
   const roles = profile.topRoleTitles || [];
-  const rolesList = document.getElementById('rolesList');
-  if (!roles.length) {
-    rolesList.innerHTML = '<div class="role-item" style="color:var(--ink-4);">No role titles identified</div>';
-  } else {
-    rolesList.innerHTML = roles.map((r, i) => {
-      const desc = roleDescriptions[r] || {
-        day: 'Day-to-day responsibilities vary by organisation and sector — this role typically involves a mix of analysis, stakeholder communication, and project delivery.',
-        salary: 'Salary varies by sector, location, and experience level',
-        suits: 'People with strong analytical and communication skills looking to make an impact in this field.'
-      };
-      return `
-        <div class="role-item-wrap">
-          <div class="role-item" data-role-idx="${i}">
-            ${esc(r)}
-            <span class="role-chevron">▼</span>
+  const rolesCard = document.getElementById('profileRolesCard');
+  if (rolesCard) {
+    if (!roles.length) {
+      rolesCard.innerHTML = '<div class="profile-role-row"><span class="profile-role-name" style="color:var(--ink-4);">No role titles identified</span></div>';
+    } else {
+      const total = roles.length;
+      rolesCard.innerHTML = roles.map((r, i) => {
+        const desc = roleDescriptions[r] || {
+          day: 'Day-to-day responsibilities vary by organisation — typically a mix of analysis, stakeholder communication, and project delivery.',
+          salary: 'Salary varies by sector, location, and experience level',
+          fits: 'People with strong analytical and communication skills looking to make an impact.'
+        };
+        return `
+          <div class="profile-role-row" id="profileRoleRow${i}" onclick="toggleProfileRole(${i},${total})">
+            <span class="profile-role-name">${esc(r)}</span>
+            <span class="profile-role-chevron">▼</span>
           </div>
-          <div class="role-desc-panel" id="roleDesc${i}">
-            <div class="role-desc-clip">
-              <div class="role-desc-body">
-                <div><strong>Day to day</strong><br>${esc(desc.day)}</div>
-                <div><strong>Typical salary</strong><br>${esc(desc.salary)}</div>
-                <div><strong>Who it suits</strong><br>${esc(desc.suits)}</div>
+          <div class="profile-role-expand" id="profileRoleExpand${i}">
+            <div class="profile-role-expand-inner">
+              <div class="profile-role-sub">
+                <div class="profile-role-sub-label">Day to day</div>
+                <div class="profile-role-sub-text">${esc(desc.day)}</div>
               </div>
+              <div class="profile-role-sub">
+                <div class="profile-role-sub-label">Typical salary</div>
+                <div class="profile-role-sub-text">${esc(desc.salary)}</div>
+              </div>
+              <div class="profile-role-sub">
+                <div class="profile-role-sub-label">Why it fits you</div>
+                <div class="profile-role-sub-text">${esc(desc.fits)}</div>
+              </div>
+              <span class="profile-role-link" onclick="event.stopPropagation();switchTab('roles')">See live roles for ${esc(r)} →</span>
             </div>
-          </div>
-        </div>`;
-    }).join('');
-
-    rolesList.querySelectorAll('.role-item[data-role-idx]').forEach(el => {
-      el.addEventListener('click', () => {
-        const idx = el.dataset.roleIdx;
-        const panel = document.getElementById('roleDesc' + idx);
-        const isOpen = panel.classList.contains('open');
-        el.classList.toggle('open', !isOpen);
-        panel.classList.toggle('open', !isOpen);
-      });
-    });
+          </div>`;
+      }).join('');
+    }
   }
 
+  // Zone 4: Directions
+  const FIT_TAGS    = ['High fit', 'Strong fit', 'Possible'];
+  const FIT_CLASSES = ['green',    'blue',        'amber'];
   const directions = profile.suggestedDirections || profile.directions || [];
   document.getElementById('directionsGrid').innerHTML = directions.length
-    ? directions.map(d => `
-        <div class="direction-card">
-          <div class="direction-title">${esc(d.title || d)}</div>
-          ${d.why ? `<div class="direction-why">${esc(d.why)}</div>` : ''}
-        </div>
-      `).join('')
-    : `<div class="direction-card">
-        <div class="direction-title" style="color:var(--ink-3); font-style:italic;">Directions analysis not available</div>
-        <div class="direction-why">Run the search again to generate personalised direction suggestions.</div>
+    ? directions.map((d, i) => {
+        const cls   = FIT_CLASSES[i] || 'amber';
+        const label = FIT_TAGS[i]    || 'Possible';
+        return `
+          <div class="direction-card-v2">
+            <div class="direction-card-v2-title">${esc(d.title || d)}</div>
+            ${d.why ? `<div class="direction-card-v2-why">${esc(d.why)}</div>` : ''}
+            <span class="direction-fit-tag ${cls}">
+              <span class="direction-fit-dot"></span>
+              <span class="direction-fit-label">${label}</span>
+            </span>
+          </div>`;
+      }).join('')
+    : `<div class="direction-card-v2">
+        <div class="direction-card-v2-title" style="color:var(--ink-3);font-style:italic;">Directions analysis not available</div>
+        <div class="direction-card-v2-why">Run the search again to generate personalised direction suggestions.</div>
       </div>`;
+}
 
-  const sectors = profile.extractedSectors || [];
-  document.getElementById('sectorPills').innerHTML = sectors.length
-    ? sectors.map(s => `<span class="pill pill-neutral">${esc(s)}</span>`).join('')
-    : '<span style="color:var(--ink-4); font-size:13px; font-weight:300;">None identified</span>';
-
-  const skills = profile.extractedSkills || [];
-  document.getElementById('skillsPills').innerHTML = skills.length
-    ? skills.map(s => `<span class="pill pill-accent">${esc(s)}</span>`).join('')
-    : '<span style="color:var(--ink-4); font-size:13px; font-weight:300;">None identified</span>';
-
-  const values = profile.valuesSignals || profile.companySuggestions?.map(c => c.type) || [];
-  document.getElementById('valuesTags').innerHTML = values.length
-    ? values.map(v => `<span class="pill pill-neutral">${esc(typeof v === 'string' ? v : v.type || v)}</span>`).join('')
-    : '<span style="color:var(--ink-4); font-size:13px; font-weight:300;">No values signals identified</span>';
+function toggleProfileRole(idx, total) {
+  for (let i = 0; i < total; i++) {
+    const row    = document.getElementById('profileRoleRow' + i);
+    const panel  = document.getElementById('profileRoleExpand' + i);
+    if (!row || !panel) continue;
+    const open = i === idx && !panel.classList.contains('open');
+    row.classList.toggle('open', open);
+    panel.classList.toggle('open', open);
+  }
 }
 
 function skillStr(s) {
