@@ -1774,26 +1774,28 @@ input[type="text"]::placeholder {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--sp-4);
   max-width: 920px;
-  margin: 0 auto 32px;
+  margin: 0 auto 28px;
   padding-top: 88px;
   padding-left: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(165,175,220,0.25);
 }
 .profile-stat-col { text-align: left; }
 .profile-stat-val {
-  font-family: var(--font-head);
-  font-size: clamp(20px, 2.5vw, 28px);
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
   color: var(--ink);
-  line-height: 1.1;
+  line-height: 1.2;
 }
 .profile-stat-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
   color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-top: 4px;
+  margin-bottom: 4px;
 }
 .profile-lead-card {
   background: #FFFFFF;
@@ -4115,16 +4117,16 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
           <!-- Zone 1: Stats bar -->
           <div class="profile-stats-bar">
             <div class="profile-stat-col">
-              <div class="profile-stat-val" id="statSeniority">—</div>
               <div class="profile-stat-label">Seniority</div>
+              <div class="profile-stat-val" id="statSeniority">—</div>
             </div>
             <div class="profile-stat-col">
-              <div class="profile-stat-val" id="statExperience">—</div>
               <div class="profile-stat-label">Experience</div>
+              <div class="profile-stat-val" id="statExperience">—</div>
             </div>
             <div class="profile-stat-col">
-              <div class="profile-stat-val" id="statDirections">—</div>
               <div class="profile-stat-label">Directions mapped</div>
+              <div class="profile-stat-val" id="statDirections">—</div>
             </div>
           </div>
 
@@ -4795,22 +4797,27 @@ function emptyState(title, desc) {
 // SESSION 3 — RENDER FUNCTIONS
 // ══════════════════════════════════════════════════════
 
+function truncateSeniority(raw) {
+  if (!raw) return '—';
+  if (/graduate/i.test(raw))    return 'Graduate';
+  if (/early/i.test(raw))       return 'Early Career';
+  if (/mid/i.test(raw))         return 'Mid-level';
+  if (/senior/i.test(raw))      return 'Senior';
+  return raw.split(' ')[0] || '—';
+}
+
 function renderMeta(profile) {
   const s = document.getElementById('statSeniority');
   const e = document.getElementById('statExperience');
   const d = document.getElementById('statDirections');
 
-  const rawSen = profile.seniorityLevel || '';
-  let seniority;
-  if (/graduate/i.test(rawSen))    seniority = 'Graduate';
-  else if (/early/i.test(rawSen))  seniority = 'Early Career';
-  else if (/mid/i.test(rawSen))    seniority = 'Mid-level';
-  else if (/senior/i.test(rawSen)) seniority = 'Senior';
-  else seniority = rawSen.split(' ')[0] || '—';
+  const seniority = truncateSeniority(profile.seniorityLevel);
   if (s) s.textContent = seniority;
 
-  let exp = (profile.yearsExperience || '—').replace(/\s*\(.*?\)\s*/g, '').trim();
-  exp = exp.split(/[,\[]/)[0].trim() || '—';
+  const EXP_DEFAULTS = { Graduate: 'Early career', 'Early Career': '0–2 years', 'Mid-level': '3–6 years', Senior: '7+ years' };
+  let exp = (profile.yearsExperience || '').replace(/\s*\(.*?\)\s*/g, '').trim();
+  exp = exp.split(/[,\[;]/)[0].trim().replace(/[.,;:–—\-]+$/, '');
+  if (!exp || exp.length > 20) exp = EXP_DEFAULTS[seniority] || '—';
   if (e) e.textContent = exp;
 
   const dirs = (profile.suggestedDirections || profile.directions || []).length;
@@ -5553,7 +5560,7 @@ function render(data) {
   const initial = sbSession?.user?.email?.[0]?.toUpperCase() || '?';
   if (sidebarEl) sidebarEl.textContent = initial;
   if (nameEl) nameEl.textContent = firstName;
-  if (roleEl) roleEl.textContent = profile.seniorityLevel || '—';
+  if (roleEl) roleEl.textContent = truncateSeniority(profile.seniorityLevel);
 
   // Show contextual prompts now that results exist
   const vp = document.getElementById('valuesPrompt');
