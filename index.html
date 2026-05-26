@@ -1817,25 +1817,6 @@ input[type="text"]::placeholder {
   line-height: 1.75;
   margin-bottom: var(--sp-5);
 }
-.profile-lead-signals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  border-top: 1px solid rgba(165,175,220,0.15);
-  padding-top: var(--sp-4);
-}
-.profile-lead-signal {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--ink-2);
-  background: rgba(59,91,219,0.07);
-  border-radius: 20px;
-  padding: 4px 12px;
-  line-height: 1.4;
-}
 .profile-section-label {
   font-family: var(--font-sans);
   font-size: 11px;
@@ -4152,7 +4133,6 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
               <span class="profile-lead-line2" id="profileLeadLine2">tells a story.</span>
             </div>
             <div class="profile-lead-body" id="profileLeadBody"></div>
-            <div class="profile-lead-signals" id="profileLeadSignals"></div>
           </div>
 
           <!-- Zone 3: Roles accordion -->
@@ -4817,10 +4797,21 @@ function renderMeta(profile) {
   const s = document.getElementById('statSeniority');
   const e = document.getElementById('statExperience');
   const d = document.getElementById('statDirections');
-  if (s) s.textContent = profile.seniorityLevel || '—';
-  if (e) e.textContent = profile.yearsExperience || '—';
+
+  const rawSen = profile.seniorityLevel || '';
+  let seniority;
+  if (/graduate/i.test(rawSen))    seniority = 'Graduate';
+  else if (/early/i.test(rawSen))  seniority = 'Early Career';
+  else if (/mid/i.test(rawSen))    seniority = 'Mid-level';
+  else if (/senior/i.test(rawSen)) seniority = 'Senior';
+  else seniority = rawSen.split(' ')[0] || '—';
+  if (s) s.textContent = seniority;
+
+  let exp = (profile.yearsExperience || '—').replace(/\s*\(.*?\)\s*/g, '').trim();
+  exp = exp.split(/[,\[]/)[0].trim() || '—';
+  if (e) e.textContent = exp;
+
   const dirs = (profile.suggestedDirections || profile.directions || []).length;
-  console.log('[renderMeta] suggestedDirections:', profile.suggestedDirections, 'dirs count:', dirs);
   if (d) d.textContent = dirs > 0 ? dirs : '—';
 }
 
@@ -4830,7 +4821,6 @@ function renderProfile(profile) {
   const line1El = document.getElementById('profileLeadLine1');
   const line2El = document.getElementById('profileLeadLine2');
   const bodyEl  = document.getElementById('profileLeadBody');
-  const signalsEl = document.getElementById('profileLeadSignals');
 
   const firstSentenceEnd = summary.search(/[.!?]/);
   if (firstSentenceEnd > 0 && line1El && line2El) {
@@ -4845,18 +4835,6 @@ function renderProfile(profile) {
     if (line1El) line1El.textContent = 'Your background';
     if (line2El) line2El.textContent = profile.topRoleTitles?.[0] || 'tells a story.';
     if (bodyEl)  bodyEl.textContent = summary;
-  }
-
-  const values = profile.valuesSignals || [];
-  if (signalsEl) {
-    if (values.length) {
-      signalsEl.style.display = '';
-      signalsEl.innerHTML = values.map(v =>
-        `<span class="profile-lead-signal">${esc(typeof v === 'string' ? v : v.type || v)}</span>`
-      ).join('');
-    } else {
-      signalsEl.style.display = 'none';
-    }
   }
 
   // Zone 3: Roles accordion
