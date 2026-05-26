@@ -1773,6 +1773,7 @@ input[type="text"]::placeholder {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--sp-4);
+  padding-top: 88px;
   margin-bottom: var(--sp-6);
 }
 .profile-stat-col { text-align: left; }
@@ -1784,8 +1785,8 @@ input[type="text"]::placeholder {
   line-height: 1.1;
 }
 .profile-stat-label {
-  font-family: var(--font-sans);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 500;
   color: var(--ink-3);
   text-transform: uppercase;
@@ -1819,19 +1820,20 @@ input[type="text"]::placeholder {
 .profile-lead-signals {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
+  gap: 8px;
   border-top: 1px solid rgba(165,175,220,0.15);
   padding-top: var(--sp-4);
 }
 .profile-lead-signal {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 400;
   color: var(--ink-2);
-  background: var(--surface2);
-  border: 1px solid rgba(165,175,220,0.20);
-  border-radius: 100px;
-  padding: 5px 12px;
+  background: rgba(59,91,219,0.07);
+  border-radius: 20px;
+  padding: 4px 12px;
   line-height: 1.4;
 }
 .profile-section-label {
@@ -4818,7 +4820,8 @@ function renderMeta(profile) {
   if (s) s.textContent = profile.seniorityLevel || '—';
   if (e) e.textContent = profile.yearsExperience || '—';
   const dirs = (profile.suggestedDirections || profile.directions || []).length;
-  if (d) d.textContent = dirs || '—';
+  console.log('[renderMeta] suggestedDirections:', profile.suggestedDirections, 'dirs count:', dirs);
+  if (d) d.textContent = dirs > 0 ? dirs : '—';
 }
 
 function renderProfile(profile) {
