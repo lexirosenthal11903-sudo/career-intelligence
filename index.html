@@ -1963,7 +1963,25 @@ input[type="text"]::placeholder {
 }
 
 /* ── SKILLS TAB ── */
-.skills-header { margin-bottom: var(--sp-8); }
+.skills-header { margin-bottom: var(--sp-6); }
+
+.skills-h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1.15;
+  margin-bottom: var(--sp-3);
+}
+.skills-h2-line1 { color: var(--ink); }
+.skills-h2-line2 { color: var(--blue); }
+.skills-subtext {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1.7;
+  margin-bottom: var(--sp-8);
+}
 
 .skills-two-col {
   display: grid;
@@ -1974,42 +1992,93 @@ input[type="text"]::placeholder {
 
 @media (max-width: 680px) { .skills-two-col { grid-template-columns: 1fr; } }
 
-.skills-card {
-  background: rgba(255,255,255,0.90);
-  backdrop-filter: blur(32px) saturate(1.6);
-  -webkit-backdrop-filter: blur(32px) saturate(1.6);
-  border: 1px solid rgba(255,255,255,0.82);
-  border-radius: 18px;
-  box-shadow: 0 12px 40px rgba(60,80,155,0.10),0 3px 10px rgba(60,80,155,0.06);
-  padding: var(--sp-8) var(--sp-8);
+.skills-col-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--ink-3);
+  margin-bottom: var(--sp-4);
 }
 
-.skills-card-title {
-  font-family: var(--font-serif);
-  font-size: 22px;
+.skill-item-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: var(--sh-sm);
+  padding: 20px;
+  margin-bottom: 10px;
+}
+.skill-item-card:last-child { margin-bottom: 0; }
+.skill-item-name {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.skill-item-desc {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-3);
+  line-height: 1.7;
+}
+
+.skill-gap-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: var(--sh-sm);
+  padding: 20px;
+  margin-bottom: 10px;
+}
+.skill-gap-card:last-child { margin-bottom: 0; }
+.skill-gap-card.priority-gap {
+  border-left: 3px solid var(--blue);
+  border-radius: 0 12px 12px 0;
+}
+.skill-gap-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  margin-bottom: 8px;
+}
+.skill-gap-tag.priority-gap { color: var(--blue); }
+.skill-gap-tag.foundation    { color: var(--ink-3); }
+.skill-gap-tag.enhances-fit  { color: var(--green); }
+.skill-gap-name {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.skill-gap-sub-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--ink-4);
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+.skill-gap-sub-label:first-of-type { margin-top: 0; }
+.skill-gap-text {
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 400;
   color: var(--ink);
-  margin-bottom: var(--sp-5);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
+  line-height: 1.7;
 }
+.skill-gap-text a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 
-.pills-cluster {
-  display: flex;
-  flex-wrap: wrap;
-  margin: -3px;
-  margin-bottom: var(--sp-6);
-}
-
+/* keep legacy gap classes for other render paths */
 .gap-list { display: flex; flex-direction: column; gap: 0; }
-
-.gap-item {
-  padding: 20px 0;
-  border-top: 1px solid var(--ink-5);
-}
+.gap-item { padding: 20px 0; border-top: 1px solid var(--ink-5); }
 .gap-item:first-child { border-top: none; padding-top: 0; }
-
 .gap-skill-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.01em; }
 .gap-meta-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 4px; }
 .gap-why { font-size: 12px; font-weight: 300; color: var(--ink-3); line-height: 1.75; margin-top: 0; }
@@ -4170,35 +4239,30 @@ tbody tr:hover td { background: rgba(59,91,219,0.025); }
 
         <!-- TAB 2: SKILLS -->
         <div class="tab-panel" id="panel-skills" role="tabpanel" aria-labelledby="tab-skills">
-          <div class="skills-header">
-            <div class="sec-label">Skills analysis</div>
-            <h2 class="sec-heading">What you bring.<br><em>What to build.</em></h2>
-          </div>
-          <div class="skills-two-col">
-            <div class="skills-card">
-              <div class="skills-card-title"><span class="title-icon">✓</span> What you already bring</div>
-              <div class="pills-cluster" id="strengthPills"></div>
-            </div>
-            <div class="skills-card">
-              <div class="skills-card-title"><span class="title-icon" style="color:var(--amber);">↑</span> Skills to build</div>
-              <div class="gap-list" id="gapList"></div>
-            </div>
-          </div>
-          <div class="advice-block" id="skillsAdvice"></div>
 
-          <!-- Aspiration contextual prompt -->
-          <div class="card" id="aspirationPrompt" style="margin-top:var(--sp-5); border-left:3px solid var(--accent-lt);">
-            <div class="sec-label">Your direction</div>
-            <p class="context-prompt-lead">Tell us where you want to be in 2 years and we'll prioritise your gaps accordingly.</p>
-            <textarea class="aspiration-textarea" id="aspirationInput" rows="3" placeholder="In 2 years, I want to be… (2–3 sentences)"></textarea>
-            <div style="margin-top:var(--sp-3);">
-              <button class="btn-outline" id="aspirationSaveBtn" onclick="saveAspiration()" style="padding:8px 20px; font-size:12px;">Save</button>
+          <div class="skills-header">
+            <h2 class="skills-h2">
+              <span class="skills-h2-line1">What you bring.</span><br>
+              <span class="skills-h2-line2">What to build.</span>
+            </h2>
+            <p class="skills-subtext" id="skillsSubtext">Skills identified that would materially strengthen your position.</p>
+          </div>
+
+          <div class="skills-two-col">
+            <div>
+              <div class="skills-col-label">What you already bring</div>
+              <div id="strengthList"></div>
+            </div>
+            <div>
+              <div class="skills-col-label">What to build</div>
+              <div id="gapList"></div>
             </div>
           </div>
 
           <div class="section-next-wrap">
             <button class="btn-next-section" onclick="switchTab('companies')">Next: Companies →</button>
           </div>
+
         </div><!-- /panel-skills -->
 
 
@@ -5000,38 +5064,68 @@ function linkify(text) {
 
 function renderSkills(skillsData, profile) {
   profile = profile || {};
-  console.log('[renderSkills] skillsData:', JSON.stringify(skillsData));
 
-  // Strengths: prefer skills.strengths, fall back to profile.extractedSkills
+  // Subtext — pull top role from profile if available
+  const subEl = document.getElementById('skillsSubtext');
+  if (subEl) {
+    const topRole = (profile.topRoleTitles || [])[0];
+    subEl.textContent = topRole
+      ? `Skills identified that would materially strengthen your position as ${topRole}.`
+      : 'Skills identified that would materially strengthen your position.';
+  }
+
+  // Strengths
   let strengths = skillsData.strengths || skillsData.skill_strengths || skillsData.keyStrengths || [];
   if (!strengths.length) strengths = profile.extractedSkills || [];
   strengths = strengths.map(skillStr).filter(Boolean);
 
-  document.getElementById('strengthPills').innerHTML = strengths.length
-    ? strengths.map(s => `<span class="pill pill-green">${esc(s)}</span>`).join('')
-    : '<span style="color:var(--ink-4); font-size:13px;">No specific strengths identified — run with more CV detail for a richer analysis.</span>';
+  const strengthList = document.getElementById('strengthList');
+  if (strengthList) {
+    strengthList.innerHTML = strengths.length
+      ? strengths.map(s => `
+          <div class="skill-item-card">
+            <div class="skill-item-name">${esc(s)}</div>
+            <div class="skill-item-desc">Evidence from your CV will appear here — API update needed.</div>
+          </div>`).join('')
+      : '<div class="skill-item-card"><span style="color:var(--ink-4);font-size:13px;">No specific strengths identified — run with more CV detail for a richer analysis.</span></div>';
+  }
 
-  // Gaps: handle both array-of-strings and array-of-objects
+  // Gaps
   const rawGaps = skillsData.gaps || skillsData.skill_gaps || skillsData.gapsToAddress || [];
   const gaps = rawGaps.map(g => typeof g === 'string'
     ? { skill: g, tier: '', why: '', howToBuild: '' }
     : { skill: g.skill || g.name || '', tier: g.tier || '', why: g.why || g.reason || '', howToBuild: g.howToBuild || g.how || g.action || '' }
   ).filter(g => g.skill);
 
-  document.getElementById('gapList').innerHTML = gaps.length
-    ? gaps.map(g => `
-        <div class="gap-item">
-          ${g.tier ? `<div class="gap-meta-label">${esc(g.tier)}</div>` : ''}
-          <div class="gap-skill-name">${esc(g.skill)}</div>
-          ${g.why ? `<div class="gap-meta-label">Why it matters</div><div class="gap-why">${esc(g.why)}</div>` : ''}
-          ${g.howToBuild ? `<div class="gap-meta-label" style="margin-top:var(--sp-2);">How to build it</div><div class="gap-how">${linkify(g.howToBuild)}</div>` : ''}
-        </div>`).join('')
-    : '<div class="gap-item"><span style="color:var(--ink-4); font-size:13px;">No significant gaps identified — you\'re a strong match for your target roles.</span></div>';
+  function gapTagClass(tier) {
+    const t = (tier || '').toLowerCase();
+    if (t.includes('intermediate') || t.includes('advanced')) return 'priority-gap';
+    if (t.includes('future')) return 'enhances-fit';
+    return 'foundation';
+  }
+  function gapTagLabel(tier) {
+    const t = (tier || '').toLowerCase();
+    if (t.includes('intermediate') || t.includes('advanced')) return 'Priority Gap';
+    if (t.includes('future')) return 'Enhances Fit';
+    return 'Foundation';
+  }
 
-  const advice = skillsData.advice || skillsData.summary || '';
-  document.getElementById('skillsAdvice').innerHTML = advice
-    ? `<p>${esc(advice)}</p>`
-    : '<p style="color:var(--ink-4);">Run the analysis to generate personalised skills advice.</p>';
+  const gapList = document.getElementById('gapList');
+  if (gapList) {
+    gapList.innerHTML = gaps.length
+      ? gaps.map(g => {
+          const cls   = gapTagClass(g.tier);
+          const label = gapTagLabel(g.tier);
+          return `
+            <div class="skill-gap-card${cls === 'priority-gap' ? ' priority-gap' : ''}">
+              ${g.tier ? `<div class="skill-gap-tag ${cls}">${label}</div>` : ''}
+              <div class="skill-gap-name">${esc(g.skill)}</div>
+              ${g.why ? `<div class="skill-gap-sub-label">Why it matters</div><div class="skill-gap-text">${esc(g.why)}</div>` : ''}
+              ${g.howToBuild ? `<div class="skill-gap-sub-label">How to build it</div><div class="skill-gap-text">${linkify(g.howToBuild)}</div>` : ''}
+            </div>`;
+        }).join('')
+      : '<div class="skill-gap-card"><span style="color:var(--ink-4);font-size:13px;">No significant gaps identified — you\'re a strong match for your target roles.</span></div>';
+  }
 }
 
 function renderCompanies(data) {
