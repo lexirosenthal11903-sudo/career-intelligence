@@ -3888,6 +3888,7 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                 placeholder="e.g. I'm in design but I want to move into something more analytical and strategic — I don't know what the role is called yet, but I want to be making decisions, not just executing them."
                 oninput="fpOnDirectionText(this)"
               ></textarea>
+              <button class="fp-continue-btn" id="fp-direction-continue" onclick="fpTriggerDirection()">Continue →</button>
             </div>
 
             <!-- Ack 2 -->
@@ -4006,8 +4007,8 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
 
               window.fpOnDirectionText = function(el) {
                 var words = fpCountWords(el.value);
-                clearTimeout(fpDirTimer);
-                if (words >= 8) fpDirTimer = setTimeout(fpTriggerDirection, 800);
+                var btn = document.getElementById('fp-direction-continue');
+                if (btn && words >= 8) btn.classList.add('visible');
               };
 
               window.fpTriggerDirection = function() {
@@ -6290,7 +6291,6 @@ async function handlePdfUpload(input) {
     if (textarea) {
       textarea.value = '';
     }
-    if (window.fpShowPaste) fpShowPaste();
     if (window.fpTriggerCV) fpTriggerCV();
   }
   input.value = '';
