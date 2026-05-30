@@ -3506,6 +3506,11 @@ body.hp-active {
               padding: 40px 24px 80px;
               font-family: 'DM Sans', sans-serif;
             }
+            #panelS2 .nav,
+            #panelS2 .site-nav,
+            #panelS2 nav:not(.fp-nav) {
+              display: none !important;
+            }
             .fp-nav {
               display: flex;
               justify-content: space-between;
@@ -3588,10 +3593,31 @@ body.hp-active {
             .fp-q-label {
               font-family: 'Syne', sans-serif;
               font-weight: 700;
-              font-size: 28px;
+              font-size: 38px;
               color: #1A1612;
-              line-height: 1.15;
-              margin-bottom: 8px;
+              line-height: 1.1;
+              margin-bottom: 10px;
+            }
+            .fp-continue-btn {
+              display: none;
+              margin-top: 14px;
+              background: none;
+              border: 1.5px solid rgba(139,111,71,0.4);
+              border-radius: 100px;
+              padding: 10px 22px;
+              font-family: 'DM Sans', sans-serif;
+              font-weight: 300;
+              font-size: 14px;
+              color: #8B6F47;
+              cursor: pointer;
+              transition: all 0.2s;
+            }
+            .fp-continue-btn:hover {
+              background: rgba(255,255,255,0.5);
+              border-color: #8B6F47;
+            }
+            .fp-continue-btn.visible {
+              display: inline-block;
             }
             .fp-q-hint {
               font-family: 'DM Sans', sans-serif;
@@ -3782,7 +3808,7 @@ body.hp-active {
 
           <nav class="fp-nav">
             <span class="fp-wordmark">Career Intelligence</span>
-            <button class="fp-nav-link" onclick="showPanel('panelS1')">Home</button>
+            <button class="fp-nav-link" onclick="goToForm ? history.back() : window.location.reload()">Home</button>
           </nav>
 
           <div class="fp-outer">
@@ -3843,6 +3869,7 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                   oninput="fpOnCVText(this)"
                 ></textarea>
                 <p class="fp-word-hint" id="fp-nocv-hint" style="display:none;">A bit more detail will give you more accurate results.</p>
+                <button class="fp-continue-btn" id="fp-nocv-continue" onclick="fpTriggerCV()">Continue →</button>
               </div>
             </div>
 
@@ -3962,8 +3989,13 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                 var hintId = el.id === 'cvText' ? 'fp-cv-hint' : 'fp-nocv-hint';
                 var hint = document.getElementById(hintId);
                 if (hint) hint.style.display = (words > 0 && words < 80) ? 'block' : 'none';
-                clearTimeout(fpCVTimer);
-                if (words >= 10) fpCVTimer = setTimeout(fpTriggerCV, 600);
+                if (el.id === 'fp-nocv-text') {
+                  var continueBtn = document.getElementById('fp-nocv-continue');
+                  if (continueBtn && words >= 10) continueBtn.classList.add('visible');
+                } else {
+                  clearTimeout(fpCVTimer);
+                  if (words >= 10) fpCVTimer = setTimeout(fpTriggerCV, 600);
+                }
               };
 
               window.fpTriggerCV = function() {
