@@ -6261,43 +6261,39 @@ function renderSavedSection() {
 
 async function handlePdfUpload(input) {
   const file = input.files && input.files[0];
-  if (!file || file.type !== 'application/pdf') return;
+  if (!file) return;
+  const isPdf = file.type === 'application/pdf';
+  const isDocx = file.name.endsWith('.docx');
+  if (!isPdf && !isDocx) return;
 
-  const statusEl = document.getElementById('pdfStatus');
   const textarea = document.getElementById('cvText');
+  const nameEl = document.getElementById('fp-filename');
+  const uploadZone = document.getElementById('fp-upload-zone');
+  const uploadedState = document.getElementById('fp-uploaded-state');
 
-  statusEl.textContent = 'Extracting text…';
-  statusEl.className = 'pdf-status loading';
+  if (nameEl) nameEl.textContent = file.name;
+  if (uploadZone) uploadZone.style.display = 'none';
+  if (uploadedState) uploadedState.style.display = 'block';
 
   try {
-    if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js not loaded');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-    let fullText = '';
-    for (let p = 1; p <= pdf.numPages; p++) {
-      const page    = await pdf.getPage(p);
-      const content = await page.getTextContent();
-      const pageText = content.items.map(item => item.str).join(' ');
-      fullText += pageText + '\n';
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch('/api/extract', { method: 'POST', body: formData });
+    if (!response.ok) throw new Error('Extraction failed');
+    const data = await response.json();
+    if (data.text && textarea) {
+      textarea.value = data.text;
+      if (window.updateCounter) updateCounter();
     }
-
-    const cleaned = fullText.replace(/\s{3,}/g, '\n').trim();
-    if (!cleaned) throw new Error('No text found — try pasting manually');
-
-    textarea.value = cleaned;
-    updateCounter();
-    statusEl.textContent = 'CV extracted — please review below';
-    statusEl.className = 'pdf-status success';
-    // Clear file input so same file can be re-uploaded
-    input.value = '';
+    if (window.fpTriggerCV) fpTriggerCV();
   } catch (err) {
-    statusEl.textContent = err.message || 'Extraction failed — please paste your CV manually';
-    statusEl.className = 'pdf-status error';
-    input.value = '';
+    if (textarea) {
+      textarea.value = '';
+    }
+    if (window.fpShowPaste) fpShowPaste();
+    if (window.fpTriggerCV) fpTriggerCV();
   }
+  input.value = '';
 }
 
 // Drag-and-drop on the upload area
