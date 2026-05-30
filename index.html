@@ -4017,11 +4017,6 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                 fpDirDone = true;
                 fpShowAck('fp-ack-2', function() {
                   fpShowBlock('fp-block-3');
-                  setTimeout(function() {
-                    fpShowAck('fp-ack-3', function() {
-                      fpShowBlock('fp-block-4');
-                    });
-                  }, 1200);
                 });
               };
 
