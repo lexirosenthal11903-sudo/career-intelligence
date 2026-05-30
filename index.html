@@ -4479,6 +4479,7 @@ function showSession(n) {
   } else {
     nav.classList.add('always-frosted');
   }
+  nav.style.display = n === 2 ? 'none' : '';
 
   document.body.classList.toggle('hp-active', n === 1);
 
