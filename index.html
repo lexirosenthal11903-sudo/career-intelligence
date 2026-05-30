@@ -4686,7 +4686,9 @@ async function runSearch() {
       new Promise(r => setTimeout(r, 1500))
     ]);
     if (!analyseRes.ok) throw new Error('Analysis failed: ' + await analyseRes.text());
-    const analysis = await analyseRes.json();
+    const analyseRawText = await analyseRes.text();
+    console.log('[analyse raw response]', analyseRawText);
+    const analysis = JSON.parse(analyseRawText);
     if (!analysis.profile) throw new Error('Could not read your profile. Please try again.');
 
     setStep(2);
@@ -4800,6 +4802,7 @@ async function runSearch() {
     if (banner) banner.hidden = !!sbSession;
 
   } catch(err) {
+    console.log('[runSearch error]', err);
     btn.disabled = false;
     btn.classList.remove('loading');
     hideLoading();
