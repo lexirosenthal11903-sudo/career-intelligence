@@ -4600,9 +4600,7 @@ function completeAllSteps() {
 
 function showLoading() {
   const fc = document.getElementById('formCard');
-  fc.style.opacity = '0.4';
-  fc.style.pointerEvents = 'none';
-  fc.style.transition = 'opacity 0.4s';
+  if (fc) { fc.style.opacity = '0.4'; fc.style.pointerEvents = 'none'; fc.style.transition = 'opacity 0.4s'; }
   const screen = document.getElementById('loadingScreen');
   screen.classList.add('visible');
   requestAnimationFrame(() => {
@@ -4618,8 +4616,7 @@ function hideLoading() {
   screen.classList.remove('shown');
   setTimeout(() => screen.classList.remove('visible'), 450);
   const fc = document.getElementById('formCard');
-  fc.style.opacity = '';
-  fc.style.pointerEvents = '';
+  if (fc) { fc.style.opacity = ''; fc.style.pointerEvents = ''; }
 }
 
 function showError(title, msg, hint, stack) {
