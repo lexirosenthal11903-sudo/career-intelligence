@@ -3966,6 +3966,7 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
               var fpDirDone = false;
               var fpCVTimer = null;
               var fpDirTimer = null;
+              window.fpExtractionReady = false;
 
               window.fpSelectPath = function(p) {
                 document.getElementById('fp-path-upload').classList.toggle('fp-selected', p === 'upload');
@@ -4003,6 +4004,7 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
               window.fpTriggerCV = function() {
                 if (fpCVDone) return;
                 fpCVDone = true;
+                window.fpExtractionReady = true;
                 fpShowAck('fp-ack-1', function() { fpShowBlock('fp-block-2'); });
               };
 
@@ -4643,8 +4645,12 @@ function safeJSON(raw, fallback) {
 // ══════════════════════════════════════════════════════
 
 async function runSearch() {
-  const cvTextEl  = document.getElementById('cvText');
   const nocvEl    = document.getElementById('fp-nocv-text');
+  const isNoCVPath = nocvEl && nocvEl.value.trim().length > 0;
+  if (!isNoCVPath && window.fpExtractionReady === false) {
+    return;
+  }
+  const cvTextEl  = document.getElementById('cvText');
   const cvText    = (cvTextEl && cvTextEl.value.trim()) || (nocvEl && nocvEl.value.trim()) || '';
   const direction = document.getElementById('direction').value.trim();
   const location  = document.getElementById('location').value.trim();
@@ -6270,6 +6276,7 @@ async function handlePdfUpload(input) {
       textarea.value = data.text;
       if (window.updateCounter) updateCounter();
     }
+    window.fpExtractionReady = true;
     if (window.fpTriggerCV) fpTriggerCV();
   } catch (err) {
     if (textarea) {
