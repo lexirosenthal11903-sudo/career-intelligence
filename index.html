@@ -3188,8 +3188,6 @@ body.hp-active {
           <span class="wordmark-dot" aria-hidden="true"></span>
         </a>
 
-        <div class="nav-center" id="navCenter"><div class="nav-pill">Pre-seed build — May 2026</div></div>
-
         <!-- Right side — single wrapper keeps pill from overlapping -->
         <div class="nav-end">
           <!-- S2: back to home -->
@@ -4470,7 +4468,7 @@ function showSession(n) {
   // Nav bar adapts
   document.getElementById('navS2Right').style.display = n === 2 ? '' : 'none';
   document.getElementById('navS3Right').style.display = n === 3 ? '' : 'none';
-  document.getElementById('navCenter').style.display = n === 1 ? '' : 'none';
+  const navCenter = document.getElementById('navCenter'); if (navCenter) navCenter.style.display = n === 1 ? '' : 'none';
 
   // Nav frosted glass always on when not landing
   const nav = document.getElementById('nav');
