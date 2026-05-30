@@ -235,7 +235,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5',
-        max_tokens: 4000,
+        max_tokens: 8000,
         system: systemPrompt,
         tools: [tool],
         tool_choice: { type: 'tool', name: 'submit_career_analysis' },
