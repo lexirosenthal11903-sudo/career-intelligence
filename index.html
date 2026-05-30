@@ -3930,6 +3930,7 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                 <span class="fp-field-label">Salary <span class="fp-optional">— optional</span></span>
                 <input class="fp-input" style="max-width:260px;" type="text" id="salary" placeholder="e.g. £35k–£50k, or leave open" />
               </div>
+              <button class="fp-continue-btn visible" id="fp-prefs-continue" onclick="fpTriggerPrefs()">Continue →</button>
             </div>
 
             <!-- Ack 3 -->
@@ -4019,10 +4020,14 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                   setTimeout(function() {
                     fpShowAck('fp-ack-3', function() {
                       fpShowBlock('fp-block-4');
-                      setTimeout(fpShowSubmit, 400);
                     });
                   }, 1200);
                 });
+              };
+
+              window.fpTriggerPrefs = function() {
+                fpShowBlock('fp-block-4');
+                setTimeout(fpShowSubmit, 400);
               };
 
               window.fpTogglePill = function(el) {
