@@ -4054,17 +4054,6 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                 return str.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
               }
 
-              window.handlePdfUpload = function(input) {
-                var file = input.files[0];
-                if (!file) return;
-                var nameEl = document.getElementById('fp-filename');
-                if (nameEl) nameEl.textContent = file.name;
-                document.getElementById('fp-upload-zone').style.display = 'none';
-                document.getElementById('fp-uploaded-state').style.display = 'block';
-                var reader = new FileReader();
-                reader.readAsArrayBuffer(file);
-                fpTriggerCV();
-              };
 
             })();
           </script>
