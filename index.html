@@ -3498,151 +3498,552 @@ body.hp-active {
     <main>
 
       <!-- FORM PAGE -->
-      <div class="form-page" id="formPage">
-        <div class="container">
+        <div class="form-page" id="formPage">
+          <style>
+            .form-page {
+              min-height: 100vh;
+              background: linear-gradient(160deg, #FAF5EE 0%, #F5ECD8 40%, #F0E4C8 70%, #EDE0C0 100%);
+              padding: 40px 24px 80px;
+              font-family: 'DM Sans', sans-serif;
+            }
+            .fp-nav {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              max-width: 860px;
+              margin: 0 auto 64px;
+            }
+            .fp-wordmark {
+              font-family: 'DM Mono', monospace;
+              font-size: 11px;
+              letter-spacing: 0.15em;
+              color: #8B6F47;
+              text-transform: uppercase;
+            }
+            .fp-nav-link {
+              font-family: 'DM Mono', monospace;
+              font-size: 10px;
+              letter-spacing: 0.12em;
+              color: #8B6F47;
+              text-transform: uppercase;
+              text-decoration: none;
+              cursor: pointer;
+              background: none;
+              border: none;
+              padding: 0;
+            }
+            .fp-outer {
+              max-width: 580px;
+              margin: 0 auto;
+            }
+            .fp-block {
+              margin-bottom: 0;
+              opacity: 0;
+              transform: translateY(16px);
+              transition: opacity 0.5s ease, transform 0.5s ease;
+              pointer-events: none;
+              max-height: 0;
+              overflow: hidden;
+            }
+            .fp-block.visible {
+              opacity: 1;
+              transform: translateY(0);
+              pointer-events: all;
+              max-height: 9999px;
+              margin-bottom: 56px;
+              overflow: visible;
+            }
+            .fp-block.first {
+              opacity: 1;
+              transform: translateY(0);
+              pointer-events: all;
+              max-height: 9999px;
+              margin-bottom: 56px;
+              overflow: visible;
+            }
+            .fp-ack {
+              font-family: 'DM Sans', sans-serif;
+              font-weight: 300;
+              font-size: 14px;
+              color: #8B6F47;
+              font-style: italic;
+              margin-bottom: 40px;
+              opacity: 0;
+              transform: translateY(6px);
+              transition: opacity 0.4s ease, transform 0.4s ease;
+              min-height: 20px;
+            }
+            .fp-ack.visible {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            .fp-q-number {
+              font-family: 'DM Mono', monospace;
+              font-size: 10px;
+              letter-spacing: 0.15em;
+              color: #8B6F47;
+              text-transform: uppercase;
+              margin-bottom: 10px;
+            }
+            .fp-q-label {
+              font-family: 'Syne', sans-serif;
+              font-weight: 700;
+              font-size: 28px;
+              color: #1A1612;
+              line-height: 1.15;
+              margin-bottom: 8px;
+            }
+            .fp-q-hint {
+              font-family: 'DM Sans', sans-serif;
+              font-weight: 300;
+              font-size: 15px;
+              color: #7A7268;
+              line-height: 1.65;
+              margin-bottom: 22px;
+            }
+            .fp-paths {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 10px;
+              margin-bottom: 16px;
+            }
+            .fp-path {
+              border: 1.5px solid rgba(139,111,71,0.2);
+              border-radius: 14px;
+              padding: 20px 18px;
+              cursor: pointer;
+              background: rgba(255,255,255,0.38);
+              transition: all 0.2s;
+            }
+            .fp-path:hover {
+              background: rgba(255,255,255,0.58);
+              border-color: rgba(139,111,71,0.35);
+            }
+            .fp-path.fp-selected {
+              border-color: #8B6F47;
+              background: rgba(255,255,255,0.72);
+            }
+            .fp-path-icon { font-size: 20px; color: #8B6F47; margin-bottom: 8px; }
+            .fp-path-title { font-weight: 400; font-size: 14px; color: #1A1612; margin-bottom: 3px; }
+            .fp-path-desc { font-weight: 300; font-size: 12px; color: #7A7268; line-height: 1.5; }
+            .fp-upload-zone {
+              border: 1.5px dashed rgba(139,111,71,0.28);
+              border-radius: 14px;
+              padding: 36px 24px;
+              text-align: center;
+              background: rgba(255,255,255,0.28);
+              cursor: pointer;
+              transition: all 0.2s;
+            }
+            .fp-upload-zone:hover {
+              background: rgba(255,255,255,0.48);
+              border-color: rgba(139,111,71,0.48);
+            }
+            .fp-upload-icon { font-size: 26px; color: #8B6F47; margin-bottom: 8px; }
+            .fp-upload-primary { font-weight: 400; font-size: 15px; color: #1A1612; margin-bottom: 4px; }
+            .fp-upload-secondary { font-weight: 300; font-size: 12px; color: #7A7268; margin-bottom: 14px; }
+            .fp-paste-link {
+              font-weight: 300;
+              font-size: 12px;
+              color: #8B6F47;
+              text-decoration: underline;
+              cursor: pointer;
+              border: none;
+              background: none;
+              padding: 0;
+              font-family: 'DM Sans', sans-serif;
+            }
+            .fp-uploaded {
+              display: flex;
+              align-items: center;
+              gap: 14px;
+              background: rgba(255,255,255,0.62);
+              border: 1.5px solid rgba(139,111,71,0.28);
+              border-radius: 14px;
+              padding: 16px 20px;
+            }
+            .fp-uploaded-icon { font-size: 20px; color: #8B6F47; }
+            .fp-uploaded-name { font-weight: 400; font-size: 14px; color: #1A1612; flex: 1; }
+            .fp-uploaded-change {
+              font-weight: 300;
+              font-size: 12px;
+              color: #8B6F47;
+              cursor: pointer;
+              text-decoration: underline;
+              border: none;
+              background: none;
+              font-family: 'DM Sans', sans-serif;
+            }
+            .fp-textarea {
+              width: 100%;
+              border: 1.5px solid rgba(139,111,71,0.22);
+              border-radius: 14px;
+              padding: 18px 20px;
+              font-family: 'DM Sans', sans-serif;
+              font-weight: 300;
+              font-size: 15px;
+              color: #1A1612;
+              background: rgba(255,255,255,0.42);
+              resize: vertical;
+              outline: none;
+              line-height: 1.7;
+              min-height: 150px;
+              transition: border-color 0.2s, background 0.2s;
+              display: block;
+              box-sizing: border-box;
+            }
+            .fp-textarea::placeholder { color: #A89478; font-style: italic; }
+            .fp-textarea:focus {
+              border-color: rgba(139,111,71,0.52);
+              background: rgba(255,255,255,0.62);
+            }
+            .fp-word-hint { font-weight: 300; font-size: 12px; color: #8B6F47; margin-top: 8px; }
+            .fp-field-label {
+              font-family: 'DM Mono', monospace;
+              font-size: 10px;
+              letter-spacing: 0.12em;
+              color: #8B6F47;
+              text-transform: uppercase;
+              margin-bottom: 10px;
+              display: block;
+            }
+            .fp-prefs-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+              margin-bottom: 20px;
+            }
+            .fp-input {
+              width: 100%;
+              border: 1.5px solid rgba(139,111,71,0.22);
+              border-radius: 10px;
+              padding: 12px 14px;
+              font-family: 'DM Sans', sans-serif;
+              font-weight: 300;
+              font-size: 14px;
+              color: #1A1612;
+              background: rgba(255,255,255,0.42);
+              outline: none;
+              box-sizing: border-box;
+            }
+            .fp-input::placeholder { color: #A89478; }
+            .fp-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+            .fp-pill {
+              border: 1.5px solid rgba(139,111,71,0.22);
+              border-radius: 100px;
+              padding: 7px 13px;
+              font-family: 'DM Sans', sans-serif;
+              font-weight: 300;
+              font-size: 13px;
+              color: #7A7268;
+              background: rgba(255,255,255,0.32);
+              cursor: pointer;
+              transition: all 0.15s;
+            }
+            .fp-pill.fp-pill-sel {
+              border-color: #8B6F47;
+              color: #1A1612;
+              background: rgba(255,255,255,0.68);
+            }
+            .fp-optional { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 11px; color: #A89478; text-transform: none; letter-spacing: 0; margin-left: 4px; }
+            .fp-submit-block {
+              opacity: 0;
+              transform: translateY(12px);
+              transition: opacity 0.5s ease, transform 0.5s ease;
+              pointer-events: none;
+              padding-top: 28px;
+              border-top: 1px solid rgba(139,111,71,0.12);
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 24px;
+            }
+            .fp-submit-block.visible {
+              opacity: 1;
+              transform: translateY(0);
+              pointer-events: all;
+            }
+            .fp-submit-hint { font-weight: 300; font-size: 12px; color: #8B6F47; line-height: 1.8; }
+            .fp-btn {
+              background: #1A1612;
+              color: #F0E0B8;
+              border: none;
+              border-radius: 12px;
+              padding: 16px 32px;
+              font-family: 'DM Sans', sans-serif;
+              font-weight: 400;
+              font-size: 15px;
+              cursor: pointer;
+              white-space: nowrap;
+              flex-shrink: 0;
+            }
+            .fp-btn:hover { opacity: 0.88; }
+          </style>
 
-          <div class="page-header">
-            <div class="page-header-rule" aria-hidden="true">
-              <div class="page-header-rule-line"></div>
+          <nav class="fp-nav">
+            <span class="fp-wordmark">Career Intelligence</span>
+            <button class="fp-nav-link" onclick="showPanel('panelS1')">Home</button>
+          </nav>
+
+          <div class="fp-outer">
+
+            <!-- Block 1: Who you are -->
+            <div class="fp-block first" id="fp-block-1">
+              <p class="fp-q-number">01 — Your background</p>
+              <h2 class="fp-q-label">Tell us who you are.</h2>
+              <p class="fp-q-hint">Upload your CV, or just tell us about yourself. Either works.</p>
+
+              <div class="fp-paths">
+                <div class="fp-path fp-selected" id="fp-path-upload" onclick="fpSelectPath('upload')">
+                  <div class="fp-path-icon">↑</div>
+                  <div class="fp-path-title">Upload your CV</div>
+                  <div class="fp-path-desc">PDF or Word — we'll read it for you</div>
+                </div>
+                <div class="fp-path" id="fp-path-nocv" onclick="fpSelectPath('nocv')">
+                  <div class="fp-path-icon">✎</div>
+                  <div class="fp-path-title">No CV? That's fine</div>
+                  <div class="fp-path-desc">Tell us about yourself — we'll read between the lines</div>
+                </div>
+              </div>
+
+              <div id="fp-upload-area">
+                <div class="fp-upload-zone" id="fp-upload-zone" onclick="document.getElementById('pdfFileInput').click()">
+                  <div class="fp-upload-icon">↑</div>
+                  <p class="fp-upload-primary">Drop your file here, or click to browse</p>
+                  <p class="fp-upload-secondary">PDF or Word (.docx) · Max 10MB</p>
+                  <button class="fp-paste-link" onclick="event.stopPropagation(); fpShowPaste()">Don't have a file? Paste your CV text instead →</button>
+                </div>
+                <div id="fp-uploaded-state" style="display:none;">
+                  <div class="fp-uploaded">
+                    <div class="fp-uploaded-icon">✓</div>
+                    <span class="fp-uploaded-name" id="fp-filename">CV.pdf</span>
+                    <button class="fp-uploaded-change" onclick="fpResetUpload()">Change file</button>
+                  </div>
+                </div>
+                <div id="fp-paste-area" style="display:none; margin-top:12px;">
+                  <textarea
+                    class="fp-textarea"
+                    id="cvText"
+                    placeholder="Paste your CV here — experience, roles, skills, education. Copy it from Word, Google Docs, or a PDF viewer. The more detail, the more accurate your results."
+                    oninput="updateCounter(); fpOnCVText(this)"
+                  ></textarea>
+                  <p class="fp-word-hint" id="fp-cv-hint" style="display:none;">A bit more detail will give you more accurate results — aim for at least 80 words.</p>
+                </div>
+                <input type="file" id="pdfFileInput" accept=".pdf,.docx" style="display:none;" onchange="handlePdfUpload(this)">
+              </div>
+
+              <div id="fp-nocv-area" style="display:none;">
+                <textarea
+                  class="fp-textarea"
+                  style="min-height:200px;"
+                  id="fp-nocv-text"
+                  placeholder="I have no idea, that's why I'm here — and that's completely fine.
+
+Tell us what you've done, what you've enjoyed, what you think you might be good at. You don't need a job title or a plan. Just write, and we'll read between the lines."
+                  oninput="fpOnCVText(this)"
+                ></textarea>
+                <p class="fp-word-hint" id="fp-nocv-hint" style="display:none;">A bit more detail will give you more accurate results.</p>
+              </div>
             </div>
-            <h1>
-              Tell us who you are.<br>
-              We'll find <em>where you fit.</em>
-            </h1>
-            <p>
-              Paste your CV below, or describe where you've been and where you want to go.
-              We'll read it carefully — then find your direction, surface live roles, and
-              draft your outreach.
-            </p>
+
+            <!-- Ack 1 -->
+            <div class="fp-ack" id="fp-ack-1">Got it. Now tell us where you want to take it.</div>
+
+            <!-- Block 2: Direction -->
+            <div class="fp-block" id="fp-block-2">
+              <p class="fp-q-number">02 — Where you're heading</p>
+              <h2 class="fp-q-label">What kind of work are you drawn to?</h2>
+              <p class="fp-q-hint">You don't need a job title. Tell us the type of thinking, environment, or impact you're after — even if it's just a feeling right now.</p>
+              <textarea
+                class="fp-textarea"
+                style="min-height:110px;"
+                id="direction"
+                placeholder="e.g. I'm in design but I want to move into something more analytical and strategic — I don't know what the role is called yet, but I want to be making decisions, not just executing them."
+                oninput="fpOnDirectionText(this)"
+              ></textarea>
+            </div>
+
+            <!-- Ack 2 -->
+            <div class="fp-ack" id="fp-ack-2">Noted. A few quick things to help us filter your roles.</div>
+
+            <!-- Block 3: Preferences -->
+            <div class="fp-block" id="fp-block-3">
+              <p class="fp-q-number">03 — Your preferences</p>
+              <h2 class="fp-q-label">A few quick things.</h2>
+              <p class="fp-q-hint">Helps us filter your live roles. All optional — leave anything blank.</p>
+
+              <div class="fp-prefs-grid">
+                <div>
+                  <span class="fp-field-label">Location</span>
+                  <input class="fp-input" type="text" id="location" placeholder="e.g. London, UK" />
+                </div>
+                <div>
+                  <span class="fp-field-label">Work style</span>
+                  <div class="fp-pills" id="workStyle">
+                    <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">On-site</span>
+                    <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">Hybrid</span>
+                    <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">Remote</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-bottom:20px;">
+                <span class="fp-field-label">Employment type</span>
+                <div class="fp-pills" id="empType">
+                  <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">Full-time</span>
+                  <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">Part-time</span>
+                  <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">Contract</span>
+                  <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">Internship</span>
+                  <span class="fp-pill" onclick="fpTogglePill(this); toggleChip(this)" onkeydown="chipKey(event,this)">Apprenticeship</span>
+                </div>
+              </div>
+
+              <div>
+                <span class="fp-field-label">Salary <span class="fp-optional">— optional</span></span>
+                <input class="fp-input" style="max-width:260px;" type="text" id="salary" placeholder="e.g. £35k–£50k, or leave open" />
+              </div>
+            </div>
+
+            <!-- Ack 3 -->
+            <div class="fp-ack" id="fp-ack-3">Almost there. Last one.</div>
+
+            <!-- Block 4: Anything else -->
+            <div class="fp-block" id="fp-block-4">
+              <p class="fp-q-number">04 — Anything else</p>
+              <h2 class="fp-q-label">Deal-breakers or must-haves?</h2>
+              <p class="fp-q-hint">Visa sponsorship, no agencies, sector preferences — anything that matters to you. Or leave this blank and we'll crack on.</p>
+              <input
+                class="fp-input"
+                style="width:100%;"
+                type="text"
+                id="extra"
+                placeholder="e.g. Need visa sponsorship · No agencies · Not finance · Values-led companies only"
+              />
+            </div>
+
+            <!-- Submit -->
+            <div class="fp-submit-block" id="fp-submit-block">
+              <p class="fp-submit-hint">Reads your background · maps your direction<br>searches live roles · about 60 seconds</p>
+              <button class="fp-btn" id="runBtn" onclick="runSearch()">
+                Find my direction →
+              </button>
+            </div>
+
           </div>
 
-          <!-- Form card -->
-          <div class="form-card" id="formCard">
+          <script>
+            (function() {
+              var fpCVDone = false;
+              var fpDirDone = false;
+              var fpCVTimer = null;
+              var fpDirTimer = null;
 
-            <!-- SECTION 1: CV -->
-            <div class="form-section">
-              <div class="form-section-label">Your background</div>
-              <div class="field">
-                <label for="cvText">
-                  Paste your CV here
-                  <span class="opt"> — plain text works best</span>
-                </label>
-                <div class="cv-wrapper">
-                  <textarea
-                    id="cvText"
-                    class="tall"
-                    placeholder="Copy your CV from Word, Google Docs, or a PDF viewer and paste it here. Include your experience, roles, skills, and education — everything you'd normally send to an employer. The more you include, the more accurate the results."
-                    oninput="updateCounter()"
-                    rows="10"
-                    aria-describedby="cv-hint"
-                  ></textarea>
-                  <div class="cv-counter" id="cvCounter" aria-live="polite">0 words</div>
-                </div>
+              window.fpSelectPath = function(p) {
+                document.getElementById('fp-path-upload').classList.toggle('fp-selected', p === 'upload');
+                document.getElementById('fp-path-nocv').classList.toggle('fp-selected', p === 'nocv');
+                document.getElementById('fp-upload-area').style.display = p === 'upload' ? 'block' : 'none';
+                document.getElementById('fp-nocv-area').style.display = p === 'nocv' ? 'block' : 'none';
+                fpCVDone = false;
+              };
 
-                <div class="cv-divider">Or upload a PDF instead</div>
+              window.fpShowPaste = function() {
+                document.getElementById('fp-paste-area').style.display = 'block';
+              };
 
-                <div class="pdf-upload-area" id="pdfUploadArea">
-                  <input type="file" id="pdfFileInput" accept=".pdf" onchange="handlePdfUpload(this)">
-                  <span class="pdf-upload-icon">↑</span>
-                  <div class="pdf-upload-text"><strong>Choose a PDF</strong> or drag it here</div>
-                </div>
-                <div class="pdf-status" id="pdfStatus"></div>
-              </div>
-            </div>
+              window.fpResetUpload = function() {
+                document.getElementById('fp-uploaded-state').style.display = 'none';
+                document.getElementById('fp-upload-zone').style.display = 'block';
+                document.getElementById('pdfFileInput').value = '';
+                fpCVDone = false;
+              };
 
-            <!-- SECTION 2: Direction -->
-            <div class="form-section">
-              <div class="form-section-label">Where you want to go</div>
-              <div class="field">
-                <label for="direction">
-                  What direction are you heading?
-                  <span class="opt"> — vague is fine</span>
-                </label>
-                <textarea
-                  id="direction"
-                  style="min-height: 96px;"
-                  placeholder="e.g. I want to move into strategy or consulting — not sure of exact titles, just something more analytical and decision-focused. Open to pivoting if the role makes sense."
-                ></textarea>
-              </div>
-            </div>
+              window.fpOnCVText = function(el) {
+                var words = fpCountWords(el.value);
+                var hintId = el.id === 'cvText' ? 'fp-cv-hint' : 'fp-nocv-hint';
+                var hint = document.getElementById(hintId);
+                if (hint) hint.style.display = (words > 0 && words < 80) ? 'block' : 'none';
+                clearTimeout(fpCVTimer);
+                if (words >= 10) fpCVTimer = setTimeout(fpTriggerCV, 600);
+              };
 
-            <!-- SECTION 3: Preferences -->
-            <div class="form-section">
-              <div class="form-section-label">Your preferences</div>
+              window.fpTriggerCV = function() {
+                if (fpCVDone) return;
+                fpCVDone = true;
+                fpShowAck('fp-ack-1', function() { fpShowBlock('fp-block-2'); });
+              };
 
-              <div class="two-col">
-                <div class="field">
-                  <label for="location">Location</label>
-                  <input type="text" id="location" placeholder="e.g. London, UK">
-                </div>
-                <div class="field">
-                  <label>Work style</label>
-                  <div class="chips" id="workStyle" role="group" aria-label="Work style">
-                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">On-site</span>
-                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Hybrid</span>
-                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Remote</span>
-                  </div>
-                </div>
-              </div>
+              window.fpOnDirectionText = function(el) {
+                var words = fpCountWords(el.value);
+                clearTimeout(fpDirTimer);
+                if (words >= 8) fpDirTimer = setTimeout(fpTriggerDirection, 800);
+              };
 
-              <div class="two-col">
-                <div class="field">
-                  <label>Employment type</label>
-                  <div class="chips" id="empType" role="group" aria-label="Employment type">
-                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Full-time</span>
-                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Contract</span>
-                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Part-time</span>
-                    <span class="chip" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleChip(this)" onkeydown="chipKey(event,this)">Internship</span>
-                  </div>
-                </div>
-                <div class="field">
-                  <label for="salary">
-                    Salary expectation
-                    <span class="opt"> — optional</span>
-                  </label>
-                  <input type="text" id="salary" placeholder="e.g. £40k–£55k, or leave open">
-                </div>
-              </div>
-            </div>
+              window.fpTriggerDirection = function() {
+                if (fpDirDone) return;
+                fpDirDone = true;
+                fpShowAck('fp-ack-2', function() {
+                  fpShowBlock('fp-block-3');
+                  setTimeout(function() {
+                    fpShowAck('fp-ack-3', function() {
+                      fpShowBlock('fp-block-4');
+                      setTimeout(fpShowSubmit, 400);
+                    });
+                  }, 1200);
+                });
+              };
 
-            <!-- SECTION 4: Anything else -->
-            <div class="form-section">
-              <div class="form-section-label">Anything else</div>
-              <div class="field">
-                <label for="extra">
-                  Values, deal-breakers, visa needs, sector preferences
-                  <span class="opt"> — optional</span>
-                </label>
-                <input
-                  type="text"
-                  id="extra"
-                  placeholder="e.g. Values-led companies only · No agencies · Need visa sponsorship · Not finance"
-                >
-              </div>
-            </div>
+              window.fpTogglePill = function(el) {
+                el.classList.toggle('fp-pill-sel');
+              };
 
-            <!-- CTA -->
-            <div class="cta-wrap">
-              <button
-                class="btn-primary"
-                id="runBtn"
-                onclick="runSearch()"
-                aria-label="Find my direction"
-              >
-                <div class="btn-spinner" aria-hidden="true"></div>
-                <span class="btn-label">Find my direction</span>
-                <span class="btn-arrow" aria-hidden="true">→</span>
-              </button>
-              <p class="cta-note">
-                Reads your background · maps your skills · searches live roles ·
-                surfaces contacts · drafts your outreach. About 60 seconds.
-              </p>
-            </div>
+              function fpShowAck(id, cb) {
+                var el = document.getElementById(id);
+                if (!el) { if (cb) cb(); return; }
+                el.classList.add('visible');
+                setTimeout(function() { if (cb) cb(); }, 500);
+              }
 
-          </div><!-- /form-card -->
+              function fpShowBlock(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.classList.add('visible');
+                setTimeout(function() {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+              }
 
-        </div><!-- /container -->
-      </div><!-- /form-page -->
+              function fpShowSubmit() {
+                var el = document.getElementById('fp-submit-block');
+                if (el) el.classList.add('visible');
+              }
+
+              function fpCountWords(str) {
+                return str.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+              }
+
+              window.handlePdfUpload = function(input) {
+                var file = input.files[0];
+                if (!file) return;
+                var nameEl = document.getElementById('fp-filename');
+                if (nameEl) nameEl.textContent = file.name;
+                document.getElementById('fp-upload-zone').style.display = 'none';
+                document.getElementById('fp-uploaded-state').style.display = 'block';
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                  var cvTextEl = document.getElementById('cvText');
+                  if (cvTextEl) {
+                    cvTextEl.value = '[FILE:' + file.name + ']';
+                    if (window.updateCounter) updateCounter();
+                  }
+                };
+                reader.readAsArrayBuffer(file);
+                fpTriggerCV();
+              };
+
+            })();
+          </script>
+
+        </div><!-- /form-page -->
 
 
       <!-- LOADING SCREEN -->
