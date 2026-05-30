@@ -4062,13 +4062,6 @@ Tell us what you've done, what you've enjoyed, what you think you might be good 
                 document.getElementById('fp-upload-zone').style.display = 'none';
                 document.getElementById('fp-uploaded-state').style.display = 'block';
                 var reader = new FileReader();
-                reader.onload = function(e) {
-                  var cvTextEl = document.getElementById('cvText');
-                  if (cvTextEl) {
-                    cvTextEl.value = '[FILE:' + file.name + ']';
-                    if (window.updateCounter) updateCounter();
-                  }
-                };
                 reader.readAsArrayBuffer(file);
                 fpTriggerCV();
               };
@@ -4661,7 +4654,9 @@ function safeJSON(raw, fallback) {
 // ══════════════════════════════════════════════════════
 
 async function runSearch() {
-  const cvText    = document.getElementById('cvText').value.trim();
+  const cvTextEl  = document.getElementById('cvText');
+  const nocvEl    = document.getElementById('fp-nocv-text');
+  const cvText    = (cvTextEl && cvTextEl.value.trim()) || (nocvEl && nocvEl.value.trim()) || '';
   const direction = document.getElementById('direction').value.trim();
   const location  = document.getElementById('location').value.trim();
   const salary    = document.getElementById('salary').value.trim();
