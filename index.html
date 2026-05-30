@@ -3176,36 +3176,6 @@ body.hp-active {
 <body>
 <div class="page">
 
-  <!-- ═══════════════════════════════════════════
-       NAVIGATION — adapts per session
-  ═══════════════════════════════════════════ -->
-  <nav class="nav" id="nav" aria-label="Site navigation">
-    <div class="container">
-      <div class="nav-inner">
-
-        <a href="#" class="wordmark" id="navWordmark" aria-label="Career Intelligence home" onclick="goToLanding(event)">
-          <span class="wordmark-main">Career Intelligence</span>
-          <span class="wordmark-dot" aria-hidden="true"></span>
-        </a>
-
-        <!-- Right side — single wrapper keeps pill from overlapping -->
-        <div class="nav-end">
-          <!-- S2: back to home -->
-          <button class="nav-back" id="navS2Right" style="display:none;" onclick="goToLanding()">← Home</button>
-
-          <!-- S3: restart -->
-          <div class="nav-right" id="navS3Right" style="display:none;">
-            <span class="nav-cta-note eyebrow">Your results</span>
-            <button class="btn-restart" onclick="goToForm()">← Start again</button>
-          </div>
-
-          <!-- Auth state (updated by JS when Supabase resolves) -->
-          <div class="nav-auth" id="navAuth"><button class="nav-auth-link" onclick="openAuthOverlay()">Sign in</button></div>
-        </div>
-
-      </div>
-    </div>
-  </nav>
 
 
   <!-- ═══════════════════════════════════════════
@@ -3214,7 +3184,7 @@ body.hp-active {
 <div class="session-panel active" id="panelS1">
 
   <!-- NAV -->
-  <nav class="nav">
+  <nav class="nav" id="nav">
     <div class="nav-logo">Career Intelligence</div>
     <div class="nav-r">
       <button class="nav-btn-login" onclick="openAuthOverlay()">Log in</button>
@@ -4466,8 +4436,8 @@ function showSession(n) {
     document.getElementById(id).classList.toggle('active', i + 1 === n);
   });
   // Nav bar adapts
-  document.getElementById('navS2Right').style.display = n === 2 ? '' : 'none';
-  document.getElementById('navS3Right').style.display = n === 3 ? '' : 'none';
+  const navS2Right = document.getElementById('navS2Right'); if (navS2Right) navS2Right.style.display = n === 2 ? '' : 'none';
+  const navS3Right = document.getElementById('navS3Right'); if (navS3Right) navS3Right.style.display = n === 3 ? '' : 'none';
   const navCenter = document.getElementById('navCenter'); if (navCenter) navCenter.style.display = n === 1 ? '' : 'none';
 
   // Nav frosted glass always on when not landing
