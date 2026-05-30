@@ -4507,11 +4507,6 @@ function goToLanding(e) {
 
 function goToForm() {
   showSession(2);
-  // Re-trigger the form card animation
-  const fc = document.getElementById('formCard');
-  fc.style.animation = 'none';
-  fc.offsetHeight; // reflow
-  fc.style.animation = '';
 }
 
 function goToDashboard() {
