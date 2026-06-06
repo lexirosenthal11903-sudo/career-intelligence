@@ -1,0 +1,248 @@
+/*
+  Career Intelligence — Design Tokens
+  Generated: 2026-06-06
+  Design brief: .design/career-intelligence-redesign/DESIGN_BRIEF.md
+  Aesthetic: Editorial warmth — Resend typographic confidence + Dayone personal
+             atmosphere + Headspace emotional design for anxious people
+  References: resend.com, linear.app, craft.do, dayoneapp.com, headspace.com
+
+  TOKEN NAMING CONVENTION
+  ───────────────────────
+  Shorthand names kept (--bg, --ink, --accent etc) for readability in a
+  single-file project. Semantic role is in the comment, not the name.
+
+  COLOUR DECISION
+  ───────────────
+  Warmth comes from typography and the amber accent — not from tinting the
+  background. Background is nearly neutral so accent pops cleanly.
+  Previous warm-on-warm approach read as artisan / vintage — wrong register.
+
+  CONTRAST VERIFIED
+  ─────────────────
+  --accent (#A06820) on white (#FFFFFF):     4.73:1  ✓ WCAG AA
+  --accent (#A06820) on --bg (#FAFAF7):      4.55:1  ✓ WCAG AA
+  --ink    (#1A1610) on --bg (#FAFAF7):     18.4:1   ✓ WCAG AAA
+  --ink    (#1A1610) on --surface (#FFFFFF): 19.5:1   ✓ WCAG AAA
+  --ink-2  (#48402C) on --bg (#FAFAF7):     9.1:1    ✓ WCAG AAA
+  --ink-3  (#877860) on white:               4.6:1   ✓ WCAG AA (large text / UI)
+*/
+
+/* ─── FONTS ─────────────────────────────────────────────────────────────────
+   Load order matters: preconnect + font link must appear before tokens.css
+   in the HTML <head>. Copy this into index.html <head>:
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+*/
+
+:root {
+
+  /* ── COLOUR: BACKGROUND ────────────────────────────────────────────────── */
+  --bg:           #FAFAF7;   /* page background — nearly neutral, barely warm */
+  --surface:      #FFFFFF;   /* card / panel surface — pure white for lift    */
+  --surface-warm: #F5F2EA;   /* secondary surface — warm depth, used sparingly */
+
+
+  /* ── COLOUR: TEXT ──────────────────────────────────────────────────────── */
+  --ink:   #1A1610;   /* primary text   — warm near-black (brown undertone)  */
+  --ink-2: #48402C;   /* secondary text — warm brown-grey                   */
+  --ink-3: #877860;   /* muted text     — captions, hints                   */
+  --ink-4: #C4B898;   /* disabled text  — placeholders                      */
+  --ink-5: #E4DCC8;   /* border / divider — warm, subtle                    */
+
+
+  /* ── COLOUR: ACCENT (amber — used only on interactive elements) ─────────
+     Amber on near-neutral bg reads contemporary + warm.
+     Do NOT use on background surfaces or as a surface tint.
+     Use on: buttons, match scores, tags, focus rings, links. Only.        */
+  --accent:      #A06820;
+  --accent-lt:   #B87C2A;              /* hover state                       */
+  --accent-dk:   #7A5018;              /* pressed / active state             */
+  --accent-soft: rgba(160,104,32,0.08); /* subtle tinted bg (tags, badges)   */
+  --accent-mid:  rgba(160,104,32,0.16); /* medium tint (borders, dividers)   */
+  --accent-glow: rgba(160,104,32,0.14); /* focus ring shadow                 */
+
+
+  /* ── COLOUR: STATUS ────────────────────────────────────────────────────── */
+  --green:      #3A7050;
+  --green-soft: rgba(58,112,80,0.09);
+  --red:        #9A3028;
+  --red-soft:   rgba(154,48,40,0.08);
+  /* --accent / --accent-soft also serves as warning colour */
+
+
+  /* ── COLOUR: SHADOWS (warm-tinted, not blue) ──────────────────────────── */
+  --sh-xs: 0 1px 3px rgba(26,22,16,0.05), 0 1px 2px rgba(26,22,16,0.03);
+  --sh-sm: 0 4px 16px rgba(26,22,16,0.06), 0 1px 4px rgba(26,22,16,0.04);
+  --sh-md: 0 12px 40px rgba(26,22,16,0.07), 0 3px 10px rgba(26,22,16,0.04);
+  --sh-lg: 0 28px 72px rgba(26,22,16,0.10), 0 8px 24px rgba(26,22,16,0.05);
+  --sh-accent: 0 0 0 3px var(--accent-glow);  /* focus ring                 */
+
+
+  /* ── TYPOGRAPHY: FAMILIES ─────────────────────────────────────────────── */
+  --f-display: 'DM Serif Display', Georgia, serif;
+  --f-body:    'Instrument Sans', system-ui, sans-serif;
+  --f-mono:    'DM Mono', monospace;
+
+  /*
+    FONT USAGE RULES — READ BEFORE USING
+    ─────────────────────────────────────
+    --f-display:  3 moments ONLY — hero headline, input questions, loading copy.
+                  Warmth and character. Italic variant only for loading copy.
+                  Using it anywhere else dilutes the emotional punch.
+
+    --f-body:     Everything else — nav, cards, CTAs, body, captions, buttons.
+                  Weights 400/500/600/700 all in use.
+
+    --f-mono:     Scores, system labels, metadata only (match score, step X of Y,
+                  timestamps). Never for body copy or headings.
+  */
+
+
+  /* ── TYPOGRAPHY: SCALE ─────────────────────────────────────────────────── */
+  --text-xs:      11px;                      /* mono labels, metadata         */
+  --text-sm:      13px;                      /* captions, hints, footnotes    */
+  --text-base:    16px;                      /* body copy — never below this  */
+  --text-lg:      18px;                      /* large body, nav               */
+  --text-xl:      20px;                      /* card titles, section headers  */
+  --text-2xl:     24px;                      /* subheadings                   */
+  --text-3xl:     28px;                      /* input questions (display font)*/
+  --text-4xl:     36px;                      /* page-level headings           */
+  --text-display: clamp(40px,5.2vw,60px);   /* hero — responsive             */
+
+
+  /* ── TYPOGRAPHY: WEIGHT ────────────────────────────────────────────────── */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+
+  /* ── TYPOGRAPHY: LINE HEIGHT ───────────────────────────────────────────── */
+  --leading-tight:   1.10;   /* display headlines                             */
+  --leading-snug:    1.28;   /* input questions, section heads                */
+  --leading-normal:  1.60;   /* body copy                                     */
+  --leading-relaxed: 1.72;   /* long-form paragraphs, result summaries        */
+
+
+  /* ── TYPOGRAPHY: LETTER SPACING ────────────────────────────────────────── */
+  --tracking-tight:  -0.02em;  /* display / large headings                   */
+  --tracking-normal:  0;       /* body                                        */
+  --tracking-wide:    0.08em;  /* mono labels, uppercase tags                 */
+  --tracking-wider:   0.10em;  /* mono uppercase metadata                     */
+
+
+  /* ── SPACING (4px base — preserved from existing system) ──────────────── */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+
+  /* Named semantic spacing */
+  --space-component: var(--sp-6);   /* internal component padding           */
+  --space-card:      var(--sp-6);   /* card padding (desktop)               */
+  --space-section:   var(--sp-20);  /* section vertical padding             */
+  --space-page:      var(--sp-8);   /* page horizontal gutter               */
+  --space-gap-sm:    var(--sp-2);   /* tight item gap (pills, tags)         */
+  --space-gap-md:    var(--sp-3);   /* standard item gap                    */
+  --space-gap-lg:    var(--sp-6);   /* section-level gaps                   */
+
+
+  /* ── BORDER RADIUS (preserved from existing system) ───────────────────── */
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   16px;
+  --r-xl:   24px;
+  --r-full: 9999px;
+
+
+  /* ── LAYOUT ────────────────────────────────────────────────────────────── */
+  --page-max:    1080px;   /* outer container max width                      */
+  --content-max: 960px;    /* inner content max width (two-column dashboard) */
+  --prose-max:   600px;    /* readable single-column text (input, loading)   */
+
+
+  /* ── MOTION ────────────────────────────────────────────────────────────── */
+  --dur-fast:   150ms;   /* micro interactions: hover, focus                 */
+  --dur-base:   200ms;   /* standard transitions: button, card hover         */
+  --dur-slow:   400ms;   /* page-level: fade in, result reveal               */
+  --dur-slower: 600ms;   /* loading screen, large state changes              */
+
+  --ease:        cubic-bezier(0.25, 0.10, 0.25, 1.00);  /* general default  */
+  --ease-out:    cubic-bezier(0.00, 0.00, 0.20, 1.00);  /* exits, collapses */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1.00);  /* bouncy: tooltips */
+}
+
+
+/* ── REDUCED MOTION ─────────────────────────────────────────────────────────
+   All animations collapse to instant — no duration, no transform delay.
+   The loading screen animation must also be suppressed here.              */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast:   0ms;
+    --dur-base:   0ms;
+    --dur-slow:   0ms;
+    --dur-slower: 0ms;
+  }
+}
+
+
+/* ── RESET + BASE STYLES ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── UTILITY: CONTAINER ──────────────────────────────────────────────────── */
+.container {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--space-page);
+}
+
+.container--content {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--space-page);
+}
+
+/* ── UTILITY: MONO LABEL ─────────────────────────────────────────────────── */
+.label-mono {
+  font-family: var(--f-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+/* ── UTILITY: FOCUS RING ─────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}

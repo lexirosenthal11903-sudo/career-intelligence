@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI — Direction v5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /*
+    Clean near-neutral base.
+    Warmth comes from typography, not the background tint.
+    Accent is amber — used precisely, not everywhere.
+    This is different from the previous amber preview which
+    had warm-on-warm (warm bg + warm accent = artisan cafe).
+    This is clean base + warm accent = contemporary + warm.
+  */
+
+  --bg:          #FAFAF7;   /* nearly neutral — just barely off-white, no strong tint */
+  --surface:     #FFFFFF;   /* pure white cards */
+  --surface-2:   #F5F2EA;   /* warm tint surface — used sparingly for depth */
+
+  --ink:         #1A1610;   /* warm near-black — brown not blue undertone */
+  --ink-2:       #48402C;   /* warm brown for secondary text */
+  --ink-3:       #877860;   /* warm muted for captions */
+  --ink-4:       #C4B898;   /* placeholders */
+  --ink-5:       #E4DCC8;   /* borders — warm but subtle */
+
+  --accent:      #A06820;   /* amber — only on interactive elements, not on surfaces */
+  --accent-lt:   #B87C2A;
+  --accent-dk:   #7A5018;
+  --accent-soft: rgba(160,104,32,0.08);
+  --accent-mid:  rgba(160,104,32,0.16);
+
+  --green:       #3A7050;
+  --green-soft:  rgba(58,112,80,0.09);
+  --red:         #9A3028;
+
+  --f-display: 'DM Serif Display', Georgia, serif;
+  --f-body:    'Instrument Sans', system-ui, sans-serif;
+  --f-mono:    'DM Mono', monospace;
+  --r-md: 10px; --r-lg: 16px; --r-xl: 24px;
+}
+
+html { font-size: 16px; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); -webkit-font-smoothing: antialiased; line-height: 1.6; }
+
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 56px; }
+.block { padding: 88px 0; }
+.block + .block { border-top: 1px solid var(--ink-5); }
+
+/* NAV */
+.nav {
+  height: 60px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 56px; background: rgba(250,250,247,0.92);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--ink-5);
+  position: sticky; top: 0; z-index: 20;
+}
+.nav-word { font-family: var(--f-display); font-size: 18px; color: var(--ink); }
+.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-link  { font-size: 13px; font-weight: 500; color: var(--ink-3); text-decoration: none; }
+.nav-btn   { font-size: 13px; font-weight: 600; color: var(--accent); border: 1.5px solid var(--accent-mid); background: var(--accent-soft); padding: 7px 16px; border-radius: var(--r-md); text-decoration: none; font-family: var(--f-body); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 90vh; display: grid; grid-template-columns: 1fr 320px;
+  gap: 80px; align-items: center; max-width: 960px; margin: 0 auto; padding: 80px 56px;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 28px;
+}
+.hero-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: 0.7; }
+
+/* The headline carries the warmth — DM Serif Display does the emotional work */
+.hero-h1 {
+  font-family: var(--f-display);
+  font-size: clamp(40px, 5.2vw, 60px);
+  line-height: 1.1; color: var(--ink);
+  margin-bottom: 24px; letter-spacing: -0.01em;
+}
+.hero-sub {
+  font-size: 17px; color: var(--ink-3); line-height: 1.72;
+  max-width: 400px; margin-bottom: 40px; font-weight: 400;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--f-body); font-size: 15px; font-weight: 600;
+  padding: 13px 26px; border-radius: var(--r-lg); border: none;
+  cursor: pointer; text-decoration: none; letter-spacing: -0.01em; transition: background 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-lt); }
+.hero-note { display: block; margin-top: 14px; font-size: 13px; color: var(--ink-4); }
+
+/* Output preview — white cards against barely-off-white bg */
+.hero-cards { display: flex; flex-direction: column; gap: 10px; }
+.hcard {
+  background: var(--surface); border: 1px solid var(--ink-5);
+  border-radius: var(--r-xl); padding: 18px 20px;
+  box-shadow: 0 1px 8px rgba(26,22,16,0.05);
+}
+.hcard-lbl { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 6px; }
+.hcard-val { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 3px; letter-spacing: -0.01em; }
+.hcard-sub { font-size: 13px; color: var(--ink-3); line-height: 1.4; }
+.hcard-bar { margin-top: 11px; height: 3px; background: var(--ink-5); border-radius: 99px; overflow: hidden; }
+.hcard-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+.hcard-warm .hcard-val { color: var(--accent); }
+
+/* ── INPUT ── */
+.input-scene { min-height: 72vh; display: flex; align-items: center; justify-content: center; }
+.input-inner { max-width: 540px; width: 100%; padding: 0 32px; }
+.input-dots { display: flex; gap: 6px; margin-bottom: 22px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-5); }
+.dot.done { background: var(--accent-mid); }
+.dot.on   { background: var(--accent); }
+.input-step { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 20px; }
+.input-q { font-family: var(--f-display); font-size: 28px; line-height: 1.28; color: var(--ink); margin-bottom: 28px; }
+.field {
+  width: 100%; display: block; font-family: var(--f-body); font-size: 16px; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--ink-5); border-radius: var(--r-lg);
+  padding: 15px 20px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; margin-bottom: 10px;
+}
+.field::placeholder { color: var(--ink-4); }
+.field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field-hint { font-size: 13px; color: var(--ink-4); margin-bottom: 28px; line-height: 1.55; }
+
+/* ── LOADING ── */
+.loading-scene { min-height: 64vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+.loading-inner { max-width: 380px; padding: 0 24px; }
+.pulse { width: 52px; height: 52px; position: relative; margin: 0 auto 52px; }
+.p-core  { position: absolute; inset: 17px; border-radius: 50%; background: var(--accent); animation: pc 3s ease-in-out infinite; }
+.p-ring  { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--accent); animation: pr 3s ease-out infinite; }
+.p-ring2 { position: absolute; inset: -13px; border-radius: 50%; border: 1px solid var(--accent); opacity: 0.22; animation: pr 3s ease-out 0.75s infinite; }
+@keyframes pc { 0%,100%{transform:scale(1);opacity:.85} 50%{transform:scale(.86);opacity:.55} }
+@keyframes pr { 0%{transform:scale(1);opacity:.6} 75%{transform:scale(2.2);opacity:0} 100%{transform:scale(2.2);opacity:0} }
+.loading-copy { font-family: var(--f-display); font-style: italic; font-size: 21px; line-height: 1.5; color: var(--ink); margin-bottom: 14px; }
+.loading-sub { font-size: 13px; color: var(--ink-3); }
+
+/* ── RESULTS ── */
+.results-intro {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: var(--r-xl);
+  padding: 32px 36px; margin-bottom: 14px; box-shadow: 0 1px 8px rgba(26,22,16,0.05);
+}
+.results-from { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.results-statement { font-size: 17px; line-height: 1.65; color: var(--ink-2); max-width: 540px; margin-bottom: 20px; }
+.results-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.rtag { font-size: 13px; font-weight: 500; padding: 5px 13px; border-radius: 20px; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent-mid); }
+
+.roles { display: flex; flex-direction: column; gap: 10px; }
+.role-card {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: var(--r-xl);
+  padding: 22px 26px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+  box-shadow: 0 1px 6px rgba(26,22,16,0.04); transition: box-shadow 0.15s, border-color 0.15s; cursor: pointer;
+}
+.role-card:hover { border-color: var(--accent-mid); box-shadow: 0 4px 20px rgba(160,104,32,0.07); }
+.role-match { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.role-match.strong { color: var(--green); }
+.role-match.good   { color: var(--accent); }
+.role-title { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 3px; }
+.role-co    { font-size: 13px; color: var(--ink-3); margin-bottom: 12px; }
+.role-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.rpill      { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; background: #F7F4EE; color: var(--ink-2); border: 1px solid var(--ink-5); }
+.role-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.role-score { font-family: var(--f-mono); font-size: 26px; color: var(--accent); line-height: 1; }
+.role-score-lbl { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); }
+.role-action { font-size: 12px; font-weight: 600; color: var(--accent); padding: 6px 12px; border-radius: var(--r-md); border: 1.5px solid var(--accent-mid); background: var(--accent-soft); text-decoration: none; white-space: nowrap; }
+
+/* ── DECISION SPECS ── */
+.spec-label { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px; display: block; }
+.spec-h { font-size: 20px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 6px; }
+.spec-why { font-size: 14px; color: var(--ink-3); line-height: 1.65; max-width: 580px; margin-bottom: 40px; }
+
+/* Side-by-side comparison */
+.compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 48px; }
+.compare-card { border: 1px solid var(--ink-5); border-radius: var(--r-xl); padding: 24px; background: var(--surface); }
+.compare-card-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
+.compare-strip { height: 44px; border-radius: var(--r-md); margin-bottom: 8px; }
+.compare-note { font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+.compare-note strong { color: var(--ink-2); }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 0; }
+.sw { display: flex; flex-direction: column; gap: 9px; width: 116px; }
+.sw-block { height: 80px; border-radius: var(--r-lg); border: 1px solid rgba(0,0,0,0.07); }
+.sw-name  { font-size: 12px; font-weight: 500; color: var(--ink-2); line-height: 1.3; }
+.sw-hex   { font-family: var(--f-mono); font-size: 11px; color: var(--ink-4); }
+
+.type-rows { display: flex; flex-direction: column; }
+.tr { display: flex; align-items: baseline; gap: 36px; padding: 28px 0; border-bottom: 1px solid var(--ink-5); }
+.tr:last-child { border-bottom: none; }
+.tr-meta { width: 160px; flex-shrink: 0; font-family: var(--f-mono); font-size: 11px; color: var(--ink-4); line-height: 1.7; }
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-word">Career Intelligence</span>
+  <div class="nav-right">
+    <a class="nav-link" href="#">How it works</a>
+    <a class="nav-btn" href="#">Sign in</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-tag"><span class="hero-tag-dot"></span> For graduates who don't know where to start</div>
+    <h1 class="hero-h1">Before you apply,<br>know where you're going.</h1>
+    <p class="hero-sub">Career Intelligence finds your direction, maps the path, and stays with you every step of the way.</p>
+    <a class="btn btn-primary" href="#">Find my direction →</a>
+    <span class="hero-note">Free to start · No account needed</span>
+  </div>
+  <div class="hero-cards">
+    <div class="hcard">
+      <div class="hcard-lbl">Direction found</div>
+      <div class="hcard-val">Product &amp; Strategy</div>
+      <div class="hcard-sub">Based on your background + goals</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-lbl">Live roles</div>
+      <div class="hcard-val">14 matched roles</div>
+      <div class="hcard-sub">Ranked by fit, updated daily</div>
+      <div class="hcard-bar"><div class="hcard-fill" style="width:76%;"></div></div>
+    </div>
+    <div class="hcard hcard-warm">
+      <div class="hcard-lbl">Skills gap</div>
+      <div class="hcard-val">3 skills to close</div>
+      <div class="hcard-sub">With a specific plan for each</div>
+    </div>
+  </div>
+</div>
+
+<div style="border-top:1px solid var(--ink-5);"></div>
+
+<!-- INPUT -->
+<div class="input-scene">
+  <div class="input-inner">
+    <div class="input-dots">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot on"></div><div class="dot"></div>
+    </div>
+    <div class="input-step">Question 3 of 4</div>
+    <p class="input-q">What field are you drawn to, even if you're not sure it's the right one?</p>
+    <input class="field" type="text" placeholder="Marketing, tech, finance — anything counts.">
+    <p class="field-hint">There's no wrong answer. Describe what you're curious about and we'll work it out from there.</p>
+    <a class="btn btn-primary" href="#">That feels right →</a>
+  </div>
+</div>
+
+<div style="border-top:1px solid var(--ink-5);"></div>
+
+<!-- LOADING -->
+<div class="loading-scene">
+  <div class="loading-inner">
+    <div class="pulse">
+      <div class="p-ring2"></div><div class="p-ring"></div><div class="p-core"></div>
+    </div>
+    <p class="loading-copy">Reading what you've built, and what it says between the lines.</p>
+    <p class="loading-sub">This takes about a minute. Worth it.</p>
+  </div>
+</div>
+
+<div style="border-top:1px solid var(--ink-5);"></div>
+
+<!-- RESULTS -->
+<div class="block">
+  <div class="wrap">
+    <div class="results-intro">
+      <div class="results-from">For Alexandra · based on what you shared</div>
+      <p class="results-statement">I can see you've built a strong foundation across marketing and operations. You mentioned you're drawn to something more analytical — the roles below sit right at that intersection, and you're closer than you think.</p>
+      <div class="results-tags">
+        <span class="rtag">Product Marketing</span>
+        <span class="rtag">Strategy &amp; Operations</span>
+        <span class="rtag">Growth</span>
+      </div>
+    </div>
+    <div class="roles">
+      <div class="role-card">
+        <div>
+          <div class="role-match strong">Strong match</div>
+          <div class="role-title">Product Marketing Manager</div>
+          <div class="role-co">Monzo · London · £38–48k</div>
+          <div class="role-pills"><span class="rpill">Hybrid</span><span class="rpill">3 contacts found</span><span class="rpill">Posted 2 days ago</span></div>
+        </div>
+        <div class="role-right">
+          <div><div class="role-score">9.2</div><div class="role-score-lbl">match score</div></div>
+          <a class="role-action" href="#">View &amp; reach out →</a>
+        </div>
+      </div>
+      <div class="role-card">
+        <div>
+          <div class="role-match good">Good match</div>
+          <div class="role-title">Strategy Analyst</div>
+          <div class="role-co">Oliver Wyman · London · £32–42k</div>
+          <div class="role-pills"><span class="rpill">In-office</span><span class="rpill">1 contact found</span><span class="rpill">Posted 5 days ago</span></div>
+        </div>
+        <div class="role-right">
+          <div><div class="role-score">7.8</div><div class="role-score-lbl">match score</div></div>
+          <a class="role-action" href="#">View &amp; reach out →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border-top:1px solid var(--ink-5);"></div>
+
+<!-- COLOUR DECISION -->
+<div class="block">
+  <div class="wrap">
+    <span class="spec-label">Decision 1 — Colour — what changed and why</span>
+    <div class="spec-h">Same amber accent. Different background. That's the fix.</div>
+    <p class="spec-why">The previous amber preview read artisanal because I put a warm accent on a warm background — everything bled together. Here the background is nearly neutral (#FAFAF7 — barely off-white, no golden tint). The amber only appears on interactive elements: buttons, tags, scores, focus states. The neutrality of the base makes it feel clean and contemporary. The amber gives it warmth without drowning everything in it.</p>
+
+    <div class="compare-row">
+      <div class="compare-card">
+        <div class="compare-card-label">Previous — warm on warm</div>
+        <div class="compare-strip" style="background:#FAF7EE;"></div>
+        <div class="compare-strip" style="background:#A06820;"></div>
+        <p class="compare-note"><strong>The problem:</strong> Golden-cream background + amber accent. Same warm family everywhere = reads as "artisan coffee shop." Colours blend rather than contrast.</p>
+      </div>
+      <div class="compare-card">
+        <div class="compare-card-label">Now — neutral base, warm accent</div>
+        <div class="compare-strip" style="background:#FAFAF7; border:1px solid #E4DCC8;"></div>
+        <div class="compare-strip" style="background:#A06820;"></div>
+        <p class="compare-note"><strong>The fix:</strong> Nearly-neutral base (#FAFAF7) + amber accent used sparingly. The amber pops cleanly. Background reads fresh, not vintage. Contemporary + warm.</p>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <div class="sw"><div class="sw-block" style="background:#FAFAF7;"></div><span class="sw-name">Background<br>near-neutral</span><span class="sw-hex">#FAFAF7</span></div>
+      <div class="sw"><div class="sw-block" style="background:#FFFFFF; border-color:#E4DCC8;"></div><span class="sw-name">Card surface<br>pure white</span><span class="sw-hex">#FFFFFF</span></div>
+      <div class="sw"><div class="sw-block" style="background:#1A1610;"></div><span class="sw-name">Ink — primary<br>warm near-black</span><span class="sw-hex">#1A1610</span></div>
+      <div class="sw"><div class="sw-block" style="background:#877860;"></div><span class="sw-name">Ink 3 — muted<br>warm grey</span><span class="sw-hex">#877860</span></div>
+      <div class="sw"><div class="sw-block" style="background:#E4DCC8;"></div><span class="sw-name">Border<br>warm divider</span><span class="sw-hex">#E4DCC8</span></div>
+      <div class="sw"><div class="sw-block" style="background:#A06820;"></div><span class="sw-name">Accent<br>amber — precise</span><span class="sw-hex">#A06820</span></div>
+      <div class="sw"><div class="sw-block" style="background:#B87C2A;"></div><span class="sw-name">Accent hover</span><span class="sw-hex">#B87C2A</span></div>
+      <div class="sw"><div class="sw-block" style="background:#3A7050;"></div><span class="sw-name">Success<br>muted green</span><span class="sw-hex">#3A7050</span></div>
+    </div>
+  </div>
+</div>
+
+<div style="border-top:1px solid var(--ink-5);"></div>
+
+<!-- TYPE DECISION -->
+<div class="block">
+  <div class="wrap">
+    <span class="spec-label">Decision 2 — Typography — unchanged from last preview</span>
+    <div class="spec-h">DM Serif Display (3 moments only) + Instrument Sans (everything else)</div>
+    <p class="spec-why">The serif is what gives this warmth and character. It appears in exactly three places — hero headline, input questions, loading copy — and nowhere else. That restraint is what makes it feel intentional, not decorative.</p>
+
+    <div class="type-rows">
+      <div class="tr">
+        <div class="tr-meta">DM Serif Display<br>Regular · 58px<br>Hero only</div>
+        <div style="flex:1;"><div style="font-family:'DM Serif Display',serif;font-size:58px;line-height:1.1;letter-spacing:-0.01em;color:#1A1610;">Before you apply,<br>know where you're going.</div></div>
+      </div>
+      <div class="tr">
+        <div class="tr-meta">DM Serif Display<br>Italic · 20px<br>Loading only</div>
+        <div style="flex:1;"><div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:20px;line-height:1.5;color:#1A1610;">Reading what you've built, and what it says between the lines.</div></div>
+      </div>
+      <div class="tr">
+        <div class="tr-meta">DM Serif Display<br>Regular · 26px<br>Input questions only</div>
+        <div style="flex:1;"><div style="font-family:'DM Serif Display',serif;font-size:26px;line-height:1.3;color:#1A1610;">What field are you drawn to, even if you're not sure it's the right one?</div></div>
+      </div>
+      <div class="tr">
+        <div class="tr-meta">Instrument Sans<br>600 · 20px<br>Section headers + card titles</div>
+        <div style="flex:1;"><div style="font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:20px;line-height:1.2;letter-spacing:-0.02em;color:#1A1610;">Roles that fit where you're going</div></div>
+      </div>
+      <div class="tr">
+        <div class="tr-meta">Instrument Sans<br>400 · 16px · lh 1.65<br>All body copy</div>
+        <div style="flex:1;"><div style="font-family:'Instrument Sans',sans-serif;font-weight:400;font-size:16px;line-height:1.65;color:#48402C;max-width:480px;">I can see you've built a strong foundation. You mentioned you're drawn to something more analytical — the roles below sit right at that intersection, and you're closer than you think.</div></div>
+      </div>
+      <div class="tr">
+        <div class="tr-meta">DM Mono<br>400 · 11px uppercase<br>Scores + system labels only</div>
+        <div style="flex:1;"><div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#C4B898;">Strong match · 9.2 / 10</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="height:80px;"></div>
+</body>
+</html>

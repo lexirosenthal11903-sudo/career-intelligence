@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI — Structure Preview: Home-First Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body { background: #FAFAF7; color: #1A1610; font-family: 'Instrument Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+:root {
+  --bg:          #FAFAF7;
+  --surface:     #FFFFFF;
+  --surface-warm:#F5F2EA;
+  --ink:         #1A1610;
+  --ink-2:       #48402C;
+  --ink-3:       #877860;
+  --ink-4:       #C4B898;
+  --ink-5:       #E4DCC8;
+  --accent:      #A06820;
+  --accent-lt:   #B87C2A;
+  --accent-soft: rgba(160,104,32,0.08);
+  --accent-mid:  rgba(160,104,32,0.16);
+  --green:       #3A7050;
+  --green-soft:  rgba(58,112,80,0.09);
+  --f-display:   'DM Serif Display', Georgia, serif;
+  --f-body:      'Instrument Sans', system-ui, sans-serif;
+  --f-mono:      'DM Mono', monospace;
+}
+
+/* ── PAGE CHROME ────────────────────────────────── */
+.preview-label {
+  background: var(--ink); color: #FAF8F3; font-family: var(--f-mono); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.view-tabs { display: flex; gap: 0; }
+.vtab {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 16px; border: none; background: transparent; color: rgba(255,255,255,0.4);
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.vtab.on { color: #fff; border-bottom-color: var(--accent); }
+.vtab:hover { color: rgba(255,255,255,0.75); }
+
+/* ── VIEWS ───────────────────────────────────────── */
+.view { display: none; }
+.view.on { display: block; }
+
+/* ── FLOW A: PRE-APP NAV ─────────────────────────── */
+.site-nav {
+  height: 60px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 56px; background: rgba(250,250,247,0.94); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ink-5); position: sticky; top: 0; z-index: 20;
+}
+.wordmark { font-family: var(--f-display); font-size: 18px; color: var(--ink); }
+.nav-actions { display: flex; align-items: center; gap: 16px; }
+.nav-link { font-size: 13px; font-weight: 500; color: var(--ink-3); text-decoration: none; cursor: pointer; }
+.nav-cta {
+  font-family: var(--f-body); font-size: 14px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none; border-radius: 10px;
+  padding: 9px 20px; cursor: pointer;
+}
+
+/* ── FLOW B: APP SHELL ───────────────────────────── */
+.app-shell { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 82px); }
+
+/* ── SIDEBAR ─────────────────────────────────────── */
+.sidebar {
+  background: var(--surface); border-right: 1px solid var(--ink-5);
+  display: flex; flex-direction: column; padding: 0;
+  position: sticky; top: 60px; height: calc(100vh - 60px); overflow: hidden;
+}
+.sidebar-top { padding: 28px 20px 16px; border-bottom: 1px solid var(--ink-5); }
+.sidebar-wordmark { font-family: var(--f-display); font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+.sidebar-tagline { font-size: 12px; color: var(--ink-4); }
+.sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.s-item {
+  display: flex; align-items: center; gap: 11px; padding: 10px 12px;
+  border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--ink-3);
+  cursor: pointer; border: none; background: transparent; text-align: left;
+  width: 100%; transition: all 0.15s; position: relative; border-left: 2px solid transparent;
+}
+.s-item:hover { color: var(--ink-2); background: var(--surface-warm); }
+.s-item.active { color: var(--ink); background: var(--accent-soft); border-left-color: var(--accent); font-weight: 600; }
+.s-item.dim { opacity: 0.4; cursor: default; }
+.s-item .s-icon { width: 16px; height: 16px; opacity: 0.6; flex-shrink: 0; }
+.s-item.active .s-icon { opacity: 1; }
+.s-divider { height: 1px; background: var(--ink-5); margin: 8px 12px; }
+.s-phase2 {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-4); margin-left: auto; background: var(--surface-warm); padding: 2px 6px; border-radius: 4px;
+}
+.sidebar-bottom {
+  padding: 16px 20px; border-top: 1px solid var(--ink-5);
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-av {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft);
+  border: 1.5px solid var(--accent-mid); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: var(--accent); flex-shrink: 0;
+}
+.sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+.sidebar-user-link { font-size: 12px; color: var(--ink-4); cursor: pointer; }
+.sidebar-user-link:hover { color: var(--accent); }
+
+/* ── MAIN CONTENT ────────────────────────────────── */
+.main { padding: 40px 48px; max-width: 860px; }
+
+/* Home view */
+.home-greeting { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.home-direction {
+  font-family: var(--f-display); font-size: 28px; line-height: 1.28; color: var(--ink);
+  margin-bottom: 12px; max-width: 600px;
+}
+.home-direction-sub { font-size: 16px; color: var(--ink-3); line-height: 1.72; max-width: 520px; margin-bottom: 8px; }
+.direction-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; }
+.dtag { font-size: 13px; font-weight: 500; padding: 5px 13px; border-radius: 20px; background: var(--accent-soft); border: 1px solid var(--accent-mid); color: var(--accent); }
+
+.section-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.section-h { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.section-link { font-size: 12px; color: var(--accent); font-weight: 500; cursor: pointer; }
+
+/* Role cards on home */
+.home-roles { display: flex; flex-direction: column; gap: 8px; margin-bottom: 36px; }
+.home-role {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: 14px;
+  padding: 16px 20px; display: flex; align-items: center; gap: 20px;
+  box-shadow: 0 1px 6px rgba(26,22,16,0.04); cursor: pointer; transition: all 0.15s;
+}
+.home-role:hover { border-color: var(--accent-mid); box-shadow: 0 4px 18px rgba(160,104,32,0.07); }
+.home-role-info { flex: 1; min-width: 0; }
+.home-role-match { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }
+.home-role-match.strong { color: var(--green); }
+.home-role-match.good   { color: var(--accent); }
+.home-role-title { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 2px; }
+.home-role-co   { font-size: 13px; color: var(--ink-3); }
+.home-role-score { font-family: var(--f-mono); font-size: 22px; color: var(--accent); line-height: 1; flex-shrink: 0; }
+.home-role-arrow { font-size: 14px; color: var(--ink-5); flex-shrink: 0; }
+
+/* Skills snapshot */
+.home-skills { display: flex; flex-direction: column; gap: 8px; margin-bottom: 36px; }
+.skill-snap {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: 14px;
+  padding: 16px 20px; box-shadow: 0 1px 6px rgba(26,22,16,0.04);
+}
+.skill-snap-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.skill-snap-name { font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.skill-snap-tag { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.skill-snap-why { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin-bottom: 10px; }
+.skill-bar { height: 3px; background: var(--ink-5); border-radius: 99px; overflow: hidden; }
+.skill-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+
+/* Today's action */
+.today-action {
+  background: var(--surface-warm); border: 1px solid var(--ink-5); border-radius: 16px;
+  padding: 20px 24px;
+}
+.today-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 8px; }
+.today-text { font-size: 15px; color: var(--ink-2); line-height: 1.6; margin-bottom: 14px; }
+.today-btn {
+  font-family: var(--f-body); font-size: 13px; font-weight: 600;
+  color: var(--accent); background: var(--accent-soft); border: 1.5px solid var(--accent-mid);
+  border-radius: 8px; padding: 8px 16px; cursor: pointer;
+}
+
+/* ── AUTH OVERLAY ─────────────────────────────────── */
+.auth-scene {
+  position: fixed; inset: 0; background: rgba(26,22,16,0.4);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+  backdrop-filter: blur(4px);
+}
+.auth-card {
+  background: var(--surface); border-radius: 20px; padding: 40px;
+  width: 100%; max-width: 400px; box-shadow: 0 24px 64px rgba(26,22,16,0.18);
+}
+.auth-eyebrow { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+.auth-h { font-family: var(--f-display); font-size: 26px; line-height: 1.2; color: var(--ink); margin-bottom: 10px; }
+.auth-sub { font-size: 14px; color: var(--ink-3); line-height: 1.6; margin-bottom: 28px; }
+.auth-input {
+  width: 100%; font-family: var(--f-body); font-size: 15px; color: var(--ink);
+  background: var(--bg); border: 1.5px solid var(--ink-5); border-radius: 10px;
+  padding: 13px 16px; outline: none; margin-bottom: 12px;
+}
+.auth-input::placeholder { color: var(--ink-4); }
+.auth-submit {
+  width: 100%; font-family: var(--f-body); font-size: 15px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none; border-radius: 10px;
+  padding: 14px; cursor: pointer; margin-bottom: 12px;
+}
+.auth-skip { font-size: 13px; color: var(--ink-4); text-align: center; cursor: pointer; display: block; }
+.auth-skip:hover { color: var(--ink-3); }
+
+/* ── HOMEPAGE LAYOUT (view C) ─────────────────────── */
+.hp-hero {
+  display: grid; grid-template-columns: 1fr 300px; gap: 60px;
+  align-items: center; padding: 80px 56px; max-width: 1080px; margin: 0 auto;
+  min-height: 85vh;
+}
+.hp-tag { display: flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 24px; }
+.hp-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: 0.7; }
+.hp-h1 { font-family: var(--f-display); font-size: 54px; line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 20px; }
+.hp-sub { font-size: 17px; color: var(--ink-3); line-height: 1.72; max-width: 420px; margin-bottom: 36px; }
+.hp-cta { font-family: var(--f-body); font-size: 15px; font-weight: 600; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 14px 28px; cursor: pointer; }
+.hp-note { display: block; margin-top: 12px; font-size: 13px; color: var(--ink-4); }
+.hp-cards { display: flex; flex-direction: column; gap: 10px; }
+.hpc {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: 18px;
+  padding: 16px 18px; box-shadow: 0 1px 8px rgba(26,22,16,0.05);
+}
+.hpc-lbl { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 5px; }
+.hpc-val { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.hpc-sub { font-size: 12px; color: var(--ink-3); }
+.hpc-bar { margin-top: 10px; height: 3px; background: var(--ink-5); border-radius: 99px; }
+.hpc-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+
+/* Scroll section */
+.hp-scroll-section { padding: 80px 56px; max-width: 1080px; margin: 0 auto; border-top: 1px solid var(--ink-5); }
+.hp-section-amber { background: var(--surface-warm); border-top: 1px solid var(--ink-5); border-bottom: 1px solid var(--ink-5); padding: 72px 56px; }
+.hp-section-amber .hp-scroll-section { border-top: none; background: transparent; }
+.scroll-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.scroll-grid.flip { direction: rtl; }
+.scroll-grid.flip > * { direction: ltr; }
+.scroll-eyebrow { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.scroll-h { font-size: 28px; font-weight: 600; color: var(--ink); line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 12px; }
+.scroll-body { font-size: 16px; color: var(--ink-3); line-height: 1.72; }
+
+/* Annotation overlays */
+.annotation {
+  position: absolute; background: var(--ink); color: #fff;
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.06em;
+  padding: 4px 10px; border-radius: 4px; white-space: nowrap; z-index: 10;
+}
+.annotation::after { content: ''; position: absolute; }
+</style>
+</head>
+<body>
+
+<div class="preview-label">
+  <span>Career Intelligence — Structure Preview</span>
+  <div class="view-tabs">
+    <button class="vtab on" onclick="show('home')">Home view</button>
+    <button class="vtab" onclick="show('auth')">Auth prompt</button>
+    <button class="vtab" onclick="show('hp')">Homepage</button>
+    <button class="vtab" onclick="show('roles')">Roles view</button>
+    <button class="vtab" onclick="show('skills')">Skills view</button>
+  </div>
+</div>
+
+<!-- ── VIEW A: HOME (Dashboard home view) ── -->
+<div class="view on" id="v-home">
+  <nav class="site-nav">
+    <span class="wordmark">Career Intelligence</span>
+    <div class="nav-actions">
+      <span class="nav-link">Sign out</span>
+    </div>
+  </nav>
+
+  <div class="app-shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-wordmark">Career Intelligence</div>
+        <div class="sidebar-tagline">Your career, in motion</div>
+      </div>
+      <nav class="sidebar-nav">
+        <!-- Home: active -->
+        <button class="s-item active">
+          <svg class="s-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2L2 6.5V14h4.5v-4h3v4H14V6.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          Home
+        </button>
+        <button class="s-item" onclick="note('roles')">
+          <svg class="s-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Roles
+        </button>
+        <button class="s-item" onclick="note('skills')">
+          <svg class="s-icon" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-5 3 3 2-2.5 3 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="5" r="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
+          Skills
+        </button>
+        <div class="s-divider"></div>
+        <button class="s-item dim">
+          <svg class="s-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M8 3v10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Outreach
+          <span class="s-phase2">Soon</span>
+        </button>
+        <button class="s-item dim">
+          <svg class="s-icon" viewBox="0 0 16 16" fill="none"><path d="M4 6h8M4 9h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/></svg>
+          Applications
+          <span class="s-phase2">Soon</span>
+        </button>
+        <div class="s-divider"></div>
+        <button class="s-item">
+          <svg class="s-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 13.5C2.5 11 5 9 8 9s5.5 2 5.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Profile
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-av">A</div>
+        <div>
+          <div class="sidebar-user-name">Alexandra</div>
+          <div class="sidebar-user-link">Sign out</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN: HOME VIEW -->
+    <main class="main">
+      <div class="home-greeting">For Alexandra · based on what you shared</div>
+
+      <p class="home-direction">
+        You're drawn to the space where marketing meets strategy — and you're closer than you think.
+      </p>
+      <p class="home-direction-sub">
+        Your background in events and communications maps well to Product Marketing, Strategy & Operations, and Growth roles. These are live, and three match strongly.
+      </p>
+      <div class="direction-tags">
+        <span class="dtag">Product Marketing</span>
+        <span class="dtag">Strategy & Operations</span>
+        <span class="dtag">Growth</span>
+      </div>
+
+      <!-- Top roles -->
+      <div class="section-row">
+        <span class="section-h">Your top matches</span>
+        <span class="section-link" onclick="note('roles')">See all 14 roles →</span>
+      </div>
+      <div class="home-roles">
+        <div class="home-role">
+          <div class="home-role-info">
+            <div class="home-role-match strong">Strong match</div>
+            <div class="home-role-title">Product Marketing Manager</div>
+            <div class="home-role-co">Monzo · London · £38–48k</div>
+          </div>
+          <div class="home-role-score">9.2</div>
+          <div class="home-role-arrow">›</div>
+        </div>
+        <div class="home-role">
+          <div class="home-role-info">
+            <div class="home-role-match good">Good match</div>
+            <div class="home-role-title">Strategy Analyst</div>
+            <div class="home-role-co">Oliver Wyman · London · £34–44k</div>
+          </div>
+          <div class="home-role-score">7.8</div>
+          <div class="home-role-arrow">›</div>
+        </div>
+        <div class="home-role">
+          <div class="home-role-info">
+            <div class="home-role-match good">Good match</div>
+            <div class="home-role-title">Growth Associate</div>
+            <div class="home-role-co">Wise · London · £30–38k</div>
+          </div>
+          <div class="home-role-score">7.1</div>
+          <div class="home-role-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- Skills snapshot -->
+      <div class="section-row">
+        <span class="section-h">Skills to close</span>
+        <span class="section-link" onclick="note('skills')">Full skills map →</span>
+      </div>
+      <div class="home-skills">
+        <div class="skill-snap">
+          <div class="skill-snap-top">
+            <span class="skill-snap-name">SQL & data analysis</span>
+            <span class="skill-snap-tag">Priority gap</span>
+          </div>
+          <p class="skill-snap-why">Product Marketing at Monzo requires comfort with data — this is the one skill that separates candidates at the application stage.</p>
+          <div class="skill-bar"><div class="skill-fill" style="width:0%"></div></div>
+        </div>
+        <div class="skill-snap">
+          <div class="skill-snap-top">
+            <span class="skill-snap-name">Stakeholder communication</span>
+            <span class="skill-snap-tag">Enhances fit</span>
+          </div>
+          <p class="skill-snap-why">You already have this — one case study or documented example in your CV closes the gap immediately.</p>
+          <div class="skill-bar"><div class="skill-fill" style="width:60%"></div></div>
+        </div>
+      </div>
+
+      <!-- Today's action -->
+      <div class="today-action">
+        <div class="today-label">Today's action</div>
+        <p class="today-text">Reach out to Sarah Chen, Product Marketing Lead at Monzo. She posted about their graduate intake three weeks ago — now is the right window. Your background in events is unusual in PMM and will stand out.</p>
+        <button class="today-btn">Draft my outreach →</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── VIEW B: AUTH PROMPT (post-gate) ── -->
+<div class="view" id="v-auth">
+  <!-- Background: the dashboard is visible but blurred -->
+  <nav class="site-nav">
+    <span class="wordmark">Career Intelligence</span>
+  </nav>
+  <div class="app-shell" style="opacity:0.3; pointer-events:none;">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-wordmark">Career Intelligence</div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="s-item active">Home</button>
+        <button class="s-item">Roles</button>
+        <button class="s-item">Skills</button>
+      </nav>
+    </aside>
+    <main class="main">
+      <p class="home-direction" style="color:var(--ink-4);">You're drawn to the space where marketing meets strategy...</p>
+    </main>
+  </div>
+
+  <!-- Auth modal over the top -->
+  <div class="auth-scene">
+    <div class="auth-card">
+      <div class="auth-eyebrow">Your results are ready</div>
+      <h2 class="auth-h">Save them and come back any time.</h2>
+      <p class="auth-sub">Create a free account to access your direction, your roles, and your skills map from anywhere. Takes 30 seconds.</p>
+      <input class="auth-input" type="email" placeholder="Your email address">
+      <button class="auth-submit">Send me a sign-in link →</button>
+      <span class="auth-skip" onclick="note('dismiss')">I'll save it later — let me explore first</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── VIEW C: HOMEPAGE ── -->
+<div class="view" id="v-hp">
+  <nav class="site-nav">
+    <span class="wordmark">Career Intelligence</span>
+    <div class="nav-actions">
+      <span class="nav-link">Sign in</span>
+      <button class="nav-cta">Find my direction →</button>
+    </div>
+  </nav>
+
+  <!-- Hero: two-column -->
+  <div class="hp-hero">
+    <div>
+      <div class="hp-tag"><span class="hp-tag-dot"></span>For graduates who don't know where to start</div>
+      <h1 class="hp-h1">Before you apply,<br>know where you're going.</h1>
+      <p class="hp-sub">Career Intelligence finds your direction, maps the path, and stays with you every step of the way — completely free to start.</p>
+      <button class="hp-cta">Find my direction →</button>
+      <span class="hp-note">No account needed · Takes 4 questions</span>
+    </div>
+    <div class="hp-cards">
+      <div class="hpc">
+        <div class="hpc-lbl">Your direction</div>
+        <div class="hpc-val">Product & Strategy</div>
+        <div class="hpc-sub">Based on your background + goals</div>
+      </div>
+      <div class="hpc">
+        <div class="hpc-lbl">Matched roles</div>
+        <div class="hpc-val">14 live roles found</div>
+        <div class="hpc-sub">Ranked by fit, updated daily</div>
+        <div class="hpc-bar"><div class="hpc-fill" style="width:76%"></div></div>
+      </div>
+      <div class="hpc">
+        <div class="hpc-lbl">Skills to close</div>
+        <div class="hpc-val">3 specific gaps</div>
+        <div class="hpc-sub">With a plan for each one</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll section 1: Roles -->
+  <div class="hp-scroll-section">
+    <div class="scroll-grid">
+      <div>
+        <div class="scroll-eyebrow">Live roles · ranked by fit</div>
+        <h2 class="scroll-h">Not a job board. A ranked list of roles that actually fit you.</h2>
+        <p class="scroll-body">We don't show you everything — we show you what matches. Your direction, your background, your goals. Updated daily from live listings. With a contact at each company.</p>
+      </div>
+      <div>
+        <!-- Mini role card demo -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="home-role">
+            <div class="home-role-info">
+              <div class="home-role-match strong">Strong match</div>
+              <div class="home-role-title">Product Marketing Manager</div>
+              <div class="home-role-co">Monzo · London · £38–48k</div>
+            </div>
+            <div class="home-role-score">9.2</div>
+          </div>
+          <div class="home-role">
+            <div class="home-role-info">
+              <div class="home-role-match good">Good match</div>
+              <div class="home-role-title">Strategy Analyst</div>
+              <div class="home-role-co">Oliver Wyman · London · £34–44k</div>
+            </div>
+            <div class="home-role-score">7.8</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll section 2: amber fill -->
+  <div class="hp-section-amber">
+    <div style="max-width:1080px;margin:0 auto;padding:0 56px;">
+      <div class="scroll-grid flip">
+        <div>
+          <div class="scroll-eyebrow">Skills · closes the gap</div>
+          <h2 class="scroll-h">Know exactly what to build, and why it matters.</h2>
+          <p class="scroll-body">Your skills map shows what you have, what you're missing, and how to close it — with specific resources, not generic advice. Every gap has a path. Every path gets shorter each time you come back.</p>
+        </div>
+        <div>
+          <div class="skill-snap">
+            <div class="skill-snap-top">
+              <span class="skill-snap-name">SQL & data analysis</span>
+              <span class="skill-snap-tag">Priority gap</span>
+            </div>
+            <p class="skill-snap-why">This skill separates candidates at the application stage for Product Marketing roles.</p>
+            <div class="skill-bar"><div class="skill-fill" style="width:35%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final CTA -->
+  <div style="padding:80px 56px; text-align:center; max-width:1080px; margin:0 auto;">
+    <h2 style="font-family:'DM Serif Display',serif;font-size:36px;line-height:1.2;color:var(--ink);margin-bottom:16px;">Your career deserves more than a job board.</h2>
+    <p style="font-size:17px;color:var(--ink-3);margin-bottom:32px;">It takes 4 questions. No account. No commitment.</p>
+    <button class="nav-cta" style="font-size:15px;padding:14px 32px;border-radius:12px;">Find my direction →</button>
+  </div>
+</div>
+
+<!-- ── VIEW D: ROLES VIEW ── -->
+<div class="view" id="v-roles">
+  <nav class="site-nav">
+    <span class="wordmark">Career Intelligence</span>
+  </nav>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-wordmark">Career Intelligence</div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="s-item">Home</button>
+        <button class="s-item active">Roles</button>
+        <button class="s-item">Skills</button>
+        <div class="s-divider"></div>
+        <button class="s-item dim">Outreach <span class="s-phase2">Soon</span></button>
+        <button class="s-item dim">Applications <span class="s-phase2">Soon</span></button>
+        <div class="s-divider"></div>
+        <button class="s-item">Profile</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-av">A</div>
+        <div>
+          <div class="sidebar-user-name">Alexandra</div>
+          <div class="sidebar-user-link">Sign out</div>
+        </div>
+      </div>
+    </aside>
+    <main class="main">
+      <p style="font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Roles · 14 matched</p>
+      <p style="font-size:14px;color:var(--ink-3);margin-bottom:28px;">Based on your direction in Product & Strategy — ranked by how well each role fits your background and goals.</p>
+      <div class="home-roles">
+        <div class="home-role" style="padding:20px 24px;">
+          <div class="home-role-info">
+            <div class="home-role-match strong">Strong match</div>
+            <div class="home-role-title">Product Marketing Manager</div>
+            <div class="home-role-co">Monzo · London · £38–48k · Hybrid</div>
+            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+              <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:#F7F4EE;color:var(--ink-2);border:1px solid var(--ink-5);">3 contacts found</span>
+              <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:#F7F4EE;color:var(--ink-2);border:1px solid var(--ink-5);">Posted 2 days ago</span>
+              <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:var(--green-soft);color:var(--green);border:1px solid rgba(58,112,80,0.2);">Company values match</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <div class="home-role-score" style="font-size:28px;">9.2</div>
+            <button style="font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1.5px solid var(--accent-mid);border-radius:8px;padding:7px 14px;cursor:pointer;font-family:var(--f-body);">View & reach out →</button>
+          </div>
+        </div>
+        <div class="home-role" style="padding:20px 24px;">
+          <div class="home-role-info">
+            <div class="home-role-match good">Good match</div>
+            <div class="home-role-title">Strategy Analyst</div>
+            <div class="home-role-co">Oliver Wyman · London · £34–44k · In-office</div>
+            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+              <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:#F7F4EE;color:var(--ink-2);border:1px solid var(--ink-5);">1 contact found</span>
+              <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:#F7F4EE;color:var(--ink-2);border:1px solid var(--ink-5);">Posted 5 days ago</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <div class="home-role-score" style="font-size:28px;">7.8</div>
+            <button style="font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1.5px solid var(--accent-mid);border-radius:8px;padding:7px 14px;cursor:pointer;font-family:var(--f-body);">View & reach out →</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── VIEW E: SKILLS VIEW ── -->
+<div class="view" id="v-skills">
+  <nav class="site-nav">
+    <span class="wordmark">Career Intelligence</span>
+  </nav>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-wordmark">Career Intelligence</div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="s-item">Home</button>
+        <button class="s-item">Roles</button>
+        <button class="s-item active">Skills</button>
+        <div class="s-divider"></div>
+        <button class="s-item dim">Outreach <span class="s-phase2">Soon</span></button>
+        <button class="s-item dim">Applications <span class="s-phase2">Soon</span></button>
+        <div class="s-divider"></div>
+        <button class="s-item">Profile</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-av">A</div>
+        <div>
+          <div class="sidebar-user-name">Alexandra</div>
+          <div class="sidebar-user-link">Sign out</div>
+        </div>
+      </div>
+    </aside>
+    <main class="main">
+      <p style="font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Skills</p>
+      <p style="font-size:14px;color:var(--ink-3);margin-bottom:28px;">5 skills in your profile · 3 gaps to close. Progress tracks as you work through each one.</p>
+
+      <div class="section-row"><span class="section-h">Gaps to close</span></div>
+      <div class="home-skills">
+        <div class="skill-snap">
+          <div class="skill-snap-top">
+            <span class="skill-snap-name">SQL & data analysis</span>
+            <span class="skill-snap-tag">Priority gap</span>
+          </div>
+          <p class="skill-snap-why">Product Marketing at Monzo requires comfort with data. This separates candidates at the application stage. Mode Analytics or DataCamp's SQL for Marketing track closes it in 4–6 weeks.</p>
+          <div class="skill-bar"><div class="skill-fill" style="width:0%"></div></div>
+        </div>
+        <div class="skill-snap">
+          <div class="skill-snap-top">
+            <span class="skill-snap-name">Stakeholder communication</span>
+            <span class="skill-snap-tag" style="color:var(--green);">Enhances fit</span>
+          </div>
+          <p class="skill-snap-why">You already demonstrate this. One documented example in your CV or portfolio closes this gap immediately — it's about evidence, not development.</p>
+          <div class="skill-bar"><div class="skill-fill" style="width:60%"></div></div>
+        </div>
+      </div>
+
+      <div class="section-row" style="margin-top:32px;"><span class="section-h">Skills you have</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="background:var(--surface);border:1px solid var(--ink-5);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;">
+          <div style="width:20px;height:20px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#3A7050" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--ink);">Event production & logistics</div>
+            <div style="font-size:12px;color:var(--ink-3);">Project management, stakeholder coordination, delivery under pressure</div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--ink-5);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;">
+          <div style="width:20px;height:20px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#3A7050" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--ink);">Written communication</div>
+            <div style="font-size:12px;color:var(--ink-3);">Marketing copy, briefs, client-facing materials</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+function show(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.vtab').forEach(el => el.classList.remove('on'));
+  document.getElementById('v-' + v).classList.add('on');
+  event.target.classList.add('on');
+}
+function note(section) {
+  alert('In the built product: navigates to ' + section + ' view via sidebar.');
+}
+</script>
+</body>
+</html>

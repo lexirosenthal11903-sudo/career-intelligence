@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI — Direction v6: Warm + Engaging</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body { background: #FAFAF7; color: #1A1610; font-family: 'Instrument Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/*
+  v6 — What changed and why
+  ─────────────────────────
+  The brief now requires: warm + light-hearted + engaging + fun, not just calm.
+  Previous versions were too austere — editorial minimalism read as corporate for a 22-year-old user.
+
+  Changes from v5:
+  1. Accent more vivid — #BF6B1A (richer amber, more energy) vs old muted #A06820
+  2. Direction summary panel has a warm amber-tinted surface — makes the Satori moment feel distinct, special
+  3. Typography bolder — direction headline larger, more expressive, heavier weight contrast
+  4. Warmer overall surface — home view background #FFF9F2 (very slightly warmer than neutral)
+  5. Role match scores larger and more prominent — amber number is a design element, not a data label
+  6. Sidebar has a subtle warm tint — differentiates nav from content without going dark
+  7. Progress dots warmer
+  8. Conversation panel shown — frosted warm glass, slides from right
+  9. Opening question (free text routing) shown as step 0 of input flow
+*/
+
+:root {
+  --bg:          #FAFAF7;
+  --bg-warm:     #FFF9F2;   /* slightly warmer — used for home view bg */
+  --surface:     #FFFFFF;
+  --surface-warm:#FDF3E3;   /* amber-warm surface — direction panel */
+  --surface-2:   #F5F0E8;
+
+  --ink:         #1A1610;
+  --ink-2:       #48402C;
+  --ink-3:       #877860;
+  --ink-4:       #C4B898;
+  --ink-5:       #E8DCCA;
+
+  /* Accent — more vivid than v5, same amber family, more energy */
+  --accent:      #BF6B1A;
+  --accent-lt:   #D4803A;
+  --accent-dk:   #9A5010;
+  --accent-soft: rgba(191,107,26,0.09);
+  --accent-mid:  rgba(191,107,26,0.18);
+  --accent-glow: rgba(191,107,26,0.16);
+
+  --green:       #2D6B48;
+  --green-soft:  rgba(45,107,72,0.10);
+
+  --f-display: 'DM Serif Display', Georgia, serif;
+  --f-body:    'Instrument Sans', system-ui, sans-serif;
+  --f-mono:    'DM Mono', monospace;
+}
+
+/* ── PREVIEW TABS ───────────────────────────────────── */
+.chrome { background: #1A1610; }
+.chrome-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px;
+}
+.chrome-title { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.tabs { display: flex; gap: 2px; }
+.tab {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 7px 14px; border: none; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45);
+  cursor: pointer; border-radius: 6px; transition: all 0.15s;
+}
+.tab:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.tab.on { background: var(--accent); color: #fff; }
+
+.view { display: none; }
+.view.on { display: block; }
+
+/* ── NAV ─────────────────────────────────────────────── */
+.nav {
+  height: 60px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; background: rgba(250,250,247,0.94); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--ink-5); position: sticky; top: 0; z-index: 20;
+}
+.wordmark { font-family: var(--f-display); font-size: 18px; color: var(--ink); }
+.nav-r { display: flex; align-items: center; gap: 16px; }
+.nav-link { font-size: 13px; font-weight: 500; color: var(--ink-3); cursor: pointer; text-decoration: none; }
+.nav-cta {
+  font-family: var(--f-body); font-size: 14px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none; border-radius: 10px;
+  padding: 9px 20px; cursor: pointer; transition: background 0.15s;
+}
+.nav-cta:hover { background: var(--accent-lt); }
+
+/* ── APP SHELL ───────────────────────────────────────── */
+.shell { display: grid; grid-template-columns: 228px 1fr; min-height: calc(100vh - 60px); }
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.sidebar {
+  background: #FBF6EE;   /* warm tint sidebar — distinct from main, not dark */
+  border-right: 1px solid var(--ink-5);
+  display: flex; flex-direction: column;
+  position: sticky; top: 60px; height: calc(100vh - 60px);
+}
+.sb-top { padding: 24px 20px 20px; border-bottom: 1px solid var(--ink-5); }
+.sb-wordmark { font-family: var(--f-display); font-size: 15px; color: var(--ink); margin-bottom: 3px; }
+.sb-sub { font-size: 11px; color: var(--ink-4); font-weight: 400; }
+.sb-nav { flex: 1; padding: 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+
+.si {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  font-size: 14px; font-weight: 500; color: var(--ink-3);
+  cursor: pointer; border: none; background: transparent;
+  text-align: left; width: 100%; transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+.si svg { flex-shrink: 0; opacity: 0.55; transition: opacity 0.15s; }
+.si:hover { color: var(--ink-2); background: rgba(191,107,26,0.07); }
+.si:hover svg { opacity: 0.8; }
+.si.on {
+  color: var(--accent-dk); font-weight: 600;
+  background: var(--accent-soft); border-left-color: var(--accent);
+}
+.si.on svg { opacity: 1; }
+.si-divider { height: 1px; background: var(--ink-5); margin: 6px 12px; }
+
+.sb-bottom {
+  padding: 16px 18px; border-top: 1px solid var(--ink-5);
+  display: flex; align-items: center; gap: 10px;
+}
+.sb-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent-soft); border: 1.5px solid var(--accent-mid);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+}
+.sb-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.sb-out { font-size: 12px; color: var(--ink-4); cursor: pointer; }
+
+/* ── MAIN ────────────────────────────────────────────── */
+.main {
+  background: var(--bg-warm);
+  padding: 44px 52px;
+  position: relative;
+}
+
+/* Direction panel — the Satori moment */
+.direction-panel {
+  background: var(--surface-warm);
+  border: 1px solid rgba(191,107,26,0.18);
+  border-radius: 20px;
+  padding: 32px 36px;
+  margin-bottom: 36px;
+  position: relative;
+  overflow: hidden;
+}
+.direction-panel::before {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 180px; height: 180px;
+  background: radial-gradient(ellipse at top right, rgba(191,107,26,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.d-from { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+.d-headline {
+  font-family: var(--f-display); font-size: 30px; line-height: 1.22;
+  color: var(--ink); margin-bottom: 12px; max-width: 540px;
+}
+.d-body { font-size: 16px; color: var(--ink-2); line-height: 1.72; max-width: 520px; margin-bottom: 18px; }
+.d-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.dtag {
+  font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 20px;
+  background: rgba(191,107,26,0.12); border: 1px solid rgba(191,107,26,0.22);
+  color: var(--accent-dk);
+}
+
+/* Section headers */
+.sec-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; margin-top: 8px; }
+.sec-h { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.sec-link { font-size: 13px; color: var(--accent); font-weight: 500; cursor: pointer; }
+
+/* Role cards */
+.roles { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+.rc {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: 14px;
+  padding: 16px 20px; display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 1px 4px rgba(26,22,16,0.04); cursor: pointer; transition: all 0.18s;
+}
+.rc:hover { border-color: rgba(191,107,26,0.3); box-shadow: 0 4px 20px rgba(191,107,26,0.09); transform: translateY(-1px); }
+.rc-info { flex: 1; min-width: 0; }
+.rc-match { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+.rc-match.s { color: var(--green); }
+.rc-match.g { color: var(--accent); }
+.rc-title { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 2px; }
+.rc-co { font-size: 13px; color: var(--ink-3); }
+.rc-score {
+  font-family: var(--f-display); font-size: 30px; color: var(--accent);
+  line-height: 1; flex-shrink: 0; letter-spacing: -0.02em;
+}
+.rc-arr { color: var(--ink-5); font-size: 16px; flex-shrink: 0; }
+
+/* Skills */
+.skills { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+.sk {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: 14px;
+  padding: 16px 20px; box-shadow: 0 1px 4px rgba(26,22,16,0.04);
+}
+.sk-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.sk-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.sk-tag { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.sk-tag.g { color: var(--green); }
+.sk-why { font-size: 13px; color: var(--ink-3); line-height: 1.55; margin-bottom: 10px; }
+.sk-bar { height: 4px; background: var(--ink-5); border-radius: 99px; overflow: hidden; }
+.sk-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.6s; }
+
+/* Today's action */
+.today {
+  background: var(--surface); border: 1.5px solid var(--ink-5); border-radius: 16px;
+  padding: 22px 26px;
+}
+.today-lbl { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px; }
+.today-text { font-size: 15px; color: var(--ink-2); line-height: 1.65; margin-bottom: 8px; }
+.today-also { font-size: 13px; color: var(--ink-3); line-height: 1.55; margin-bottom: 16px; }
+.today-also strong { color: var(--ink-2); font-weight: 600; }
+.today-btn {
+  font-family: var(--f-body); font-size: 13px; font-weight: 600;
+  color: var(--accent-dk); background: var(--accent-soft); border: 1.5px solid var(--accent-mid);
+  border-radius: 8px; padding: 9px 18px; cursor: pointer;
+}
+
+/* ── CONVERSATION PANEL ──────────────────────────────── */
+.chat-fab {
+  position: fixed; bottom: 28px; right: 28px; z-index: 40;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); border: none; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(191,107,26,0.35);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.chat-fab:hover { transform: scale(1.06); box-shadow: 0 6px 28px rgba(191,107,26,0.45); }
+.chat-fab svg { color: #fff; }
+
+.chat-panel {
+  position: fixed; top: 60px; right: 0; bottom: 0;
+  width: 380px; z-index: 30;
+  background: rgba(255,249,242,0.88);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-left: 1px solid rgba(191,107,26,0.14);
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 40px rgba(26,22,16,0.08);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.34, 1.06, 0.64, 1);
+}
+.chat-panel.open { transform: translateX(0); }
+
+.cp-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid rgba(191,107,26,0.12);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cp-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.cp-sub { font-size: 12px; color: var(--ink-4); margin-top: 2px; }
+.cp-close { background: none; border: none; cursor: pointer; color: var(--ink-4); font-size: 18px; line-height: 1; }
+
+.cp-messages { flex: 1; padding: 20px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.msg { display: flex; gap: 10px; align-items: flex-start; }
+.msg.user { flex-direction: row-reverse; }
+.msg-av {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: var(--accent-soft); border: 1px solid var(--accent-mid);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-size: 9px; color: var(--accent); font-weight: 600;
+}
+.msg-av.u { background: var(--ink-5); border-color: transparent; color: var(--ink-3); }
+.msg-bubble {
+  max-width: 260px; padding: 10px 14px; border-radius: 14px;
+  font-size: 14px; line-height: 1.55; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--ink-5);
+}
+.msg.user .msg-bubble { background: var(--accent); color: #fff; border-color: transparent; border-radius: 14px 14px 4px 14px; }
+.msg:not(.user) .msg-bubble { border-radius: 4px 14px 14px 14px; }
+
+.cp-input-row {
+  padding: 14px 16px; border-top: 1px solid rgba(191,107,26,0.12);
+  display: flex; gap: 8px; align-items: center;
+}
+.cp-input {
+  flex: 1; font-family: var(--f-body); font-size: 14px; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--ink-5); border-radius: 10px;
+  padding: 10px 14px; outline: none;
+}
+.cp-input:focus { border-color: var(--accent); }
+.cp-send {
+  width: 36px; height: 36px; border-radius: 9px; background: var(--accent);
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* ── HOMEPAGE ────────────────────────────────────────── */
+.hero {
+  display: grid; grid-template-columns: 1fr 310px;
+  gap: 60px; align-items: center;
+  padding: 80px 56px; max-width: 1080px; margin: 0 auto; min-height: 86vh;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-4); margin-bottom: 24px;
+}
+.hero-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.hero-h1 {
+  font-family: var(--f-display); font-size: clamp(42px, 5.4vw, 60px);
+  line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 22px;
+}
+.hero-sub { font-size: 17px; color: var(--ink-3); line-height: 1.72; max-width: 420px; margin-bottom: 36px; }
+.hero-cta { font-family: var(--f-body); font-size: 15px; font-weight: 700; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 14px 28px; cursor: pointer; transition: background 0.15s; }
+.hero-cta:hover { background: var(--accent-lt); }
+.hero-note { display: block; margin-top: 14px; font-size: 13px; color: var(--ink-4); }
+.hero-cards { display: flex; flex-direction: column; gap: 10px; }
+.hc {
+  background: var(--surface); border: 1px solid var(--ink-5); border-radius: 18px;
+  padding: 16px 20px; box-shadow: 0 2px 12px rgba(26,22,16,0.06);
+}
+.hc-lbl { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 5px; }
+.hc-val { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 2px; letter-spacing: -0.01em; }
+.hc-sub { font-size: 12px; color: var(--ink-3); }
+.hc-bar { margin-top: 10px; height: 3px; background: var(--ink-5); border-radius: 99px; }
+.hc-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+
+/* Scroll sections */
+.hp-section { padding: 80px 56px; border-top: 1px solid var(--ink-5); max-width: 1080px; margin: 0 auto; }
+.hp-amber { background: var(--surface-warm); border-top: 1px solid rgba(191,107,26,0.14); border-bottom: 1px solid rgba(191,107,26,0.14); padding: 80px 0; }
+.hp-amber .hp-section { border-top: none; }
+.sg { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.sg.flip { direction: rtl; }
+.sg.flip > * { direction: ltr; }
+.sg-eye { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.sg-h { font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1.22; letter-spacing: -0.02em; margin-bottom: 14px; }
+.sg-body { font-size: 16px; color: var(--ink-3); line-height: 1.72; }
+.sg-also { font-size: 14px; color: var(--ink-4); margin-top: 10px; font-style: italic; }
+
+/* ── INPUT FLOW ──────────────────────────────────────── */
+.input-scene { min-height: 82vh; display: flex; align-items: center; justify-content: center; background: var(--bg-warm); }
+.input-inner { max-width: 560px; width: 100%; padding: 0 32px; }
+.input-dots { display: flex; gap: 7px; margin-bottom: 24px; }
+.idot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-5); }
+.idot.done { background: rgba(191,107,26,0.35); }
+.idot.on { background: var(--accent); }
+.input-step { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 20px; }
+.input-q { font-family: var(--f-display); font-size: 30px; line-height: 1.28; color: var(--ink); margin-bottom: 28px; }
+.field {
+  width: 100%; display: block; font-family: var(--f-body); font-size: 16px; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--ink-5); border-radius: 14px;
+  padding: 16px 20px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; margin-bottom: 10px; resize: vertical;
+}
+.field::placeholder { color: var(--ink-4); }
+.field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field-hint { font-size: 13px; color: var(--ink-4); margin-bottom: 28px; line-height: 1.55; }
+.input-cta { font-family: var(--f-body); font-size: 15px; font-weight: 700; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 14px 28px; cursor: pointer; }
+
+/* ── LOADING ─────────────────────────────────────────── */
+.loading-scene { min-height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--bg-warm); }
+.loading-inner { max-width: 380px; padding: 0 24px; }
+.pulse-wrap { width: 56px; height: 56px; position: relative; margin: 0 auto 52px; }
+.p-core { position: absolute; inset: 19px; border-radius: 50%; background: var(--accent); animation: pc 2.8s ease-in-out infinite; }
+.p-ring { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--accent); animation: pr 2.8s ease-out infinite; }
+.p-ring2 { position: absolute; inset: -14px; border-radius: 50%; border: 1px solid var(--accent); opacity: 0.2; animation: pr 2.8s ease-out 0.7s infinite; }
+@keyframes pc { 0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(.82);opacity:.55} }
+@keyframes pr { 0%{transform:scale(1);opacity:.55} 80%{transform:scale(2.3);opacity:0} 100%{opacity:0} }
+.loading-copy { font-family: var(--f-display); font-style: italic; font-size: 22px; line-height: 1.48; color: var(--ink); margin-bottom: 16px; }
+.loading-sub { font-size: 14px; color: var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { .p-core,.p-ring,.p-ring2 { animation: none; } }
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="chrome-bar">
+    <span class="chrome-title">v6 — Warm + Engaging</span>
+    <div class="tabs">
+      <button class="tab on" onclick="show('home')">Home view</button>
+      <button class="tab" onclick="show('hp')">Homepage</button>
+      <button class="tab" onclick="show('input0')">First question</button>
+      <button class="tab" onclick="show('input1')">Input flow</button>
+      <button class="tab" onclick="show('loading')">Loading</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOME VIEW ── -->
+<div class="view on" id="v-home">
+  <nav class="nav">
+    <span class="wordmark">Career Intelligence</span>
+    <div class="nav-r"><span class="nav-link">Sign out</span></div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sb-top">
+        <div class="sb-wordmark">Career Intelligence</div>
+        <div class="sb-sub">Your career, in motion</div>
+      </div>
+      <nav class="sb-nav">
+        <button class="si on">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L2 6.5V14h4.5v-4h3v4H14V6.5L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          Home
+        </button>
+        <button class="si">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Roles
+        </button>
+        <button class="si">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-5 3 3 2-2.5 3 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Skills
+        </button>
+        <button class="si">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h7M3 12h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Outreach
+        </button>
+        <button class="si">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6h8M4 9h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/></svg>
+          Applications
+        </button>
+        <div class="si-divider"></div>
+        <button class="si">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 13.5C2.5 11 5 9 8 9s5.5 2 5.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Profile
+        </button>
+      </nav>
+      <div class="sb-bottom">
+        <div class="sb-av">A</div>
+        <div>
+          <div class="sb-name">Alexandra</div>
+          <div class="sb-out">Sign out</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Direction — the Satori moment -->
+      <div class="direction-panel">
+        <div class="d-from">For Alexandra · from what you shared with us</div>
+        <h1 class="d-headline">You're drawn to where marketing meets strategy — and you're closer than you think.</h1>
+        <p class="d-body">Your background in events and communications maps well to Product Marketing, Strategy & Operations, and Growth. Three roles match strongly right now. Here's where to focus first.</p>
+        <div class="d-tags">
+          <span class="dtag">Product Marketing</span>
+          <span class="dtag">Strategy & Ops</span>
+          <span class="dtag">Growth</span>
+        </div>
+      </div>
+
+      <!-- Roles -->
+      <div class="sec-row">
+        <span class="sec-h">Your top matches right now</span>
+        <span class="sec-link">See all 14 →</span>
+      </div>
+      <div class="roles">
+        <div class="rc">
+          <div class="rc-info">
+            <div class="rc-match s">Strong match</div>
+            <div class="rc-title">Product Marketing Manager</div>
+            <div class="rc-co">Monzo · London · £38–48k</div>
+          </div>
+          <div class="rc-score">9.2</div>
+          <div class="rc-arr">›</div>
+        </div>
+        <div class="rc">
+          <div class="rc-info">
+            <div class="rc-match g">Good match</div>
+            <div class="rc-title">Strategy Analyst</div>
+            <div class="rc-co">Oliver Wyman · London · £34–44k</div>
+          </div>
+          <div class="rc-score">7.8</div>
+          <div class="rc-arr">›</div>
+        </div>
+        <div class="rc">
+          <div class="rc-info">
+            <div class="rc-match g">Good match</div>
+            <div class="rc-title">Growth Associate</div>
+            <div class="rc-co">Wise · London · £30–38k</div>
+          </div>
+          <div class="rc-score">7.1</div>
+          <div class="rc-arr">›</div>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="sec-row">
+        <span class="sec-h">Skills to close</span>
+        <span class="sec-link">Full map →</span>
+      </div>
+      <div class="skills">
+        <div class="sk">
+          <div class="sk-top"><span class="sk-name">SQL & data analysis</span><span class="sk-tag">Priority</span></div>
+          <p class="sk-why">This is what separates candidates at the Monzo application stage. Mode Analytics' free SQL track closes this in 4–6 weeks.</p>
+          <div class="sk-bar"><div class="sk-fill" style="width:0%"></div></div>
+        </div>
+        <div class="sk">
+          <div class="sk-top"><span class="sk-name">Stakeholder communication</span><span class="sk-tag g">Almost there</span></div>
+          <p class="sk-why">You already have this. One documented example in your CV closes it immediately — it's about evidence, not development.</p>
+          <div class="sk-bar"><div class="sk-fill" style="width:65%"></div></div>
+        </div>
+      </div>
+
+      <!-- Today + this week -->
+      <div class="today">
+        <div class="today-lbl">Today's focus</div>
+        <p class="today-text">Reach out to Sarah Chen, Product Marketing Lead at Monzo. She posted about their graduate intake 3 weeks ago — now is the right window. Your events background will stand out here.</p>
+        <p class="today-also"><strong>Also this week:</strong> Start Mode Analytics SQL track (Day 1 takes 45 mins) · Update your LinkedIn summary to reflect your direction towards PMM</p>
+        <button class="today-btn">Draft my outreach →</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Conversation panel FAB -->
+  <button class="chat-fab" onclick="toggleChat()">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 10.5C17 14.09 13.87 17 10 17c-.9 0-1.77-.15-2.57-.43L4 17.5l.96-3.22A6.73 6.73 0 013 10.5C3 6.91 6.13 4 10 4s7 2.91 7 6.5z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  </button>
+
+  <!-- Chat panel -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="cp-header">
+      <div>
+        <div class="cp-title">Career Intelligence</div>
+        <div class="cp-sub">Ask me anything about your search</div>
+      </div>
+      <button class="cp-close" onclick="toggleChat()">×</button>
+    </div>
+    <div class="cp-messages">
+      <div class="msg">
+        <div class="msg-av">CI</div>
+        <div class="msg-bubble">Hi Alexandra. I've been looking at your profile. You have more going for you than you might think — want me to explain why Monzo is a strong fit?</div>
+      </div>
+      <div class="msg user">
+        <div class="msg-av u">A</div>
+        <div class="msg-bubble">Yes please — I wasn't sure if my events background was relevant</div>
+      </div>
+      <div class="msg">
+        <div class="msg-av">CI</div>
+        <div class="msg-bubble">It's more relevant than you'd expect. Events production maps directly to project management and stakeholder coordination — two things PMM roles at Monzo specifically ask for. Your instinct to pivot here is a good one.</div>
+      </div>
+    </div>
+    <div class="cp-input-row">
+      <input class="cp-input" placeholder="Ask something..." type="text">
+      <button class="cp-send">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2l5 5-5 5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOMEPAGE ── -->
+<div class="view" id="v-hp">
+  <nav class="nav">
+    <span class="wordmark">Career Intelligence</span>
+    <div class="nav-r">
+      <span class="nav-link">Sign in</span>
+      <button class="nav-cta">Find my direction →</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow"><span class="hero-dot"></span>For anyone who doesn't know where to start</div>
+      <h1 class="hero-h1">Before you apply,<br>know where you're going.</h1>
+      <p class="hero-sub">Career Intelligence finds your direction, maps the path, and stays with you — from first application to first offer. Free to start, no account needed.</p>
+      <button class="hero-cta">Find my direction →</button>
+      <span class="hero-note">4 questions · takes 2 minutes · no account needed</span>
+    </div>
+    <div class="hero-cards">
+      <div class="hc">
+        <div class="hc-lbl">Your direction</div>
+        <div class="hc-val">Product & Strategy</div>
+        <div class="hc-sub">From your background and goals</div>
+      </div>
+      <div class="hc">
+        <div class="hc-lbl">Live roles matched</div>
+        <div class="hc-val">14 roles found</div>
+        <div class="hc-sub">Ranked by fit, updated daily</div>
+        <div class="hc-bar"><div class="hc-fill" style="width:78%"></div></div>
+      </div>
+      <div class="hc">
+        <div class="hc-lbl">Skills to close</div>
+        <div class="hc-val">3 specific gaps</div>
+        <div class="hc-sub">Each with a plan attached</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hp-amber">
+    <div class="hp-section">
+      <div class="sg">
+        <div>
+          <div class="sg-eye">Roles · ranked by you</div>
+          <h2 class="sg-h">Not another job board. A shortlist that actually fits.</h2>
+          <p class="sg-body">We don't show you everything. We show you what matches your direction, your background, and your goals — ranked by fit, not by date posted. With a contact at each company who's worth reaching.</p>
+          <p class="sg-also">Updated every day from live listings. Never stale.</p>
+        </div>
+        <div>
+          <div class="rc" style="margin-bottom:8px;">
+            <div class="rc-info">
+              <div class="rc-match s">Strong match</div>
+              <div class="rc-title">Product Marketing Manager</div>
+              <div class="rc-co">Monzo · London · £38–48k</div>
+            </div>
+            <div class="rc-score">9.2</div>
+          </div>
+          <div class="rc">
+            <div class="rc-info">
+              <div class="rc-match g">Good match</div>
+              <div class="rc-title">Strategy Analyst</div>
+              <div class="rc-co">Oliver Wyman · London · £34–44k</div>
+            </div>
+            <div class="rc-score">7.8</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hp-section">
+    <div class="sg flip">
+      <div>
+        <div class="sg-eye">Skills · close the gaps</div>
+        <h2 class="sg-h">Know exactly what to build, and how to build it.</h2>
+        <p class="sg-body">Your skills map shows what you have, what you're missing, and a specific plan for each gap. Not "learn SQL" — the exact course, the exact time it takes, and why it matters for the roles you're going for.</p>
+      </div>
+      <div>
+        <div class="sk">
+          <div class="sk-top"><span class="sk-name">SQL & data analysis</span><span class="sk-tag">Priority</span></div>
+          <p class="sk-why">Mode Analytics SQL for Marketing closes this in 4–6 weeks. It's what Monzo specifically looks for at application stage.</p>
+          <div class="sk-bar"><div class="sk-fill" style="width:30%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:80px 56px;text-align:center;border-top:1px solid var(--ink-5);">
+    <h2 style="font-family:'DM Serif Display',serif;font-size:38px;line-height:1.2;color:var(--ink);margin-bottom:16px;">Your career deserves more than a job board.</h2>
+    <p style="font-size:17px;color:var(--ink-3);margin-bottom:32px;">4 questions. No account. Free to start.</p>
+    <button class="hero-cta">Find my direction →</button>
+  </div>
+</div>
+
+<!-- ── STEP 0: Opening question (free text routing) ── -->
+<div class="view" id="v-input0">
+  <nav class="nav" style="background:var(--bg-warm);border-bottom:1px solid var(--ink-5);">
+    <span class="wordmark">Career Intelligence</span>
+  </nav>
+  <div class="input-scene">
+    <div class="input-inner">
+      <div class="input-step">Let's get started</div>
+      <p class="input-q">Tell us a bit about where you're at right now. There's no right or wrong answer.</p>
+      <textarea class="field" rows="4" placeholder="e.g. I just graduated and have no idea what direction to go in — I studied English but I'm not sure it's right for me. I want something in business but I don't know where to start."></textarea>
+      <p class="field-hint">Write as much or as little as you like. We use this to make everything that follows specific to your situation — not generic advice.</p>
+      <button class="input-cta">That's where I'm at →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── INPUT FLOW (questions 1–4) ── -->
+<div class="view" id="v-input1">
+  <nav class="nav" style="background:var(--bg-warm);border-bottom:1px solid var(--ink-5);">
+    <span class="wordmark">Career Intelligence</span>
+  </nav>
+  <div class="input-scene">
+    <div class="input-inner">
+      <div class="input-dots">
+        <div class="idot done"></div>
+        <div class="idot on"></div>
+        <div class="idot"></div>
+        <div class="idot"></div>
+      </div>
+      <div class="input-step">Question 1 of 4</div>
+      <p class="input-q">What field are you drawn to, even if you're not sure it's the right one?</p>
+      <input class="field" type="text" placeholder="Marketing, tech, finance — anything. Even if it feels like a guess.">
+      <p class="field-hint">There's genuinely no wrong answer here. Tell us what you're curious about and we'll work it out from there.</p>
+      <button class="input-cta">That feels right →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOADING ── -->
+<div class="view" id="v-loading">
+  <nav class="nav" style="background:var(--bg-warm);border-bottom:1px solid var(--ink-5);">
+    <span class="wordmark">Career Intelligence</span>
+  </nav>
+  <div class="loading-scene">
+    <div class="loading-inner">
+      <div class="pulse-wrap">
+        <div class="p-ring2"></div>
+        <div class="p-ring"></div>
+        <div class="p-core"></div>
+      </div>
+      <p class="loading-copy">Reading what you've built, and what it says between the lines.</p>
+      <p class="loading-sub">This takes about a minute — and it's worth it.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('on'));
+  document.getElementById('v-' + v).classList.add('on');
+  event.target.classList.add('on');
+}
+function toggleChat() {
+  document.getElementById('chatPanel').classList.toggle('open');
+}
+</script>
+</body>
+</html>
