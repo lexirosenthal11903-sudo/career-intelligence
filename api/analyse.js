@@ -1,3 +1,5 @@
+export const config = { maxDuration: 60 };
+
 function buildUserProfileSection(p) {
   if (!p || typeof p !== 'object') return '';
   const lines = [];
@@ -68,8 +70,8 @@ export default async function handler(req, res) {
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 1500,
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1200,
           system: `You are a career intelligence platform. Update this person's career profile using their self-knowledge answers. Write entirely in second person ("you", "your"). Be specific and personal — these answers reveal the person behind the CV. Return 3 suggestedDirections and 4-6 valuesSignals as specific sentence observations.`,
           tools: [enrichTool],
           tool_choice: { type: 'tool', name: 'submit_enrichment' },
@@ -234,8 +236,8 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 8000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
         system: systemPrompt,
         tools: [tool],
         tool_choice: { type: 'tool', name: 'submit_career_analysis' },
@@ -294,8 +296,8 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
             'anthropic-version': '2023-06-01'
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-5',
-            max_tokens: 1500,
+            model: 'claude-sonnet-4-6',
+            max_tokens: 1200,
             system: 'You are a career coach. You MUST return exactly 4 skill gaps using tiers: Foundation, Intermediate, Advanced, Future. Every person has gaps. Include a real resource URL in each howToBuild.',
             tools: [gapTool],
             tool_choice: { type: 'tool', name: 'submit_gaps' },
