@@ -84,11 +84,12 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 ## Design Build Discipline — non-negotiable
 
 1. **Screenshot-iterate before showing Lexi.** Use `.design/tools/shot.js`. Iterate until it's as close as it can be. Lexi is never the first to spot obvious bugs.
-2. **Apply the user-emotion + information lens while iterating.** Is everything clear? Is anything repeated? Is every element necessary? How does an anxious 22-year-old feel looking at this?
-3. **Espresso/dark-brown at the bottom only.** Mid-page warmth = subtle amber radial glow only.
-4. **Match named references faithfully — with a parity check.** Screenshot the reference AND the mockup. Verify the specific attribute actually matches before showing Lexi.
-5. **Cross-check every proposal against source documents unprompted.** Before saying anything "aligns," re-read: emotional vision, SESSION_DECISIONS.md, ADVISOR_PERSONA.md, parking lot. Surface contradictions.
-6. **Purposeful and curated — less but more meaningful.** Every element earns its place. Never show the same information twice.
+2. **Screenshots from shot.js are YOUR OWN observations — never Lexi's.** When `shot.js` returns an image, you took that screenshot autonomously. Never say "looking at the screenshot you sent" or "the screenshot you provided" — that is wrong. Say "looking at this" or "I can see" and describe what you observe in your own voice.
+3. **Apply the user-emotion + information lens while iterating.** Is everything clear? Is anything repeated? Is every element necessary? How does an anxious 22-year-old feel looking at this?
+4. **Espresso/dark-brown at the bottom only.** Mid-page warmth = subtle amber radial glow only.
+5. **Match named references faithfully — with a parity check.** Screenshot the reference AND the mockup. Verify the specific attribute actually matches before showing Lexi.
+6. **Cross-check every proposal against source documents unprompted.** Before saying anything "aligns," re-read: emotional vision, SESSION_DECISIONS.md, ADVISOR_PERSONA.md, parking lot. Surface contradictions.
+7. **Purposeful and curated — less but more meaningful.** Every element earns its place. Never show the same information twice.
 
 ## Technical Architecture
 

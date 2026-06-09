@@ -79,7 +79,8 @@ The following Phase 1 items predated the current design system and are now super
 - ~~Overscroll colour~~ — will be addressed in Phase 2 implementation
 
 ### Testing plan — must exist before Phase 2 deploys anything
-- [ ] **Define the testing protocol before Phase 2 begins.** Who tests what before anything goes to production? Minimum required: end-to-end happy path (new user, full analysis), OTP sign-in (returning user), job results load, no console errors. Document this as a checklist in `QA_CHECKLIST.md`.
+- [ ] **Define the testing protocol before Phase 2 begins.** Write `QA_CHECKLIST.md` — the list of flows that must pass before anything ships. Minimum: end-to-end happy path (new user, full analysis), OTP sign-in (returning user), job results load, no console errors.
+- [ ] **Playwright automated testing** — Playwright MCP is already connected. Before Phase 2 build begins: write Playwright scripts for each QA_CHECKLIST flow so they run automatically, without Lexi manually clicking through anything. Every Phase 2 deploy runs these before it is considered done. Reinstall `/webapp-testing` skill at Phase 2 start — it handles this setup.
 
 ### Product name — must resolve before launch
 - [ ] **Product name session** — "Career Intelligence" is the working name. Cannot launch without a real name. Needs a dedicated creative session: options, stress-test, decision. Assign this to Phase 1 so it is resolved before Phase 2 ships anything publicly.
