@@ -55,9 +55,15 @@ _Goal: Fix all known blockers before any new work is built on top of them. Archi
 - [ ] **Next.js migration — CONFIRMED DECISION: yes.** The single index.html is an acknowledged shortcut that cannot scale to Phase 2. Before any Phase 2 component is written: migrate to Next.js, establish folder structure, set up page routing. This is not optional and not "assess whether to" — it is a Phase 1 prerequisite. Dedicated session required.
 - [ ] **Reconcile tokens.css with SESSION_DECISIONS.md** — tokens.css is currently stale and out of sync. Before Phase 2 build begins: create a single `tokens.css` that matches SESSION_DECISIONS.md exactly. This file is the design-to-engineering contract. Every Phase 2 component uses it.
 - [ ] **Project architecture scaffold** — folder structure, component conventions, where CSS lives, how components import tokens. Must be documented and agreed before anyone writes a component. This prevents the "design and code tangled" problem recurring in Phase 2.
+- [ ] **Advisor memory schema (Supabase)** — three tables to design before Phase 2: activity log (roles saved/passed, timestamps), conversation history (user + advisor messages), user profile snapshot (direction, preferences, CV summary). Also enables pgvector for future semantic memory. Must exist before any Phase 2 component uses it.
+- [ ] **Advisor tool_use API design** — the advisor is an agent that can read AND write to user data. Tools needed: update_application_status, save_job, add_note, update_direction, update_preferences, mark_skill_progress. API must be designed and documented before Phase 2 build begins. Implemented using Anthropic function calling.
 
 ### Legal & compliance — must complete before any user data is collected
-- [ ] **GDPR — assign a session and a deadline.** Solicitor's opinion on contact discovery is outstanding. Cannot launch without this. Lexi to set a deadline. Session to cover: data retention, consent flows, right to deletion (Supabase 90-day policy), what contact discovery is/isn't legal.
+- [ ] **ICO registration** — legally required before processing any real UK user data. Free, 20 minutes. ico.org.uk/registration. Do this in Phase 1, not at launch.
+- [ ] **Privacy policy** — must be live before the first real user signs up. Draft using a template, have a solicitor review. Covers: data collected, retention (90 days), right to deletion, what we do with CV data.
+- [ ] **Terms of service** — draft + solicitor review before launch.
+- [ ] **Right to deletion** — implement a user-facing delete account button. Confirm Supabase 90-day deletion works end-to-end. Test it.
+- [ ] **Contact discovery legal opinion (before Phase 3 only)** — surfacing specific people at companies is legally ambiguous under UK GDPR. Solicitor opinion required before Phase 3 contact discovery feature is built. Not a launch blocker — a Phase 3 blocker.
 
 ### Bug fixes (pre-existing, must fix before Phase 2 deploys over them)
 - [ ] Fix Sign-in OTP failure ("Load failed") — **critical blocker: returning users cannot come back**
@@ -84,23 +90,30 @@ The following Phase 1 items predated the current design system and are now super
 
 _Goal: Implement all locked designs. The product looks and feels like the designed version._
 
-### Analytics — set up before first real user lands
-- [ ] **Basic analytics in place before Phase 2 goes live.** Cannot know if the product is working without data. Minimum required: page views, completion rate on the input flow (how many users reach the dashboard vs. drop off), how many return within 7 days. Recommended: Plausible (privacy-friendly, simple) or Vercel Analytics (zero config, already in the stack). Decision needed at Phase 2 kickoff.
+### Analytics — set up before Phase 2 goes live
+- [ ] **Vercel Analytics** — zero config, already in the stack, cookie-free, GDPR-safe. Set up before first user lands. Minimum metrics: input flow completion rate + 7-day return rate. Those two numbers tell you if the product is working.
+- [ ] **Plausible** (Phase 3) — add when granular funnel data is needed.
 
 ### Screen implementations
+_All Phase 2 screens ship before any user is let in — no 2a/2b split. Phase 2 complete = natural launch review checkpoint._
 - [ ] Implement homepage redesign
 - [ ] Implement input page redesign (from locked mockup)
 - [ ] Implement loading screen (from locked mockup)
 - [ ] Implement dashboard home (from locked mockup — hierarchy fix applied)
-- [ ] Implement Roles tab (full interaction: interested/pass, advisor responds, live updates)
+- [ ] Implement Roles tab — live daily refresh via background job; pattern detection on 5+ declined roles of same type → advisor asks conversationally
 - [ ] Implement sidebar navigation
-- [ ] Implement Auth overlay (sign in / sign up — design session required in Phase 0 first)
-- [ ] Implement Applications tab — pipeline view (design session required in Phase 0 first)
-- [ ] Implement Profile tab — interactive (design session required in Phase 0 first)
-- [ ] Implement Skills tab (design session required in Phase 0 first)
-- [ ] Implement returning user experience (design session required in Phase 0 first)
-- [ ] Implement error states (design session required in Phase 0 first)
-- [ ] Advisor memory architecture — cross-session persistence (never re-asks questions)
+- [ ] Implement Auth overlay (sign in / sign up — design session in Phase 0 first)
+- [ ] Implement Applications tab — dual interaction: user tells advisor what happened OR updates directly. Advisor observes direct interactions and responds. (Design session in Phase 0 first)
+- [ ] Implement Profile tab — advisor-populated first (living summary of what product knows), editable. Includes employment status toggle (actively looking / exploring while employed). (Design session in Phase 0 first)
+- [ ] Implement Skills tab — trajectory framing not deficit/gap. Shows skills user has + path to strong candidacy, curated. Advisor highlights one priority at a time. (Design session in Phase 0 first)
+- [ ] Implement returning user experience + return mechanic — advisor reflects what user did since last visit, suggests one action today, asks if anything to share. References: roles saved/passed, chat history, time elapsed. (Design session in Phase 0 first)
+- [ ] Implement implicit away mode — advisor checks last login timestamp, calibrates tone: 1–3 days normal, 4–7 days patient, 7+ days warm re-engagement. Automatic, no user action required.
+- [ ] Implement error states — what the user sees if analysis fails, API is slow, connection lost. (Design session in Phase 0 first)
+- [ ] Advisor tool_use implementation — advisor reads and writes user data via defined tools (update_application_status, save_job, add_note, update_direction, update_preferences, mark_skill_progress). API designed in Phase 1.
+- [ ] Advisor memory implementation — activity log, conversation history, profile snapshot. Schema designed in Phase 1.
+
+### Phase 2 complete → launch review
+_When all above items are done: review the product. Decide: launch to first 100 users, or continue to Phase 3 first. This is an explicit decision point, not an automatic launch._
 
 ---
 
@@ -110,14 +123,15 @@ _Goal: Every job the user saves becomes a full guided journey. This is the produ
 
 - [ ] **Per-job CV builder** — tailors the user's CV to the specific role
 - [ ] **Per-job cover letter builder** — personalised to the role and the user's story
-- [ ] **Contacts finder** — people at the target company worth reaching out to (LinkedIn integration); fallback to careers email or company email
+- [ ] **Contacts finder** — moved to explicit entry above with legal warning
 - [ ] **Interview prep** — company-specific questions, assessment centre guidance, what to expect at each stage for that specific company
 - [ ] **Company research layer** — values, culture, recent news, how they align with what the user has told us
 - [ ] **Full application pipeline tracking** — Saved → Preparing → Applied → Interview → Offer/Rejection, per job
 - [ ] **Email inbox integration** — Gmail/Outlook OAuth (read-only). Advisor automatically detects interview invites, rejections, offers, assessment bookings. Updates pipeline without user having to log anything. Prompt: "I saw you heard back from Innocent Drinks — want to start preparing?" Privacy: "I only read emails from companies you've applied to." Explicit opt-in, revocable.
 - [ ] **Calendar integration** — Google/Outlook Calendar. Detects interview dates from emails, schedules prep reminders, tracks deadlines. "Your Innocent Drinks interview is in 3 days — let's prepare."
 - [ ] **Daily check-in mechanic** — "What did you do today?" The advisor celebrates small progress. One next step. Momentum strip.
-- [ ] **Away mode** — user tells the advisor they won't be around. Advisor acknowledges and waits. On return: continuity, no re-onboarding, no guilt.
+- [ ] **Explicit away mode** — user optionally tells the advisor they'll be away. Advisor acknowledges, waits, resumes with continuity on return. Nice-to-have; implicit away mode (Phase 2) handles most cases.
+- [ ] **Contacts finder** — ⚠️ requires solicitor opinion on UK GDPR contact discovery before this feature is built. Do not begin until legal clearance obtained. Find the right person at a target company; fallback to careers email.
 
 ---
 
