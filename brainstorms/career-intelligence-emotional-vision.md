@@ -380,6 +380,10 @@ After applying to a role, the product should:
 - **Built-in CV builder** — when clicking into a suggested job, tailors CV to that specific role and passes AI screening; same for cover letters and outreach messages
 - **CV creation from scratch** — for users who don't have a CV yet
 
+- **Live job updates** — when new jobs come to market that match a user's profile, they should update automatically and be live/constantly refreshing. Dashboard should always show current matches, not a static snapshot from when they first ran the analysis. *(Added 2026-06-07)*
+- **Autonomous job applications** — far future: the product autonomously applies for jobs on the user's behalf, generating a tailored CV and cover letter per role. Enormous complexity (auth on job sites, legality, user control), but fits the product's north star of doing the hard work for the user. *(Added 2026-06-07)*
+- **Expand job data sources** — Adzuna is the only source currently. Need to find additional credible job sources (Reed API is noted in Phase 2 of CLAUDE.md, plus others) to increase the volume and quality of roles. *(Added 2026-06-07)*
+
 *Note: Lexi wants a full separate session on feature roadmap and trajectory. Schedule after emotional vision session is complete.*
 
 ---
@@ -455,3 +459,90 @@ NOT a chatbot. "The product nods and confirms — it does not perform real-time 
 - **Lexi's mother's reframe** — "not a job search tool, it is career guidance and intentional decision-making." This is one of the most important framings in the whole project and came from her mother. Worth exploring further.
 - **Self-knowledge questionnaire emotional experience** — Q4 of this session is specifically about what this felt like to Lexi when she did it with her real mentor. That answer hasn't been given yet.
 - **Design system typography conflict** — Syne vs. Cormorant Garamond. Needs design session to resolve before any build.
+
+---
+
+## Parking Lot Additions — Session 9 (2026-06-08)
+
+### Roles tab — full application pipeline (per job)
+Each job card should eventually support the complete journey:
+- **Interested / Not interested** sorting (immediate, on the card)
+- **CV builder** — personalised to that specific role (pass AI screening)
+- **Contact finder** — people at that company worth reaching out to (LinkedIn); fallback to careers email or company email if no contacts found
+- **Cover letter builder** — tailored to that role
+- **Application tracker** — record: message sent, application sent, interview received, offer, rejection
+- **Interview prep** — customised practice for that specific company and role; handles all stages (tests, assessment centres, interviews, everything specific to that company/sector)
+- **Company research** — values, culture, how relevant to the user specifically (not generic info)
+- **Post-application guidance** — what happens next, realistic timelines per company, manage the silence
+
+**Design principle:** Progressive disclosure — nothing is forced. Every step is available, skippable, and revealed only when the user is ready. The product holds their hand through every tiny step without overwhelming them.
+
+### Dashboard opening state (confirmed)
+Dashboard opens to **Home tab**, not Roles. The product is a mentor/coach — users should learn about themselves and work towards finding the right role. Jobs are not shoved in their face first. Roles tab is important but secondary to the Home experience.
+
+### Roles tab — sub-views needed
+- **Recommended** (default): AI-ranked by fit, loads more on scroll
+- **Saved / Interested**: jobs user has marked interested
+- **Applied**: jobs with tracked interactions
+- Possibly **Not interested**: archived/hidden
+
+### Roles tab — filters (Lexi confirmed: date posted, no agencies + more)
+Recommended filter set:
+- **Work type**: Remote / Hybrid / On-site
+- **Date posted**: Past 24h / Week / Month
+- **No agencies**: toggle (hide agency listings)
+- **Experience level**: Graduate / Junior / All
+- **Contract type**: Full-time / Graduate scheme / Internship / Part-time
+
+Salary filter: include if Adzuna data is available, otherwise omit.
+
+---
+
+## Parking Lot Additions — Session 9 continued (2026-06-08)
+
+### Email inbox integration (Phase 2 — HIGH VALUE)
+Connect the product to the user's Gmail or Outlook via OAuth read-only access. The advisor automatically monitors for application-related emails — interview invites, rejections, offers, assessment centre bookings — and updates the application pipeline without the user having to manually log anything.
+
+Key advisor moments this enables:
+- "I noticed you got an interview invite from Innocent Drinks — want to start preparing?"
+- "It's been 3 weeks since you applied to The Guardian — still within their normal window. I'll let you know if anything comes through."
+- "You heard back from ASOS — whenever you're ready to talk about it, I'm here."
+
+Privacy framing: "I only read emails from companies you've applied to — nothing else." Explicit opt-in, revocable any time.
+
+This turns the advisor from reactive to genuinely proactive. One of the highest-value Phase 2 features.
+*Requires: Gmail API / Outlook API, OAuth flow, email classification model, domain matching against saved applications.*
+
+### Three words (Meraki → Satori → Kavanah) on the landing page
+Display the three words as a narrative element on the homepage — the arc the product takes every user through. Needs a dedicated copy session to do it justice. These words are powerful enough to deserve real craft. Do not add them quickly.
+
+*Also: the three words inform the advisor's voice and behaviour at each phase. Captured in ADVISOR_PERSONA.md.*
+
+---
+
+## Parking Lot Additions — Session 9 final (2026-06-08)
+
+### Integrations roadmap (all assigned to phases in ROADMAP.md)
+
+**Phase 3:**
+- **Email inbox integration** — Gmail/Outlook OAuth, read-only. Auto-detects interview invites, rejections, offers. Pipeline updates without user logging anything. Advisor responds proactively. Opt-in, revocable. Privacy framing: "I only read emails from companies you've applied to."
+- **Calendar integration** — Google/Outlook Calendar. Detects interview dates, schedules prep reminders, tracks deadlines.
+
+**Phase 4:**
+- **LinkedIn integration** — contact discovery. Find the right person at a target company. API is restricted — may require web approach.
+- **Glassdoor** — company culture, salary ranges, real interview questions per company, difficulty ratings.
+- **Companies House (UK)** — legal company info, headcount, financials.
+- **Reed API + additional job sources** — expand beyond Adzuna.
+- **WhatsApp / SMS notifications** — push urgent moments to where the user is.
+
+**Phase 5:**
+- **Google Drive / Dropbox** — store and version CVs and cover letters.
+
+### Advisor persona session (Phase 5)
+- Name — dedicated session required. Do not name in user-facing copy without explicit decision.
+- Icon — dedicated session after name is confirmed.
+- Character backstory (Juno/Jack & Jill model) — full personality, background story, signature phrases, anti-patterns.
+- 20–30 sample advisor messages across all key emotional moments.
+
+### Three words on the landing page (Phase 5)
+Meraki / Satori / Kavanah as narrative element on homepage. Dedicated copy session required. Too important to decide quickly.

@@ -1,4 +1,20 @@
 /*
+  ⚠️  STALE — MUST BE RECONCILED BEFORE PHASE 2 BUILD BEGINS
+  ────────────────────────────────────────────────────────────
+  This file was generated 2026-06-06 and has not been updated to reflect
+  confirmed Session 8/9 decisions. Known conflicts:
+
+  - --accent here is #A06820 → SESSION_DECISIONS.md locked #A85E16
+  - --bg here is #FAFAF7 → SESSION_DECISIONS.md locked #F7F6F3 (cooled background)
+  - DM Serif Display referenced here → removed from most moments (loading screen only)
+  - Some variable names differ from mockup CSS (--gold vs --accent, etc.)
+
+  DO NOT use these values directly until they are reconciled with SESSION_DECISIONS.md.
+  Reconciliation is a Phase 1 task — do it before any engineering touches styles.
+
+  AUTHORITATIVE SOURCE: .design/career-intelligence-redesign/SESSION_DECISIONS.md
+  ────────────────────────────────────────────────────────────
+
   Career Intelligence — Design Tokens
   Generated: 2026-06-06
   Design brief: .design/career-intelligence-redesign/DESIGN_BRIEF.md

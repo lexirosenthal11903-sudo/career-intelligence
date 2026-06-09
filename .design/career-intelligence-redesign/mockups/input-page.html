@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Find your direction — Career Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #F7F6F3;
+    --surface:   #FFFFFF;
+    --cream:     #F5F3EE;
+    --ink:       #1A1610;
+    --ink-2:     #5A5040;
+    --ink-3:     #9E9080;
+    --ink-4:     #BDB7AC;
+    --ink-5:     #E6E3DC;
+    --gold:      #A85E16;
+    --gold-soft: rgba(168,94,22,.09);
+    --line:      rgba(0,0,0,.07);
+    --f:         'Instrument Sans', system-ui, sans-serif;
+    --r:         14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    z-index: 10;
+  }
+  .nav-brand { font-size: 14px; font-weight: 700; letter-spacing: -.02em; color: var(--ink); text-decoration: none; }
+  .nav-restart {
+    font-family: var(--f); font-size: 13px; font-weight: 500; color: var(--ink-3);
+    background: none; border: none; cursor: pointer; transition: color .12s;
+  }
+  .nav-restart:hover { color: var(--ink-2); }
+
+  /* ── LAYOUT ── */
+  .stage {
+    height: 100vh;
+    padding-top: 56px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .chat-frame {
+    width: 100%; max-width: 620px;
+    height: 100%;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── MESSAGES ── */
+  .messages {
+    flex: 1; overflow-y: auto;
+    padding: 40px 32px 20px;
+    display: flex; flex-direction: column;
+    gap: 10px;
+  }
+  .messages::-webkit-scrollbar { width: 0; }
+
+  /* Advisor bubble */
+  .ai-row { display: flex; flex-direction: column; align-items: flex-start; }
+  .ai-bubble {
+    background: var(--surface);
+    border-radius: 4px 16px 16px 16px;
+    padding: 14px 18px;
+    font-size: 14px; line-height: 1.75; color: var(--ink-2);
+    max-width: 420px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+
+  /* User bubble */
+  .user-row { display: flex; justify-content: flex-end; }
+  .user-bubble {
+    background: var(--gold);
+    border-radius: 16px 4px 16px 16px;
+    padding: 13px 18px;
+    font-size: 14px; line-height: 1.65; color: #fff;
+    max-width: 380px;
+  }
+
+  /* Upload card — appears inline in conversation */
+  .upload-card { max-width: 380px; margin-top: 4px; }
+  .upload-card.gone { display: none; }
+
+  .upload-zone {
+    background: var(--surface);
+    border: 1.5px dashed var(--ink-4);
+    border-radius: var(--r);
+    padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    cursor: pointer; text-align: center;
+    transition: border-color .15s, background .15s;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--gold); background: var(--gold-soft);
+  }
+  .upload-icon { color: var(--ink-3); margin-bottom: 2px; }
+  .upload-label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .upload-sub   { font-size: 11px; color: var(--ink-3); }
+
+  .alt-path {
+    margin-top: 10px;
+    font-size: 12px; color: var(--ink-3); font-weight: 500;
+  }
+  .alt-path a {
+    color: var(--gold); text-decoration: underline;
+    text-underline-offset: 2px; cursor: pointer;
+  }
+
+  /* Fade-in for messages */
+  @media (prefers-reduced-motion: no-preference) {
+    .ai-row, .user-row, .upload-card {
+      animation: msg-in .22s ease both;
+    }
+    @keyframes msg-in {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  }
+
+  /* ── INPUT AREA ── */
+  .input-area {
+    flex: none;
+    padding: 12px 32px 32px;
+    border-top: 1px solid var(--line);
+  }
+
+  .input-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 4px 4px 4px 18px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05);
+  }
+  .input-field {
+    flex: 1; border: none; background: none;
+    font-family: var(--f); font-size: 14px; color: var(--ink);
+    outline: none; padding: 11px 0;
+  }
+  .input-field::placeholder { color: var(--ink-3); }
+  .send-btn {
+    width: 38px; height: 38px; border-radius: 12px; flex: none;
+    background: var(--gold); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .12s, transform .12s;
+  }
+  .send-btn:hover { background: #8f4f10; transform: scale(1.05); }
+  .send-btn svg { width: 14px; height: 14px; color: #fff; }
+
+  /* Submit button — final step */
+  .submit-wrap { display: none; justify-content: center; padding: 4px 0; }
+  .submit-wrap.show { display: flex; }
+  .btn-submit {
+    font-family: var(--f); font-size: 14px; font-weight: 600; letter-spacing: -.01em;
+    background: var(--gold); color: #fff;
+    border: none; border-radius: 12px; padding: 14px 32px;
+    cursor: pointer;
+    transition: background .12s, transform .12s;
+  }
+  .btn-submit:hover { background: #8f4f10; transform: translateY(-1px); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="#">Career Intelligence</a>
+  <button class="nav-restart" onclick="restart()">← Start over</button>
+</nav>
+
+<main class="stage">
+<div class="chat-frame">
+
+  <div class="messages" id="messages"></div>
+
+  <div class="input-area">
+    <div class="input-card" id="inputCard">
+      <input class="input-field" id="inputField" type="text"
+        placeholder="Or type about yourself instead…"
+        onkeydown="onKey(event)">
+      <button class="send-btn" onclick="onSend()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+    <div class="submit-wrap" id="submitWrap">
+      <button class="btn-submit" onclick="goLoading()">Find my direction →</button>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<input type="file" id="fileInput" accept=".pdf,.doc,.docx" onchange="onFile(event)" style="display:none">
+
+<script>
+  const msgList   = document.getElementById('messages');
+  const inputCard = document.getElementById('inputCard');
+  const inputFld  = document.getElementById('inputField');
+  const submitWrap = document.getElementById('submitWrap');
+
+  let step = 0;
+  // step 0 = awaiting background  (CV or typed)
+  // step 1 = awaiting direction
+  // step 2 = awaiting practical constraints
+  // step 3 = done — show submit
+
+  const ACKS = [
+    "Got what I need.",
+    "That helps.",
+  ];
+  const QUESTIONS = [
+    "Where are you trying to go? Even if it's vague — a direction you're drawn toward, or something you want to move away from. There's no wrong answer.",
+    "One last thing — where can you work, and any restrictions I should know about?",
+  ];
+  const PLACEHOLDERS = [
+    "Or type about yourself instead…",
+    "I'm drawn to things where I can see the impact of what I do…",
+    "e.g. London, open to remote, or need visa sponsorship",
+  ];
+
+  // ── STARTUP SEQUENCE ──
+  delay(300,  () => addAdvisor("I'm going to ask you a few things — two or three, that's it."));
+  delay(1200, () => {
+    addAdvisor("Let's start with your CV. Upload it and I'll read it, or just tell me about yourself below.");
+    delay(250, addUploadCard);
+  });
+
+  // ── HELPERS ──
+  function delay(ms, fn) { setTimeout(fn, ms); }
+
+  function addAdvisor(text) {
+    const row = el('div', 'ai-row');
+    row.innerHTML = `<div class="ai-bubble">${text}</div>`;
+    msgList.appendChild(row);
+    scrollBottom();
+  }
+
+  function addUser(text) {
+    const row = el('div', 'user-row');
+    row.innerHTML = `<div class="user-bubble">${text}</div>`;
+    msgList.appendChild(row);
+    scrollBottom();
+  }
+
+  function addUploadCard() {
+    const card = el('div', 'upload-card');
+    card.id = 'uploadCard';
+    card.innerHTML = `
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2M12 4v11M8 8l4-4 4 4"/>
+          </svg>
+        </div>
+        <span class="upload-label">Drag your CV here, or click to browse</span>
+        <span class="upload-sub">PDF or Word · Max 10MB</span>
+      </div>
+      <p class="alt-path">No CV yet, or prefer to type? <a onclick="dismissUpload()">Either works.</a></p>
+    `;
+    msgList.appendChild(card);
+    scrollBottom();
+
+    const zone = card.querySelector('.upload-zone');
+    zone.addEventListener('click', () => document.getElementById('fileInput').click());
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      const f = e.dataTransfer.files[0];
+      if (f) finishBackground(`CV: ${f.name}`);
+    });
+  }
+
+  function dismissUpload() {
+    hideUploadCard();
+    inputFld.focus();
+  }
+
+  function hideUploadCard() {
+    const c = document.getElementById('uploadCard');
+    if (c) c.classList.add('gone');
+  }
+
+  function el(tag, cls) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    return e;
+  }
+
+  function scrollBottom() {
+    delay(40, () => msgList.scrollTo({ top: msgList.scrollHeight, behavior: 'smooth' }));
+  }
+
+  // ── FILE UPLOAD ──
+  function onFile(e) {
+    const f = e.target.files[0];
+    if (f) finishBackground(`CV: ${f.name}`);
+  }
+
+  // ── STATE MACHINE ──
+  function finishBackground(text) {
+    hideUploadCard();
+    addUser(text);
+    step = 1;
+    inputFld.value = '';
+    delay(420, () => {
+      addAdvisor(ACKS[0]);
+      delay(600, () => {
+        addAdvisor(QUESTIONS[0]);
+        inputFld.placeholder = PLACEHOLDERS[1];
+        inputFld.focus();
+      });
+    });
+  }
+
+  function finishDirection(text) {
+    addUser(text);
+    step = 2;
+    inputFld.value = '';
+    delay(420, () => {
+      addAdvisor(ACKS[1]);
+      delay(600, () => {
+        addAdvisor(QUESTIONS[1]);
+        inputFld.placeholder = PLACEHOLDERS[2];
+        inputFld.focus();
+      });
+    });
+  }
+
+  function finishPractical(text) {
+    addUser(text);
+    step = 3;
+    inputFld.value = '';
+    inputCard.style.display = 'none';
+    delay(420, () => {
+      submitWrap.classList.add('show');
+      scrollBottom();
+    });
+  }
+
+  function onSend() {
+    const val = inputFld.value.trim();
+    if (!val) return;
+    if (step === 0) finishBackground(val);
+    else if (step === 1) finishDirection(val);
+    else if (step === 2) finishPractical(val);
+  }
+
+  function onKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend(); }
+  }
+
+  function restart() {
+    if (step > 0 && !confirm('Start over? Your answers won\'t be saved.')) return;
+    location.reload();
+  }
+
+  function goLoading() { location.href = 'loading-screen.html'; }
+</script>
+
+</body>
+</html>

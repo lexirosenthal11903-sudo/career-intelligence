@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Loading — Career Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:    #F7F6F3;
+    --ink:   #1A1610;
+    --ink-2: #5A5040;
+    --ink-3: #9E9080;
+    --ink-4: #BDB7AC;
+    --gold:  #A85E16;
+    --f:     'Instrument Sans', system-ui, sans-serif;
+    --fs:    'DM Serif Display', Georgia, serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage {
+    height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    gap: 0;
+  }
+
+  /* ── ICON PLACEHOLDER ── */
+  .icon-placeholder {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--ink-4);
+    margin-bottom: 48px;
+    flex: none;
+    /* Deliberate placeholder — replaced when advisor identity is confirmed (Session 3) */
+  }
+
+  /* ── COPY ── */
+  .copy-wrap {
+    text-align: center;
+    max-width: 440px;
+  }
+
+  .phrase {
+    font-family: var(--fs);
+    font-style: italic;
+    font-size: 30px;
+    color: var(--ink);
+    line-height: 1.35;
+    letter-spacing: -.01em;
+    min-height: 84px;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity .45s ease;
+  }
+
+  .tagline {
+    font-family: var(--f);
+    font-size: 13px;
+    color: var(--ink-3);
+    margin-top: 20px;
+    letter-spacing: .01em;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="icon-placeholder"></div>
+
+  <div class="copy-wrap">
+    <p class="phrase" id="phrase">I'm taking a minute with this — it's worth doing properly.</p>
+    <p class="tagline">About a minute.</p>
+  </div>
+</div>
+
+<script>
+  const phrases = [
+    "I'm taking a minute with this — it's worth doing properly.",
+    "Reading what you've built, and what it says between the lines.",
+    "Finding the roles where someone like you would actually do well.",
+    "Almost there.",
+  ];
+
+  let i = 0;
+  const el = document.getElementById('phrase');
+
+  // Advance through phrases at timed intervals
+  const intervals = [14000, 14000, 14000, 99999]; // last phrase stays
+
+  function next() {
+    if (i >= phrases.length - 1) return;
+    el.style.opacity = '0';
+    setTimeout(() => {
+      i++;
+      el.textContent = phrases[i];
+      el.style.opacity = '1';
+    }, 450);
+    if (i + 1 < phrases.length) {
+      setTimeout(next, intervals[i]);
+    }
+  }
+
+  setTimeout(next, intervals[0]);
+</script>
+
+</body>
+</html>

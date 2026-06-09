@@ -1,7 +1,10 @@
 # Design Brief: Career Intelligence — Full Visual Redesign
 
 **Date**: 2026-06-06
-**Status**: Draft — pending Lexi confirmation
+**Status**: ⚠️ PARTIALLY SUPERSEDED — use SESSION_DECISIONS.md for all confirmed decisions
+
+> This brief captures the design intent and direction. However, every specific decision (colours, typography, component rules, banned patterns) was confirmed or overridden in the design sessions logged in `SESSION_DECISIONS.md`. When there is any conflict between this brief and SESSION_DECISIONS.md, **SESSION_DECISIONS.md always wins**.
+
 **Phase**: Design session. No code touches visual design until this brief is confirmed.
 
 ---

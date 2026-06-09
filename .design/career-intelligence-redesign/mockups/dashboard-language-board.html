@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Dashboard — Component Language Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F6F3; --surface:#FFFFFF; --surface-2:#F1F0EB;
+    --ink:#1A1610; --ink-2:#48402C; --ink-3:#837B6D; --ink-4:#BDB7AC; --ink-5:#E6E3DC;
+    --deep:#211A11; --deep-2:#2E2417; --on-deep:#EDE8DF; --on-deep-2:#A99E88; --on-deep-3:#6E6353;
+    --accent:#B05E16; --accent-lt:#C56E20; --accent-dk:#8C4A10; --accent-on-dark:#D4803A;
+    --accent-soft:rgba(176,94,22,.08); --accent-mid:rgba(176,94,22,.18);
+    --green:#3A7050; --green-soft:rgba(58,112,80,.10); --red:#9A3028;
+    --f-body:'Instrument Sans',system-ui,sans-serif; --f-mono:'DM Mono',monospace; --f-serif:'DM Serif Display',Georgia,serif;
+    --sh-sm:0 4px 16px rgba(26,22,16,.06),0 1px 4px rgba(26,22,16,.04);
+    --sh-md:0 12px 40px rgba(26,22,16,.08),0 3px 10px rgba(26,22,16,.04);
+    --r:14px; --ease:cubic-bezier(.25,.1,.25,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--f-body);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  .mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+  .bar{background:#0F0C08;color:#fff;padding:14px 40px;font-family:var(--f-mono);font-size:12px;letter-spacing:.05em;}
+  .bar b{color:var(--accent-on-dark);}
+  .board{max-width:1180px;margin:0 auto;padding:48px 40px 90px;}
+  .sec{margin-bottom:56px;}
+  .sec > .lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+  .sec > h2{font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin-bottom:4px;}
+  .sec > .hint{font-size:14px;color:var(--ink-3);margin-bottom:24px;max-width:640px;}
+  .card-box{background:var(--surface);border:1px solid var(--ink-5);border-radius:18px;padding:30px;}
+
+  /* ---- 1. SHELL PREVIEW ---- */
+  .shell{display:grid;grid-template-columns:220px 1fr;border:1px solid var(--ink-5);border-radius:18px;overflow:hidden;box-shadow:var(--sh-md);min-height:440px;}
+  .side{background:var(--deep);padding:22px 14px;display:flex;flex-direction:column;gap:4px;}
+  .side .mw{font-weight:700;font-size:15px;letter-spacing:-.02em;color:var(--on-deep);padding:6px 10px 22px;}
+  .side .ni{font-size:14px;font-weight:500;color:var(--on-deep-2);padding:10px 12px;border-radius:8px;display:flex;gap:11px;align-items:center;cursor:pointer;transition:background .15s,color .15s;}
+  .side .ni .ic{width:15px;height:15px;border-radius:4px;border:1.5px solid currentColor;opacity:.7;}
+  .side .ni:hover{background:rgba(255,255,255,.05);color:var(--on-deep);}
+  .side .ni.act{background:rgba(212,128,58,.15);color:var(--accent-on-dark);box-shadow:inset 3px 0 0 var(--accent-on-dark);}
+  .side .ni.dim{opacity:.4;cursor:default;}
+  .side .ni.dim .soon{margin-left:auto;font-family:var(--f-mono);font-size:8px;letter-spacing:.08em;}
+  .side .sp{flex:1;}
+  .side .prof{border-top:1px solid var(--deep-2);padding-top:14px;margin-top:8px;display:flex;gap:10px;align-items:center;}
+  .side .prof .av{width:30px;height:30px;border-radius:50%;background:var(--accent-on-dark);color:var(--deep);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+  .side .prof .nm{font-size:13px;color:var(--on-deep);font-weight:500;}
+  .side .prof .em{font-size:11px;color:var(--on-deep-3);}
+  .main{background:var(--bg);padding:30px;}
+
+  /* ---- color rules ---- */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+  .sw{border:1px solid var(--ink-5);border-radius:10px;overflow:hidden;}
+  .sw .chip{height:56px;}
+  .sw .meta{padding:8px 10px;}
+  .sw .nm{font-size:12px;font-weight:600;color:var(--ink);}
+  .sw .hx{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);}
+  .sw .use{font-size:11px;color:var(--ink-3);margin-top:2px;}
+
+  /* ---- type ---- */
+  .type-row{display:flex;align-items:baseline;gap:20px;padding:14px 0;border-bottom:1px solid var(--ink-5);}
+  .type-row:last-child{border-bottom:none;}
+  .type-row .tag{width:160px;flex:none;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);}
+  .t-display{font-size:40px;font-weight:700;letter-spacing:-.04em;line-height:1;}
+  .t-h{font-size:22px;font-weight:700;letter-spacing:-.02em;}
+  .t-body{font-size:16px;color:var(--ink-2);}
+  .t-mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+  .t-serif{font-family:var(--f-serif);font-style:italic;font-size:21px;color:var(--ink);}
+
+  /* ---- buttons ---- */
+  .btns{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+  .btn{font-family:var(--f-body);font-size:15px;font-weight:600;border-radius:10px;padding:12px 22px;cursor:pointer;border:1px solid transparent;transition:transform .15s,background .15s;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-lt);}
+  .btn-secondary{background:var(--surface);color:var(--ink);border-color:var(--ink-5);}
+  .btn-secondary:hover{border-color:var(--ink-4);}
+  .btn-ghost{background:transparent;color:var(--accent);padding:12px 8px;}
+  .btn-sm{font-size:13px;padding:8px 14px;}
+
+  /* ---- component grid ---- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+
+  /* direction panel — the Satori element */
+  .direction{background:var(--surface);border:1px solid var(--accent-mid);border-radius:16px;padding:30px;position:relative;overflow:hidden;}
+  .direction::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 120% at 0% 0%, var(--accent-soft), transparent 60%);pointer-events:none;}
+  .direction .k{position:relative;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  .direction h3{position:relative;font-size:24px;font-weight:700;line-height:1.28;letter-spacing:-.02em;color:var(--ink);}
+
+  /* role card + score */
+  .rolecard{background:var(--surface);border:1px solid var(--ink-5);border-radius:14px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:box-shadow .2s,transform .2s;}
+  .rolecard:hover{box-shadow:var(--sh-md);transform:translateY(-2px);}
+  .rolecard .co{font-size:17px;font-weight:600;color:var(--ink);}
+  .rolecard .ro{font-size:13px;color:var(--ink-3);margin-top:3px;}
+  .rolecard .why{font-size:13px;color:var(--ink-2);margin-top:10px;max-width:340px;}
+  .rolecard .tags{display:flex;gap:8px;margin-top:12px;}
+  .score{display:flex;flex-direction:column;align-items:center;gap:4px;flex:none;}
+  .score .ring{position:relative;width:60px;height:60px;}
+  .score .ring svg{transform:rotate(-90deg);}
+  .score .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:20px;color:var(--accent);}
+  .score .cap{font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);}
+
+  /* pills / tags / badges */
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:5px 11px;}
+  .pill.neutral{color:var(--ink-2);background:var(--surface-2);}
+  .badge-ok{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);background:var(--green-soft);border-radius:8px;padding:5px 10px;}
+  .badge-ok .dotc{width:7px;height:7px;border-radius:50%;background:var(--green);}
+
+  /* skills */
+  .skill{padding:14px 0;border-bottom:1px solid var(--ink-5);}
+  .skill:last-child{border-bottom:none;}
+  .skill .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .skill .nm{font-size:15px;font-weight:600;color:var(--ink);}
+  .skill .why{font-size:13px;color:var(--ink-3);margin-top:2px;}
+  .skill .pct{font-family:var(--f-mono);font-size:12px;color:var(--accent);}
+  .track{height:8px;background:var(--ink-5);border-radius:99px;overflow:hidden;}
+  .fill{height:100%;background:var(--accent);border-radius:99px;}
+</style>
+</head>
+<body>
+<div class="bar">DASHBOARD · COMPONENT LANGUAGE BOARD — the reusable kit every dashboard screen is built from. React to these building blocks; then screens assemble fast. <b>COPY TBD</b></div>
+<div class="board">
+
+  <!-- 1. SHELL -->
+  <div class="sec">
+    <div class="lbl">Layout</div>
+    <h2>The shell: espresso sidebar + cream workspace</h2>
+    <p class="hint">Sidebar fixed at 220px (espresso — the only persistent dark in the product). Main content is cream, scrolls inside its column. Active nav = amber text + amber left-bar + faint amber tint.</p>
+    <div class="shell">
+      <aside class="side">
+        <div class="mw">Career Intelligence</div>
+        <div class="ni act"><span class="ic"></span>Home</div>
+        <div class="ni"><span class="ic"></span>Roles</div>
+        <div class="ni"><span class="ic"></span>Skills</div>
+        <div class="ni dim"><span class="ic"></span>Outreach<span class="soon">SOON</span></div>
+        <div class="ni dim"><span class="ic"></span>Applications<span class="soon">SOON</span></div>
+        <div class="sp"></div>
+        <div class="ni"><span class="ic"></span>Profile</div>
+        <div class="prof"><div class="av">L</div><div><div class="nm">Lexi</div><div class="em">lexi@email.com</div></div></div>
+      </aside>
+      <div class="main">
+        <div class="direction" style="margin-bottom:18px">
+          <div class="k">Your direction</div>
+          <h3>You've built real product instinct. You're drawn to early-stage tech — and that's exactly where you'll move fastest.</h3>
+        </div>
+        <div class="rolecard">
+          <div>
+            <div class="co">Monzo</div>
+            <div class="ro">Associate Product Manager · London · £55k</div>
+            <div class="why">Matches your product instinct and your pull toward fintech that helps people.</div>
+            <div class="tags"><span class="pill">Values fit</span><span class="pill">Contact found</span></div>
+          </div>
+          <div class="score">
+            <div class="ring">
+              <svg width="60" height="60"><circle cx="30" cy="30" r="26" stroke="#E6E3DC" stroke-width="5" fill="none"/><circle cx="30" cy="30" r="26" stroke="#B05E16" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="10"/></svg>
+              <div class="num">94</div>
+            </div>
+            <div class="cap">Match</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. COLOUR -->
+  <div class="sec">
+    <div class="lbl">Colour & usage rules</div>
+    <h2>Warm-light, espresso for depth, amber for action only</h2>
+    <p class="hint">Rule: <b>amber appears only on interactive or signal elements</b> (buttons, scores, links, active states) — never as a surface fill. Espresso = sidebar + dark bands. Green = positive signal, with a label/shape too (never colour alone).</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#F7F6F3"></div><div class="meta"><div class="nm">Background</div><div class="hx">#F7F6F3</div><div class="use">Page / workspace</div></div></div>
+      <div class="sw"><div class="chip" style="background:#FFFFFF;border-bottom:1px solid #E6E3DC"></div><div class="meta"><div class="nm">Surface</div><div class="hx">#FFFFFF</div><div class="use">Cards</div></div></div>
+      <div class="sw"><div class="chip" style="background:#211A11"></div><div class="meta"><div class="nm">Espresso</div><div class="hx">#211A11</div><div class="use">Sidebar, dark bands</div></div></div>
+      <div class="sw"><div class="chip" style="background:#B05E16"></div><div class="meta"><div class="nm">Amber</div><div class="hx">#B05E16</div><div class="use">Action / score only</div></div></div>
+      <div class="sw"><div class="chip" style="background:#D4803A"></div><div class="meta"><div class="nm">Amber on dark</div><div class="hx">#D4803A</div><div class="use">Amber on espresso</div></div></div>
+      <div class="sw"><div class="chip" style="background:#1A1610"></div><div class="meta"><div class="nm">Ink</div><div class="hx">#1A1610</div><div class="use">Primary text</div></div></div>
+      <div class="sw"><div class="chip" style="background:#837B6D"></div><div class="meta"><div class="nm">Ink-3</div><div class="hx">#837B6D</div><div class="use">Captions / hints</div></div></div>
+      <div class="sw"><div class="chip" style="background:#3A7050"></div><div class="meta"><div class="nm">Green</div><div class="hx">#3A7050</div><div class="use">Positive signal</div></div></div>
+    </div>
+  </div>
+
+  <!-- 3. TYPE -->
+  <div class="sec">
+    <div class="lbl">Typography</div>
+    <h2>Instrument Sans throughout · DM Mono for data · serif reserved for loading only</h2>
+    <div class="card-box">
+      <div class="type-row"><span class="tag">Display / 700</span><span class="t-display">You're about to win</span></div>
+      <div class="type-row"><span class="tag">Section head / 700</span><span class="t-h">Roles that fit you</span></div>
+      <div class="type-row"><span class="tag">Body / 400</span><span class="t-body">Calm, plain language that meets the user where they are.</span></div>
+      <div class="type-row"><span class="tag">Mono label / data</span><span class="t-mono">Match · 94 · Updated today</span></div>
+      <div class="type-row"><span class="tag">Serif (loading only)</span><span class="t-serif">Reading what you've built, and what it says between the lines…</span></div>
+    </div>
+  </div>
+
+  <!-- 4. BUTTONS -->
+  <div class="sec">
+    <div class="lbl">Buttons</div>
+    <h2>One primary, one secondary, one quiet link</h2>
+    <div class="card-box"><div class="btns">
+      <button class="btn btn-primary">Find my direction →</button>
+      <button class="btn btn-secondary">Save your results</button>
+      <button class="btn btn-ghost">See all roles →</button>
+      <button class="btn btn-primary btn-sm">Reach out</button>
+      <button class="btn btn-secondary btn-sm">Mark applied</button>
+    </div></div>
+  </div>
+
+  <!-- 5. KEY COMPONENTS -->
+  <div class="sec">
+    <div class="lbl">Core components</div>
+    <h2>The pieces every screen reuses</h2>
+    <div class="grid2">
+      <div>
+        <p class="mono" style="color:var(--ink-3);margin-bottom:10px">Role card · with match score (ring + number + label = not colour-only)</p>
+        <div class="rolecard">
+          <div>
+            <div class="co">Wise</div>
+            <div class="ro">Product Analyst · Remote · £48k</div>
+            <div class="why">Your analytical streak plus the product lens — a strong, slightly stretchy fit.</div>
+            <div class="tags"><span class="pill">Values fit</span><span class="badge-ok"><span class="dotc"></span>Applied</span></div>
+          </div>
+          <div class="score">
+            <div class="ring"><svg width="60" height="60"><circle cx="30" cy="30" r="26" stroke="#E6E3DC" stroke-width="5" fill="none"/><circle cx="30" cy="30" r="26" stroke="#B05E16" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="20"/></svg><div class="num">88</div></div>
+            <div class="cap">Match</div>
+          </div>
+        </div>
+        <p class="mono" style="color:var(--ink-3);margin:22px 0 10px">Pills · badges</p>
+        <div class="card-box" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="pill">Values fit</span>
+          <span class="pill">Contact found</span>
+          <span class="pill neutral">Remote</span>
+          <span class="badge-ok"><span class="dotc"></span>Applied</span>
+        </div>
+      </div>
+      <div>
+        <p class="mono" style="color:var(--ink-3);margin-bottom:10px">Skills to close · each gap shows why + progress</p>
+        <div class="card-box">
+          <div class="skill">
+            <div class="top"><div><div class="nm">SQL</div><div class="why">Most PM analyst roles assume it. Quickest gap to close.</div></div><div class="pct">35%</div></div>
+            <div class="track"><div class="fill" style="width:35%"></div></div>
+          </div>
+          <div class="skill">
+            <div class="top"><div><div class="nm">Roadmapping</div><div class="why">You've done it informally — now make it legible.</div></div><div class="pct">60%</div></div>
+            <div class="track"><div class="fill" style="width:60%"></div></div>
+          </div>
+          <div class="skill">
+            <div class="top"><div><div class="nm">A/B testing</div><div class="why">Shows you can prove impact, not just ship.</div></div><div class="pct">20%</div></div>
+            <div class="track"><div class="fill" style="width:20%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

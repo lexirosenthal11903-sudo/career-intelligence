@@ -148,12 +148,14 @@ Content priority (top to bottom):
 
 ### Roles view
 
-**Priority order:**
+> ⚠️ SUPERSEDED BY SESSION_DECISIONS.MD (Session 9, 2026-06-08) — the locked Roles tab design differs from the IA below. SESSION_DECISIONS.MD wins.
+> Key changes: match scores removed entirely; no filter bar (advisor gathers preferences conversationally); 50/50 split with advisor always present; plain-English 2-line job card descriptions added.
+
+**Priority order (original — see Session 9 for current locked version):**
 1. Direction context line (reminds user why these roles) — 1 sentence in warm ink-3
-2. Role cards — full list, ranked by match score
-3. Each role card: company + title → match score (large, amber) → location/salary → why it matches → company values alignment → contact found → "View & reach out →" action
-4. Filters (location, salary, role type) — secondary, never dominant
-5. Applied status on cards (if user has marked as applied)
+2. Role cards — full list, ranked by fit
+3. Each role card: company + title → location/salary → why it matches → plain-English 2-line description → "I'm interested" / "Pass" actions
+4. Applied status on cards (if user has marked as applied)
 
 **Removed from old design:** Companies as a separate tab. Company value matching now lives inside each role card as "why this company fits you" — more contextual, less abstract.
 

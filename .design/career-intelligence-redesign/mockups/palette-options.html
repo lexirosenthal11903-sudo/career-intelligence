@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Palette directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:#E9E7E1;}
+  .bar{background:#0F0C08;color:#fff;padding:14px 32px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.05em;}
+  .bar b{color:#E0954A;}
+  .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+  .col{padding:26px 22px 40px;}
+  .col-h{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+  .col-h b{font-weight:400;}
+  .col-d{font-size:12px;color:#6E6353;margin-bottom:22px;min-height:32px;}
+  .rec{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:#1A1610;color:#E0954A;padding:3px 8px;border-radius:5px;margin-left:6px;}
+
+  /* themed components use --c-* */
+  .stage{background:var(--c-bg);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;}
+  .lab{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:.02em;}
+  .lab .dot{width:8px;height:8px;border-radius:50%;}
+
+  .m-dir{position:relative;overflow:hidden;border-radius:14px;padding:20px;background:var(--c-deep);}
+  .m-dir .lab{color:var(--c-gold-dk);margin-bottom:9px;}
+  .m-dir h2{font-size:17px;font-weight:700;line-height:1.25;letter-spacing:-.02em;color:#fff;}
+
+  .m-today{border:1px solid var(--c-gold-bd);background:var(--c-gold-tint);border-radius:14px;padding:16px 18px;}
+  .m-today .lab{color:var(--c-gold);margin-bottom:8px;} .m-today .lab .dot{background:var(--c-gold);}
+  .m-today h4{font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--c-ink);}
+  .m-today .btn{margin-top:12px;display:inline-block;background:var(--c-gold);color:#fff;font-size:13px;font-weight:600;border-radius:9px;padding:8px 16px;}
+
+  .m-role{background:var(--c-surface);border:1px solid var(--c-line);border-radius:13px;padding:15px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .m-role .co{font-size:15px;font-weight:600;color:var(--c-ink);}
+  .m-role .ro{font-size:12px;color:var(--c-ink3);margin-top:2px;}
+  .m-role .pill{display:inline-block;margin-top:9px;font-size:10px;font-weight:500;color:var(--c-gold);background:var(--c-gold-soft);border-radius:999px;padding:3px 8px;}
+  .m-role .ring{position:relative;width:46px;height:46px;flex:none;}
+  .m-role .ring svg{transform:rotate(-90deg);}
+  .m-role .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:15px;color:var(--c-gold);}
+
+  .m-skill{border:1px solid var(--c-green-bd);background:var(--c-green-tint);border-radius:13px;padding:14px 16px;}
+  .m-skill .lab{color:var(--c-green);margin-bottom:10px;} .m-skill .lab .dot{background:var(--c-green);}
+  .m-skill .nm{font-size:13px;font-weight:600;color:var(--c-ink);margin-bottom:6px;}
+  .m-skill .track{height:7px;background:var(--c-green-soft);border-radius:99px;overflow:hidden;}
+  .m-skill .fill{height:100%;width:55%;background:var(--c-green);border-radius:99px;}
+
+  .m-con{border:1px solid var(--c-clay-bd);background:var(--c-clay-tint);border-radius:13px;padding:14px 16px;}
+  .m-con .lab{color:var(--c-clay);margin-bottom:10px;} .m-con .lab .dot{background:var(--c-clay);}
+  .m-con .row{display:flex;align-items:center;gap:10px;}
+  .m-con .av{width:30px;height:30px;border-radius:50%;background:var(--c-clay-soft);color:var(--c-clay);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;}
+  .m-con .who{font-size:13px;font-weight:600;color:var(--c-ink);}
+  .m-con .at{font-size:11px;color:var(--c-ink3);}
+  .m-con .go{margin-left:auto;font-size:12px;font-weight:600;color:var(--c-clay);}
+
+  /* THEME A — muted (current) */
+  .tA{--c-bg:#F7F6F3;--c-surface:#FFFFFF;--c-ink:#1A1610;--c-ink3:#837B6D;--c-line:#E6E3DC;
+    --c-gold:#B05E16;--c-gold-dk:#D4803A;--c-gold-tint:#FBF3E7;--c-gold-bd:rgba(176,94,22,.20);--c-gold-soft:rgba(176,94,22,.08);
+    --c-green:#52795B;--c-green-tint:#ECF1EC;--c-green-bd:rgba(82,121,91,.24);--c-green-soft:rgba(82,121,91,.16);
+    --c-clay:#A8533C;--c-clay-tint:#F8EDE7;--c-clay-bd:rgba(168,83,60,.22);--c-clay-soft:rgba(168,83,60,.10);
+    --c-deep:#211A11;}
+  .tA{background:#F1EFEA;}
+
+  /* THEME B — warm & alive (RECOMMENDED) */
+  .tB{--c-bg:#FBFAF6;--c-surface:#FFFFFF;--c-ink:#211A12;--c-ink3:#938876;--c-line:#ECE7DC;
+    --c-gold:#DD8A2C;--c-gold-dk:#F0A24E;--c-gold-tint:#FFF1DC;--c-gold-bd:rgba(221,138,44,.30);--c-gold-soft:rgba(221,138,44,.14);
+    --c-green:#3E9B6B;--c-green-tint:#E4F4EA;--c-green-bd:rgba(62,155,107,.28);--c-green-soft:rgba(62,155,107,.16);
+    --c-clay:#E0744F;--c-clay-tint:#FDEAE1;--c-clay-bd:rgba(224,116,79,.30);--c-clay-soft:rgba(224,116,79,.14);
+    --c-deep:#2A2014;}
+  .tB{background:#FBFAF6;}
+
+  /* THEME C — soft pastel */
+  .tC{--c-bg:#FCFAF7;--c-surface:#FFFFFF;--c-ink:#2A2418;--c-ink3:#A39A88;--c-line:#EFEAE0;
+    --c-gold:#E2A45E;--c-gold-dk:#F0C089;--c-gold-tint:#FFF6EA;--c-gold-bd:rgba(226,164,94,.32);--c-gold-soft:rgba(226,164,94,.16);
+    --c-green:#86B79A;--c-green-tint:#EDF6F0;--c-green-bd:rgba(134,183,154,.34);--c-green-soft:rgba(134,183,154,.20);
+    --c-clay:#E0A18C;--c-clay-tint:#FCF0EB;--c-clay-bd:rgba(224,161,140,.34);--c-clay-soft:rgba(224,161,140,.20);
+    --c-deep:#3A2F20;}
+  .tC{background:#FCFAF7;}
+</style>
+</head>
+<body>
+<div class="bar">PALETTE DIRECTIONS — same components, three colour worlds. My pick is <b>B</b>. Tell me B, C, or "somewhere between".</div>
+<div class="cols">
+
+  <!-- A -->
+  <div class="col tA">
+    <div class="col-h"><b>A · Muted earthy</b> (current)</div>
+    <div class="col-d">What we have now. Sophisticated but reads dull / heavy.</div>
+    <div class="stage">
+      <div class="m-dir"><span class="lab"><span class="dot" style="background:var(--c-gold-dk)"></span>Your direction</span><h2>You've built real product instinct — early-stage tech is where you'll move fastest.</h2></div>
+      <div class="m-today"><span class="lab"><span class="dot"></span>Today</span><h4>Reach out to Sarah Chen at Monzo.</h4><span class="btn">Reach out →</span></div>
+      <div class="m-role"><div><div class="co">Monzo</div><div class="ro">Associate PM · London</div><span class="pill">Values fit</span></div><div class="ring"><svg width="46" height="46"><circle cx="23" cy="23" r="19" stroke="#E6E3DC" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="var(--c-gold)" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="119" stroke-dashoffset="8"/></svg><div class="num">94</div></div></div>
+      <div class="m-skill"><span class="lab"><span class="dot"></span>Skills to close</span><div class="nm">SQL</div><div class="track"><div class="fill"></div></div></div>
+      <div class="m-con"><span class="lab"><span class="dot"></span>Contacts found</span><div class="row"><div class="av">SC</div><div><div class="who">Sarah Chen</div><div class="at">Product Lead · Monzo</div></div><span class="go">Draft →</span></div></div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="col tB">
+    <div class="col-h"><b>B · Warm & alive</b><span class="rec">My pick</span></div>
+    <div class="col-d">Brighter, friendlier, airier — inviting but still calm. The Headspace sweet spot.</div>
+    <div class="stage">
+      <div class="m-dir"><span class="lab"><span class="dot" style="background:var(--c-gold-dk)"></span>Your direction</span><h2>You've built real product instinct — early-stage tech is where you'll move fastest.</h2></div>
+      <div class="m-today"><span class="lab"><span class="dot"></span>Today</span><h4>Reach out to Sarah Chen at Monzo.</h4><span class="btn">Reach out →</span></div>
+      <div class="m-role"><div><div class="co">Monzo</div><div class="ro">Associate PM · London</div><span class="pill">Values fit</span></div><div class="ring"><svg width="46" height="46"><circle cx="23" cy="23" r="19" stroke="#ECE7DC" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="var(--c-gold)" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="119" stroke-dashoffset="8"/></svg><div class="num">94</div></div></div>
+      <div class="m-skill"><span class="lab"><span class="dot"></span>Skills to close</span><div class="nm">SQL</div><div class="track"><div class="fill"></div></div></div>
+      <div class="m-con"><span class="lab"><span class="dot"></span>Contacts found</span><div class="row"><div class="av">SC</div><div><div class="who">Sarah Chen</div><div class="at">Product Lead · Monzo</div></div><span class="go">Draft →</span></div></div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="col tC">
+    <div class="col-h"><b>C · Soft pastel</b></div>
+    <div class="col-d">Lightest and softest — spa-calm. Risk: can feel washed-out / less substantial.</div>
+    <div class="stage">
+      <div class="m-dir"><span class="lab"><span class="dot" style="background:var(--c-gold-dk)"></span>Your direction</span><h2>You've built real product instinct — early-stage tech is where you'll move fastest.</h2></div>
+      <div class="m-today"><span class="lab"><span class="dot"></span>Today</span><h4>Reach out to Sarah Chen at Monzo.</h4><span class="btn">Reach out →</span></div>
+      <div class="m-role"><div><div class="co">Monzo</div><div class="ro">Associate PM · London</div><span class="pill">Values fit</span></div><div class="ring"><svg width="46" height="46"><circle cx="23" cy="23" r="19" stroke="#EFEAE0" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="var(--c-gold)" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="119" stroke-dashoffset="8"/></svg><div class="num">94</div></div></div>
+      <div class="m-skill"><span class="lab"><span class="dot"></span>Skills to close</span><div class="nm">SQL</div><div class="track"><div class="fill"></div></div></div>
+      <div class="m-con"><span class="lab"><span class="dot"></span>Contacts found</span><div class="row"><div class="av">SC</div><div><div class="who">Sarah Chen</div><div class="at">Product Lead · Monzo</div></div><span class="go">Draft →</span></div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
