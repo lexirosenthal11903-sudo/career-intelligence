@@ -1,6 +1,6 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: Session 9, 2026-06-08_
+_Last updated: Session 10, 2026-06-09_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
 
@@ -36,21 +36,47 @@ _Goal: Every screen designed and locked before a single line of engineering begi
 - **Advisor name + icon session** — do not name the advisor without a dedicated session. Too important to decide quickly.
 - **Features roadmap review** — once all screens are designed, review the full parking lot and assign everything to a phase. This session produces the sequenced feature list for Stage 1.
 
+### Missing screens — must be designed before Phase 2 builds them
+All of these need dedicated design sessions. None can be built before they are locked.
+- [ ] **Skills tab** — what does the skills gap map look like? How does it update?
+- [ ] **Profile tab** — interactive preferences, CV on file, direction summary. Editable?
+- [ ] **Applications tab** — pipeline view (Saved / Preparing / Applied / Interview / Offer). How do cards work?
+- [ ] **Auth overlay** — sign in and sign up screens. OTP flow. What does a returning user see?
+- [ ] **Returning user experience** — first return after initial analysis. "Welcome back, here's where we left off." Critical to design: this is the retention moment.
+- [ ] **Basic error states** — what does the user see if the analysis fails? If the API is slow? If they lose connection? Must be designed, not invented during build.
+
 ---
 
 ## Phase 1: Foundation Engineering
 
-_Goal: Fix all known blockers before any new work is built on top of them._
+_Goal: Fix all known blockers before any new work is built on top of them. Architecture must be right before any Phase 2 component is written._
 
+### Architecture — must complete before any Phase 2 code is written
+- [ ] **Next.js migration — CONFIRMED DECISION: yes.** The single index.html is an acknowledged shortcut that cannot scale to Phase 2. Before any Phase 2 component is written: migrate to Next.js, establish folder structure, set up page routing. This is not optional and not "assess whether to" — it is a Phase 1 prerequisite. Dedicated session required.
+- [ ] **Reconcile tokens.css with SESSION_DECISIONS.md** — tokens.css is currently stale and out of sync. Before Phase 2 build begins: create a single `tokens.css` that matches SESSION_DECISIONS.md exactly. This file is the design-to-engineering contract. Every Phase 2 component uses it.
+- [ ] **Project architecture scaffold** — folder structure, component conventions, where CSS lives, how components import tokens. Must be documented and agreed before anyone writes a component. This prevents the "design and code tangled" problem recurring in Phase 2.
+
+### Legal & compliance — must complete before any user data is collected
+- [ ] **GDPR — assign a session and a deadline.** Solicitor's opinion on contact discovery is outstanding. Cannot launch without this. Lexi to set a deadline. Session to cover: data retention, consent flows, right to deletion (Supabase 90-day policy), what contact discovery is/isn't legal.
+
+### Bug fixes (pre-existing, must fix before Phase 2 deploys over them)
 - [ ] Fix Sign-in OTP failure ("Load failed") — **critical blocker: returning users cannot come back**
 - [ ] Remove debug console.log commits from codebase
-- [ ] Fix "About 60 seconds" copy — actual time is ~90s
-- [ ] Input field styling (location, salary, dealbreaker) to match design system
-- [ ] Fix overscroll showing faint colour on aggressive pull
-- [ ] Rotate GitHub token (was exposed in session — Lexi deferred)
+- [ ] Rotate GitHub token (was exposed in session — Lexi has deferred, must not defer past Phase 1)
 - [ ] Merge staging backend improvements (score.js, jobs.js, analyse.js — ready and waiting)
 - [ ] Performance fix: split the ~90s analysis into two calls (Haiku for extraction, Sonnet for intelligence) + add streaming so the user sees progress rather than a blank wait
-- [ ] Next.js migration decision — assess whether to rebuild the frontend in Next.js before Stage 1. Timing: after design is locked, before build begins. (Recommended: yes — single index.html will become unmanageable at scale)
+
+### Note: stale items removed
+The following Phase 1 items predated the current design system and are now superseded by locked designs — they no longer need fixing as separate tasks (Phase 2 build will implement the correct versions):
+- ~~"About 60 seconds" copy~~ — replaced by loading screen design (LOCKED Session 10)
+- ~~Input field styling~~ — replaced by input page design (LOCKED Session 10)
+- ~~Overscroll colour~~ — will be addressed in Phase 2 implementation
+
+### Testing plan — must exist before Phase 2 deploys anything
+- [ ] **Define the testing protocol before Phase 2 begins.** Who tests what before anything goes to production? Minimum required: end-to-end happy path (new user, full analysis), OTP sign-in (returning user), job results load, no console errors. Document this as a checklist in `QA_CHECKLIST.md`.
+
+### Product name — must resolve before launch
+- [ ] **Product name session** — "Career Intelligence" is the working name. Cannot launch without a real name. Needs a dedicated creative session: options, stress-test, decision. Assign this to Phase 1 so it is resolved before Phase 2 ships anything publicly.
 
 ---
 
@@ -58,16 +84,22 @@ _Goal: Fix all known blockers before any new work is built on top of them._
 
 _Goal: Implement all locked designs. The product looks and feels like the designed version._
 
+### Analytics — set up before first real user lands
+- [ ] **Basic analytics in place before Phase 2 goes live.** Cannot know if the product is working without data. Minimum required: page views, completion rate on the input flow (how many users reach the dashboard vs. drop off), how many return within 7 days. Recommended: Plausible (privacy-friendly, simple) or Vercel Analytics (zero config, already in the stack). Decision needed at Phase 2 kickoff.
+
+### Screen implementations
 - [ ] Implement homepage redesign
-- [ ] Implement input page redesign
-- [ ] Implement loading screen
-- [ ] Implement dashboard home (with hierarchy fix applied)
+- [ ] Implement input page redesign (from locked mockup)
+- [ ] Implement loading screen (from locked mockup)
+- [ ] Implement dashboard home (from locked mockup — hierarchy fix applied)
 - [ ] Implement Roles tab (full interaction: interested/pass, advisor responds, live updates)
 - [ ] Implement sidebar navigation
-- [ ] Auth overlay redesign (sign in / sign up)
-- [ ] Applications tab — basic pipeline view (Saved / Preparing / Applied / Interview / Offer)
-- [ ] Profile tab — interactive (preferences, CV on file, direction summary)
-- [ ] Returning user experience (first return after analysis — "Welcome back, here's where we left off")
+- [ ] Implement Auth overlay (sign in / sign up — design session required in Phase 0 first)
+- [ ] Implement Applications tab — pipeline view (design session required in Phase 0 first)
+- [ ] Implement Profile tab — interactive (design session required in Phase 0 first)
+- [ ] Implement Skills tab (design session required in Phase 0 first)
+- [ ] Implement returning user experience (design session required in Phase 0 first)
+- [ ] Implement error states (design session required in Phase 0 first)
 - [ ] Advisor memory architecture — cross-session persistence (never re-asks questions)
 
 ---

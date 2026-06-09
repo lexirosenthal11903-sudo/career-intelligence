@@ -141,12 +141,12 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 **Phase 0 — Design. In progress.** Full plan: `ROADMAP.md`.
 
 **Next three things in order:**
-1. **Input page + Loading screen** — content + format design session. Not locked. Do not build.
-2. **Dashboard home hierarchy fix** — do alongside step 1
-3. **Features roadmap review** — after all design locked
+1. **Features roadmap review** — in progress (this session). Produces the sequenced plan before Phase 1 engineering begins.
+2. **Advisor name + icon session** — dedicated creative session. Do not name the advisor without this.
+3. **Missing screen design sessions** — Skills, Profile, Applications, Auth overlay, returning user experience, error states. All must be locked before Phase 2 builds them.
 
-**Live bugs (parked until design locked — do not raise unprompted):**
-OTP sign-in failure · debug console.log commits · "~60 seconds" copy wrong · input field styling · GitHub token rotation
+**Live bugs (Phase 1 — do not raise until Phase 0 complete):**
+OTP sign-in failure · debug console.log commits · GitHub token rotation (must not defer past Phase 1) · staging backend merges · performance fix (~90s pipeline)
 
 ## Professional Engineering Standards
 
