@@ -40,7 +40,7 @@ _Goal: Every screen designed and locked before a single line of engineering begi
 All of these need dedicated design sessions. None can be built before they are locked.
 - [ ] **Skills tab** — what does the skills gap map look like? How does it update?
 - [ ] **Profile tab** — interactive preferences, CV on file, direction summary. Editable?
-- [ ] **Applications tab** — pipeline view (Saved / Preparing / Applied / Interview / Offer). How do cards work?
+- [x] **Applications tab** — LOCKED (Session 12, 2026-06-10). List view + Arlo half-panel. Stages: Preparing → Applied → Interview → Offer + Archive. Cards show: role, company, stage badge, next action, closing date, assessment deadline (where applicable), collapsible timeline. Arlo does not reset per tab. Collapsible globally. See `brainstorms/applications-tab-session.md` + `mockups/dashboard-applications.html`.
 - [x] **Auth overlay** — LOCKED (Session 11, 2026-06-10). Decisions: two states (new/returning), Google OAuth + email OTP, Arlo surfaces save prompt before overlay opens, overlay is clean UI only, OTP email via Resend. See `brainstorms/auth-overlay-session.md`.
 - [ ] **Returning user experience** — first return after initial analysis. "Welcome back, here's where we left off." Critical to design: this is the retention moment.
 - [ ] **Basic error states** — what does the user see if the analysis fails? If the API is slow? If they lose connection? Must be designed, not invented during build.

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Applications — Layout Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --cream: #F5F3EE;
+    --cream-2: #EDEBE5;
+    --line: rgba(0,0,0,.07);
+    --ink: #1A1610;
+    --ink-2: #5A5040;
+    --ink-3: #9E9080;
+    --gold: #A85E16;
+    --gold-soft: rgba(168,94,22,.10);
+    --green: #3E9B6B;
+    --green-soft: rgba(62,155,107,.10);
+    --red: #C0392B;
+    --red-soft: rgba(192,57,43,.08);
+    --f: 'Instrument Sans', system-ui, sans-serif;
+    --fm: 'DM Mono', monospace;
+    --r: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E8E6E0; font-family: var(--f); -webkit-font-smoothing: antialiased; padding: 40px; }
+
+  .label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 16px; font-family: var(--fm); }
+  .caption { font-size: 13px; color: var(--ink-3); margin-top: 12px; max-width: 640px; line-height: 1.6; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+
+  /* ── SHARED SHELL ── */
+  .shell { background: var(--bg); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 20px rgba(0,0,0,.08); display: grid; grid-template-columns: 200px 1fr; height: 540px; }
+  .nav { background: var(--bg); border-right: 1px solid var(--line); padding: 18px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-brand { font-weight: 700; font-size: 13px; letter-spacing: -.02em; color: var(--ink); padding: 2px 10px 18px; }
+  .nav-item { font-size: 12.5px; font-weight: 500; color: var(--ink-2); padding: 9px 10px; border-radius: 8px; display: flex; gap: 9px; align-items: center; cursor: pointer; }
+  .nav-item svg { width: 14px; height: 14px; opacity: .5; flex: none; }
+  .nav-item:hover { background: var(--cream); }
+  .nav-item.active { background: var(--gold-soft); color: var(--gold); font-weight: 600; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-gap { flex: 1; }
+  .nav-profile { border-top: 1px solid var(--line); padding-top: 12px; display: flex; gap: 8px; align-items: center; }
+  .nav-av { width: 26px; height: 26px; border-radius: 50%; background: var(--cream-2); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; flex: none; }
+  .nav-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+
+  .main { display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 50px; padding: 0 24px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); flex: none; }
+  .topbar-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .topbar-count { font-size: 11px; color: var(--ink-3); font-family: var(--fm); }
+
+  /* ── OPTION A: LIST + STAGE FILTER ── */
+  .content-a { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+  .list-panel { padding: 20px 24px; overflow-y: auto; border-right: 1px solid var(--line); }
+  .list-panel::-webkit-scrollbar { width: 0; }
+
+  .stage-filter { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+  .stage-pill { font-size: 11px; font-weight: 600; color: var(--ink-3); background: var(--cream); border-radius: 20px; padding: 5px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .stage-pill .count { font-family: var(--fm); font-size: 10px; color: var(--ink-3); }
+  .stage-pill.active { background: var(--gold-soft); color: var(--gold); }
+  .stage-pill.active .count { color: var(--gold); }
+
+  .app-card { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; }
+  .app-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+  .app-role { font-size: 13.5px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+  .app-company { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .app-stage-badge { font-size: 10px; font-weight: 700; color: var(--gold); background: var(--gold-soft); padding: 3px 8px; border-radius: 20px; letter-spacing: .04em; text-transform: uppercase; flex: none; }
+  .app-next { font-size: 12px; color: var(--ink-2); background: var(--cream); border-radius: 8px; padding: 8px 10px; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+  .app-next::before { content: "→"; color: var(--gold); font-weight: 700; flex: none; }
+  .app-closing { font-size: 11px; color: var(--ink-3); margin-top: 8px; font-family: var(--fm); }
+  .app-closing.urgent { color: var(--gold); font-weight: 600; }
+
+  /* ── OPTION B: KANBAN ── */
+  .content-b { flex: 1; overflow-x: auto; overflow-y: hidden; }
+  .kanban { display: flex; gap: 0; height: 100%; }
+  .kanban-col { flex: none; width: 180px; border-right: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; }
+  .kanban-col:last-child { border-right: none; }
+  .kanban-head { padding: 14px 14px 10px; border-bottom: 1px solid var(--line); flex: none; }
+  .kanban-title { font-size: 11px; font-weight: 700; color: var(--ink-3); letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; }
+  .kanban-count { font-family: var(--fm); font-size: 10px; color: var(--ink-3); }
+  .kanban-cards { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+  .kanban-cards::-webkit-scrollbar { width: 0; }
+  .k-card { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; }
+  .k-role { font-size: 12px; font-weight: 700; color: var(--ink); line-height: 1.3; margin-bottom: 4px; }
+  .k-company { font-size: 11px; color: var(--ink-3); }
+  .k-next { font-size: 11px; color: var(--ink-2); background: var(--cream); border-radius: 6px; padding: 5px 8px; margin-top: 8px; line-height: 1.4; }
+  .k-closing { font-size: 10px; color: var(--ink-3); margin-top: 6px; font-family: var(--fm); }
+  .k-closing.urgent { color: var(--gold); font-weight: 600; }
+  .k-card.empty-col { background: none; border: 1.5px dashed var(--line); opacity: .5; }
+
+  /* shared advisor panel */
+  .mentor { background: var(--cream); display: flex; flex-direction: column; overflow: hidden; }
+  .mentor-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); flex: none; display: flex; align-items: center; gap: 10px; }
+  .mentor-av { width: 34px; height: 34px; border-radius: 50%; background: var(--cream-2); display: flex; align-items: center; justify-content: center; flex: none; }
+  .mentor-av svg { width: 16px; height: 16px; color: var(--ink-2); }
+  .mentor-head-name { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .mentor-head-status { font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 5px; }
+  .mentor-head-status::before { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex: none; }
+  .mentor-messages { flex: 1; overflow-y: auto; padding: 18px 20px 12px; display: flex; flex-direction: column; gap: 14px; }
+  .mentor-messages::-webkit-scrollbar { width: 0; }
+  .ai-bubble { background: var(--bg); border-radius: 4px 14px 14px 14px; padding: 12px 14px; font-size: 12.5px; line-height: 1.7; color: var(--ink-2); max-width: 280px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .mentor-input-wrap { padding: 12px 16px 16px; flex: none; }
+  .mentor-input-card { background: var(--bg); border-radius: 12px; padding: 3px 3px 3px 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05); }
+  .mentor-input { flex: 1; border: none; background: none; font-family: var(--f); font-size: 12.5px; color: var(--ink); outline: none; padding: 8px 0; }
+  .mentor-input::placeholder { color: var(--ink-3); }
+  .mentor-send { width: 32px; height: 32px; border-radius: 9px; flex: none; background: var(--gold); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .mentor-send svg { width: 12px; height: 12px; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="label">Option A — List view with stage filter</div>
+
+<div style="max-width:860px;">
+  <div class="shell">
+    <!-- NAV -->
+    <nav class="nav">
+      <div class="nav-brand">Career Intelligence</div>
+      <div class="nav-item">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>Home
+      </div>
+      <div class="nav-item">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>Roles
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2H9a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Applications
+      </div>
+      <div class="nav-item">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zM8 6v4M6 8h4"/></svg>Skills
+      </div>
+      <div class="nav-gap"></div>
+      <div class="nav-profile">
+        <div class="nav-av">L</div>
+        <div><div class="nav-name">Lexi</div></div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <span class="topbar-title">Applications</span>
+        <span class="topbar-count">5 active</span>
+      </div>
+      <div class="content-a">
+        <!-- LIST -->
+        <div class="list-panel">
+          <div class="stage-filter">
+            <div class="stage-pill active">All <span class="count">5</span></div>
+            <div class="stage-pill">Preparing <span class="count">2</span></div>
+            <div class="stage-pill">Applied <span class="count">2</span></div>
+            <div class="stage-pill">Interview <span class="count">1</span></div>
+          </div>
+
+          <div class="app-card">
+            <div class="app-card-top">
+              <div>
+                <div class="app-role">Product Manager</div>
+                <div class="app-company">Monzo · London</div>
+              </div>
+              <div class="app-stage-badge">Interview</div>
+            </div>
+            <div class="app-next">Prepare for second-round interview</div>
+            <div class="app-closing">Closes 18 Jun</div>
+          </div>
+
+          <div class="app-card">
+            <div class="app-card-top">
+              <div>
+                <div class="app-role">Strategy Analyst</div>
+                <div class="app-company">Deloitte · London</div>
+              </div>
+              <div class="app-stage-badge" style="color:var(--ink-2);background:var(--cream);">Applied</div>
+            </div>
+            <div class="app-next">Follow up if no response by Friday</div>
+            <div class="app-closing urgent">Closes 13 Jun · 3 days</div>
+          </div>
+
+          <div class="app-card">
+            <div class="app-card-top">
+              <div>
+                <div class="app-role">Operations Associate</div>
+                <div class="app-company">Deliveroo · London</div>
+              </div>
+              <div class="app-stage-badge" style="color:var(--ink-2);background:var(--cream);">Preparing</div>
+            </div>
+            <div class="app-next">Draft cover letter</div>
+            <div class="app-closing">Closes 25 Jun</div>
+          </div>
+        </div>
+
+        <!-- ADVISOR -->
+        <div class="mentor">
+          <div class="mentor-head">
+            <div class="mentor-av">
+              <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path stroke-linecap="round" d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5"/></svg>
+            </div>
+            <div>
+              <div class="mentor-head-name">Arlo</div>
+              <div class="mentor-head-status">Active</div>
+            </div>
+          </div>
+          <div class="mentor-messages">
+            <div class="ai-bubble">Your Deloitte application closes in <strong>3 days</strong> and you haven't heard back. Worth sending a quick follow-up today.</div>
+            <div class="ai-bubble" style="margin-top:4px;">You've got a second-round interview with Monzo coming up — want me to help you prep?</div>
+          </div>
+          <div class="mentor-input-wrap">
+            <div class="mentor-input-card">
+              <input class="mentor-input" placeholder="Ask Arlo…" />
+              <button class="mentor-send">
+                <svg fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="caption">Stage filter at the top. One card per application, stacked in a list. Closing urgency shown inline. Arlo's panel unchanged from other tabs.</div>
+
+<br><br>
+
+<div class="label">Option B — Kanban columns</div>
+
+<div style="max-width:860px;">
+  <div class="shell">
+    <!-- NAV -->
+    <nav class="nav">
+      <div class="nav-brand">Career Intelligence</div>
+      <div class="nav-item">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>Home
+      </div>
+      <div class="nav-item">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>Roles
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2H9a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Applications
+      </div>
+      <div class="nav-item">
+        <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zM8 6v4M6 8h4"/></svg>Skills
+      </div>
+      <div class="nav-gap"></div>
+      <div class="nav-profile">
+        <div class="nav-av">L</div>
+        <div><div class="nav-name">Lexi</div></div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <span class="topbar-title">Applications</span>
+        <span class="topbar-count">5 active</span>
+      </div>
+      <div class="content-b">
+        <div class="kanban">
+          <!-- Preparing -->
+          <div class="kanban-col">
+            <div class="kanban-head">
+              <div class="kanban-title">Preparing <span class="kanban-count">2</span></div>
+            </div>
+            <div class="kanban-cards">
+              <div class="k-card">
+                <div class="k-role">Operations Associate</div>
+                <div class="k-company">Deliveroo</div>
+                <div class="k-next">Draft cover letter</div>
+                <div class="k-closing">Closes 25 Jun</div>
+              </div>
+              <div class="k-card">
+                <div class="k-role">UX Researcher</div>
+                <div class="k-company">Wise</div>
+                <div class="k-next">Complete online test</div>
+                <div class="k-closing">Closes 20 Jun</div>
+              </div>
+            </div>
+          </div>
+          <!-- Applied -->
+          <div class="kanban-col">
+            <div class="kanban-head">
+              <div class="kanban-title">Applied <span class="kanban-count">2</span></div>
+            </div>
+            <div class="kanban-cards">
+              <div class="k-card">
+                <div class="k-role">Strategy Analyst</div>
+                <div class="k-company">Deloitte</div>
+                <div class="k-next">Follow up by Friday</div>
+                <div class="k-closing urgent">Closes 13 Jun · 3d</div>
+              </div>
+              <div class="k-card">
+                <div class="k-role">Graduate Scheme</div>
+                <div class="k-company">HSBC</div>
+                <div class="k-next">Awaiting response</div>
+                <div class="k-closing">Closes 30 Jun</div>
+              </div>
+            </div>
+          </div>
+          <!-- Interview -->
+          <div class="kanban-col">
+            <div class="kanban-head">
+              <div class="kanban-title">Interview <span class="kanban-count">1</span></div>
+            </div>
+            <div class="kanban-cards">
+              <div class="k-card">
+                <div class="k-role">Product Manager</div>
+                <div class="k-company">Monzo</div>
+                <div class="k-next">Prep second round</div>
+                <div class="k-closing">Closes 18 Jun</div>
+              </div>
+            </div>
+          </div>
+          <!-- Offer -->
+          <div class="kanban-col">
+            <div class="kanban-head">
+              <div class="kanban-title">Offer <span class="kanban-count">0</span></div>
+            </div>
+            <div class="kanban-cards">
+              <div class="k-card empty-col">
+                <div class="k-role" style="color:var(--ink-3);font-weight:500;">Nothing yet</div>
+              </div>
+            </div>
+          </div>
+          <!-- Advisor -->
+          <div class="mentor" style="flex:none;width:220px;border-left:1px solid var(--line);">
+            <div class="mentor-head">
+              <div class="mentor-av">
+                <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path stroke-linecap="round" d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5"/></svg>
+              </div>
+              <div>
+                <div class="mentor-head-name">Arlo</div>
+                <div class="mentor-head-status">Active</div>
+              </div>
+            </div>
+            <div class="mentor-messages">
+              <div class="ai-bubble">Deloitte closes in <strong>3 days</strong>. Send a follow-up today.</div>
+              <div class="ai-bubble" style="margin-top:4px;">Monzo second round coming up — want help prepping?</div>
+            </div>
+            <div class="mentor-input-wrap">
+              <div class="mentor-input-card">
+                <input class="mentor-input" placeholder="Ask Arlo…" />
+                <button class="mentor-send">
+                  <svg fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="caption">Pipeline as columns. You can see all stages simultaneously. Arlo squeezed into the rightmost column — noticeably tighter. With more applications, columns scroll independently.</div>
+
+</body>
+</html>

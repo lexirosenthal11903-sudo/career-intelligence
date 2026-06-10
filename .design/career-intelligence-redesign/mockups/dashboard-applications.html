@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Dashboard — Applications</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --cream: #F5F3EE;
+    --cream-2: #EDEBE5;
+    --line: rgba(0,0,0,.07);
+    --ink: #1A1610;
+    --ink-2: #5A5040;
+    --ink-3: #9E9080;
+    --gold: #A85E16;
+    --gold-soft: rgba(168,94,22,.10);
+    --green: #3E9B6B;
+    --green-soft: rgba(62,155,107,.10);
+    --f: 'Instrument Sans', system-ui, sans-serif;
+    --fm: 'DM Mono', monospace;
+    --r: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--f); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+
+  .shell { display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .nav { background: var(--bg); border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; gap: 2px; z-index: 20; }
+  .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -.02em; color: var(--ink); padding: 2px 10px 22px; }
+  .nav-item { font-size: 13.5px; font-weight: 500; color: var(--ink-2); padding: 10px 12px; border-radius: 10px; display: flex; gap: 11px; align-items: center; cursor: pointer; user-select: none; }
+  .nav-item svg { width: 16px; height: 16px; opacity: .5; flex: none; }
+  .nav-item:hover { background: var(--cream); color: var(--ink); }
+  .nav-item.active { background: var(--gold-soft); color: var(--gold); font-weight: 600; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-gap { flex: 1; }
+  .nav-profile { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 6px; display: flex; gap: 10px; align-items: center; }
+  .nav-av { width: 30px; height: 30px; border-radius: 50%; background: var(--cream-2); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex: none; }
+  .nav-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .nav-email { font-size: 11px; color: var(--ink-3); }
+
+  /* ── MAIN ── */
+  .main { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .topbar { height: 54px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); flex: none; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .topbar-count { font-size: 12px; color: var(--ink-3); font-family: var(--fm); }
+  .topbar-toggle { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: var(--f); font-size: 12px; font-weight: 500; color: var(--ink-3); }
+  .topbar-toggle svg { width: 14px; height: 14px; }
+  .topbar-toggle:hover { background: var(--cream); color: var(--ink); }
+
+  /* ── 50/50 SPLIT ── */
+  .content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; transition: grid-template-columns .25s ease; }
+  .content.arlo-hidden { grid-template-columns: 1fr 0px; }
+
+  /* ══════════════════════════════
+     LEFT — APPLICATIONS
+  ══════════════════════════════ */
+  .applications { padding: 32px 40px; overflow-y: auto; border-right: 1px solid var(--line); }
+  .applications::-webkit-scrollbar { width: 0; }
+
+  /* stage filter */
+  .stage-filter { display: flex; gap: 6px; margin-bottom: 28px; flex-wrap: nowrap; align-items: center; }
+  .stage-pill { font-size: 12px; font-weight: 600; color: var(--ink-3); background: var(--cream); border-radius: 20px; padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent; transition: all .15s; user-select: none; }
+  .stage-pill .pill-count { font-family: var(--fm); font-size: 10px; }
+  .stage-pill:hover { background: var(--cream-2); color: var(--ink-2); }
+  .stage-pill.active { background: var(--gold-soft); color: var(--gold); border-color: rgba(168,94,22,.15); }
+  .stage-pill.active .pill-count { color: var(--gold); }
+  .stage-pill.archive { color: var(--ink-3); opacity: .6; margin-left: auto; }
+
+  /* application cards */
+  .app-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .app-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 20px 22px;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .app-card:hover { border-color: rgba(0,0,0,.13); box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+
+  .app-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .app-card-meta { flex: 1; min-width: 0; }
+  .app-role { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; margin-bottom: 4px; }
+  .app-company { font-size: 13px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+  .app-dot { width: 2px; height: 2px; border-radius: 50%; background: var(--ink-3); flex: none; }
+
+  .stage-badge { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; flex: none; }
+  .stage-badge.interview { color: var(--gold); background: var(--gold-soft); }
+  .stage-badge.applied { color: var(--ink-2); background: var(--cream); }
+  .stage-badge.preparing { color: var(--ink-3); background: var(--cream); }
+
+  .app-next-action {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 11px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .app-next-arrow { color: var(--gold); font-weight: 700; font-size: 13px; flex: none; margin-top: 1px; }
+  .app-next-text { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+
+  .app-card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .app-closing { font-size: 11.5px; color: var(--ink-3); font-family: var(--fm); display: flex; align-items: center; gap: 6px; }
+  .app-closing.urgent { color: var(--gold); font-weight: 500; }
+  .app-closing-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); flex: none; }
+
+  .btn-move { font-family: var(--f); font-size: 12px; font-weight: 600; color: var(--ink-3); background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 14px; cursor: pointer; transition: all .15s; }
+  .btn-move:hover { background: var(--gold-soft); color: var(--gold); border-color: rgba(168,94,22,.2); }
+  .btn-move.primary { background: var(--gold); color: #fff; border-color: var(--gold); }
+  .btn-move.primary:hover { background: #8F4E10; }
+
+  /* checklist inside interview card */
+  .checklist { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .check-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); }
+  .check-box { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid var(--line); flex: none; display: flex; align-items: center; justify-content: center; }
+  .check-box.done { background: var(--green); border-color: var(--green); }
+  .check-box.done svg { width: 9px; height: 9px; color: #fff; }
+  .check-item.done-item { color: var(--ink-3); }
+  .check-item-date { font-size: 11px; color: var(--ink-3); font-family: var(--fm); margin-left: auto; }
+
+  /* timeline */
+  .timeline-wrap { border-top: 1px solid var(--line); margin-top: 14px; }
+  .timeline-toggle { width: 100%; background: none; border: none; cursor: pointer; padding: 12px 0 0; display: flex; align-items: center; justify-content: space-between; font-family: var(--f); }
+  .timeline-summary { font-size: 12px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+  .timeline-summary-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
+  .timeline-chevron { color: var(--ink-3); transition: transform .2s ease; flex: none; }
+  .timeline-toggle[aria-expanded="true"] .timeline-chevron { transform: rotate(180deg); }
+  .timeline { padding-top: 14px; display: flex; flex-direction: column; gap: 0; }
+  .timeline[hidden] { display: none; }
+  .timeline-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 14px; position: relative; }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-left { display: flex; flex-direction: column; align-items: center; flex: none; width: 16px; }
+  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; margin-top: 4px; }
+  .timeline-dot.pending { background: none; border: 1.5px solid var(--ink-4, #BDB7AC); }
+  .timeline-line { width: 1.5px; background: var(--line); flex: 1; min-height: 18px; margin-top: 3px; }
+  .timeline-item:last-child .timeline-line { display: none; }
+  .timeline-body { flex: 1; }
+  .timeline-label { font-size: 13px; font-weight: 600; color: var(--ink-2); line-height: 1.4; }
+  .timeline-label.pending { color: var(--ink-3); font-weight: 500; }
+  .timeline-date { font-size: 11px; color: var(--ink-3); font-family: var(--fm); margin-top: 2px; }
+
+  /* ══════════════════════════════
+     RIGHT — ADVISOR
+  ══════════════════════════════ */
+  .mentor { background: var(--cream); display: flex; flex-direction: column; overflow: hidden; }
+  .mentor-head { padding: 26px 32px 22px; border-bottom: 1px solid var(--line); flex: none; display: flex; align-items: center; gap: 14px; }
+  .mentor-av { width: 42px; height: 42px; border-radius: 50%; background: var(--cream-2); display: flex; align-items: center; justify-content: center; flex: none; }
+  .mentor-av svg { width: 20px; height: 20px; color: var(--ink-2); }
+  .mentor-head-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .mentor-head-status { font-size: 12px; color: var(--ink-3); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .mentor-head-status::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
+
+  .mentor-messages { flex: 1; overflow-y: auto; padding: 28px 32px 20px; display: flex; flex-direction: column; gap: 20px; }
+  .mentor-messages::-webkit-scrollbar { width: 0; }
+
+  .ai-msg { display: flex; flex-direction: column; gap: 8px; }
+  .ai-bubble { background: var(--bg); border-radius: 4px 16px 16px 16px; padding: 15px 18px; font-size: 14px; line-height: 1.75; color: var(--ink-2); max-width: 380px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .ai-bubble strong { color: var(--ink); font-weight: 700; }
+  .ai-bubble + .ai-bubble { border-radius: 16px; }
+
+  .user-msg { display: flex; justify-content: flex-end; }
+  .user-bubble { background: var(--gold); border-radius: 16px 4px 16px 16px; padding: 13px 18px; font-size: 14px; line-height: 1.65; color: #fff; max-width: 320px; }
+
+  .mentor-input-wrap { padding: 18px 24px 24px; flex: none; }
+  .mentor-input-card { background: var(--bg); border-radius: 16px; padding: 4px 4px 4px 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05); }
+  .mentor-input { flex: 1; border: none; background: none; font-family: var(--f); font-size: 14px; color: var(--ink); outline: none; padding: 11px 0; }
+  .mentor-input::placeholder { color: var(--ink-3); }
+  .mentor-send { width: 38px; height: 38px; border-radius: 12px; flex: none; background: var(--gold); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .mentor-send svg { width: 14px; height: 14px; color: #fff; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="nav">
+    <div class="nav-brand">Career Intelligence</div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>
+      Home
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>
+      Roles
+    </div>
+    <div class="nav-item active">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2H9a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Applications
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zM8 6v4M6 8h4"/></svg>
+      Skills
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="6" r="3"/><path stroke-linecap="round" d="M2 14c0-3.314 2.686-4 6-4s6 .686 6 4"/></svg>
+      Profile
+    </div>
+    <div class="nav-gap"></div>
+    <div class="nav-profile">
+      <div class="nav-av">L</div>
+      <div>
+        <div class="nav-name">Lexi</div>
+        <div class="nav-email">lexi@gmail.com</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Applications</span>
+        <span class="topbar-count">5 active</span>
+      </div>
+      <button class="topbar-toggle" id="arloToggle" onclick="toggleArlo()">
+        <svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="5" r="2.5"/><path stroke-linecap="round" d="M1.5 12c0-2.761 2.462-4 5.5-4s5.5 1.239 5.5 4"/></svg>
+        Hide Arlo
+      </button>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- APPLICATIONS LIST -->
+      <div class="applications">
+
+        <div class="stage-filter">
+          <div class="stage-pill active">All <span class="pill-count">5</span></div>
+          <div class="stage-pill">Preparing <span class="pill-count">2</span></div>
+          <div class="stage-pill">Applied <span class="pill-count">2</span></div>
+          <div class="stage-pill">Interview <span class="pill-count">1</span></div>
+          <div class="stage-pill">Offer <span class="pill-count">0</span></div>
+          <div class="stage-pill archive">Archive <span class="pill-count">3</span></div>
+        </div>
+
+        <div class="app-list">
+
+          <!-- Interview card — with checklist -->
+          <div class="app-card">
+            <div class="app-card-header">
+              <div class="app-card-meta">
+                <div class="app-role">Product Manager</div>
+                <div class="app-company">Monzo <span class="app-dot"></span> London</div>
+              </div>
+              <div class="stage-badge interview">Interview</div>
+            </div>
+            <div class="app-next-action">
+              <span class="app-next-arrow">→</span>
+              <span class="app-next-text">Prepare for second-round interview</span>
+            </div>
+            <div class="timeline-wrap">
+              <button class="timeline-toggle" aria-expanded="false" onclick="toggleTimeline(this)">
+                <span class="timeline-summary">
+                  <span class="timeline-summary-dot"></span>
+                  3 stages completed · Applied → 2nd round
+                </span>
+                <svg class="timeline-chevron" width="14" height="14" fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5l4 4 4-4"/></svg>
+              </button>
+              <div class="timeline" hidden>
+                <div class="timeline-item">
+                  <div class="timeline-left">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                  </div>
+                  <div class="timeline-body">
+                    <div class="timeline-label">Applied</div>
+                    <div class="timeline-date">2 Jun</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-left">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                  </div>
+                  <div class="timeline-body">
+                    <div class="timeline-label">Online assessment</div>
+                    <div class="timeline-date">8 Jun · 6 days later</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-left">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                  </div>
+                  <div class="timeline-body">
+                    <div class="timeline-label">First-round interview</div>
+                    <div class="timeline-date">12 Jun · 4 days later</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-left">
+                    <div class="timeline-dot pending"></div>
+                  </div>
+                  <div class="timeline-body">
+                    <div class="timeline-label pending">Second-round interview</div>
+                    <div class="timeline-date">25 Jun · upcoming</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="app-card-footer" style="margin-top:14px;">
+              <div class="app-closing">Closes 18 Jun</div>
+              <button class="btn-move primary">Move to Offer</button>
+            </div>
+          </div>
+
+          <!-- Applied — urgent -->
+          <div class="app-card">
+            <div class="app-card-header">
+              <div class="app-card-meta">
+                <div class="app-role">Strategy Analyst</div>
+                <div class="app-company">Deloitte <span class="app-dot"></span> London</div>
+              </div>
+              <div class="stage-badge applied">Applied</div>
+            </div>
+            <div class="app-next-action">
+              <span class="app-next-arrow">→</span>
+              <span class="app-next-text">Follow up if no response by Friday</span>
+            </div>
+            <div class="app-card-footer">
+              <div class="app-closing urgent">
+                <span class="app-closing-dot"></span>
+                Closes 13 Jun · 3 days
+              </div>
+              <button class="btn-move">Move to Interview</button>
+            </div>
+          </div>
+
+          <!-- Applied — online assessment with deadline -->
+          <div class="app-card">
+            <div class="app-card-header">
+              <div class="app-card-meta">
+                <div class="app-role">Graduate Scheme</div>
+                <div class="app-company">HSBC <span class="app-dot"></span> London</div>
+              </div>
+              <div class="stage-badge applied">Applied</div>
+            </div>
+            <div class="app-next-action">
+              <span class="app-next-arrow">→</span>
+              <span class="app-next-text">Complete online assessment</span>
+            </div>
+            <div class="app-card-footer">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <div class="app-closing urgent">
+                  <span class="app-closing-dot"></span>
+                  Assessment due 14 Jun · 4 days
+                </div>
+                <div class="app-closing">Application closes 30 Jun</div>
+              </div>
+              <button class="btn-move">Move to Interview</button>
+            </div>
+          </div>
+
+          <!-- Preparing -->
+          <div class="app-card">
+            <div class="app-card-header">
+              <div class="app-card-meta">
+                <div class="app-role">Operations Associate</div>
+                <div class="app-company">Deliveroo <span class="app-dot"></span> London</div>
+              </div>
+              <div class="stage-badge preparing">Preparing</div>
+            </div>
+            <div class="app-next-action">
+              <span class="app-next-arrow">→</span>
+              <span class="app-next-text">Draft cover letter</span>
+            </div>
+            <div class="app-card-footer">
+              <div class="app-closing">Closes 25 Jun</div>
+              <button class="btn-move">Mark as applied</button>
+            </div>
+          </div>
+
+          <!-- Preparing -->
+          <div class="app-card">
+            <div class="app-card-header">
+              <div class="app-card-meta">
+                <div class="app-role">UX Researcher</div>
+                <div class="app-company">Wise <span class="app-dot"></span> London</div>
+              </div>
+              <div class="stage-badge preparing">Preparing</div>
+            </div>
+            <div class="app-next-action">
+              <span class="app-next-arrow">→</span>
+              <span class="app-next-text">Complete online skills test</span>
+            </div>
+            <div class="app-card-footer">
+              <div class="app-closing">Closes 20 Jun</div>
+              <button class="btn-move">Mark as applied</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ADVISOR PANEL -->
+      <div class="mentor" id="mentorPanel">
+        <div class="mentor-head">
+          <div class="mentor-av">
+            <svg fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="3.5"/><path stroke-linecap="round" d="M2 18c0-4.418 3.582-6 8-6s8 1.582 8 6"/></svg>
+          </div>
+          <div>
+            <div class="mentor-head-name">Arlo</div>
+            <div class="mentor-head-status">Here with you</div>
+          </div>
+        </div>
+        <div class="mentor-messages">
+          <div class="ai-msg">
+            <div class="ai-bubble">Your <strong>Deloitte</strong> application closes in 3 days and you haven't heard back. A short follow-up email today would be worth sending.</div>
+            <div class="ai-bubble">You're also through to the second round at <strong>Monzo</strong> — that's a real win. Want me to help you prepare?</div>
+          </div>
+          <div class="user-msg">
+            <div class="user-bubble">Yes please — what should I focus on?</div>
+          </div>
+          <div class="ai-msg">
+            <div class="ai-bubble">Second rounds at Monzo tend to be case-based. Given your background, I'd focus on structuring your thinking clearly rather than knowing every answer. Want me to run a practice question with you?</div>
+          </div>
+        </div>
+        <div class="mentor-input-wrap">
+          <div class="mentor-input-card">
+            <input class="mentor-input" placeholder="Ask Arlo…" />
+            <button class="mentor-send">
+              <svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2 7h10M7 2l5 5-5 5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleTimeline(btn) {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', !expanded);
+    const timeline = btn.nextElementSibling;
+    if (expanded) {
+      timeline.setAttribute('hidden', '');
+    } else {
+      timeline.removeAttribute('hidden');
+    }
+  }
+
+  let arloVisible = true;
+  function toggleArlo() {
+    const content = document.getElementById('content');
+    const panel = document.getElementById('mentorPanel');
+    const btn = document.getElementById('arloToggle');
+    arloVisible = !arloVisible;
+    if (arloVisible) {
+      content.style.gridTemplateColumns = '1fr 1fr';
+      panel.style.display = 'flex';
+      btn.innerHTML = `<svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="5" r="2.5"/><path stroke-linecap="round" d="M1.5 12c0-2.761 2.462-4 5.5-4s5.5 1.239 5.5 4"/></svg> Hide Arlo`;
+    } else {
+      content.style.gridTemplateColumns = '1fr 0px';
+      panel.style.display = 'none';
+      btn.innerHTML = `<svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="5" r="2.5"/><path stroke-linecap="round" d="M1.5 12c0-2.761 2.462-4 5.5-4s5.5 1.239 5.5 4"/></svg> Show Arlo`;
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Auth Overlay — All States</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F1F0EB;
+    --accent: #B05E16;
+    --accent-soft: rgba(176, 94, 22, 0.08);
+    --deep: #211A11;
+    --deep-2: #2E2417;
+    --ink-3: #837B6D;
+    --ink-4: #BDB7AC;
+    --ink-5: #E6E3DC;
+    --green: #2E7D55;
+    --red-soft: #C0392B;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #E8E6E0;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+  }
+
+  /* ── Page labels ─────────────────────────────────────── */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .row {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* ── Overlay backdrop ────────────────────────────────── */
+  .overlay-backdrop {
+    width: 420px;
+    height: 560px;
+    background: rgba(33, 26, 17, 0.48);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .overlay-backdrop.compact {
+    height: 480px;
+  }
+
+  .overlay-backdrop.otp {
+    height: 500px;
+  }
+
+  .overlay-backdrop.error-h {
+    height: 520px;
+  }
+
+  /* ── Modal card ──────────────────────────────────────── */
+  .modal {
+    width: 340px;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 36px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 24px 64px rgba(33,26,17,0.22), 0 4px 12px rgba(33,26,17,0.08);
+  }
+
+  /* ── Wordmark ────────────────────────────────────────── */
+  .modal-wordmark {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-bottom: 24px;
+  }
+
+  /* ── Heading ─────────────────────────────────────────── */
+  .modal-heading {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--deep);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .modal-sub {
+    font-size: 13px;
+    color: var(--ink-3);
+    line-height: 1.55;
+    margin-bottom: 28px;
+  }
+
+  /* ── Google button ───────────────────────────────────── */
+  .btn-google {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid var(--ink-5);
+    border-radius: 8px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--deep);
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .btn-google:hover {
+    border-color: var(--ink-4);
+    background: var(--surface-2);
+  }
+
+  .google-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ── Divider ─────────────────────────────────────────── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--ink-5);
+  }
+
+  .divider-text {
+    font-size: 11px;
+    color: var(--ink-4);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* ── Email input ─────────────────────────────────────── */
+  .input-field {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid var(--ink-5);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 0 14px;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    font-size: 14px;
+    color: var(--deep);
+    outline: none;
+    margin-bottom: 12px;
+  }
+
+  .input-field:focus {
+    border-color: var(--accent);
+  }
+
+  .input-field::placeholder {
+    color: var(--ink-4);
+  }
+
+  /* ── OTP input ───────────────────────────────────────── */
+  .otp-input {
+    width: 100%;
+    height: 52px;
+    border: 1.5px solid var(--ink-5);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 0 14px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 22px;
+    letter-spacing: 0.22em;
+    color: var(--deep);
+    text-align: center;
+    outline: none;
+    margin-bottom: 12px;
+  }
+
+  .otp-input:focus {
+    border-color: var(--accent);
+  }
+
+  .otp-input::placeholder {
+    color: var(--ink-5);
+    letter-spacing: 0.18em;
+  }
+
+  /* ── Primary button ──────────────────────────────────── */
+  .btn-primary {
+    width: 100%;
+    height: 44px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    margin-bottom: 12px;
+  }
+
+  /* ── Skip / secondary links ──────────────────────────── */
+  .link-secondary {
+    display: block;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-3);
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1.5;
+  }
+
+  .link-secondary span {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Inline status messages ──────────────────────────── */
+  .status-msg {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+  }
+
+  .status-msg.error {
+    background: rgba(192, 57, 43, 0.07);
+    color: var(--red-soft);
+  }
+
+  .status-msg.info {
+    background: var(--surface-2);
+    color: var(--ink-3);
+  }
+
+  /* ── Waiting hint ────────────────────────────────────── */
+  .waiting-hint {
+    font-size: 12px;
+    color: var(--ink-4);
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  /* ── Resend link ─────────────────────────────────────── */
+  .resend-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 0;
+  }
+
+  .resend-row span {
+    font-size: 12px;
+    color: var(--ink-4);
+  }
+
+  .resend-link {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Simulate a filled email input */
+  .input-filled {
+    border-color: var(--ink-4);
+    color: var(--deep);
+  }
+
+  /* Active/focus state */
+  .input-active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(176, 94, 22, 0.1);
+  }
+
+</style>
+</head>
+<body>
+
+<p class="section-label">Auth overlay — all states</p>
+
+<div class="row">
+
+  <!-- ── STATE 1: New user (post-analysis) ── -->
+  <div class="col">
+    <p class="section-label">New user — save results</p>
+    <div class="overlay-backdrop">
+      <div class="modal">
+        <div class="modal-wordmark">Career Intelligence</div>
+        <div class="modal-heading">Save your results.</div>
+        <p class="modal-sub">Create an account to keep your analysis, track applications, and come back whenever you're ready.</p>
+
+        <button class="btn-google">
+          <!-- Google G mark -->
+          <svg class="google-icon" viewBox="0 0 18 18" fill="none">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <input class="input-field" type="email" placeholder="your@email.com">
+        <button class="btn-primary">Send me a code</button>
+        <a class="link-secondary"><span>Continue without saving</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATE 2: Returning user (sign in) ── -->
+  <div class="col">
+    <p class="section-label">Returning user — sign in</p>
+    <div class="overlay-backdrop compact">
+      <div class="modal">
+        <div class="modal-wordmark">Career Intelligence</div>
+        <div class="modal-heading">Welcome back.</div>
+        <p class="modal-sub">Sign in to pick up where you left off.</p>
+
+        <button class="btn-google">
+          <svg class="google-icon" viewBox="0 0 18 18" fill="none">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <input class="input-field" type="email" placeholder="your@email.com">
+        <button class="btn-primary">Send me a code</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="row">
+
+  <!-- ── STATE 3: OTP waiting ── -->
+  <div class="col">
+    <p class="section-label">OTP — waiting for code</p>
+    <div class="overlay-backdrop otp">
+      <div class="modal">
+        <div class="modal-wordmark">Career Intelligence</div>
+        <div class="modal-heading">Check your inbox.</div>
+        <p class="modal-sub">We sent a 6-digit code to <strong style="color:var(--deep);font-weight:600;">your@email.com</strong></p>
+
+        <input class="otp-input" type="text" placeholder="· · · · · ·">
+
+        <p class="waiting-hint">Takes about 30 seconds to arrive.</p>
+
+        <button class="btn-primary">Verify</button>
+
+        <div class="resend-row">
+          <span>Didn't get it?</span>
+          <a class="resend-link">Resend</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATE 4: Wrong code error ── -->
+  <div class="col">
+    <p class="section-label">OTP — wrong code</p>
+    <div class="overlay-backdrop otp">
+      <div class="modal">
+        <div class="modal-wordmark">Career Intelligence</div>
+        <div class="modal-heading">Check your inbox.</div>
+        <p class="modal-sub">We sent a 6-digit code to <strong style="color:var(--deep);font-weight:600;">your@email.com</strong></p>
+
+        <input class="otp-input input-active" type="text" value="847 293" style="border-color:#C0392B;box-shadow:0 0 0 3px rgba(192,57,43,0.08);">
+
+        <div class="status-msg error">That code didn't match — try again, or resend.</div>
+
+        <button class="btn-primary" style="margin-bottom:12px;">Try again</button>
+
+        <div class="resend-row">
+          <span>Didn't get it?</span>
+          <a class="resend-link">Resend</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATE 5: Expired code ── -->
+  <div class="col">
+    <p class="section-label">OTP — expired code</p>
+    <div class="overlay-backdrop error-h">
+      <div class="modal">
+        <div class="modal-wordmark">Career Intelligence</div>
+        <div class="modal-heading">Check your inbox.</div>
+        <p class="modal-sub">We sent a 6-digit code to <strong style="color:var(--deep);font-weight:600;">your@email.com</strong></p>
+
+        <input class="otp-input" type="text" placeholder="· · · · · ·">
+
+        <div class="status-msg info">That code has expired — we've sent you a fresh one.</div>
+
+        <button class="btn-primary">Verify</button>
+
+        <div class="resend-row">
+          <span>Didn't get it?</span>
+          <a class="resend-link">Resend again</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
