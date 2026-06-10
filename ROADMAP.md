@@ -24,7 +24,7 @@ _Goal: Every screen designed and locked before a single line of engineering begi
 - ✓ Design language — tokens, colour, typography, component rules (`SESSION_DECISIONS.md`)
 - ✓ Homepage — direction locked (provisional; final polish after dashboard complete)
 - ✓ Dashboard home — provisionally locked (known issue: visual hierarchy, equal weight — must fix)
-- ✓ Roles tab — locked (`mockups/dashboard-roles.html`)
+- ✓ Roles tab — locked (`mockups/dashboard-roles-v2.html` + `mockups/role-detail.html`) — redesigned Session 13
 - ✓ Advisor persona foundation — `ADVISOR_PERSONA.md` created
 
 ### In progress
@@ -42,7 +42,7 @@ All of these need dedicated design sessions. None can be built before they are l
 - [ ] **Profile tab** — interactive preferences, CV on file, direction summary. Editable?
 - [x] **Applications tab** — LOCKED (Session 12, 2026-06-10). List view + Arlo half-panel. Stages: Preparing → Applied → Interview → Offer + Archive. Cards show: role, company, stage badge, next action, closing date, assessment deadline (where applicable), collapsible timeline. Arlo does not reset per tab. Collapsible globally. See `brainstorms/applications-tab-session.md` + `mockups/dashboard-applications.html`.
 - [x] **Auth overlay** — LOCKED (Session 11, 2026-06-10). Decisions: two states (new/returning), Google OAuth + email OTP, Arlo surfaces save prompt before overlay opens, overlay is clean UI only, OTP email via Resend. See `brainstorms/auth-overlay-session.md`.
-- [ ] **Onboarding bridge screen** — the moment after analysis completes. Arlo presents the user's direction and suggests role titles for them to react to. This is the pivot from "input" to "using the product." Must be designed before Phase 2.
+- [x] **Onboarding bridge screen** — LOCKED (Session 13, 2026-06-10). Direction card + roles inside card + Arlo note + CTA. See `mockups/onboarding-bridge.html`.
 - [ ] **Returning user experience** — first return after initial analysis. "Welcome back, here's where we left off." Critical to design: this is the retention moment.
 - [ ] **Basic error states** — what does the user see if the analysis fails? If the API is slow? If they lose connection? Must be designed, not invented during build.
 
