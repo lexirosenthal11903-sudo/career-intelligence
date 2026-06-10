@@ -1,0 +1,29 @@
+/* Core design tokens — source of truth: .design/career-intelligence-redesign/SESSION_DECISIONS.md
+   Full token system lands in Phase 2 when screens are built. */
+
+:root {
+  --bg: #FFFFFF;
+  --cream: #F5F3EE;
+  --cream-2: #EDEBE5;
+  --gold: #A85E16;
+  --ink: #1A1610;
+  --ink-2: #5A5040;
+  --ink-3: #9E9080;
+  --line: #E8E4DC;
+  --amber-bg: #FEF9F2;
+  --amber-line: #F0D9B5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

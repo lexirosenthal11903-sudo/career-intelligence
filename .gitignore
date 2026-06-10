@@ -1,8 +1,18 @@
 node_modules/
 .env
 .env.local
-.vercel
 .env*
+.vercel
 .DS_Store
 .claude/
 .design/shots/
+
+# next.js
+/.next/
+/out/
+/build
+/coverage
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+*.pem
