@@ -41,7 +41,7 @@ All of these need dedicated design sessions. None can be built before they are l
 - [ ] **Skills tab** — what does the skills gap map look like? How does it update?
 - [ ] **Profile tab** — interactive preferences, CV on file, direction summary. Editable?
 - [ ] **Applications tab** — pipeline view (Saved / Preparing / Applied / Interview / Offer). How do cards work?
-- [ ] **Auth overlay** — sign in and sign up screens. OTP flow. What does a returning user see?
+- [x] **Auth overlay** — LOCKED (Session 11, 2026-06-10). Decisions: two states (new/returning), Google OAuth + email OTP, Arlo surfaces save prompt before overlay opens, overlay is clean UI only, OTP email via Resend. See `brainstorms/auth-overlay-session.md`.
 - [ ] **Returning user experience** — first return after initial analysis. "Welcome back, here's where we left off." Critical to design: this is the retention moment.
 - [ ] **Basic error states** — what does the user see if the analysis fails? If the API is slow? If they lose connection? Must be designed, not invented during build.
 
@@ -67,6 +67,7 @@ _Goal: Fix all known blockers before any new work is built on top of them. Archi
 
 ### Bug fixes (pre-existing, must fix before Phase 2 deploys over them)
 - [ ] Fix Sign-in OTP failure ("Load failed") — **critical blocker: returning users cannot come back**
+- [ ] Add Google OAuth — "Continue with Google" as primary auth option alongside email OTP (Supabase supports this; auth overlay design locked in Phase 0)
 - [ ] Remove debug console.log commits from codebase
 - [ ] Rotate GitHub token (was exposed in session — Lexi has deferred, must not defer past Phase 1)
 - [ ] Merge staging backend improvements (score.js, jobs.js, analyse.js — ready and waiting)
@@ -158,6 +159,7 @@ _Goal: The product is ready for scale. Design is perfect. Copy is final. Mobile 
 - [ ] **Advisor character session** — name, icon, full backstory (Juno-model from Jack & Jill reference). This gives the advisor a specific personality, not just rules.
 - [ ] **Voice examples session** — 20–30 sample advisor messages across all key moments. The voice reference for all future copy.
 - [ ] **Landing page copy session** — final homepage copy, including Meraki/Satori/Kavanah as narrative element. Three words displayed on the landing page.
+- [ ] **UI copy session** — all non-advisor copy: auth overlay, onboarding prompts, button labels, empty states, error messages, nav labels. Placeholder copy is in place from Phase 0/2 — this session makes it final.
 - [ ] **Full animation pass** — micro-interactions, transitions, scroll-reveal, reduced-motion support
 - [ ] **Mobile design and build** — deferred until desktop is proven. Do not raise until Lexi raises it.
 - [ ] **Error states and empty states** — designed and built for every screen
