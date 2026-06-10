@@ -75,11 +75,11 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Roles tab v2** — `mockups/dashboard-roles-v2.html` — LOCKED (Session 13). Tab switcher: Role types / Live listings. Filter pills by role type + Passed. Interested/Pass actions. Post-interest state.
 - **Role detail** — `mockups/role-detail.html` — LOCKED (Session 13). Brief + honest picture + salary (UK) + what it rewards + listings link. Arlo personalises on right.
 - **Onboarding bridge** — `mockups/onboarding-bridge.html` — LOCKED (Session 13). Arlo → direction card (with roles inside) → Arlo note → CTA.
+- **Returning user experience** — `mockups/returning-user.html` — LOCKED (Session 14, 2026-06-10). Three states: new roles / deadline urgency / nothing new. Priority stack in SESSION_DECISIONS.md.
+- **Profile tab** — `mockups/dashboard-profile.html` — LOCKED (Session 15, 2026-06-10). Mirror screen. Activity strip + direction card + "What Arlo knows" (background/values/dealbreakers) + CV on file + preferences + account. Profile lives in bottom-left user area, not a nav tab.
+- **Basic error states** — `mockups/error-states.html` — LOCKED (Session 16, 2026-06-10). Analysis failure + slow pipeline + lost connection + Arlo chat failure. Arlo error voice locked in `ADVISOR_PERSONA.md`.
 
-### Remaining — must lock before Phase 1 engineering
-- **Profile tab** — not yet designed
-- **Returning user experience** — not yet designed. **NEXT SESSION.**
-- **Basic error states** — not yet designed
+### Phase 0 complete ✓ — All screens locked. Phase 1 engineering begins next.
 
 ### Key design rules (override anything older)
 - Sidebar: white. Direction card: cream. Amber ONLY on: primary button, user chat bubbles, active nav.
@@ -146,14 +146,12 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Current Phase
 
-**Phase 0 — Design. In progress.** Full plan: `ROADMAP.md`.
+**Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10). **Phase 1 engineering begins next.**
 
-**Next three things in order:**
-1. **Returning user experience** — NEXT SESSION. First return visit after initial analysis. The retention moment. Design session only.
-2. **Profile tab** — dedicated design session after returning user.
-3. **Basic error states** — analysis failure, slow API, lost connection. Fastest session — design last.
+**Phase 0 locked screens (all sessions):**
+~~Returning user~~ ✓ · ~~Profile tab~~ ✓ · ~~Basic error states~~ ✓ (Session 16)
 
-**Once all three are locked → Phase 0 complete → Phase 1 engineering begins.**
+**Phase 1 — next session starts here.** Read `PLAYBOOK.md` Session 5 (OTP fix). Install `systematic-debugging` and `zoom-out` skills before starting.
 
 **Live bugs (Phase 1 — do not raise until Phase 0 complete):**
 OTP sign-in failure · debug console.log commits · GitHub token rotation (must not defer past Phase 1) · staging backend merges · performance fix (~90s pipeline)

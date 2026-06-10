@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Returning User Experience</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --cream:#F5F3EE;
+    --cream-2:#EDEBE5;
+    --line:rgba(0,0,0,.07);
+    --ink:#1A1610;
+    --ink-2:#5A5040;
+    --ink-3:#9E9080;
+    --gold:#A85E16;
+    --gold-b:#DD8A2C;
+    --gold-soft:rgba(168,94,22,.10);
+    --green:#3E9B6B;
+    --red:#C0392B;
+    --f:'Instrument Sans',system-ui,sans-serif;
+    --fm:'DM Mono',monospace;
+    --r:14px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--f);-webkit-font-smoothing:antialiased;line-height:1.5;}
+
+  /* ── STATE TOGGLE (design review only) ── */
+  .state-bar{
+    position:fixed;top:0;left:0;right:0;
+    background:#1A1610;color:#fff;
+    height:40px;display:flex;align-items:center;justify-content:center;
+    gap:8px;z-index:999;font-size:12px;font-weight:500;font-family:var(--f);
+  }
+  .state-label{color:rgba(255,255,255,.4);margin-right:4px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;}
+  .state-btn{
+    font-family:var(--f);font-size:12px;font-weight:600;
+    border:1px solid rgba(255,255,255,.15);border-radius:6px;
+    padding:4px 12px;cursor:pointer;background:none;color:rgba(255,255,255,.45);
+    transition:all .15s;
+  }
+  .state-btn.active{background:var(--gold);border-color:var(--gold);color:#fff;}
+  .state-btn:hover:not(.active){background:rgba(255,255,255,.08);color:#fff;}
+
+  /* ── STATE CSS ── */
+  body:not(.state-new-roles) [data-state="new-roles"]{display:none;}
+  body:not(.state-deadline) [data-state="deadline"]{display:none;}
+  body:not(.state-nothing-new) [data-state="nothing-new"]{display:none;}
+
+  /* ── SHELL ── */
+  .shell{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 40px);margin-top:40px;}
+
+  /* ── SIDEBAR ── */
+  .nav{background:var(--bg);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:2px;}
+  .nav-brand{font-weight:700;font-size:14px;letter-spacing:-.02em;color:var(--ink);padding:2px 10px 22px;}
+  .nav-item{font-size:13.5px;font-weight:500;color:var(--ink-2);padding:10px 12px;border-radius:10px;display:flex;gap:11px;align-items:center;cursor:pointer;transition:background .15s,color .15s;user-select:none;}
+  .nav-item svg{width:16px;height:16px;opacity:.5;flex:none;}
+  .nav-item:hover{background:var(--cream);color:var(--ink);}
+  .nav-item.active{background:var(--gold-soft);color:var(--gold);font-weight:600;}
+  .nav-item.active svg{opacity:1;}
+  .nav-gap{flex:1;}
+  .nav-profile{border-top:1px solid var(--line);padding-top:16px;margin-top:6px;display:flex;gap:10px;align-items:center;}
+  .nav-av{width:30px;height:30px;border-radius:50%;background:var(--cream-2);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:none;}
+  .nav-name{font-size:13px;font-weight:600;color:var(--ink);}
+  .nav-email{font-size:11px;color:var(--ink-3);}
+
+  /* ── MAIN ── */
+  .main{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+  .topbar{height:54px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex:none;}
+  .topbar-left{display:flex;align-items:center;gap:10px;}
+  .topbar-title{font-size:13px;font-weight:600;color:var(--ink);}
+  .topbar-toggle{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--f);font-size:12px;font-weight:500;color:var(--ink-3);}
+  .topbar-toggle svg{width:16px;height:16px;}
+  .topbar-toggle:hover{background:var(--cream);color:var(--ink);}
+
+  /* ── 50/50 SPLIT ── */
+  .content{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;transition:grid-template-columns .25s ease;}
+  .content.arlo-hidden{grid-template-columns:1fr 0;}
+  .content.arlo-hidden .mentor{opacity:0;pointer-events:none;}
+
+  /* ══════════════════════════════
+     LEFT
+  ══════════════════════════════ */
+  .home{padding:52px 56px;overflow-y:auto;border-right:1px solid var(--line);}
+  .home::-webkit-scrollbar{width:0;}
+
+  .greeting-date{font-size:12px;color:var(--ink-3);font-weight:500;margin-bottom:12px;letter-spacing:.01em;}
+  .greeting-name{font-size:38px;font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1.1;margin-bottom:36px;}
+
+  /* direction card */
+  .direction-card{
+    background:var(--cream);border-radius:var(--r);
+    padding:28px 28px;margin-bottom:36px;
+    box-shadow:0 2px 16px rgba(0,0,0,.055);
+  }
+  .direction-label{font-size:11px;font-weight:700;color:var(--ink-3);margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase;}
+  .direction-title{font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.025em;line-height:1.2;margin-bottom:10px;}
+  .direction-body{font-size:14px;line-height:1.8;color:var(--ink-2);}
+
+  /* featured action */
+  .featured{margin-bottom:36px;}
+  .section-label{font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
+  .featured-action{font-size:24px;font-weight:700;letter-spacing:-.025em;color:var(--ink);line-height:1.25;margin-bottom:10px;}
+  .featured-why{font-size:15px;color:var(--ink-2);line-height:1.75;margin-bottom:24px;}
+  .btn-row{display:flex;align-items:center;gap:16px;}
+  .btn-primary{font-family:var(--f);font-size:14px;font-weight:600;background:var(--gold);color:#fff;border:none;border-radius:10px;padding:12px 24px;cursor:pointer;transition:background .12s,transform .12s;}
+  .btn-primary:hover{background:#925011;transform:translateY(-1px);}
+  .btn-primary.urgent{background:var(--red);}
+  .btn-primary.urgent:hover{background:#a93226;}
+  .btn-ghost{font-family:var(--f);font-size:13px;font-weight:500;background:none;border:none;color:var(--ink-3);cursor:pointer;}
+  .btn-ghost:hover{color:var(--ink-2);}
+
+  /* urgency badge */
+  .urgency-badge{
+    display:inline-flex;align-items:center;gap:5px;
+    font-family:var(--fm);font-size:11px;font-weight:500;
+    color:var(--red);background:rgba(192,57,43,.08);
+    border-radius:6px;padding:3px 8px;margin-bottom:14px;
+  }
+  .urgency-badge::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--red);display:inline-block;}
+
+  /* explore */
+  .explore-cards{display:flex;flex-direction:column;gap:8px;}
+  .explore-card{
+    background:var(--cream);border-radius:var(--r);
+    padding:16px 20px;
+    display:flex;align-items:center;justify-content:space-between;
+    cursor:pointer;transition:background .12s;
+  }
+  .explore-card:hover{background:var(--cream-2);}
+  .explore-card-label{font-size:14px;font-weight:600;color:var(--ink);}
+  .explore-card-sub{font-size:12px;color:var(--ink-3);margin-top:3px;}
+  .explore-card-n{font-family:var(--fm);font-size:14px;font-weight:500;color:var(--gold-b);white-space:nowrap;margin-left:16px;}
+  .explore-card-n.new{color:var(--green);}
+
+  /* momentum */
+  .momentum{
+    margin-top:36px;display:flex;align-items:center;gap:8px;
+    font-size:12px;color:var(--ink-3);
+  }
+  .momentum-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;}
+  .momentum strong{color:var(--ink-2);font-weight:600;}
+
+  /* ══════════════════════════════
+     RIGHT — MENTOR
+  ══════════════════════════════ */
+  .mentor{
+    background:var(--cream);display:flex;flex-direction:column;
+    overflow:hidden;transition:opacity .25s;
+  }
+  .mentor-head{
+    padding:26px 32px 22px;border-bottom:1px solid var(--line);
+    flex:none;display:flex;align-items:center;gap:14px;
+  }
+  .mentor-av{width:42px;height:42px;border-radius:50%;background:transparent;overflow:hidden;flex:none;}
+  .mentor-av svg{width:42px;height:42px;display:block;}
+  .mentor-head-name{font-size:15px;font-weight:700;color:var(--ink);}
+  .mentor-head-status{font-size:12px;color:var(--ink-3);margin-top:2px;display:flex;align-items:center;gap:6px;}
+  .mentor-head-status::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);flex:none;}
+
+  .mentor-messages{
+    flex:1;overflow-y:auto;padding:28px 32px 20px;
+    display:flex;flex-direction:column;gap:20px;
+  }
+  .mentor-messages::-webkit-scrollbar{width:0;}
+
+  .ai-msg{display:flex;flex-direction:column;}
+  .ai-bubble{
+    background:var(--bg);border-radius:4px 16px 16px 16px;
+    padding:15px 18px;font-size:14px;line-height:1.75;color:var(--ink-2);
+    max-width:380px;box-shadow:0 1px 4px rgba(0,0,0,.06);
+  }
+  .ai-bubble strong{color:var(--ink);font-weight:700;}
+  .ai-bubble + .ai-bubble{margin-top:-12px;border-radius:16px;}
+
+  .user-msg{display:flex;justify-content:flex-end;}
+  .user-bubble{
+    background:var(--gold);border-radius:16px 4px 16px 16px;
+    padding:13px 18px;font-size:14px;line-height:1.65;color:#fff;max-width:320px;
+  }
+
+  .mentor-input-wrap{padding:18px 24px 24px;flex:none;}
+  .mentor-input-card{
+    background:var(--bg);border-radius:16px;
+    padding:4px 4px 4px 20px;display:flex;align-items:center;gap:10px;
+    box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.05);
+  }
+  .mentor-input{flex:1;border:none;background:none;font-family:var(--f);font-size:14px;color:var(--ink);outline:none;padding:11px 0;}
+  .mentor-input::placeholder{color:var(--ink-3);}
+  .mentor-send{
+    width:38px;height:38px;border-radius:12px;flex:none;
+    background:var(--gold);border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .12s,transform .12s;
+  }
+  .mentor-send:hover{background:#925011;transform:scale(1.05);}
+  .mentor-send svg{width:14px;height:14px;color:#fff;}
+</style>
+</head>
+<body class="state-new-roles">
+
+<!-- STATE TOGGLE -->
+<div class="state-bar">
+  <span class="state-label">State</span>
+  <button class="state-btn active" id="btn-new-roles" onclick="setState('new-roles')">New roles available</button>
+  <button class="state-btn" id="btn-deadline" onclick="setState('deadline')">Deadline urgency</button>
+  <button class="state-btn" id="btn-nothing-new" onclick="setState('nothing-new')">Nothing new</button>
+</div>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="nav">
+    <div class="nav-brand">Career Intelligence</div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Roles
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></svg>Skills
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Applications
+    </div>
+    <div class="nav-gap"></div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Profile
+    </div>
+    <div class="nav-profile">
+      <div class="nav-av">L</div>
+      <div><div class="nav-name">Lexi</div><div class="nav-email">lexi@email.com</div></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Home</span>
+      </div>
+      <button class="topbar-toggle" id="arloToggle" onclick="toggleArlo()">
+        <svg width="16" height="16" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+        Hide Arlo
+      </button>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- LEFT -->
+      <div class="home">
+
+        <div class="greeting-date">Good morning · Wednesday, 10 June</div>
+        <div class="greeting-name">Welcome back, Lexi.</div>
+
+        <div class="direction-card">
+          <div class="direction-label">Your direction</div>
+          <div class="direction-title">Operations and strategy in early-stage companies.</div>
+          <p class="direction-body">You think in systems — how things connect, where the friction is, what's holding a team back. The roles where you'll do your best work are ones where those instincts are the job.</p>
+        </div>
+
+        <!-- STATE: New roles available -->
+        <div data-state="new-roles">
+          <div class="featured">
+            <div class="section-label">New since your last visit</div>
+            <div class="featured-action">3 new roles matched to your profile.</div>
+            <div class="featured-why">One of them is particularly strong — a strategy role at a fast-growing logistics company. Less obvious than it sounds. Arlo has thoughts on why it fits.</div>
+            <div class="btn-row">
+              <button class="btn-primary">See new matches →</button>
+              <button class="btn-ghost">Later</button>
+            </div>
+          </div>
+          <div class="section-label">Explore</div>
+          <div class="explore-cards">
+            <div class="explore-card">
+              <div><div class="explore-card-label">Your role matches</div><div class="explore-card-sub">All matches, ranked by fit</div></div>
+              <div class="explore-card-n">8 →</div>
+            </div>
+            <div class="explore-card">
+              <div><div class="explore-card-label">Skills to focus on</div><div class="explore-card-sub">The gaps closest to closing</div></div>
+              <div class="explore-card-n">3 →</div>
+            </div>
+            <div class="explore-card">
+              <div><div class="explore-card-label">Applications</div><div class="explore-card-sub">Track where things stand</div></div>
+              <div class="explore-card-n">2 →</div>
+            </div>
+          </div>
+          <div class="momentum">
+            <div class="momentum-dot"></div>
+            <span><strong>12 active days</strong> into your search. Good to have you back.</span>
+          </div>
+        </div>
+
+        <!-- STATE: Deadline urgency -->
+        <div data-state="deadline">
+          <div class="featured">
+            <div class="urgency-badge">Closes in 2 days</div>
+            <div class="section-label">This week</div>
+            <div class="featured-action">Your Bloom & Wild application closes Friday.</div>
+            <div class="featured-why">You saved this role but haven't applied yet. It's one of your stronger matches — Arlo has a draft outline ready if you want to move on it today.</div>
+            <div class="btn-row">
+              <button class="btn-primary urgent">Start application →</button>
+              <button class="btn-ghost">Not today</button>
+            </div>
+          </div>
+          <div class="section-label">Explore</div>
+          <div class="explore-cards">
+            <div class="explore-card">
+              <div><div class="explore-card-label">Your role matches</div><div class="explore-card-sub">Ranked by fit</div></div>
+              <div class="explore-card-n">5 →</div>
+            </div>
+            <div class="explore-card">
+              <div><div class="explore-card-label">Skills to focus on</div><div class="explore-card-sub">The gaps closest to closing</div></div>
+              <div class="explore-card-n">3 →</div>
+            </div>
+            <div class="explore-card">
+              <div><div class="explore-card-label">Applications</div><div class="explore-card-sub">Track where things stand</div></div>
+              <div class="explore-card-n">2 →</div>
+            </div>
+          </div>
+          <div class="momentum">
+            <div class="momentum-dot"></div>
+            <span><strong>12 active days</strong> into your search. Good to have you back.</span>
+          </div>
+        </div>
+
+        <!-- STATE: Nothing new -->
+        <div data-state="nothing-new">
+          <div class="featured">
+            <div class="section-label">Pick up here</div>
+            <div class="featured-action">You saved Bloom & Wild's ops role — ready to do something with it?</div>
+            <div class="featured-why">You haven't looked at the details yet. There's a specific person there worth reaching out to — it's a better route in than applying cold.</div>
+            <div class="btn-row">
+              <button class="btn-primary">Look at the role →</button>
+              <button class="btn-ghost">Not today</button>
+            </div>
+          </div>
+          <div class="section-label">Explore</div>
+          <div class="explore-cards">
+            <div class="explore-card">
+              <div><div class="explore-card-label">Your role matches</div><div class="explore-card-sub">Ranked by fit</div></div>
+              <div class="explore-card-n">5 →</div>
+            </div>
+            <div class="explore-card">
+              <div><div class="explore-card-label">Skills to focus on</div><div class="explore-card-sub">The gaps closest to closing</div></div>
+              <div class="explore-card-n">3 →</div>
+            </div>
+            <div class="explore-card">
+              <div><div class="explore-card-label">Applications</div><div class="explore-card-sub">Track where things stand</div></div>
+              <div class="explore-card-n">2 →</div>
+            </div>
+          </div>
+          <div class="momentum">
+            <div class="momentum-dot"></div>
+            <span><strong>12 active days</strong> into your search. Good to have you back.</span>
+          </div>
+        </div>
+
+      </div><!-- /home -->
+
+      <!-- RIGHT: MENTOR -->
+      <div class="mentor" id="mentorPanel">
+
+        <div class="mentor-head">
+          <div class="mentor-av">
+            <svg width="42" height="42" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+          </div>
+          <div>
+            <div class="mentor-head-name">Arlo</div>
+            <div class="mentor-head-status">Here with you</div>
+          </div>
+        </div>
+
+        <div class="mentor-messages">
+
+          <!-- Arlo: new roles state -->
+          <div class="ai-msg" data-state="new-roles">
+            <div class="ai-bubble">Welcome back. What did you get up to since we last spoke?</div>
+            <div class="ai-bubble">While you were away, three new roles came in. The logistics one caught my attention — the job title doesn't do it justice. I'll explain why when you're ready.</div>
+          </div>
+          <div class="user-msg" data-state="new-roles">
+            <div class="user-bubble">Just had a busy week. What's the logistics role?</div>
+          </div>
+          <div class="ai-msg" data-state="new-roles">
+            <div class="ai-bubble">Head of Operations at Relay — they move goods for small brands that can't afford their own logistics. Fast, lean, real problems to solve every day. <strong>Your instinct for finding where friction lives is exactly what they need.</strong></div>
+            <div class="ai-bubble">Want to look at it properly?</div>
+          </div>
+
+          <!-- Arlo: deadline state -->
+          <div class="ai-msg" data-state="deadline">
+            <div class="ai-bubble">Welcome back. What did you get up to?</div>
+            <div class="ai-bubble">Something to flag before anything else — your Bloom & Wild application closes Friday. Two days. You saved it a while back but haven't applied yet.</div>
+            <div class="ai-bubble">I have a draft outline ready. It won't take long if you want to move on it today. What do you think?</div>
+          </div>
+
+          <!-- Arlo: nothing new state -->
+          <div class="ai-msg" data-state="nothing-new">
+            <div class="ai-bubble">Welcome back. What did you get up to?</div>
+            <div class="ai-bubble">Nothing new on the roles front since your last visit — I'll let you know when something comes in.</div>
+            <div class="ai-bubble">You saved the Bloom & Wild ops role a while back. There's a specific person there worth reaching out to directly. Better route in than applying cold. Worth a look?</div>
+          </div>
+
+        </div>
+
+        <div class="mentor-input-wrap">
+          <div class="mentor-input-card">
+            <input class="mentor-input" type="text" placeholder="Ask me anything…">
+            <button class="mentor-send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /mentor -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+  function setState(state) {
+    document.body.className = 'state-' + state;
+    document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + state).classList.add('active');
+  }
+
+  function toggleArlo() {
+    const content = document.getElementById('content');
+    const btn = document.getElementById('arloToggle');
+    const hidden = content.classList.toggle('arlo-hidden');
+    const icon = `<svg width="16" height="16" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
+    btn.innerHTML = icon + (hidden ? ' Show Arlo' : ' Hide Arlo');
+  }
+</script>
+</body>
+</html>

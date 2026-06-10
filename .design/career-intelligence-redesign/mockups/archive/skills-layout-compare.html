@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills — Layout Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --cream: #F5F3EE;
+    --cream-2: #EDEBE5;
+    --line: rgba(0,0,0,.07);
+    --ink: #1A1610;
+    --ink-2: #5A5040;
+    --ink-3: #9E9080;
+    --gold: #A85E16;
+    --gold-soft: rgba(168,94,22,.10);
+    --green: #3E9B6B;
+    --green-soft: rgba(62,155,107,.12);
+    --f: 'Instrument Sans', system-ui, sans-serif;
+    --fm: 'DM Mono', monospace;
+    --r: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E8E6E0; font-family: var(--f); -webkit-font-smoothing: antialiased; padding: 40px; }
+
+  h1 { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-family: var(--fm); margin-bottom: 32px; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 14px; font-family: var(--fm); }
+  .caption { font-size: 13px; color: var(--ink-2); margin-top: 14px; max-width: 560px; line-height: 1.65; }
+  .caption strong { color: var(--ink); font-weight: 600; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+
+  /* ── SHARED SHELL ── */
+  .shell { background: var(--bg); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 20px rgba(0,0,0,.08); display: grid; grid-template-columns: 200px 1fr; height: 560px; }
+  .nav { background: var(--bg); border-right: 1px solid var(--line); padding: 18px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-brand { font-weight: 700; font-size: 13px; letter-spacing: -.02em; color: var(--ink); padding: 2px 10px 18px; }
+  .nav-item { font-size: 12.5px; font-weight: 500; color: var(--ink-2); padding: 9px 10px; border-radius: 8px; display: flex; gap: 9px; align-items: center; }
+  .nav-item svg { width: 14px; height: 14px; opacity: .5; flex: none; }
+  .nav-item.active { background: var(--gold-soft); color: var(--gold); font-weight: 600; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-gap { flex: 1; }
+  .nav-profile { border-top: 1px solid var(--line); padding-top: 12px; display: flex; gap: 8px; align-items: center; }
+  .nav-av { width: 26px; height: 26px; border-radius: 50%; background: var(--cream-2); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; flex: none; }
+  .nav-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+
+  .main { display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 50px; padding: 0 24px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); flex: none; }
+  .topbar-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+  /* ── SHARED ADVISOR PANEL ── */
+  .advisor { background: var(--cream); display: flex; flex-direction: column; overflow: hidden; border-left: 1px solid var(--line); }
+  .advisor-head { padding: 18px 20px 16px; border-bottom: 1px solid var(--line); flex: none; display: flex; align-items: center; gap: 10px; }
+  .advisor-av { width: 32px; height: 32px; border-radius: 50%; background: var(--cream-2); display: flex; align-items: center; justify-content: center; flex: none; }
+  .advisor-av svg { width: 15px; height: 15px; color: var(--ink-2); }
+  .advisor-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .advisor-status { font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 5px; }
+  .advisor-status::before { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+  .advisor-msgs { flex: 1; overflow: hidden; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .ai-bubble { background: var(--bg); border-radius: 4px 12px 12px 12px; padding: 11px 14px; font-size: 12.5px; line-height: 1.7; color: var(--ink-2); box-shadow: 0 1px 3px rgba(0,0,0,.05); max-width: 90%; }
+  .ai-bubble strong { color: var(--ink); font-weight: 600; }
+  .advisor-input { padding: 12px 14px 16px; flex: none; }
+  .advisor-input-card { background: var(--bg); border-radius: 12px; padding: 3px 3px 3px 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05); }
+  .advisor-input-field { flex: 1; border: none; background: none; font-family: var(--f); font-size: 12.5px; color: var(--ink); outline: none; padding: 8px 0; }
+  .advisor-input-field::placeholder { color: var(--ink-3); }
+  .advisor-send { width: 30px; height: 30px; border-radius: 9px; flex: none; background: var(--gold); border: none; display: flex; align-items: center; justify-content: center; }
+  .advisor-send svg { width: 11px; height: 11px; color: #fff; }
+
+  /* ══ OPTION A: Consolidated gap map ══ */
+  .content-a { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+  .gap-panel { padding: 20px 24px; overflow-y: auto; border-right: 1px solid var(--line); }
+  .gap-panel::-webkit-scrollbar { width: 0; }
+
+  .section-label { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-family: var(--fm); margin-bottom: 10px; }
+
+  .strengths-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
+  .strength-chip { font-size: 12px; font-weight: 600; color: var(--green); background: var(--green-soft); border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 6px; }
+  .strength-chip svg { width: 10px; height: 10px; }
+
+  .gap-list { display: flex; flex-direction: column; gap: 8px; }
+  .gap-item { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .gap-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .gap-item-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .tier-badge { font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; flex: none; }
+  .tier-essential { color: var(--gold); background: var(--gold-soft); }
+  .tier-edge { color: #6B5B9E; background: rgba(107,91,158,.10); }
+  .tier-cert { color: var(--ink-2); background: var(--cream); }
+  .gap-item-meta { display: flex; align-items: center; gap: 10px; }
+  .gap-role-tag { font-size: 11px; color: var(--ink-3); font-family: var(--fm); }
+  .gap-time { font-size: 11px; color: var(--ink-3); font-family: var(--fm); display: flex; align-items: center; gap: 4px; }
+  .gap-resource { margin-top: 8px; }
+  .gap-resource a { font-size: 12px; color: var(--gold); font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 5px; }
+  .gap-resource a svg { width: 10px; height: 10px; }
+
+  /* ══ OPTION B: Role-by-role cards ══ */
+  .content-b { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+  .role-skills-panel { padding: 20px 24px; overflow-y: auto; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+  .role-skills-panel::-webkit-scrollbar { width: 0; }
+
+  .role-card { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .role-card-head { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+  .role-card-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .role-card-co { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+  .role-card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .role-has { display: flex; flex-wrap: wrap; gap: 5px; }
+  .has-chip { font-size: 11px; font-weight: 600; color: var(--green); background: var(--green-soft); border-radius: 20px; padding: 3px 10px; }
+  .role-needs { display: flex; flex-direction: column; gap: 6px; }
+  .need-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .need-dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+  .need-dot.essential { background: var(--gold); }
+  .need-dot.edge { background: #6B5B9E; }
+  .need-time { font-size: 10.5px; color: var(--ink-3); font-family: var(--fm); margin-left: auto; }
+</style>
+</head>
+<body>
+<h1>Skills tab — Layout options</h1>
+
+<div class="row">
+
+  <!-- OPTION A -->
+  <div>
+    <div class="label">Option A — Consolidated gap map</div>
+    <div class="shell">
+      <nav class="nav">
+        <div class="nav-brand">Career Intelligence</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>Home</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>Roles</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2H9a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Applications</div>
+        <div class="nav-item active"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zM8 6v4M6 8h4"/></svg>Skills</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="6" r="3"/><path stroke-linecap="round" d="M2 14c0-3.314 2.686-4 6-4s6 .686 6 4"/></svg>Profile</div>
+        <div class="nav-gap"></div>
+        <div class="nav-profile"><div class="nav-av">L</div><div class="nav-name">Lexi</div></div>
+      </nav>
+      <div class="main">
+        <div class="topbar"><span class="topbar-title">Skills</span></div>
+        <div class="content-a">
+          <div class="gap-panel">
+            <div class="section-label" style="margin-bottom:8px;">What you bring</div>
+            <div class="strengths-wrap" style="margin-bottom:20px;">
+              <div class="strength-chip"><svg fill="currentColor" viewBox="0 0 10 10"><path d="M8.5 2.5L4 7 1.5 4.5"/></svg>Analytical thinking</div>
+              <div class="strength-chip"><svg fill="currentColor" viewBox="0 0 10 10"><path d="M8.5 2.5L4 7 1.5 4.5"/></svg>Communication</div>
+              <div class="strength-chip"><svg fill="currentColor" viewBox="0 0 10 10"><path d="M8.5 2.5L4 7 1.5 4.5"/></svg>Research</div>
+              <div class="strength-chip"><svg fill="currentColor" viewBox="0 0 10 10"><path d="M8.5 2.5L4 7 1.5 4.5"/></svg>Microsoft Office</div>
+            </div>
+
+            <div class="section-label" style="margin-bottom:10px;">Worth building</div>
+            <div class="gap-list">
+              <div class="gap-item">
+                <div class="gap-item-top">
+                  <div class="gap-item-name">Advanced Excel</div>
+                  <div class="tier-badge tier-essential">Essential</div>
+                </div>
+                <div class="gap-item-meta">
+                  <span class="gap-role-tag">Deliveroo · Operations</span>
+                  <span class="gap-time">~ 4 hrs</span>
+                </div>
+                <div class="gap-resource"><a href="#">Excel for Data Analysis — Microsoft Learn ↗</a></div>
+              </div>
+              <div class="gap-item">
+                <div class="gap-item-top">
+                  <div class="gap-item-name">Structured problem-solving</div>
+                  <div class="tier-badge tier-essential">Essential</div>
+                </div>
+                <div class="gap-item-meta">
+                  <span class="gap-role-tag">Monzo · PM · Deliveroo</span>
+                  <span class="gap-time">~ 2 hrs</span>
+                </div>
+                <div class="gap-resource"><a href="#">McKinsey Problem Solving — Coursera ↗</a></div>
+              </div>
+              <div class="gap-item">
+                <div class="gap-item-top">
+                  <div class="gap-item-name">BCG Strategy Simulation</div>
+                  <div class="tier-badge tier-cert">Certification</div>
+                </div>
+                <div class="gap-item-meta">
+                  <span class="gap-role-tag">Sets you apart</span>
+                  <span class="gap-time">~ 3 hrs · Free</span>
+                </div>
+                <div class="gap-resource"><a href="#">BCG Forward on Forage ↗</a></div>
+              </div>
+              <div class="gap-item">
+                <div class="gap-item-top">
+                  <div class="gap-item-name">SQL basics</div>
+                  <div class="tier-badge tier-edge">Sets you apart</div>
+                </div>
+                <div class="gap-item-meta">
+                  <span class="gap-role-tag">Monzo · PM</span>
+                  <span class="gap-time">~ 6 hrs</span>
+                </div>
+                <div class="gap-resource"><a href="#">SQL for Beginners — Mode Analytics ↗</a></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Arlo -->
+          <div class="advisor">
+            <div class="advisor-head">
+              <div class="advisor-av"><svg fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="3.5"/><path stroke-linecap="round" d="M2 18c0-4.418 3.582-6 8-6s8 1.582 8 6"/></svg></div>
+              <div><div class="advisor-name">Arlo</div><div class="advisor-status">Here with you</div></div>
+            </div>
+            <div class="advisor-msgs">
+              <div class="ai-bubble">You're already strong where it counts — analytical thinking and communication cover the core of what these roles need.</div>
+              <div class="ai-bubble">The one thing worth doing before you apply to <strong>Deliveroo</strong> is Advanced Excel. It's listed as required and takes about 4 hours. Want me to find the right resource for your level?</div>
+              <div class="ai-bubble" style="font-size:11.5px; color: var(--ink-3);">If there's anything else you want to work on — interview prep, networking, something just for you — ask me.</div>
+            </div>
+            <div class="advisor-input">
+              <div class="advisor-input-card">
+                <input class="advisor-input-field" placeholder="Ask Arlo…" />
+                <button class="advisor-send"><svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2 7h10M7 2l5 5-5 5"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><strong>One consolidated view.</strong> Strengths shown first as chips, then a single prioritised gap list across all active roles. Each gap shows which role needs it, estimated time, and a direct resource link. Arlo opens with what matters most right now.</div>
+  </div>
+
+  <!-- OPTION B -->
+  <div>
+    <div class="label">Option B — Role-by-role cards</div>
+    <div class="shell">
+      <nav class="nav">
+        <div class="nav-brand">Career Intelligence</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>Home</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>Roles</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 002-2h-2M9 5a2 2 0 002 2H9a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Applications</div>
+        <div class="nav-item active"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zM8 6v4M6 8h4"/></svg>Skills</div>
+        <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="6" r="3"/><path stroke-linecap="round" d="M2 14c0-3.314 2.686-4 6-4s6 .686 6 4"/></svg>Profile</div>
+        <div class="nav-gap"></div>
+        <div class="nav-profile"><div class="nav-av">L</div><div class="nav-name">Lexi</div></div>
+      </nav>
+      <div class="main">
+        <div class="topbar"><span class="topbar-title">Skills</span></div>
+        <div class="content-b">
+          <div class="role-skills-panel">
+
+            <div class="role-card">
+              <div class="role-card-head">
+                <div><div class="role-card-name">Product Manager</div><div class="role-card-co">Monzo · Interview</div></div>
+                <div class="tier-badge tier-essential">1 essential gap</div>
+              </div>
+              <div class="role-card-body">
+                <div>
+                  <div class="section-label" style="margin-bottom:6px;">You have</div>
+                  <div class="role-has">
+                    <div class="has-chip">Analytical thinking</div>
+                    <div class="has-chip">Communication</div>
+                    <div class="has-chip">Research</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="section-label" style="margin-bottom:6px;">Worth adding</div>
+                  <div class="role-needs">
+                    <div class="need-item"><div class="need-dot essential"></div>Structured problem-solving<span class="need-time">~ 2 hrs</span></div>
+                    <div class="need-item"><div class="need-dot edge"></div>SQL basics<span class="need-time">~ 6 hrs</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="role-card">
+              <div class="role-card-head">
+                <div><div class="role-card-name">Operations Associate</div><div class="role-card-co">Deliveroo · Preparing</div></div>
+                <div class="tier-badge tier-essential">1 essential gap</div>
+              </div>
+              <div class="role-card-body">
+                <div>
+                  <div class="section-label" style="margin-bottom:6px;">You have</div>
+                  <div class="role-has">
+                    <div class="has-chip">Communication</div>
+                    <div class="has-chip">Microsoft Office</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="section-label" style="margin-bottom:6px;">Worth adding</div>
+                  <div class="role-needs">
+                    <div class="need-item"><div class="need-dot essential"></div>Advanced Excel<span class="need-time">~ 4 hrs</span></div>
+                    <div class="need-item"><div class="need-dot edge"></div>Structured problem-solving<span class="need-time">~ 2 hrs</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="role-card">
+              <div class="role-card-head">
+                <div><div class="role-card-name">Graduate Scheme</div><div class="role-card-co">HSBC · Applied</div></div>
+                <div class="tier-badge tier-cert" style="color:var(--green);background:var(--green-soft);">No gaps</div>
+              </div>
+              <div class="role-card-body">
+                <div>
+                  <div class="section-label" style="margin-bottom:6px;">You have everything needed</div>
+                  <div class="role-has">
+                    <div class="has-chip">Analytical thinking</div>
+                    <div class="has-chip">Communication</div>
+                    <div class="has-chip">Research</div>
+                    <div class="has-chip">Microsoft Office</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Arlo -->
+          <div class="advisor">
+            <div class="advisor-head">
+              <div class="advisor-av"><svg fill="none" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="3.5"/><path stroke-linecap="round" d="M2 18c0-4.418 3.582-6 8-6s8 1.582 8 6"/></svg></div>
+              <div><div class="advisor-name">Arlo</div><div class="advisor-status">Here with you</div></div>
+            </div>
+            <div class="advisor-msgs">
+              <div class="ai-bubble">You're well-set for <strong>HSBC</strong> — no gaps there. Focus goes to Deliveroo and Monzo.</div>
+              <div class="ai-bubble">Advanced Excel for Deliveroo is the quickest win — 4 hours and it removes the only essential gap. Want me to find the right level for you?</div>
+            </div>
+            <div class="advisor-input">
+              <div class="advisor-input-card">
+                <input class="advisor-input-field" placeholder="Ask Arlo…" />
+                <button class="advisor-send"><svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2 7h10M7 2l5 5-5 5"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><strong>One card per active role.</strong> Each card shows what you have and what's needed for that specific role. Skills that appear across multiple roles (like structured problem-solving) show up in each card separately. Clearer role-to-skill link, but more repetition.</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Dashboard — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --cream: #F5F3EE;
+    --cream-2: #EDEBE5;
+    --line: rgba(0,0,0,.07);
+    --ink: #1A1610;
+    --ink-2: #5A5040;
+    --ink-3: #9E9080;
+    --gold: #A85E16;
+    --gold-soft: rgba(168,94,22,.10);
+    --red: #C0392B;
+    --green: #3E9B6B;
+    --green-soft: rgba(62,155,107,.12);
+    --f: 'Instrument Sans', system-ui, sans-serif;
+    --fm: 'DM Mono', monospace;
+    --r: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--f); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+
+  .shell { display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .nav { background: var(--bg); border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; gap: 2px; z-index: 20; }
+  .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -.02em; color: var(--ink); padding: 2px 10px 22px; }
+  .nav-item { font-size: 13.5px; font-weight: 500; color: var(--ink-2); padding: 10px 12px; border-radius: 10px; display: flex; gap: 11px; align-items: center; cursor: pointer; user-select: none; }
+  .nav-item svg { width: 16px; height: 16px; opacity: .5; flex: none; }
+  .nav-item:hover { background: var(--cream); color: var(--ink); }
+  .nav-item.active { background: var(--gold-soft); color: var(--gold); font-weight: 600; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-gap { flex: 1; }
+
+  /* user area — now the profile entry point */
+  .nav-user { border-top: 1px solid var(--line); padding: 12px 10px; margin-top: 6px; display: flex; gap: 10px; align-items: center; border-radius: 10px; cursor: pointer; user-select: none; transition: background .12s; background: var(--gold-soft); }
+  .nav-user:hover { background: var(--cream-2); }
+  .nav-av { width: 30px; height: 30px; border-radius: 50%; background: var(--gold); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex: none; }
+  .nav-user-info { flex: 1; min-width: 0; }
+  .nav-name { font-size: 13px; font-weight: 600; color: var(--gold); }
+  .nav-email { font-size: 11px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-user-chevron { color: var(--ink-3); flex: none; }
+
+  /* ── MAIN ── */
+  .main { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .topbar { height: 54px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); flex: none; }
+  .topbar-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .topbar-toggle { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: var(--f); font-size: 12px; font-weight: 500; color: var(--ink-3); }
+  .topbar-toggle:hover { background: var(--cream); color: var(--ink); }
+
+  /* ── 50/50 SPLIT ── */
+  .content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+
+  /* ══════════════════════════════
+     LEFT — PROFILE
+  ══════════════════════════════ */
+  .profile-panel { padding: 32px 40px 56px; overflow-y: auto; border-right: 1px solid var(--line); }
+  .profile-panel::-webkit-scrollbar { width: 0; }
+
+  /* activity strip */
+  .activity-strip { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; font-size: 12px; color: var(--ink-3); font-family: var(--fm); flex-wrap: wrap; }
+  .activity-strip strong { color: var(--ink-2); font-weight: 500; }
+  .activity-sep { color: var(--line); font-size: 14px; }
+
+  /* direction card — cream hero */
+  .direction-card { background: var(--cream); border-radius: var(--r); padding: 24px 26px; margin-bottom: 12px; box-shadow: 0 2px 16px rgba(0,0,0,.055); }
+  .direction-card-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .direction-card-title { font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; margin-bottom: 4px; }
+  .direction-card-sub { font-size: 13px; color: var(--ink-3); line-height: 1.6; margin-bottom: 18px; }
+  .direction-card-rule { height: 1px; background: var(--line); margin-bottom: 14px; }
+  .direction-roles-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+  .roles-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+  .role-type-chip { font-size: 12px; font-weight: 500; color: var(--ink-2); background: var(--cream-2); border-radius: 20px; padding: 5px 13px; }
+  .direction-refine { font-size: 12.5px; color: var(--ink-3); cursor: pointer; }
+  .direction-refine-link { color: var(--gold); font-weight: 600; }
+  .direction-refine:hover .direction-refine-link { text-decoration: underline; }
+
+  /* what arlo knows card */
+  .knows-card { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; margin-bottom: 28px; }
+  .knows-row { padding: 14px 18px; }
+  .knows-row + .knows-row { border-top: 1px solid var(--line); }
+  .knows-label { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+  .knows-text { font-size: 13.5px; color: var(--ink-2); line-height: 1.65; }
+  .knows-footer { padding: 11px 18px; background: var(--cream); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
+  .knows-footer-link { color: var(--gold); font-weight: 600; cursor: pointer; }
+  .knows-footer-link:hover { text-decoration: underline; }
+
+  /* section wrapper */
+  .profile-section { margin-bottom: 28px; }
+  .section-head { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px; }
+
+  /* CV card */
+  .cv-card { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
+  .cv-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--cream); display: flex; align-items: center; justify-content: center; flex: none; }
+  .cv-icon svg { width: 18px; height: 18px; color: var(--ink-3); }
+  .cv-meta { flex: 1; min-width: 0; }
+  .cv-name { font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cv-date { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .cv-actions { display: flex; gap: 8px; flex: none; }
+  .btn-download { background: none; border: 1px solid var(--line); border-radius: 9px; padding: 8px 13px; font-family: var(--f); font-size: 12.5px; font-weight: 500; color: var(--ink-2); cursor: pointer; }
+  .btn-download:hover { background: var(--cream); }
+  .btn-update { background: var(--gold); color: #fff; border: none; border-radius: 9px; padding: 8px 14px; font-family: var(--f); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .btn-update:hover { opacity: .88; }
+
+  /* preferences */
+  .pref-field { margin-bottom: 20px; }
+  .pref-label { font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .save-feedback { font-size: 11px; font-family: var(--fm); color: var(--green); opacity: 0; transition: opacity .2s; }
+  .save-feedback.visible { opacity: 1; }
+  .pref-input { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; font-family: var(--f); font-size: 13.5px; color: var(--ink); background: var(--bg); outline: none; transition: border-color .15s; }
+  .pref-input:focus { border-color: rgba(168,94,22,.4); }
+  .pref-input::placeholder { color: var(--ink-3); }
+  .salary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .salary-wrap { position: relative; }
+  .salary-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--ink-3); pointer-events: none; font-family: var(--fm); }
+  .salary-input { padding-left: 26px !important; }
+  .pill-group { display: flex; flex-wrap: wrap; gap: 7px; }
+  .pref-pill { font-size: 12.5px; font-weight: 500; color: var(--ink-2); background: var(--bg); border: 1px solid var(--line); border-radius: 20px; padding: 7px 14px; cursor: pointer; user-select: none; transition: all .12s; }
+  .pref-pill:hover { border-color: rgba(168,94,22,.3); color: var(--ink); }
+  .pref-pill.active { background: var(--gold-soft); border-color: rgba(168,94,22,.25); color: var(--gold); font-weight: 600; }
+
+  /* account / settings */
+  .settings-section { padding-top: 24px; border-top: 1px solid var(--line); }
+  .settings-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 12px 0; }
+  .settings-row + .settings-row { border-top: 1px solid var(--line); }
+  .settings-label { font-size: 13.5px; color: var(--ink-2); }
+  .settings-hint { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .settings-value { font-size: 13px; color: var(--ink-3); white-space: nowrap; margin-top: 2px; }
+  .settings-btn { background: none; border: none; font-family: var(--f); font-size: 13px; font-weight: 500; cursor: pointer; padding: 2px 0; white-space: nowrap; margin-top: 2px; }
+  .settings-btn.neutral { color: var(--ink-3); }
+  .settings-btn.neutral:hover { color: var(--ink); }
+  .settings-btn.danger { color: var(--red); }
+  .settings-btn.danger:hover { text-decoration: underline; }
+  .settings-divider { height: 1px; background: var(--line); margin: 4px 0; }
+
+  /* ══════════════════════════════
+     RIGHT — ADVISOR
+  ══════════════════════════════ */
+  .mentor { background: var(--cream); display: flex; flex-direction: column; overflow: hidden; }
+  .mentor-head { padding: 26px 32px 22px; border-bottom: 1px solid var(--line); flex: none; display: flex; align-items: center; gap: 14px; }
+  .mentor-av { width: 42px; height: 42px; border-radius: 50%; background: transparent; overflow: hidden; flex: none; }
+  .mentor-av svg { width: 42px; height: 42px; display: block; }
+  .mentor-head-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .mentor-head-status { font-size: 12px; color: var(--ink-3); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .mentor-head-status::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
+  .mentor-messages { flex: 1; overflow-y: auto; padding: 28px 32px 20px; display: flex; flex-direction: column; gap: 20px; }
+  .mentor-messages::-webkit-scrollbar { width: 0; }
+  .ai-msg { display: flex; flex-direction: column; gap: 8px; }
+  .ai-bubble { background: var(--bg); border-radius: 4px 16px 16px 16px; padding: 15px 18px; font-size: 14px; line-height: 1.75; color: var(--ink-2); max-width: 380px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .ai-bubble strong { color: var(--ink); font-weight: 700; }
+  .ai-bubble + .ai-bubble { border-radius: 16px; }
+  .ai-bubble.signpost { font-size: 13px; color: var(--ink-3); box-shadow: none; background: transparent; padding: 8px 0 0; }
+  .mentor-input-wrap { padding: 18px 24px 24px; flex: none; }
+  .mentor-input-card { background: var(--bg); border-radius: 16px; padding: 4px 4px 4px 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05); }
+  .mentor-input { flex: 1; border: none; background: none; font-family: var(--f); font-size: 14px; color: var(--ink); outline: none; padding: 11px 0; }
+  .mentor-input::placeholder { color: var(--ink-3); }
+  .mentor-send { width: 38px; height: 38px; border-radius: 12px; flex: none; background: var(--gold); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .mentor-send svg { width: 14px; height: 14px; color: #fff; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR — Profile removed from tabs, lives in user area -->
+  <nav class="nav">
+    <div class="nav-brand">Career Intelligence</div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>Home
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>Roles
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2H9a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Applications
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zM8 6v4M6 8h4"/></svg>Skills
+    </div>
+    <div class="nav-gap"></div>
+    <!-- User area — active state (profile is open) -->
+    <div class="nav-user">
+      <div class="nav-av">S</div>
+      <div class="nav-user-info">
+        <div class="nav-name">Sophie</div>
+        <div class="nav-email">sophie@gmail.com</div>
+      </div>
+      <svg class="nav-user-chevron" width="12" height="12" fill="none" viewBox="0 0 12 12" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5l3-3 3 3M3 7l3 3 3-3"/></svg>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Profile</span>
+      <button class="topbar-toggle" id="arloToggle" onclick="toggleArlo()">
+        <svg width="16" height="16" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+        Hide Arlo
+      </button>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- PROFILE PANEL -->
+      <div class="profile-panel">
+
+        <!-- Activity strip -->
+        <div class="activity-strip">
+          <span><strong>32</strong> roles reviewed</span>
+          <span class="activity-sep">·</span>
+          <span><strong>4</strong> applications active</span>
+          <span class="activity-sep">·</span>
+          <span><strong>12</strong> active days</span>
+        </div>
+
+        <!-- Direction card — hero -->
+        <div class="direction-card">
+          <div class="direction-card-label">Your direction</div>
+          <div class="direction-card-title">Management Consulting</div>
+          <div class="direction-card-sub">Strategy, operations, and business analysis roles for graduates with strong analytical and communication skills.</div>
+          <div class="direction-card-rule"></div>
+          <div class="direction-roles-label">Roles we're looking for</div>
+          <div class="roles-wrap">
+            <span class="role-type-chip">Business Analyst</span>
+            <span class="role-type-chip">Strategy Consultant</span>
+            <span class="role-type-chip">Operations Manager</span>
+            <span class="role-type-chip">Project Manager</span>
+          </div>
+          <div class="direction-refine">
+            Want to refine this? <span class="direction-refine-link">Talk to Arlo →</span>
+          </div>
+        </div>
+
+        <!-- What Arlo knows -->
+        <div class="knows-card">
+          <div class="knows-row">
+            <div class="knows-label">Background</div>
+            <div class="knows-text">Economics, University of Leeds, 2024. One marketing internship at a creative agency.</div>
+          </div>
+          <div class="knows-row">
+            <div class="knows-label">What matters to you</div>
+            <div class="knows-text">Work that involves problem-solving and communication. Culture matters — you'd rather take less money somewhere you genuinely fit.</div>
+          </div>
+          <div class="knows-row">
+            <div class="knows-label">What you've ruled out</div>
+            <div class="knows-text">Pure finance roles, anything fully remote long-term, sales-heavy positions.</div>
+          </div>
+          <div class="knows-footer">
+            Something's changed? <span class="knows-footer-link">Tell Arlo →</span>
+          </div>
+        </div>
+
+        <!-- CV on file -->
+        <div class="profile-section">
+          <div class="section-head">CV on file</div>
+          <div class="cv-card">
+            <div class="cv-icon">
+              <svg fill="none" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 2h7l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zM11 2v5h4M6 9h6M6 12h4"/></svg>
+            </div>
+            <div class="cv-meta">
+              <div class="cv-name">CV_Sophie_Clarke_2024.pdf</div>
+              <div class="cv-date">Uploaded 3 weeks ago</div>
+            </div>
+            <div class="cv-actions">
+              <button class="btn-download">Download</button>
+              <button class="btn-update">Update CV</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="profile-section">
+          <div class="section-head">Preferences</div>
+
+          <div class="pref-field">
+            <div class="pref-label">
+              Location
+              <span class="save-feedback" id="save-location">Saved ✓</span>
+            </div>
+            <input class="pref-input" type="text" value="London, UK" oninput="showSaved('save-location')" />
+          </div>
+
+          <div class="pref-field">
+            <div class="pref-label">
+              Salary range
+              <span class="save-feedback" id="save-salary">Saved ✓</span>
+            </div>
+            <div class="salary-row">
+              <div class="salary-wrap">
+                <span class="salary-prefix">£</span>
+                <input class="pref-input salary-input" type="text" value="25,000" oninput="showSaved('save-salary')" />
+              </div>
+              <div class="salary-wrap">
+                <span class="salary-prefix">£</span>
+                <input class="pref-input salary-input" type="text" value="40,000" oninput="showSaved('save-salary')" />
+              </div>
+            </div>
+          </div>
+
+          <div class="pref-field">
+            <div class="pref-label">Work style</div>
+            <div class="pill-group">
+              <button class="pref-pill active" onclick="togglePill(this)">Hybrid</button>
+              <button class="pref-pill" onclick="togglePill(this)">Remote</button>
+              <button class="pref-pill" onclick="togglePill(this)">In-person</button>
+            </div>
+          </div>
+
+          <div class="pref-field">
+            <div class="pref-label">Employment type</div>
+            <div class="pill-group">
+              <button class="pref-pill active" onclick="togglePill(this)">Full-time</button>
+              <button class="pref-pill" onclick="togglePill(this)">Part-time</button>
+              <button class="pref-pill" onclick="togglePill(this)">Contract</button>
+              <button class="pref-pill" onclick="togglePill(this)">Internship</button>
+              <button class="pref-pill" onclick="togglePill(this)">Postgrad scheme</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account -->
+        <div class="settings-section">
+          <div class="section-head">Account</div>
+          <div class="settings-row">
+            <span class="settings-label">Email</span>
+            <span class="settings-value">sophie@gmail.com</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Sign out</span>
+            <button class="settings-btn neutral">Sign out →</button>
+          </div>
+          <div class="settings-divider"></div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Start fresh</div>
+              <div class="settings-hint">Re-run your analysis with a new CV or a different direction</div>
+            </div>
+            <button class="settings-btn neutral">Restart →</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label" style="color:var(--red);">Delete account</div>
+              <div class="settings-hint">Permanently removes all your data</div>
+            </div>
+            <button class="settings-btn danger">Delete →</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ADVISOR PANEL -->
+      <div class="mentor" id="mentorPanel">
+        <div class="mentor-head">
+          <div class="mentor-av">
+            <svg width="42" height="42" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+          </div>
+          <div>
+            <div class="mentor-head-name">Arlo</div>
+            <div class="mentor-head-status">Here with you</div>
+          </div>
+        </div>
+        <div class="mentor-messages">
+          <div class="ai-msg">
+            <div class="ai-bubble">This is everything I know about you. If anything feels off, just tell me.</div>
+          </div>
+          <div class="ai-bubble signpost">You can update your CV, adjust your preferences, or just let me know if things have changed.</div>
+        </div>
+        <div class="mentor-input-wrap">
+          <div class="mentor-input-card">
+            <input class="mentor-input" placeholder="Ask Arlo…" />
+            <button class="mentor-send">
+              <svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2 7h10M7 2l5 5-5 5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const saveTimers = {};
+  function showSaved(id) {
+    const el = document.getElementById(id);
+    el.classList.add('visible');
+    clearTimeout(saveTimers[id]);
+    saveTimers[id] = setTimeout(() => el.classList.remove('visible'), 1800);
+  }
+
+  function togglePill(btn) {
+    btn.classList.toggle('active');
+  }
+
+  let arloVisible = true;
+  const ARLO_SVG = `<svg width="16" height="16" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
+  function toggleArlo() {
+    const content = document.getElementById('content');
+    const panel = document.getElementById('mentorPanel');
+    const btn = document.getElementById('arloToggle');
+    arloVisible = !arloVisible;
+    if (arloVisible) {
+      content.style.gridTemplateColumns = '1fr 1fr';
+      panel.style.display = 'flex';
+      btn.innerHTML = ARLO_SVG + ' Hide Arlo';
+    } else {
+      content.style.gridTemplateColumns = '1fr 0px';
+      panel.style.display = 'none';
+      btn.innerHTML = ARLO_SVG + ' Show Arlo';
+    }
+  }
+</script>
+</body>
+</html>

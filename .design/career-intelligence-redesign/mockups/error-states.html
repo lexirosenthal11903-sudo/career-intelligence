@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Error States — Career Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #FFFFFF;
+  --bg-wash:  #F7F6F3;
+  --cream:    #F5F3EE;
+  --cream-2:  #EDEBE5;
+  --gold:     #A85E16;
+  --gold-soft:#FBF7F2;
+  --ink:      #1A1610;
+  --ink-2:    #5A5040;
+  --ink-3:    #9E9080;
+  --line:     #E8E4DC;
+  --red:      #C0392B;
+  --red-bg:   #FDF3F2;
+  --amber-bg: #FEF9F2;
+  --amber-line:#F0D9B5;
+  --f:        'Instrument Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
+  --r:        10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--f); -webkit-font-smoothing: antialiased; color: var(--ink); }
+
+/* ── SWITCHER ── */
+.switcher {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 24px; height: 44px;
+}
+.switcher-label { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); margin-right: 16px; }
+.sw-btn {
+  padding: 6px 14px; font-size: 12.5px; font-weight: 500;
+  color: var(--ink-3); background: none; border: none; cursor: pointer;
+  border-radius: 6px; transition: background .12s, color .12s;
+}
+.sw-btn:hover { background: var(--cream); color: var(--ink-2); }
+.sw-btn.active { background: var(--ink); color: #fff; }
+
+/* ── SCENES ── */
+.scene { display: none; min-height: 100vh; padding-top: 44px; }
+.scene.visible { display: flex; }
+
+/* ══════════════════════════════════════════
+   STATE 1 — ANALYSIS FAILURE
+   Full-screen centred (same shell as loading)
+══════════════════════════════════════════ */
+.failure-stage {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: var(--bg-wash);
+  padding: 24px;
+}
+.failure-group {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0; max-width: 440px; text-align: center;
+}
+
+.arlo-face {
+  width: 120px; height: 120px;
+  border-radius: 50%; overflow: hidden; flex: none;
+  margin-bottom: 22px;
+}
+.arlo-face svg { width: 120px; height: 120px; display: block; }
+
+.arlo-name {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 20px;
+}
+
+.failure-message {
+  font-size: 19px; font-weight: 500;
+  line-height: 1.65; letter-spacing: -.012em;
+  color: var(--ink-2); margin-bottom: 32px;
+}
+.failure-message strong { color: var(--ink); font-weight: 600; }
+
+.btn-retry {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px;
+  background: var(--gold); color: #fff;
+  font-family: var(--f); font-size: 14px; font-weight: 600;
+  border: none; border-radius: 8px; cursor: pointer;
+  transition: opacity .15s;
+  margin-bottom: 14px;
+}
+.btn-retry:hover { opacity: .88; }
+
+.btn-back {
+  font-size: 13px; font-weight: 500; color: var(--ink-3);
+  background: none; border: none; cursor: pointer;
+  text-decoration: underline; text-decoration-color: var(--line);
+  transition: color .12s;
+}
+.btn-back:hover { color: var(--ink-2); }
+
+/* ── slow-threshold note ── */
+.slow-note {
+  margin-top: 48px;
+  padding: 14px 20px;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-line);
+  border-radius: 8px;
+  font-size: 12px; color: var(--ink-2); line-height: 1.6;
+  max-width: 440px; text-align: left;
+}
+.slow-note strong { color: var(--ink); }
+
+/* ══════════════════════════════════════════
+   STATE 2 — LOST CONNECTION
+   Full dashboard shell + top banner
+══════════════════════════════════════════ */
+.offline-layout {
+  flex: 1; flex-direction: column; background: var(--bg);
+}
+
+/* ── offline banner ── */
+.offline-banner {
+  background: var(--amber-bg);
+  border-bottom: 1px solid var(--amber-line);
+  padding: 9px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--ink-2);
+}
+.offline-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #D4872A; flex: none;
+}
+.offline-text { flex: 1; }
+.offline-reconnecting {
+  font-size: 12px; color: var(--ink-3);
+  font-family: var(--mono); letter-spacing: -.01em;
+}
+
+/* ── dashboard shell ── */
+.dash {
+  display: flex; flex: 1;
+  height: calc(100vh - 44px - 37px); /* minus switcher and banner */
+}
+
+/* sidebar */
+.sidebar {
+  width: 220px; flex: none;
+  background: var(--bg);
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  padding: 0;
+}
+.sidebar-top {
+  padding: 18px 14px 10px;
+}
+.wordmark {
+  font-size: 13.5px; font-weight: 700;
+  letter-spacing: -.01em; color: var(--ink);
+}
+.nav {
+  flex: 1;
+  padding: 6px 8px;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 7px;
+  font-size: 13.5px; font-weight: 500; color: var(--ink-2);
+}
+.nav-item.active { background: var(--cream); color: var(--ink); font-weight: 600; }
+.nav-icon { width: 16px; height: 16px; opacity: .5; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-user {
+  border-top: 1px solid var(--line);
+  padding: 12px 10px; margin-top: 6px;
+  display: flex; gap: 10px; align-items: center;
+  border-radius: 10px;
+}
+.nav-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--cream-2); color: var(--ink-2);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px; flex: none;
+}
+.nav-name { font-size: 13px; font-weight: 500; color: var(--ink-2); }
+.nav-email { font-size: 11px; color: var(--ink-3); }
+
+/* main area */
+.main {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.topbar {
+  height: 52px; flex: none;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; padding: 0 24px;
+  justify-content: space-between;
+}
+.topbar-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-btn {
+  padding: 6px 14px; font-size: 13px; font-weight: 500;
+  background: var(--cream); color: var(--ink-2);
+  border: none; border-radius: 7px; cursor: pointer;
+}
+
+/* content + arlo split */
+.content-split {
+  flex: 1; display: flex; overflow: hidden;
+}
+.content-main {
+  flex: 1; padding: 28px 28px;
+  overflow-y: auto;
+}
+.arlo-panel {
+  width: 320px; flex: none;
+  border-left: 1px solid var(--line);
+  background: var(--cream);
+  display: flex; flex-direction: column;
+}
+.arlo-panel-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 10px;
+}
+.arlo-sm {
+  width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex: none;
+}
+.arlo-sm svg { width: 28px; height: 28px; display: block; }
+.arlo-panel-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.arlo-chat { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+.arlo-bubble {
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px 10px 10px 2px;
+  padding: 11px 14px; font-size: 13px; line-height: 1.6; color: var(--ink-2);
+  max-width: 90%;
+}
+
+/* disabled state on content */
+.content-dimmed {
+  opacity: .45; pointer-events: none; user-select: none;
+}
+.offline-content-note {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  font-size: 13.5px; line-height: 1.65; color: var(--ink-2);
+  margin-bottom: 20px;
+}
+
+/* generic card placeholder */
+.card-placeholder {
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 18px 20px;
+  margin-bottom: 12px;
+}
+.card-ph-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.card-ph-sub { font-size: 13px; color: var(--ink-3); }
+</style>
+</head>
+<body>
+
+<!-- SWITCHER -->
+<div class="switcher">
+  <span class="switcher-label">Error states</span>
+  <button class="sw-btn active" onclick="show('failure')">1 — Analysis failure</button>
+  <button class="sw-btn" onclick="show('offline')">2 — Lost connection</button>
+</div>
+
+<!-- ══ STATE 1: ANALYSIS FAILURE ══ -->
+<div class="scene visible" id="scene-failure">
+  <div class="failure-stage">
+    <div class="failure-group">
+
+      <div class="arlo-face" id="arlo-error"></div>
+      <div class="arlo-name">Arlo</div>
+
+      <p class="failure-message">
+        Something went wrong on my end.<br>
+        <strong>It's not your CV — it's me.</strong><br>
+        Want to try again?
+      </p>
+
+      <button class="btn-retry" onclick="simulateRetry(this)">
+        Try again
+      </button>
+      <button class="btn-back">or go back and edit my CV</button>
+
+    </div>
+
+    <!-- design note for slow threshold -->
+    <div class="slow-note">
+      <strong>Slow pipeline (design note, not a separate state):</strong>
+      After 20s with no progress, the loading screen's phrase shifts to
+      "Still working — this one's taking a bit longer than usual."
+      If the call times out completely, the user lands here.
+    </div>
+  </div>
+</div>
+
+<!-- ══ STATE 2: LOST CONNECTION ══ -->
+<div class="scene" id="scene-offline">
+  <div class="offline-layout" style="display:flex; flex-direction:column; flex:1;">
+
+    <!-- banner -->
+    <div class="offline-banner" id="offlineBanner">
+      <div class="offline-dot"></div>
+      <span class="offline-text">You're offline — I'll reconnect when you're back.</span>
+      <span class="offline-reconnecting">Reconnecting…</span>
+    </div>
+
+    <!-- dashboard shell -->
+    <div class="dash">
+
+      <!-- sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-top">
+          <div class="wordmark">Career Intelligence</div>
+        </div>
+        <nav class="nav">
+          <div class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="2" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
+              <rect x="8.5" y="2" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
+              <rect x="2" y="8.5" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
+              <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
+            </svg>
+            Home
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+            Roles
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Applications
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 12 L6 8 L9 10 L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Skills
+          </div>
+        </nav>
+        <div class="nav-user">
+          <div class="nav-av">S</div>
+          <div>
+            <div class="nav-name">Sophie</div>
+            <div class="nav-email">sophie@gmail.com</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- main -->
+      <div class="main">
+        <div class="topbar">
+          <span class="topbar-title">Home</span>
+          <div class="topbar-right">
+            <button class="topbar-btn">Ask Arlo</button>
+          </div>
+        </div>
+        <div class="content-split">
+          <div class="content-main content-dimmed">
+            <div class="card-placeholder">
+              <div class="card-ph-title">Your direction</div>
+              <div class="card-ph-sub">Management Consulting</div>
+            </div>
+            <div class="card-placeholder">
+              <div class="card-ph-title">3 new roles match your profile</div>
+              <div class="card-ph-sub">Strategy Analyst · Operations Consultant · Business Analyst</div>
+            </div>
+            <div class="card-placeholder">
+              <div class="card-ph-title">Next action</div>
+              <div class="card-ph-sub">Tailor your CV for McKinsey</div>
+            </div>
+          </div>
+
+          <!-- arlo panel -->
+          <div class="arlo-panel">
+            <div class="arlo-panel-head">
+              <div class="arlo-sm" id="arlo-offline-sm"></div>
+              <span class="arlo-panel-name">Arlo</span>
+            </div>
+            <div class="arlo-chat">
+              <div class="arlo-bubble">
+                What did you get up to today?
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- simulate reconnect -->
+    <div style="position:fixed; bottom:20px; right:20px; z-index:50;">
+      <button onclick="simulateReconnect()" style="padding:8px 16px; font-size:12px; background:var(--ink); color:#fff; border:none; border-radius:6px; cursor:pointer; font-family:var(--f);">Simulate reconnect</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── ARLO FACE BUILDER ──
+  function face({ eyeR = 4.5, lb, rb, mouth, fill = '#B87040' }) {
+    return `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="${fill}"/>
+      <circle cx="28" cy="38" r="${eyeR}" fill="#2C1A0E"/>
+      <circle cx="52" cy="38" r="${eyeR}" fill="#2C1A0E"/>
+      <path d="${lb}" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="${rb}" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+      <circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+      <path d="${mouth}" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+    </svg>`;
+  }
+
+  // Error expression — inner corners raised (apologetic/sorry), outer corners lower
+  const errorFace = face({
+    lb:    "M23 38 Q28 31 33 33",   // outer end drops, inner end rises — worried
+    rb:    "M47 33 Q52 31 57 38",   // mirror
+    mouth: "M32 52 Q40 50 48 52"    // subtly downturned — not distressed, just regretful
+  });
+
+  // Neutral expression for offline state — calm, waiting
+  const neutralFace = face({
+    lb:    "M23 36 Q28 33 33 36",
+    rb:    "M47 36 Q52 33 57 36",
+    mouth: "M33 51 Q40 52 47 51"
+  });
+
+  document.getElementById('arlo-error').innerHTML    = errorFace;
+  document.getElementById('arlo-offline-sm').innerHTML = neutralFace;
+
+  // ── SWITCHER ──
+  function show(which) {
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('visible'));
+    document.querySelectorAll('.sw-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('scene-' + which).classList.add('visible');
+    event.target.classList.add('active');
+  }
+
+  // ── SIMULATE RETRY (state 1) ──
+  function simulateRetry(btn) {
+    btn.textContent = 'Trying…';
+    btn.style.opacity = '.6';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = 'Try again';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }, 1800);
+  }
+
+  // ── SIMULATE RECONNECT (state 2) ──
+  function simulateReconnect() {
+    const banner = document.getElementById('offlineBanner');
+    banner.style.transition = 'opacity .6s ease';
+    banner.style.opacity = '0';
+    const dimmed = document.querySelector('.content-dimmed');
+    if (dimmed) {
+      dimmed.style.transition = 'opacity .6s ease';
+      dimmed.style.opacity = '1';
+    }
+    setTimeout(() => { banner.style.display = 'none'; }, 650);
+  }
+</script>
+</body>
+</html>

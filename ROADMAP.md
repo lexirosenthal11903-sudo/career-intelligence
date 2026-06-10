@@ -39,12 +39,12 @@ _Goal: Every screen designed and locked before a single line of engineering begi
 ### Missing screens — must be designed before Phase 2 builds them
 All of these need dedicated design sessions. None can be built before they are locked.
 - [x] **Skills tab** — LOCKED (Session 13, 2026-06-10). Direction card anchor + "Before you apply" + "Worth building" sections. Certifications require certificate evidence. Framing: trajectory, not deficit. See `SESSION_DECISIONS.md` + `mockups/dashboard-skills.html`.
-- [ ] **Profile tab** — interactive preferences, CV on file, direction summary. Editable?
+- [x] **Profile tab** — LOCKED (Session 15, 2026-06-10). Mirror screen: activity strip + direction card + "What Arlo knows" (background/values/dealbreakers) + CV on file + preferences + account. Profile moved to bottom-left user area, not a nav tab. See `mockups/dashboard-profile.html` + `SESSION_DECISIONS.md`.
 - [x] **Applications tab** — LOCKED (Session 12, 2026-06-10). List view + Arlo half-panel. Stages: Preparing → Applied → Interview → Offer + Archive. Cards show: role, company, stage badge, next action, closing date, assessment deadline (where applicable), collapsible timeline. Arlo does not reset per tab. Collapsible globally. See `brainstorms/applications-tab-session.md` + `mockups/dashboard-applications.html`.
 - [x] **Auth overlay** — LOCKED (Session 11, 2026-06-10). Decisions: two states (new/returning), Google OAuth + email OTP, Arlo surfaces save prompt before overlay opens, overlay is clean UI only, OTP email via Resend. See `brainstorms/auth-overlay-session.md`.
 - [x] **Onboarding bridge screen** — LOCKED (Session 13, 2026-06-10). Direction card + roles inside card + Arlo note + CTA. See `mockups/onboarding-bridge.html`.
-- [ ] **Returning user experience** — first return after initial analysis. "Welcome back, here's where we left off." Critical to design: this is the retention moment.
-- [ ] **Basic error states** — what does the user see if the analysis fails? If the API is slow? If they lose connection? Must be designed, not invented during build.
+- [x] **Returning user experience** — LOCKED (Session 14, 2026-06-10). Priority stack (interview prep → deadline → new roles → contacts → next step on saved role → skills → direction refinement). Total active days momentum strip. Arlo always opens with "What did you get up to?" See `brainstorms/returning-user-session.md` + `mockups/returning-user.html`.
+- [x] **Basic error states** — LOCKED (Session 16, 2026-06-10). Analysis failure (Arlo owns it, retry, input preserved) + slow pipeline (loading screen text shift) + lost connection (amber banner, silent recovery) + Arlo chat failure (inline copy only). See `mockups/error-states.html` + `SESSION_DECISIONS.md`.
 
 ---
 
@@ -124,10 +124,14 @@ _When all above items are done: review the product. Decide: launch to first 100 
 
 _Goal: Every job the user saves becomes a full guided journey. This is the product's core promise._
 
-- [ ] **Per-job CV builder** — tailors the user's CV to the specific role
-- [ ] **Per-job cover letter builder** — personalised to the role and the user's story
+**Product philosophy for this phase — Arlo does it, doesn't just guide.**
+Arlo doesn't tell the user what to write. It writes it. CV built and tailored for each specific job. Cover letter written, not prompted. Email opened pre-filled, user clicks send. Every step of every application handled — the user provides intent and approval, Arlo provides execution. This is what separates the product from every other career tool.
+
+- [ ] **Per-job CV builder** — Arlo generates a tailored CV for each specific role. Not tips or guidance — an actual document, ready to download or send. Based on the user's full profile + the job description.
+- [ ] **Per-job cover letter builder** — Arlo writes the cover letter. User reviews and approves. One-click: opens the user's email client with the cover letter pre-filled and the company's application email in the To field. User clicks send.
 - [ ] **Contacts finder** — moved to explicit entry above with legal warning
 - [ ] **Interview prep** — company-specific questions, assessment centre guidance, what to expect at each stage for that specific company
+- [ ] **One-way video interview prep** — increasingly standard at graduate level. Arlo explains the format, coaches the user through pacing, eye contact, handling blank time. Potentially integrates with voice mode: Arlo asks questions aloud, user practises speaking answers back. Needs a design + product session before build.
 - [ ] **Company research layer** — values, culture, recent news, how they align with what the user has told us
 - [ ] **Full application pipeline tracking** — Saved → Preparing → Applied → Interview → Offer/Rejection, per job
 - [ ] **Email inbox integration** — Gmail/Outlook OAuth (read-only). Advisor automatically detects interview invites, rejections, offers, assessment bookings. Updates pipeline without user having to log anything. Prompt: "I saw you heard back from Innocent Drinks — want to start preparing?" Privacy: "I only read emails from companies you've applied to." Explicit opt-in, revocable.
@@ -189,6 +193,22 @@ _These are real ideas. They require Phase 3–5 to be proven before they're wort
 - Industry encyclopaedia — show users what exists before they search. Multiple interviewees couldn't search for what they didn't know existed. Phase 4.
 - CV creation from scratch — for users who don't have a CV yet. Phase 3.
 - Live job updates — dashboard always shows current matches, not a static snapshot. Phase 2–3.
+
+### Ideas from Session 16 (2026-06-10) — LinkedIn article on AI recruitment crisis
+
+Context: article surfaced that graduates are competing ~500:1 for roles, parents paying £30k for career coaches to "beat AI recruitment systems". Product already addresses this philosophically (quality over volume, direction first). Three concrete additions:
+
+**Phase 3 — ATS awareness in CV and application guidance**
+Arlo should flag when a user's CV is unlikely to pass automated screening for a specific role. Not keyword stuffing — genuine signal: "This job description uses 'stakeholder management' three times. Your CV doesn't use that phrase. That matters for automated screening." Subtle, specific, honest.
+
+**Phase 3 — One-way video interview prep**
+Increasingly standard at the graduate level. Arlo can coach users through the specific format: how to pace yourself, how to treat a camera, what companies are looking for, how to handle blank time. Not currently in scope anywhere — needs a design session before build.
+
+**Phase 5 — Positioning: "The £30k career coach, at a price anyone can afford"**
+This is the strongest single-line pitch for what this product actually is. Save for the landing page copy session and fundraising narrative. Do not use prematurely — product must be good enough first.
+
+**Phase 2 polish — Retry icon in error-states.html**
+SVG arc approach failed at small render size (arc appears as full circle). During Phase 2 build, replace with a proper icon from Heroicons, Phosphor, or Lucide rather than hand-coding SVG paths.
 
 ---
 

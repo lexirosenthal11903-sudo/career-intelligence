@@ -394,3 +394,136 @@ The dashboard home is the visual reference. Every other tab must be aligned to i
 - If user tells Arlo they don't want a role type, Arlo removes it, filters listings, updates direction card
 - This means filter pills in Live Listings can shrink mid-session
 
+---
+
+## Session 14 — 2026-06-10 — Returning User Experience
+
+### Returning User Experience — LOCKED ✓
+
+**File:** `mockups/returning-user.html`
+
+**Core principle:** Not a separate screen. The dashboard home in a returning state. Same shell always — Arlo's message + the featured action change based on context.
+
+**First visit (post onboarding bridge):** Arlo gently introduces the platform through natural prompts — no modal tour. "Here are your roles — start with the top one." Features revealed through Arlo's conversation, not a walkthrough.
+
+**Every subsequent return:** Featured action (highest priority item) + Arlo always speaks + "What did you get up to?" check-in.
+
+**Priority stack — featured action slot (top item wins):**
+1. Active application in-flight — interview prep, assessment, offer to evaluate, drafted application not yet submitted. Depth on what's moving beats breadth of new applications.
+2. Deadline urgency — saved role closing soon
+3. New role matches — fresh since last visit
+4. New contacts — someone worth reaching out to at a saved company
+5. Next step on a saved role — saved but nothing done with it yet
+6. New skill worth building
+7. Direction refinement — Arlo has a question
+
+**Rules:**
+- One primary action only — never mix "prep your interview" with "apply to new jobs"
+- Timestamp content, never the gap: "3 new roles since your last visit" ✓ / "you were away 6 days" ✗
+- Arlo always opens with "What did you get up to?" — preserves the "proud to report back" emotional beat
+- Arlo handles secondary items conversationally — no secondary list in the UI
+- Away mode: parked for Phase 2
+
+**Momentum strip — CHANGED from streak to total active days:**
+- OLD (dashboard-home, locked Session 10): "Day 5 of your search — you've been consistent" — SUPERSEDED
+- NEW (all screens): "12 active days into your search — you're building something."
+- Rationale: streaks create guilt when broken. Total active days can only go up. Applied to both `dashboard-home.html` and `returning-user.html`.
+
+**Three states in the mockup:**
+1. New roles available — "3 new roles matched" featured, Explore shows total count (not repeated new count), Arlo surfaces top match with specific reason
+2. Deadline urgency — red badge + "THIS WEEK" label + red button, Arlo flags before anything else
+3. Nothing new — "PICK UP HERE" with specific saved role next step, Arlo acknowledges nothing new then pivots to what's actionable
+
+**Explore cards:** Always show total counts and general navigation — never repeat the featured action's specific message.
+
+**Parking lot (Phase 3):** Surface social signals on saved roles — if someone posts publicly about a company the user saved, Arlo proactively mentions it. "Someone who works at Bloom & Wild posted about their ops team this week — worth a read before you reach out."
+
+---
+
+## Session 15 — 2026-06-10 — Profile Tab
+
+### Profile Tab — LOCKED ✓
+
+**File:** `mockups/dashboard-profile.html`
+
+**Core principle:** A mirror, not a settings page. The primary job is to show the user what the product has learned about them. Settings live at the bottom as a secondary concern.
+
+**Nav change:** Profile is no longer a main nav tab. It lives in the bottom-left user area (click the avatar/name to open). Main nav = 4 tabs only: Home, Roles, Applications, Skills. This pattern matches Linear, Notion, Slack — profile is meta, not a primary destination.
+
+**Left column structure (top to bottom):**
+
+1. **Activity strip** — single line above the direction card: "32 roles reviewed · 4 applications active · 12 active days". DM Mono font for numbers, ink-3 for labels, `·` separator.
+
+2. **Direction card (cream hero)** — same pattern as all other dashboard screens.
+   - "YOUR DIRECTION" label → direction title → subtitle
+   - Rule → "ROLES WE'RE LOOKING FOR" (NOT "Role types" — too abstract)
+   - Role type chips (cream-2 background, ink-2 text — read-only)
+   - "Want to refine this? Talk to Arlo →" nudge beneath
+
+3. **What Arlo knows card** (white, bordered) — immediately below direction card, no section-head gap:
+   - BACKGROUND: inferred from CV. "Economics, University of Leeds, 2024. One marketing internship at a creative agency."
+   - WHAT MATTERS TO YOU: from input conversation. "Work that involves problem-solving and communication. Culture matters — you'd rather take less money somewhere you genuinely fit."
+   - WHAT YOU'VE RULED OUT: dealbreakers stated in conversation. "Pure finance roles, anything fully remote long-term, sales-heavy positions."
+   - Footer: cream bg, "Something's changed? Tell Arlo →" — gold link
+
+4. **CV on file** (section):
+   - Card: document icon + filename + upload date + Download button + Update CV button (gold)
+   - Update CV = explicit action, confirmation required → triggers full re-analysis
+   - Re-analysis is smart: compares before/after, focuses on what changed
+   - After re-analysis: Arlo explains what changed in chat (no visual diff on the page)
+
+5. **Preferences** (auto-save, quiet "Saved ✓" confirmation that fades):
+   - Location (text input)
+   - Salary range (two fields, £ prefix, DM Mono)
+   - Work style pills: Remote / Hybrid / In-person (multi-select)
+   - Employment type pills: Full-time / Part-time / Contract / Internship / Postgrad scheme (multi-select)
+   - Pill active state: gold-soft background, gold text, gold border
+
+6. **Account section** (bottom, border-top separator):
+   - Email address — display only (auth identity, not editable)
+   - Sign out
+   - --- divider ---
+   - Start fresh — "Re-run your analysis with a new CV or a different direction" — takes user back through input flow. Confirmation required. Not near direction card.
+   - Delete account — red text, "Permanently removes all your data". Confirmation required.
+
+**Right column:** Arlo, always present.
+- Opening message: "This is everything I know about you. If anything feels off, just tell me."
+- Signpost: "You can update your CV, adjust your preferences, or just let me know if things have changed."
+
+**Key product decisions:**
+- Direction and role types are never directly editable by the user — Arlo owns them. User talks to Arlo to change direction.
+- Preferences save silently with auto-save. CV update is explicit and deliberate.
+- "Start fresh" = full re-analysis, takes them back through input flow. Lives in Account section, not near direction content.
+- Export improved/Arlo-assisted CV = parking lot, Phase 3.
+
+---
+
+## Session 16 — 2026-06-10 — Basic Error States
+
+### Error States — LOCKED ✓
+
+**File:** `mockups/error-states.html`
+
+**States designed (2 visual, 2 copy-only):**
+
+**State 1 — Analysis failure (visual):**
+Full-screen centred layout (same shell as loading screen). Arlo centred, apologetic expression (inner brows raised). Message: "Something went wrong on my end. / It's not your CV — it's me. / Want to try again?" Gold "Try again" button (text only — no icon; retry icon deferred to Phase 2, use icon library not hand-coded SVG). Escape: "or go back and edit my CV" text link beneath button. User input preserved — retry is instant, no re-entry required.
+
+**State 2 — Slow pipeline (no separate visual state):**
+Not a separate screen. Loading screen's phrase shifts tone after ~20s threshold: "Still working — this one's taking a bit longer than usual." Complete timeout falls through to State 1 (analysis failure).
+
+**State 3 — Lost connection (visual — dashboard banner):**
+Subtle amber banner at the very top of the dashboard: dot + "You're offline — I'll reconnect when you're back." + "Reconnecting…" in DM Mono on the right. Dashboard content dims (opacity reduced). Banner fades silently on reconnect — no "you're back online" confirmation message. Arlo does not speak for this state (system state, not emotional moment).
+
+**State 4 — Arlo chat failure mid-dashboard (copy only):**
+No visual state. Arlo responds inline in the chat panel: "I missed that — something went wrong on my end. Say it again?" No modal, no retry button — user re-types or resends naturally.
+
+**Design note — deferred:**
+Retry icon in State 1 button left as plain text. SVG arc approach failed at small render size. Phase 2 build: use Heroicons/Phosphor/Lucide for this icon, do not hand-code.
+
+**Key decisions:**
+- Arlo always owns errors — never blames the user, never shows a raw system error
+- Lost connection = banner only, never a modal or full-screen takeover
+- All error voice copy final in `ADVISOR_PERSONA.md` (error messages section)
+- Engineering must ensure user input is never lost on API failure (Phase 1 requirement)
+- Phase 2 QA: test analysis across diverse CV types (sparse, non-English, career changers, unusual paths)

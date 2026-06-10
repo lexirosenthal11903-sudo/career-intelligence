@@ -32,8 +32,8 @@ Design tokens · Homepage · Dashboard home · Input page · Loading screen · S
 
 ---
 
-### NEXT SESSION: Returning User Experience
-**Status: NEXT — start here**
+### Returning User Experience — LOCKED ✓ (Session 14, 2026-06-10)
+**File:** `mockups/returning-user.html` · **Decisions:** `brainstorms/returning-user-session.md` · `SESSION_DECISIONS.md`
 
 **What it achieves:** Designs the first-return screen. Someone coming back after a few days. "Welcome back, here's where we left off." No re-onboarding, no direction re-explanation. This is the retention moment — the design must make returning feel worth it.
 
@@ -63,37 +63,22 @@ Design tokens · Homepage · Dashboard home · Input page · Loading screen · S
 
 ---
 
-### After returning user: Profile Tab
+### Profile Tab — LOCKED ✓ (Session 15, 2026-06-10)
+**File:** `mockups/dashboard-profile.html` · **Decisions:** `brainstorms/profile-tab-session.md` · `SESSION_DECISIONS.md`
 
-**What it achieves:** Designs the profile/preferences screen. CV on file, direction summary, editable preferences.
-
-**Key questions:**
-- What can the user actually edit? Direction? Preferences? Location/salary?
-- Is this where they update their CV?
-- Does editing trigger a re-analysis or does Arlo just incorporate it in chat?
-
-**Done when:** Locked mockup. Direction clear on what's editable and what triggers what.
-
-**Output:** `mockups/dashboard-profile.html`
+**What it achieves:** Mirror screen — shows the user what the product has learned about them. Activity strip + direction card + "What Arlo knows" (background / values / dealbreakers) + CV on file + preferences (auto-save) + account (sign out / start fresh / delete). Profile lives in bottom-left user area, not a nav tab.
 
 ---
 
-### After profile: Basic Error States
+### Basic Error States — LOCKED ✓ (Session 16, 2026-06-10)
 
-**What it achieves:** Designs what the user sees when things go wrong. Fastest session — 3 states to design.
+**File:** `mockups/error-states.html` · **Decisions:** `brainstorms/error-states-session.md` · `SESSION_DECISIONS.md` · `ADVISOR_PERSONA.md` (error voice section)
 
-**States needed:**
-1. Analysis fails (API error) — what does the user see? Can they retry?
-2. API slow / timeout — is there a fallback message? Does Arlo speak?
-3. Lost connection mid-session
-
-**Done when:** All 3 states have a locked design. Arlo voice for error messages locked in `ADVISOR_PERSONA.md`.
-
-**Output:** `mockups/error-states.html`
+4 states: analysis failure (Arlo owns it, retry button, input preserved) · slow pipeline (loading screen text shift, no separate state) · lost connection (amber banner, silent recovery) · Arlo chat failure (inline copy only, no visual state).
 
 ---
 
-### After all 3 locked: Phase 0 Complete → Phase 1 begins
+### Phase 0 Complete ✓ → Phase 1 begins
 
 ---
 

@@ -244,6 +244,25 @@ Reference files: `brainstorms/competitor-research/jack-and-jill/` — all three 
 
 ---
 
+## Error state voice — LOCKED (Session 16, 2026-06-10)
+
+These are the confirmed copy patterns for error moments. Arlo always owns the error. Never blames the user. Never shows a raw system message.
+
+| State | Arlo says |
+|---|---|
+| Analysis failure | "Something went wrong on my end. It's not your CV — it's me. Want to try again?" |
+| Arlo chat failure (mid-dashboard) | "I missed that — something went wrong on my end. Say it again?" |
+| Slow pipeline (loading screen threshold) | "Still working — this one's taking a bit longer than usual." |
+| Lost connection | No Arlo message — banner only. System state, not emotional moment. |
+
+**Voice rules for error states:**
+- First person always: "my end", "I missed that"
+- Never: "An error occurred", "Something went wrong with the system", "Please try again later"
+- Warm but not fussy — Arlo acknowledges it and moves on. No dwelling.
+- Exact copy is placeholder — final wording in Phase 5 copy session.
+
+---
+
 ## Open questions (to resolve in dedicated sessions)
 
 - **Name** — Arlo. Confirmed 2026-06-10.
