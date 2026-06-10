@@ -546,3 +546,7 @@ Display the three words as a narrative element on the homepage — the arc the p
 
 ### Three words on the landing page (Phase 5)
 Meraki / Satori / Kavanah as narrative element on homepage. Dedicated copy session required. Too important to decide quickly.
+
+## Parking Lot Additions — Session 11 (2026-06-10)
+
+- **Voice conversation mode** — user speaks to the advisor; advisor replies with voice. Dynamic back-and-forth conversation. High emotional resonance — feels like talking to a real person. Phase 3–4 feature. Requires voice API integration (ElevenLabs or similar). Pairs well with the companion arc (Kavanah phase especially).
