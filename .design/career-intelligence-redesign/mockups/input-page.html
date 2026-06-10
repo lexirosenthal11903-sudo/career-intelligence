@@ -48,15 +48,19 @@
   .nav-restart {
     font-family: var(--f); font-size: 13px; font-weight: 500; color: var(--ink-3);
     background: none; border: none; cursor: pointer; transition: color .12s;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
   }
+  .nav-restart.show { opacity: 1; pointer-events: auto; }
   .nav-restart:hover { color: var(--ink-2); }
 
-  /* ── LAYOUT ── */
+  /* ── STAGE ── */
   .stage {
     height: 100vh;
     padding-top: 56px;
     display: flex;
     justify-content: center;
+    position: relative;
   }
 
   .chat-frame {
@@ -65,23 +69,75 @@
     display: flex; flex-direction: column;
   }
 
-  /* ── ARLO INTRO ── */
-  .arlo-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-bottom: 24px; }
-  .arlo-intro-face { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none; }
-  .arlo-intro-face svg { width: 40px; height: 40px; display: block; }
-  .arlo-intro-name { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+  /* ══════════════════════════════════
+     RESTING STATE
+  ══════════════════════════════════ */
+  .welcome {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 0;
+    padding: 0 32px 80px; /* offset down slightly — input bar takes bottom */
+    text-align: center;
+    transition: opacity .3s ease, transform .3s ease;
+  }
+  .welcome.gone {
+    opacity: 0;
+    transform: translateY(-16px);
+    pointer-events: none;
+    position: absolute;
+  }
 
-  /* ── MESSAGES ── */
+  .welcome-face {
+    width: 64px; height: 64px;
+    border-radius: 50%; overflow: hidden;
+    margin-bottom: 18px;
+    flex: none;
+  }
+  .welcome-face svg { width: 64px; height: 64px; display: block; }
+
+  .welcome-name {
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .welcome-heading {
+    font-size: 28px; font-weight: 700;
+    letter-spacing: -.025em;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .welcome-sub {
+    font-size: 15px;
+    color: var(--ink-3);
+    line-height: 1.7;
+    max-width: 380px;
+  }
+
+  /* ══════════════════════════════════
+     CHAT STATE (active)
+  ══════════════════════════════════ */
   .messages {
     flex: 1; overflow-y: auto;
     padding: 40px 32px 20px;
-    display: flex; flex-direction: column;
+    display: none; flex-direction: column;
     gap: 10px;
   }
+  .messages.show { display: flex; }
   .messages::-webkit-scrollbar { width: 0; }
 
   /* Advisor bubble */
   .ai-row { display: flex; flex-direction: column; align-items: flex-start; }
+  .ai-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .ai-meta-face { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex: none; }
+  .ai-meta-face svg { width: 24px; height: 24px; display: block; }
+  .ai-meta-name { font-size: 12px; font-weight: 600; color: var(--ink-3); }
+
   .ai-bubble {
     background: var(--surface);
     border-radius: 4px 16px 16px 16px;
@@ -101,7 +157,7 @@
     max-width: 380px;
   }
 
-  /* Upload card — appears inline in conversation */
+  /* Upload card */
   .upload-card { max-width: 380px; margin-top: 4px; }
   .upload-card.gone { display: none; }
 
@@ -130,7 +186,7 @@
     text-underline-offset: 2px; cursor: pointer;
   }
 
-  /* Fade-in for messages */
+  /* Fade-in for chat messages */
   @media (prefers-reduced-motion: no-preference) {
     .ai-row, .user-row, .upload-card {
       animation: msg-in .22s ease both;
@@ -170,7 +226,7 @@
   .send-btn:hover { background: #8f4f10; transform: scale(1.05); }
   .send-btn svg { width: 14px; height: 14px; color: #fff; }
 
-  /* Submit button — final step */
+  /* Submit button */
   .submit-wrap { display: none; justify-content: center; padding: 4px 0; }
   .submit-wrap.show { display: flex; }
   .btn-submit {
@@ -187,23 +243,38 @@
 
 <nav class="nav">
   <a class="nav-brand" href="#">Career Intelligence</a>
-  <button class="nav-restart" onclick="restart()">← Start over</button>
+  <button class="nav-restart" id="navRestart" onclick="restart()">← Start over</button>
 </nav>
 
 <main class="stage">
 <div class="chat-frame">
 
-  <div class="messages" id="messages">
-    <div class="arlo-intro">
-      <div class="arlo-intro-face"><svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg></div>
-      <div class="arlo-intro-name">Arlo</div>
+  <!-- RESTING STATE -->
+  <div class="welcome" id="welcome">
+    <div class="welcome-face">
+      <svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="40" fill="#B87040"/>
+        <circle cx="28" cy="38" r="5" fill="#2C1A0E"/>
+        <circle cx="52" cy="38" r="5" fill="#2C1A0E"/>
+        <path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+        <circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+        <path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+      </svg>
     </div>
+    <div class="welcome-name">Arlo</div>
+    <div class="welcome-heading">Hi — I'm here to help you find your direction.</div>
+    <div class="welcome-sub">I'll ask you two or three things. That's it.<br>Start by sharing your CV below, or just tell me about yourself.</div>
   </div>
+
+  <!-- CHAT STATE -->
+  <div class="messages" id="messages"></div>
 
   <div class="input-area">
     <div class="input-card" id="inputCard">
       <input class="input-field" id="inputField" type="text"
-        placeholder="Or type about yourself instead…"
+        placeholder="Tell me about yourself…"
         onkeydown="onKey(event)">
       <button class="send-btn" onclick="onSend()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -223,45 +294,52 @@
 <input type="file" id="fileInput" accept=".pdf,.doc,.docx" onchange="onFile(event)" style="display:none">
 
 <script>
-  const msgList   = document.getElementById('messages');
-  const inputCard = document.getElementById('inputCard');
-  const inputFld  = document.getElementById('inputField');
+  const welcome    = document.getElementById('welcome');
+  const msgList    = document.getElementById('messages');
+  const inputCard  = document.getElementById('inputCard');
+  const inputFld   = document.getElementById('inputField');
   const submitWrap = document.getElementById('submitWrap');
+  const navRestart = document.getElementById('navRestart');
 
   let step = 0;
-  // step 0 = awaiting background  (CV or typed)
-  // step 1 = awaiting direction
-  // step 2 = awaiting practical constraints
-  // step 3 = done — show submit
+  let chatStarted = false;
 
-  const ACKS = [
-    "Got what I need.",
-    "That helps.",
-  ];
+  const ARLO_FACE = `<svg width="24" height="24" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
+
+  const ACKS = ["Got what I need.", "That helps."];
   const QUESTIONS = [
     "Where are you trying to go? Even if it's vague — a direction you're drawn toward, or something you want to move away from. There's no wrong answer.",
     "One last thing — where can you work, and any restrictions I should know about?",
   ];
   const PLACEHOLDERS = [
-    "Or type about yourself instead…",
+    "Tell me about yourself…",
     "I'm drawn to things where I can see the impact of what I do…",
     "e.g. London, open to remote, or need visa sponsorship",
   ];
 
-  // ── STARTUP SEQUENCE ──
-  delay(300,  () => addAdvisor("Hi — I'm Arlo."));
-  delay(900,  () => addAdvisor("I'm going to ask you a few things — two or three, that's it."));
-  delay(1800, () => {
-    addAdvisor("Let's start with your CV. Upload it and I'll read it, or just tell me about yourself below.");
-    delay(250, addUploadCard);
-  });
+  function startChat() {
+    if (chatStarted) return;
+    chatStarted = true;
 
-  // ── HELPERS ──
+    welcome.classList.add('gone');
+    msgList.classList.add('show');
+    navRestart.classList.add('show');
+
+    delay(60,  () => addAdvisor("Let's start with your CV. Upload it and I'll read it, or just tell me about yourself below."));
+    delay(400, addUploadCard);
+  }
+
   function delay(ms, fn) { setTimeout(fn, ms); }
 
   function addAdvisor(text) {
+    if (!chatStarted) startChat();
     const row = el('div', 'ai-row');
-    row.innerHTML = `<div class="ai-bubble">${text}</div>`;
+    row.innerHTML = `
+      <div class="ai-meta">
+        <div class="ai-meta-face">${ARLO_FACE}</div>
+        <span class="ai-meta-name">Arlo</span>
+      </div>
+      <div class="ai-bubble">${text}</div>`;
     msgList.appendChild(row);
     scrollBottom();
   }
@@ -286,8 +364,7 @@
         <span class="upload-label">Drag your CV here, or click to browse</span>
         <span class="upload-sub">PDF or Word · Max 10MB</span>
       </div>
-      <p class="alt-path">No CV yet, or prefer to type? <a onclick="dismissUpload()">Either works.</a></p>
-    `;
+      <p class="alt-path">No CV yet, or prefer to type? <a onclick="dismissUpload()">Either works.</a></p>`;
     msgList.appendChild(card);
     scrollBottom();
 
@@ -322,23 +399,21 @@
     delay(40, () => msgList.scrollTo({ top: msgList.scrollHeight, behavior: 'smooth' }));
   }
 
-  // ── FILE UPLOAD ──
   function onFile(e) {
     const f = e.target.files[0];
     if (f) finishBackground(`CV: ${f.name}`);
   }
 
-  // ── STATE MACHINE ──
   function finishBackground(text) {
     hideUploadCard();
     addUser(text);
     step = 1;
     inputFld.value = '';
+    inputFld.placeholder = PLACEHOLDERS[1];
     delay(420, () => {
       addAdvisor(ACKS[0]);
       delay(600, () => {
         addAdvisor(QUESTIONS[0]);
-        inputFld.placeholder = PLACEHOLDERS[1];
         inputFld.focus();
       });
     });
@@ -348,11 +423,11 @@
     addUser(text);
     step = 2;
     inputFld.value = '';
+    inputFld.placeholder = PLACEHOLDERS[2];
     delay(420, () => {
       addAdvisor(ACKS[1]);
       delay(600, () => {
         addAdvisor(QUESTIONS[1]);
-        inputFld.placeholder = PLACEHOLDERS[2];
         inputFld.focus();
       });
     });
@@ -372,6 +447,7 @@
   function onSend() {
     const val = inputFld.value.trim();
     if (!val) return;
+    if (!chatStarted) startChat();
     if (step === 0) finishBackground(val);
     else if (step === 1) finishDirection(val);
     else if (step === 2) finishPractical(val);
@@ -382,11 +458,16 @@
   }
 
   function restart() {
-    if (step > 0 && !confirm('Start over? Your answers won\'t be saved.')) return;
+    if (step > 0 && !confirm("Start over? Your answers won't be saved.")) return;
     location.reload();
   }
 
   function goLoading() { location.href = 'loading-screen.html'; }
+
+  // Clicking the input also starts the chat (shows Arlo's opening message)
+  inputFld.addEventListener('focus', () => {
+    if (!chatStarted) startChat();
+  });
 </script>
 
 </body>

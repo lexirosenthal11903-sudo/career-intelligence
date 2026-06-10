@@ -7,115 +7,156 @@
 <title>Loading — Career Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:    #F7F6F3;
     --ink:   #1A1610;
     --ink-2: #5A5040;
     --ink-3: #9E9080;
-    --ink-4: #BDB7AC;
-    --gold:  #A85E16;
     --f:     'Instrument Sans', system-ui, sans-serif;
-    --fs:    'DM Serif Display', Georgia, serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--f);
-    -webkit-font-smoothing: antialiased;
-  }
+  html, body { height: 100%; background: var(--bg); font-family: var(--f); -webkit-font-smoothing: antialiased; }
 
   .stage {
     height: 100vh;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     padding: 24px;
-    gap: 0;
   }
 
-  /* ── ARLO ICON ── */
-  .arlo-icon {
-    width: 56px; height: 56px;
+  /* ── GROUP — icon + text as one cohesive unit ── */
+  .group {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0;
+    max-width: 480px;
+    text-align: center;
+    transition: opacity .4s ease;
+  }
+
+  /* ── ARLO ── */
+  .arlo-face {
+    width: 160px; height: 160px;
     border-radius: 50%;
     overflow: hidden;
-    margin-bottom: 48px;
     flex: none;
+    margin-bottom: 20px;
   }
-  .arlo-icon svg { width: 56px; height: 56px; display: block; }
+  .arlo-face svg { width: 160px; height: 160px; display: block; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .arlo-face { animation: breathe 3.4s ease-in-out infinite; }
+    @keyframes breathe {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+  }
+
+  .arlo-name {
+    font-size: 12px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-4);
+    margin-bottom: 28px;
+  }
 
   /* ── COPY ── */
-  .copy-wrap {
-    text-align: center;
-    max-width: 440px;
-  }
-
   .phrase {
-    font-family: var(--fs);
-    font-style: italic;
-    font-size: 30px;
-    color: var(--ink);
-    line-height: 1.35;
-    letter-spacing: -.01em;
-    min-height: 84px;
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.65;
+    letter-spacing: -.015em;
+    color: var(--ink-2);
+    min-height: 70px;
     display: flex; align-items: center; justify-content: center;
-    transition: opacity .45s ease;
+    margin-bottom: 12px;
   }
 
   .tagline {
-    font-family: var(--f);
     font-size: 13px;
-    color: var(--ink-3);
-    margin-top: 20px;
-    letter-spacing: .01em;
+    color: var(--ink-4);
     font-weight: 500;
+    letter-spacing: .01em;
   }
 </style>
 </head>
 <body>
 
 <div class="stage">
-  <div class="arlo-icon"><svg width="56" height="56" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg></div>
-
-  <div class="copy-wrap">
-    <p class="phrase" id="phrase">I'm taking a minute with this — it's worth doing properly.</p>
+  <div class="group" id="group">
+    <div class="arlo-face" id="arloFace"></div>
+    <div class="arlo-name">Arlo</div>
+    <p class="phrase" id="phrase"></p>
     <p class="tagline">About a minute.</p>
   </div>
 </div>
 
 <script>
-  const phrases = [
-    "I'm taking a minute with this — it's worth doing properly.",
-    "Reading what you've built, and what it says between the lines.",
-    "Finding the roles where someone like you would actually do well.",
-    "Almost there.",
-  ];
-
-  let i = 0;
-  const el = document.getElementById('phrase');
-
-  // Advance through phrases at timed intervals
-  const intervals = [14000, 14000, 14000, 99999]; // last phrase stays
-
-  function next() {
-    if (i >= phrases.length - 1) return;
-    el.style.opacity = '0';
-    setTimeout(() => {
-      i++;
-      el.textContent = phrases[i];
-      el.style.opacity = '1';
-    }, 450);
-    if (i + 1 < phrases.length) {
-      setTimeout(next, intervals[i]);
-    }
+  // ── ARLO EXPRESSION BUILDER ──
+  // Brows: control point y determines arc height above eyes (eyes at y=38)
+  //   lower control y = higher arc = relaxed/open
+  //   higher control y = lower arc = furrowed/concentrated
+  // Mouth: control y > endpoint y = smile; control y < = frown
+  function face({ eyeR = 5, lb, rb, mouth }) {
+    return `<svg width="160" height="160" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#B87040"/>
+      <circle cx="28" cy="38" r="${eyeR}" fill="#2C1A0E"/>
+      <circle cx="52" cy="38" r="${eyeR}" fill="#2C1A0E"/>
+      <path d="${lb}" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="${rb}" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+      <circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+      <path d="${mouth}" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+    </svg>`;
   }
 
-  setTimeout(next, intervals[0]);
-</script>
+  const states = [
+    // 1 — Focused: brows furrowed (low arc), mouth nearly flat
+    {
+      text: "I'm taking a minute with this — it's worth doing properly.",
+      svg: face({ lb: "M23 36 Q28 35 33 36", rb: "M47 36 Q52 35 57 36", mouth: "M33 51 Q40 52 47 51" })
+    },
+    // 2 — Thoughtful: neutral brows, subtle smile
+    {
+      text: "Reading what you've built, and what it says between the lines.",
+      svg: face({ lb: "M23 36 Q28 33 33 36", rb: "M47 36 Q52 33 57 36", mouth: "M32 51 Q40 53 48 51" })
+    },
+    // 3 — Pleased: relaxed/raised brows, clear smile
+    {
+      text: "Finding the roles where someone like you would actually do well.",
+      svg: face({ lb: "M23 36 Q28 31 33 36", rb: "M47 36 Q52 31 57 36", mouth: "M30 50 Q40 55 50 50" })
+    },
+    // 4 — Ready: same relaxed brows, wider eyes, warm smile
+    {
+      text: "Almost there.",
+      svg: face({ eyeR: 5.5, lb: "M23 36 Q28 31 33 36", rb: "M47 36 Q52 31 57 36", mouth: "M28 49 Q40 57 52 49" })
+    },
+  ];
 
+  const group    = document.getElementById('group');
+  const faceEl   = document.getElementById('arloFace');
+  const phraseEl = document.getElementById('phrase');
+  let i = 0;
+
+  function show(state) {
+    faceEl.innerHTML  = state.svg;
+    phraseEl.textContent = state.text;
+  }
+
+  function next() {
+    if (i >= states.length - 1) return;
+    group.style.opacity = '0';
+    setTimeout(() => {
+      i++;
+      show(states[i]);
+      group.style.opacity = '1';
+      setTimeout(next, 14000);
+    }, 400);
+  }
+
+  show(states[0]);
+  setTimeout(next, 14000);
+</script>
 </body>
 </html>
