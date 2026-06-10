@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Dashboard — Skills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --cream: #F5F3EE;
+    --cream-2: #EDEBE5;
+    --line: rgba(0,0,0,.07);
+    --ink: #1A1610;
+    --ink-2: #5A5040;
+    --ink-3: #9E9080;
+    --gold: #A85E16;
+    --gold-soft: rgba(168,94,22,.10);
+    --green: #3E9B6B;
+    --green-soft: rgba(62,155,107,.12);
+    --f: 'Instrument Sans', system-ui, sans-serif;
+    --fm: 'DM Mono', monospace;
+    --r: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--f); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+
+  .shell { display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .nav { background: var(--bg); border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; gap: 2px; z-index: 20; }
+  .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -.02em; color: var(--ink); padding: 2px 10px 22px; }
+  .nav-item { font-size: 13.5px; font-weight: 500; color: var(--ink-2); padding: 10px 12px; border-radius: 10px; display: flex; gap: 11px; align-items: center; cursor: pointer; user-select: none; }
+  .nav-item svg { width: 16px; height: 16px; opacity: .5; flex: none; }
+  .nav-item:hover { background: var(--cream); color: var(--ink); }
+  .nav-item.active { background: var(--gold-soft); color: var(--gold); font-weight: 600; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-gap { flex: 1; }
+  .nav-profile { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 6px; display: flex; gap: 10px; align-items: center; }
+  .nav-av { width: 30px; height: 30px; border-radius: 50%; background: var(--cream-2); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex: none; }
+  .nav-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .nav-email { font-size: 11px; color: var(--ink-3); }
+
+  /* ── MAIN ── */
+  .main { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .topbar { height: 54px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); flex: none; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .topbar-toggle { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: var(--f); font-size: 12px; font-weight: 500; color: var(--ink-3); }
+  .topbar-toggle svg { width: 16px; height: 16px; }
+  .topbar-toggle:hover { background: var(--cream); color: var(--ink); }
+
+  /* ── 50/50 SPLIT ── */
+  .content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+
+  /* ══════════════════════════════
+     LEFT — SKILLS
+  ══════════════════════════════ */
+  .skills-panel { padding: 32px 40px; overflow-y: auto; border-right: 1px solid var(--line); }
+  .skills-panel::-webkit-scrollbar { width: 0; }
+
+  /* direction card — matches home */
+  .direction-card { background: var(--cream); border-radius: var(--r); padding: 24px 26px; margin-bottom: 32px; box-shadow: 0 2px 16px rgba(0,0,0,.055); }
+  .direction-card-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .direction-card-title { font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -.02em; margin-bottom: 3px; }
+  .direction-card-sub { font-size: 13px; color: var(--ink-3); margin-bottom: 18px; }
+  .direction-card-rule { height: 1px; background: var(--line); margin-bottom: 14px; }
+  .direction-card-strengths-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+  .strengths-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+  .strength-chip { font-size: 12.5px; font-weight: 600; color: var(--green); background: var(--green-soft); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 7px; }
+  .strength-chip svg { width: 10px; height: 10px; flex: none; }
+
+  /* section labels below the card */
+  .section-head { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px; }
+
+  /* skill items */
+  .skill-section { margin-bottom: 32px; }
+  .skill-section:last-child { margin-bottom: 0; }
+  .skill-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .skill-item { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; }
+  .skill-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .skill-item-name { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+  .skill-item-time { font-size: 11px; color: var(--ink-3); font-family: var(--fm); white-space: nowrap; flex: none; margin-top: 2px; }
+  .skill-item-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .role-tag { font-size: 11px; color: var(--ink-3); font-family: var(--fm); background: var(--cream); border-radius: 6px; padding: 2px 8px; }
+  .direction-tag { font-size: 11px; color: var(--ink-3); font-family: var(--fm); background: var(--cream); border-radius: 6px; padding: 2px 8px; }
+  .skill-resource { display: flex; align-items: center; gap: 7px; }
+  .skill-resource a { font-size: 12.5px; color: var(--gold); font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 5px; }
+  .skill-resource a:hover { text-decoration: underline; }
+  .resource-icon { width: 16px; height: 16px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .resource-icon.free { background: var(--green-soft); color: var(--green); }
+  .resource-icon.cert { background: var(--gold-soft); color: var(--gold); }
+  .resource-icon svg { width: 9px; height: 9px; }
+  .free-label { font-size: 10px; color: var(--green); font-weight: 600; font-family: var(--fm); }
+
+  /* urgent item styling */
+  .skill-item.urgent { border-color: rgba(168,94,22,.2); }
+  .skill-item.urgent .skill-item-name { color: var(--ink); }
+  .urgent-flag { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--gold); font-family: var(--fm); }
+
+  /* in-progress state */
+  .skill-item.in-progress { border-color: rgba(62,155,107,.25); }
+  .in-progress-badge { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 10px; font-weight: 700; font-family: var(--fm); color: var(--green); letter-spacing: .04em; text-transform: uppercase; }
+  .in-progress-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
+
+  /* completed section */
+  .completed-toggle { width: 100%; background: none; border: none; cursor: pointer; padding: 14px 0 0; display: flex; align-items: center; justify-content: space-between; font-family: var(--f); }
+  .completed-toggle-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 8px; }
+  .completed-count { font-size: 10px; font-weight: 700; background: var(--green-soft); color: var(--green); border-radius: 20px; padding: 2px 8px; font-family: var(--fm); letter-spacing: 0; }
+  .completed-chevron { color: var(--ink-3); transition: transform .2s ease; }
+  .completed-toggle[aria-expanded="true"] .completed-chevron { transform: rotate(180deg); }
+  .completed-list { padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .completed-list[hidden] { display: none; }
+  .skill-item.done { background: var(--cream); border-color: transparent; opacity: .7; }
+  .skill-item.done .skill-item-name { color: var(--ink-2); font-weight: 600; text-decoration: line-through; text-decoration-color: var(--ink-3); }
+  .done-badge { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--green); font-family: var(--fm); display: flex; align-items: center; gap: 4px; }
+
+  /* ══════════════════════════════
+     RIGHT — ADVISOR
+  ══════════════════════════════ */
+  .mentor { background: var(--cream); display: flex; flex-direction: column; overflow: hidden; }
+  .mentor-head { padding: 26px 32px 22px; border-bottom: 1px solid var(--line); flex: none; display: flex; align-items: center; gap: 14px; }
+  .mentor-av { width: 42px; height: 42px; border-radius: 50%; background: transparent; overflow: hidden; flex: none; }
+  .mentor-av svg { width: 42px; height: 42px; display: block; }
+  .mentor-head-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .mentor-head-status { font-size: 12px; color: var(--ink-3); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .mentor-head-status::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
+
+  .mentor-messages { flex: 1; overflow-y: auto; padding: 28px 32px 20px; display: flex; flex-direction: column; gap: 20px; }
+  .mentor-messages::-webkit-scrollbar { width: 0; }
+
+  .ai-msg { display: flex; flex-direction: column; gap: 8px; }
+  .ai-bubble { background: var(--bg); border-radius: 4px 16px 16px 16px; padding: 15px 18px; font-size: 14px; line-height: 1.75; color: var(--ink-2); max-width: 380px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .ai-bubble strong { color: var(--ink); font-weight: 700; }
+  .ai-bubble + .ai-bubble { border-radius: 16px; }
+  .ai-bubble.signpost { font-size: 13px; color: var(--ink-3); box-shadow: none; background: transparent; padding: 8px 0 0; }
+
+  .user-msg { display: flex; justify-content: flex-end; }
+  .user-bubble { background: var(--gold); border-radius: 16px 4px 16px 16px; padding: 13px 18px; font-size: 14px; line-height: 1.65; color: #fff; max-width: 320px; }
+
+  .mentor-input-wrap { padding: 18px 24px 24px; flex: none; }
+  .mentor-input-card { background: var(--bg); border-radius: 16px; padding: 4px 4px 4px 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05); }
+  .mentor-input { flex: 1; border: none; background: none; font-family: var(--f); font-size: 14px; color: var(--ink); outline: none; padding: 11px 0; }
+  .mentor-input::placeholder { color: var(--ink-3); }
+  .mentor-send { width: 38px; height: 38px; border-radius: 12px; flex: none; background: var(--gold); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .mentor-send svg { width: 14px; height: 14px; color: #fff; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="nav">
+    <div class="nav-brand">Career Intelligence</div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>Home
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>Roles
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2H9a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Applications
+    </div>
+    <div class="nav-item active">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1zM8 6v4M6 8h4"/></svg>Skills
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="6" r="3"/><path stroke-linecap="round" d="M2 14c0-3.314 2.686-4 6-4s6 .686 6 4"/></svg>Profile
+    </div>
+    <div class="nav-gap"></div>
+    <div class="nav-profile">
+      <div class="nav-av">L</div>
+      <div>
+        <div class="nav-name">Lexi</div>
+        <div class="nav-email">lexi@gmail.com</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Skills</span>
+      </div>
+      <button class="topbar-toggle" id="arloToggle" onclick="toggleArlo()">
+        <svg width="16" height="16" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+        Hide Arlo
+      </button>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- SKILLS PANEL -->
+      <div class="skills-panel">
+
+        <!-- Direction card -->
+        <div class="direction-card">
+          <div class="direction-card-label">Your direction</div>
+          <div class="direction-card-title">Management Consulting</div>
+          <div class="direction-card-sub">Strategy, operations, and business analysis roles</div>
+          <div class="direction-card-rule"></div>
+          <div class="direction-card-strengths-label">What you bring</div>
+          <div class="strengths-wrap">
+            <div class="strength-chip">
+              <svg fill="none" viewBox="0 0 10 10" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1.5 5l2.5 2.5 4.5-4.5"/></svg>
+              Analytical thinking
+            </div>
+            <div class="strength-chip">
+              <svg fill="none" viewBox="0 0 10 10" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1.5 5l2.5 2.5 4.5-4.5"/></svg>
+              Written communication
+            </div>
+            <div class="strength-chip">
+              <svg fill="none" viewBox="0 0 10 10" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1.5 5l2.5 2.5 4.5-4.5"/></svg>
+              Research
+            </div>
+            <div class="strength-chip">
+              <svg fill="none" viewBox="0 0 10 10" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1.5 5l2.5 2.5 4.5-4.5"/></svg>
+              Microsoft Office
+            </div>
+          </div>
+        </div>
+
+        <!-- Before you apply -->
+        <div class="skill-section">
+          <div class="section-head">Before you apply</div>
+          <div class="skill-list">
+
+            <div class="skill-item urgent">
+              <div class="skill-item-top">
+                <div class="skill-item-name">Advanced Excel</div>
+                <div class="skill-item-time">~ 4 hrs</div>
+              </div>
+              <div class="skill-item-meta">
+                <span class="role-tag">Deliveroo · Operations</span>
+                <span class="urgent-flag">Required</span>
+              </div>
+              <div class="skill-resource">
+                <div class="resource-icon free"><svg fill="none" viewBox="0 0 9 9" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M4.5 1v7M1 4.5h7"/></svg></div>
+                <a href="#">Excel for Data Analysis — Microsoft Learn</a>
+                <span class="free-label">Free</span>
+              </div>
+            </div>
+
+            <div class="skill-item urgent in-progress">
+              <div class="skill-item-top">
+                <div class="skill-item-name">Structured problem-solving</div>
+                <div class="skill-item-time">~ 1 hr left</div>
+              </div>
+              <div class="skill-item-meta">
+                <span class="role-tag">Monzo · PM</span>
+                <span class="role-tag">Deliveroo · Operations</span>
+                <span class="urgent-flag">Required</span>
+              </div>
+              <div class="skill-resource">
+                <div class="resource-icon free"><svg fill="none" viewBox="0 0 9 9" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M4.5 1v7M1 4.5h7"/></svg></div>
+                <a href="#">McKinsey Problem Solving — Coursera</a>
+                <span class="free-label">Free</span>
+              </div>
+              <div class="in-progress-badge"><span class="in-progress-dot"></span>In progress</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Worth building -->
+        <div class="skill-section">
+          <div class="section-head" style="margin-bottom:14px;">Worth building</div>
+          <div class="skill-list">
+
+            <div class="skill-item">
+              <div class="skill-item-top">
+                <div class="skill-item-name">SQL basics</div>
+                <div class="skill-item-time">~ 6 hrs</div>
+              </div>
+              <div class="skill-item-meta">
+                <span class="role-tag">Monzo · PM</span>
+                <span class="direction-tag">Management consulting</span>
+              </div>
+              <div class="skill-resource">
+                <div class="resource-icon free"><svg fill="none" viewBox="0 0 9 9" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M4.5 1v7M1 4.5h7"/></svg></div>
+                <a href="#">SQL for Beginners — Mode Analytics</a>
+                <span class="free-label">Free</span>
+              </div>
+            </div>
+
+            <div class="skill-item">
+              <div class="skill-item-top">
+                <div class="skill-item-name">Deloitte Virtual Internship</div>
+                <div class="skill-item-time">~ 5 hrs</div>
+              </div>
+              <div class="skill-item-meta">
+                <span class="direction-tag">Management consulting</span>
+              </div>
+              <div class="skill-resource">
+                <div class="resource-icon cert"><svg fill="none" viewBox="0 0 9 9" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 1l.9 2.6h2.7l-2.2 1.6.8 2.6-2.2-1.6-2.2 1.6.8-2.6L.9 3.6h2.7z"/></svg></div>
+                <a href="#">Deloitte Technology — Forage</a>
+                <span class="free-label">Free · Certificate</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Completed -->
+        <div class="skill-section">
+          <button class="completed-toggle" aria-expanded="false" onclick="toggleCompleted(this)">
+            <span class="completed-toggle-label">
+              Completed
+              <span class="completed-count">1</span>
+            </span>
+            <svg class="completed-chevron" width="14" height="14" fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5l4 4 4-4"/></svg>
+          </button>
+          <div class="completed-list" hidden>
+            <div class="skill-item done">
+              <div class="skill-item-top">
+                <div class="skill-item-name">BCG Strategy Simulation</div>
+                <div class="done-badge">
+                  <svg width="10" height="10" fill="none" viewBox="0 0 10 10" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1.5 5l2.5 2.5 4.5-4.5"/></svg>
+                  Done
+                </div>
+              </div>
+              <div class="skill-item-meta">
+                <span class="direction-tag">Management consulting</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ADVISOR PANEL -->
+      <div class="mentor" id="mentorPanel">
+        <div class="mentor-head">
+          <div class="mentor-av">
+            <svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+          </div>
+          <div>
+            <div class="mentor-head-name">Arlo</div>
+            <div class="mentor-head-status">Here with you</div>
+          </div>
+        </div>
+        <div class="mentor-messages">
+          <div class="ai-msg">
+            <div class="ai-bubble">You're already strong where it counts for consulting — analytical thinking and communication are the foundation.</div>
+            <div class="ai-bubble">Two things to close before you apply to <strong>Deliveroo</strong>: Advanced Excel and structured problem-solving. You've already started the problem-solving one — finishing it is the next move.</div>
+          </div>
+          <div class="user-msg">
+            <div class="user-bubble">Just finished the BCG Forward simulation</div>
+          </div>
+          <div class="ai-msg">
+            <div class="ai-bubble">Good — that's a real differentiator for consulting roles. Share the certificate and I'll mark it as complete and add it to your profile.</div>
+          </div>
+          <div class="user-msg">
+            <div class="user-bubble">Here's the link: bcg.com/forward/certificate/...</div>
+          </div>
+          <div class="ai-msg">
+            <div class="ai-bubble">Done — it's on your profile. Want me to add it to your CV too?</div>
+            <div class="ai-bubble">When you've finished the problem-solving module, SQL basics is worth picking up next — it comes up a lot at <strong>Monzo</strong> and it's free.</div>
+          </div>
+          <div class="ai-bubble signpost">Ask me about anything else — interview prep, networking, or something you just want to learn.</div>
+        </div>
+        <div class="mentor-input-wrap">
+          <div class="mentor-input-card">
+            <input class="mentor-input" placeholder="Ask Arlo…" />
+            <button class="mentor-send">
+              <svg fill="none" viewBox="0 0 14 14" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2 7h10M7 2l5 5-5 5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleCompleted(btn) {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', !expanded);
+    btn.nextElementSibling[expanded ? 'setAttribute' : 'removeAttribute']('hidden', '');
+  }
+
+  let arloVisible = true;
+  function toggleArlo() {
+    const content = document.getElementById('content');
+    const panel = document.getElementById('mentorPanel');
+    const btn = event.currentTarget;
+    arloVisible = !arloVisible;
+    if (arloVisible) {
+      content.style.gridTemplateColumns = '1fr 1fr';
+      panel.style.display = 'flex';
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg> Hide Arlo`;
+    } else {
+      content.style.gridTemplateColumns = '1fr 0px';
+      panel.style.display = 'none';
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg> Show Arlo`;
+    }
+  }
+</script>
+</body>
+</html>

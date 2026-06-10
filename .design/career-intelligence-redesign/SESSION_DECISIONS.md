@@ -269,3 +269,76 @@ After step 3: input bar hides, "Find my direction →" amber button appears
 - Explore section: tertiary, explore cards at bottom
 
 **Reading order now:** Direction (hero) → Today (action) → Explore (navigation) ✓
+
+---
+
+## Session 13 — 2026-06-10 — Cross-Tab Consistency Pass + Skills Tab + Applications Tab
+
+### Cross-Tab Consistency Rule — LOCKED ✓
+
+**"Every tab must look like it comes from the same product."**
+
+The dashboard home is the visual reference. Every other tab must be aligned to it, not the other way around. The following rules are now locked for every dashboard screen:
+
+**Direction card — universal anchor:**
+- Every dashboard tab begins with a direction card. No exceptions.
+- `background: var(--cream); border-radius: var(--r); padding: 24px 26px; box-shadow: 0 2px 16px rgba(0,0,0,.055);`
+- Shadow is not optional — it is the elevated element that grounds the rest of the page
+- Content cards below it are flat (no shadow) — this creates intentional hierarchy
+- Label: `font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3)`
+- Title: `font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: var(--ink)` (Home uses 20px as hero — content tabs use 18px)
+- Subtitle: `font-size: 13px; color: var(--ink-3)` — context specific to the tab, never duplicates topbar counts
+
+**Section labels — no DM Mono:**
+- All section labels use Instrument Sans only. `font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin-bottom: 12px;`
+- DM Mono is reserved for data values only: counts, timestamps, metadata tags. Never for structural labels.
+
+**Topbar — standard pattern for every tab:**
+- `height: 54px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between;`
+- Left side: `topbar-left` wrapper with `topbar-title` (13px/600) + optional `topbar-count` (12px, DM Mono)
+- Right side: `topbar-toggle` button with Arlo face icon (16×16) + "Hide Arlo" label
+- Every toggle has `id="arloToggle"` and calls `toggleArlo()`
+
+**Shadow hierarchy:**
+- Direction card = elevated (`box-shadow: 0 2px 16px rgba(0,0,0,.055)`)
+- Content cards below = flat (`border: 1px solid var(--line)`, no shadow or `box-shadow: 0 1px 4px rgba(0,0,0,.06)` for AI bubbles only)
+- This contrast is the visual system — never flatten the direction card, never elevate content cards to the same level
+
+---
+
+### Skills Tab — LOCKED ✓ (Session 13)
+
+**File:** `mockups/dashboard-skills.html`
+
+**Layout:** Same 50/50 shell. Direction card anchors the left column. Advisor always present on the right.
+
+**Left column — confirmed:**
+- Direction card (cream, shadow): "YOUR DIRECTION" → direction title → subtitle → horizontal rule → "WHAT YOU BRING" section → strength chips inline in the card. Chips belong inside the card — they are part of the direction context, not a separate section.
+- "BEFORE YOU APPLY" section: required skills with estimated time, resource link, status badge (REQUIRED tag). Cards show skill name + context tags + linked resource.
+- "WORTH BUILDING" section: optional skills ranked by impact. Same card format.
+- Completion state: courses are "started" or "in progress" — never a percentage. Certifications require certificate evidence shared with Arlo to be marked complete.
+
+**Framing principle:** Trajectory, not deficit. "Here's where you are and what gets you there" — not a gap audit.
+
+---
+
+### Applications Tab — LOCKED ✓ (Session 12 structure, Session 13 consistency fixes)
+
+**File:** `mockups/dashboard-applications.html`
+
+**Consistency fixes applied Session 13:**
+- Direction card added (was missing entirely). `box-shadow: 0 2px 16px rgba(0,0,0,.055)`. Subtitle: "Strategy, operations, and business analysis roles" — directional context, not a count.
+- Topbar toggle icon standardised to 16px (was 14px).
+
+---
+
+### Session 13 — Arlo consistency pass
+
+**Loading screen:** Arlo icon increased from 36px to 56px — was too small to read as a face at that size.
+
+**Input page:** Arlo intro sequence added before questions begin:
+- 300ms: "Hi — I'm Arlo."
+- 900ms: "I'm going to ask you a few things — two or three, that's it."
+- 1800ms: "Let's start with your CV. Upload it and I'll read it, or just tell me about yourself below." + upload card
+
+**Topbar Arlo toggle:** Present on all four dashboard tabs (Home, Roles, Skills, Applications). Consistent size (16px), consistent `id="arloToggle"`, consistent `toggleArlo()` call.

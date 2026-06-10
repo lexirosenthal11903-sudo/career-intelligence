@@ -1,6 +1,6 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: Session 10, 2026-06-09_
+_Last updated: Session 13, 2026-06-10_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
 
@@ -38,10 +38,11 @@ _Goal: Every screen designed and locked before a single line of engineering begi
 
 ### Missing screens — must be designed before Phase 2 builds them
 All of these need dedicated design sessions. None can be built before they are locked.
-- [ ] **Skills tab** — what does the skills gap map look like? How does it update?
+- [x] **Skills tab** — LOCKED (Session 13, 2026-06-10). Direction card anchor + "Before you apply" + "Worth building" sections. Certifications require certificate evidence. Framing: trajectory, not deficit. See `SESSION_DECISIONS.md` + `mockups/dashboard-skills.html`.
 - [ ] **Profile tab** — interactive preferences, CV on file, direction summary. Editable?
 - [x] **Applications tab** — LOCKED (Session 12, 2026-06-10). List view + Arlo half-panel. Stages: Preparing → Applied → Interview → Offer + Archive. Cards show: role, company, stage badge, next action, closing date, assessment deadline (where applicable), collapsible timeline. Arlo does not reset per tab. Collapsible globally. See `brainstorms/applications-tab-session.md` + `mockups/dashboard-applications.html`.
 - [x] **Auth overlay** — LOCKED (Session 11, 2026-06-10). Decisions: two states (new/returning), Google OAuth + email OTP, Arlo surfaces save prompt before overlay opens, overlay is clean UI only, OTP email via Resend. See `brainstorms/auth-overlay-session.md`.
+- [ ] **Onboarding bridge screen** — the moment after analysis completes. Arlo presents the user's direction and suggests role titles for them to react to. This is the pivot from "input" to "using the product." Must be designed before Phase 2.
 - [ ] **Returning user experience** — first return after initial analysis. "Welcome back, here's where we left off." Critical to design: this is the retention moment.
 - [ ] **Basic error states** — what does the user see if the analysis fails? If the API is slow? If they lose connection? Must be designed, not invented during build.
 
@@ -141,7 +142,7 @@ _Goal: Every job the user saves becomes a full guided journey. This is the produ
 
 _Goal: The product knows more than the user has told it. It brings external intelligence to the search._
 
-- [ ] **LinkedIn integration** — contact discovery for outreach. Find the right person at a target company. (Note: LinkedIn API is restricted — may require web-based approach rather than formal API)
+- [ ] **LinkedIn integration** — contact discovery for outreach. Find the right person at a target company. Onboarding is CV-only — LinkedIn is never part of the initial flow. Optional later feature. (Note: LinkedIn API is restricted — v1 approach likely OAuth for basic profile data or user-initiated; not in onboarding)
 - [ ] **Glassdoor data** — company culture scores, real salary ranges, actual interview questions asked at that company, difficulty ratings. Feeds company research and interview prep.
 - [ ] **Reed API** — expand job sources beyond Adzuna (more volume, better UK coverage)
 - [ ] **Additional job sources** — Indeed, company direct career pages, graduate-specific boards

@@ -33,6 +33,37 @@ Ideas captured mid-session to revisit at the right time.
 
 ---
 
+## Skills in-progress state — Session 12, 2026-06-10
+**Decision:** Skill items need three states: not started → in progress → done. "In progress" shows on the card (e.g. a subtle progress indicator or "started" label). "Done" moves the item off the active list — either archived or shown in a collapsed "completed" section at the bottom.
+**When to address:** Skills tab design session — add the three states before the mockup is locked.
+
+---
+
+## Quality over quantity — standing product principle — Session 12, 2026-06-10
+**Principle:** The platform's goal is fewer, better applications — not volume. Every feature should help users spend more productive time preparing, which produces better outcomes. This applies to skills, applications, outreach, and Arlo's behaviour equally. Never optimise for activity metrics at the expense of quality.
+
+---
+
+## CV auto-update from skills completion — Session 12, 2026-06-10
+**Feature:** When a user tells Arlo they've completed a course or earned a certification, Arlo asks "Want me to add this to your CV?" If yes, it's added to their CV on file automatically. Updated CV is always downloadable from Profile.
+**Why it matters:** Closes the loop between skills work and application materials without the user having to maintain their CV manually.
+**When to address:** Phase 2 engineering — requires CV storage and edit capability in Supabase, and Arlo write-back to profile. Design it during the Profile tab session.
+
+---
+
+## Certification completion rule — Session 13, 2026-06-10
+**Decision:** Certifications can only be marked as complete if the user shares their certificate with Arlo as evidence (link or file). Self-reporting alone is not sufficient for certifications — anything that goes on a CV must be factually verified. Courses and practice exercises use self-reporting (Arlo asks "where are you up to?"). Certifications require proof first.
+**Arlo flow:** User says they've finished → Arlo asks for the certificate → user shares it → Arlo marks it complete, adds to profile, offers CV update.
+**Credential link verification (future):** Some providers (Credly, Forage) issue verifiable credential links the platform could validate automatically. Phase 3+ — v1 relies on Arlo reviewing what the user shares.
+
+---
+
+## Freelance / independent work track — Session 12, 2026-06-10
+**Idea:** Some users want freelance or contract work, not employment. The outreach process is similar — identify the right people, personalise the pitch, follow up. Could run as a parallel track to the job application pipeline.
+**When to address:** Post-v1. Needs its own design session. The core pipeline (direction → targets → outreach → follow-up) maps well; the differences are in how "applications" are framed.
+
+---
+
 ## University applications (Masters) — Session 12, 2026-06-10
 **Idea:** Some users are applying to Masters programmes alongside or instead of jobs. Could be an optional tab ("University Applications") surfaced only for users who indicate it's relevant during onboarding or setup. Not for undergrad — the product is aimed at people already past that point.
 **When to address:** Post-v1. Needs its own design session. The tab pattern (conditional, user-toggled) is interesting and may apply to the promotion track too.
@@ -49,7 +80,7 @@ Ideas captured mid-session to revisit at the right time.
 **Decision:** Show typical hiring processes based on external crowd-sourced data (Glassdoor, candidate reports). This is distinct from platform prediction — it's documented pattern, not a guess. Always labelled as "typical process" or "based on candidate reports", never stated as guaranteed.
 **Phasing:**
 - v1: Arlo surfaces it conversationally when a company is added ("Based on what candidates have shared, Monzo typically runs…"). No API needed — Claude has this knowledge for major graduate employers.
-- v2: Structured "Typical process" component on the card, pulled from a proper API (Glassdoor, Adzuna, or curated dataset for top UK grad employers). Check API terms before building.
+- v2: Structured "Typical process" component on the card, pulled from a proper API (Glassdoor, Adzuna, or similar). Covers all employer types — grad schemes, internships, entry-level, standard roles. Not limited to graduate employers. Check API terms before building.
 - v3: Platform's own confirmed data from users who completed the process supplements/replaces external sources.
 **Honesty rule preserved:** "typical process" = ✓. "You'll hear back by Friday" = ✗. Source must always be shown.
 

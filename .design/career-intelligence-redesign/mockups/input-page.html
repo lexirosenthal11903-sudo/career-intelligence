@@ -65,6 +65,12 @@
     display: flex; flex-direction: column;
   }
 
+  /* ── ARLO INTRO ── */
+  .arlo-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-bottom: 24px; }
+  .arlo-intro-face { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none; }
+  .arlo-intro-face svg { width: 40px; height: 40px; display: block; }
+  .arlo-intro-name { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+
   /* ── MESSAGES ── */
   .messages {
     flex: 1; overflow-y: auto;
@@ -187,7 +193,12 @@
 <main class="stage">
 <div class="chat-frame">
 
-  <div class="messages" id="messages"></div>
+  <div class="messages" id="messages">
+    <div class="arlo-intro">
+      <div class="arlo-intro-face"><svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg></div>
+      <div class="arlo-intro-name">Arlo</div>
+    </div>
+  </div>
 
   <div class="input-area">
     <div class="input-card" id="inputCard">
@@ -238,8 +249,9 @@
   ];
 
   // ── STARTUP SEQUENCE ──
-  delay(300,  () => addAdvisor("I'm going to ask you a few things — two or three, that's it."));
-  delay(1200, () => {
+  delay(300,  () => addAdvisor("Hi — I'm Arlo."));
+  delay(900,  () => addAdvisor("I'm going to ask you a few things — two or three, that's it."));
+  delay(1800, () => {
     addAdvisor("Let's start with your CV. Upload it and I'll read it, or just tell me about yourself below.");
     delay(250, addUploadCard);
   });
