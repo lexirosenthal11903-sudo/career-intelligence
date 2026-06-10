@@ -63,16 +63,23 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 **Phase 0 — Design. In progress. Do not start engineering until all screens are locked.**
 
-### Locked ✓
-- **Design tokens** — `.design/career-intelligence-redesign/SESSION_DECISIONS.md` (wins on all visual decisions)
-- **Homepage** — `.design/career-intelligence-redesign/mockups/homepage.html` — provisional
-- **Dashboard home** — `.design/career-intelligence-redesign/mockups/dashboard-home.html` — provisional. KNOWN ISSUE: equal visual weight, no hierarchy
-- **Roles tab** — `.design/career-intelligence-redesign/mockups/dashboard-roles.html` — LOCKED (Session 9)
+### Locked ✓ (all sessions to date)
+- **Design tokens** — `.design/career-intelligence-redesign/SESSION_DECISIONS.md` (source of truth)
+- **Homepage** — `mockups/homepage.html` — provisional
+- **Dashboard home** — `mockups/dashboard-home.html` — LOCKED (hierarchy fixed Session 10)
+- **Input page** — `mockups/input-page.html` — LOCKED (Session 10). Chat UI, Arlo intro sequence.
+- **Loading screen** — `mockups/loading-screen.html` — LOCKED (Session 10). Text only, 4 phrases, Arlo 56px.
+- **Skills tab** — `mockups/dashboard-skills.html` — LOCKED (Session 13). Direction card + strengths + Before you apply + Worth building. Trajectory framing, not deficit.
+- **Applications tab** — `mockups/dashboard-applications.html` — LOCKED (Session 12). Stage filter + application cards + Arlo panel. Stages: Preparing → Applied → Interview → Offer → Archive.
+- **Auth overlay** — LOCKED (Session 11). Google OAuth + email OTP. Arlo surfaces save prompt before overlay opens.
+- **Roles tab v2** — `mockups/dashboard-roles-v2.html` — LOCKED (Session 13). Tab switcher: Role types / Live listings. Filter pills by role type + Passed. Interested/Pass actions. Post-interest state.
+- **Role detail** — `mockups/role-detail.html` — LOCKED (Session 13). Brief + honest picture + salary (UK) + what it rewards + listings link. Arlo personalises on right.
+- **Onboarding bridge** — `mockups/onboarding-bridge.html` — LOCKED (Session 13). Arlo → direction card (with roles inside) → Arlo note → CTA.
 
-### Also locked ✓ (Session 10, 2026-06-09)
-- **Input page** — LOCKED. Chat UI. `.design/career-intelligence-redesign/mockups/input-page.html`
-- **Loading screen** — LOCKED. Text only, 4 phrases. `.design/career-intelligence-redesign/mockups/loading-screen.html`
-- **Dashboard home hierarchy** — LOCKED. Direction is the hero; hierarchy fixed.
+### Remaining — must lock before Phase 1 engineering
+- **Profile tab** — not yet designed
+- **Returning user experience** — not yet designed. **NEXT SESSION.**
+- **Basic error states** — not yet designed
 
 ### Key design rules (override anything older)
 - Sidebar: white. Direction card: cream. Amber ONLY on: primary button, user chat bubbles, active nav.
@@ -110,7 +117,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-09)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-10)
 
 **At the start of every session:**
 1. Read `ROADMAP.md` — confirm current phase and today's focus
@@ -142,9 +149,11 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 **Phase 0 — Design. In progress.** Full plan: `ROADMAP.md`.
 
 **Next three things in order:**
-1. **Features roadmap review** — in progress (this session). Produces the sequenced plan before Phase 1 engineering begins.
-2. **Advisor name + icon session** — dedicated creative session. Do not name the advisor without this.
-3. **Missing screen design sessions** — Skills, Profile, Applications, Auth overlay, returning user experience, error states. All must be locked before Phase 2 builds them.
+1. **Returning user experience** — NEXT SESSION. First return visit after initial analysis. The retention moment. Design session only.
+2. **Profile tab** — dedicated design session after returning user.
+3. **Basic error states** — analysis failure, slow API, lost connection. Fastest session — design last.
+
+**Once all three are locked → Phase 0 complete → Phase 1 engineering begins.**
 
 **Live bugs (Phase 1 — do not raise until Phase 0 complete):**
 OTP sign-in failure · debug console.log commits · GitHub token rotation (must not defer past Phase 1) · staging backend merges · performance fix (~90s pipeline)

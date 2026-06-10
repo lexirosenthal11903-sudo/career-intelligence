@@ -2,7 +2,7 @@
 
 _The operational guide. Every session, in order, with everything you need._
 _Read ROADMAP.md for the strategic plan. Read this for how to actually run each session._
-_Last updated: 2026-06-09_
+_Last updated: 2026-06-10_
 
 ---
 
@@ -25,110 +25,75 @@ Work through them in order. Do not skip ahead.
 
 _Goal: Every screen locked before a single line of engineering begins._
 
----
+### Phase 0 status: 11 of 14 screens locked. 3 remaining.
 
-### Session 1: Grill-Me — Input Page + Loading Screen Content
-**Status: NEXT SESSION**
-
-**What it achieves:** Extracts the content decisions for both screens from Lexi's head. What does the input page ask, in what order, and how? What does the loading screen communicate while the analysis runs? These decisions must be made before design begins.
-
-**Read first:**
-- `brainstorms/career-intelligence-emotional-vision.md` — especially the emotional arc table (what each moment should make the user feel)
-- `ADVISOR_PERSONA.md` — the loading screen copy is advisor-voice copy
-- `CLAUDE.md` — Design Status section (what's locked, what's not)
-
-**INSIGHTS.md sections:**
-- Section 1 — "User Journey Extraction [NOW]" — explains why this session matters and what to extract
-- Section 4 — "Grill Me Skill" — how the skill works and what output to expect
-
-**Skills to invoke:**
-- `/grill-me` — run at the start of the session. Let it ask one question at a time. Do not rush it.
-- Target output: a document in `brainstorms/` covering: input page question sequence + emotional register for each step, loading screen copy direction + what the screen communicates, and any decisions about format/structure.
-
-**External resources:**
-- Headspace app (confirmed reference for home/companion screens) — screenshot it or open it before the session. The input flow and loading experience should feel like this register: calm, warm, one thing at a time.
-- `brainstorms/competitor-research/` — Jack & Jill's approach to onboarding is worth reviewing. They ask very few questions.
-
-**Done when:** A brainstorm doc exists in `brainstorms/` with locked decisions on: what the input page asks + in what order + how it asks them, and what the loading screen shows + what it communicates emotionally.
-
-**Output:** New file in `brainstorms/` — e.g. `brainstorms/input-and-loading-decisions.md`
+**Locked ✓** (Sessions 9–13, do not revisit):
+Design tokens · Homepage · Dashboard home · Input page · Loading screen · Skills tab · Applications tab · Auth overlay · Roles tab v2 + Role detail · Onboarding bridge
 
 ---
 
-### Session 2: Design — Input Page + Loading Screen + Home Hierarchy Fix
-**Status: After Session 1**
+### NEXT SESSION: Returning User Experience
+**Status: NEXT — start here**
 
-**What it achieves:** Designs the two remaining screens and fixes the known equal-weight hierarchy issue on the dashboard home. After this session, Phase 0 is complete.
+**What it achieves:** Designs the first-return screen. Someone coming back after a few days. "Welcome back, here's where we left off." No re-onboarding, no direction re-explanation. This is the retention moment — the design must make returning feel worth it.
 
 **Read first:**
-- Brainstorm output from Session 1
-- `.design/career-intelligence-redesign/SESSION_DECISIONS.md` — full token table and design rules
-- `.design/career-intelligence-redesign/mockups/dashboard-home.html` — for the hierarchy fix
+- `ADVISOR_PERSONA.md` — memory rules: what Arlo remembers, what he never re-asks
+- `SESSION_DECISIONS.md` — direction card pattern, cross-tab consistency rules
+- `brainstorms/career-intelligence-emotional-vision.md` — emotional arc, returning user moment
+- `CLAUDE.md` — Design Status (what's locked)
 
-**INSIGHTS.md sections:**
-- Section 5 — "Design & UX: Protecting the Locked Design System" — screenshot loop discipline
-- Section 4c — "Frontend Build Workflow" — the five-hack stack for non-AI-looking design
-- Section 4d — "Claude Design" — if you want to iterate visually before building, use Claude Design for this session. Design in Claude Design, export as HTML, bring into Claude Code.
+**Key questions to resolve before designing:**
+- What does the user see first? Is it the same dashboard, or a distinct "welcome back" moment?
+- Does Arlo speak first, or does the screen speak first?
+- What's different from a first-time visit? What changed since they were last here?
+- If they have activity (saved jobs, skills progress) — how is that surfaced?
+- If they have no activity — do they see the same state as first visit?
 
-**Skills to invoke:**
-- `/frontend-design` — invoke before building any mockup. Always.
-- `/design-guard` — run after each screen is finished. This is the exit condition. If it passes, the screen is locked. Do not iterate further after it passes.
-- `/verification-before-completion` — run at the end of the session before calling it done.
+**Design references:**
+- Headspace — returning user feel (calm, "here's where you were")
+- Duolingo — streak mechanic as reference for daily return value (don't copy, understand the principle)
+- Dayone — private, personal, "your record" register
 
-**External resources:**
-- `.design/career-intelligence-redesign/reference/` — Linear screenshots already saved here
-- Headspace (input page emotional register — calm, one question at a time, no form feeling)
-- Resend.com (typographic confidence, warmth)
-- `.design/tools/shot.js` — `node shot.js <file> <out.png>` for screenshots during iteration
+**Skills:** `/frontend-design` before any mockup · `/verification-before-completion` before ending session
 
-**Done when:** `/design-guard` passes on all three screens (input page, loading screen, dashboard home with hierarchy fix). All three marked LOCKED in `SESSION_DECISIONS.md` and `ROADMAP.md`.
+**Done when:** A locked mockup exists that handles at minimum: user with activity (saved jobs, skills started), user with no activity, and the Arlo returning message. Marked LOCKED in `SESSION_DECISIONS.md` and `ROADMAP.md`.
 
-**Output:** Updated mockup files + Session 3 entry added to `SESSION_DECISIONS.md` + ROADMAP.md Phase 0 marked complete
+**Output:** `mockups/returning-user.html` + SESSION_DECISIONS.md entry + ROADMAP.md updated
 
 ---
 
-### Session 3: Advisor Name + Icon
-**Status: After Session 2**
+### After returning user: Profile Tab
 
-**What it achieves:** Names the advisor. This is not a minor decision — the name shapes the entire emotional register of the product. Do not skip this or decide quickly.
+**What it achieves:** Designs the profile/preferences screen. CV on file, direction summary, editable preferences.
 
-**Read first:**
-- `ADVISOR_PERSONA.md` — especially the "Character depth" and "Open questions" sections
-- `brainstorms/competitor-research/jack-and-jill/juno-soul.md` — how Jack & Jill defined Juno as a specific person with a backstory. This is the model.
-- `brainstorms/competitor-research/jack-and-jill/agent-builder-skill.md` — their SOUL.md framework for giving an agent a real character
+**Key questions:**
+- What can the user actually edit? Direction? Preferences? Location/salary?
+- Is this where they update their CV?
+- Does editing trigger a re-analysis or does Arlo just incorporate it in chat?
 
-**INSIGHTS.md sections:**
-- Section 1 — "Advisor Persona Depth [NOW]" — run a grill-me session specifically on the advisor persona
+**Done when:** Locked mockup. Direction clear on what's editable and what triggers what.
 
-**Skills to invoke:**
-- `/grill-me` — for the name and character session
-- `/persona-check` — after any name/character decisions are made, check they're consistent with ADVISOR_PERSONA.md
-
-**External resources:**
-- Jack & Jill's Juno: Oxford Statistics + English Literature background. A specific person, not a concept. This is the model to follow — give the advisor a real backstory.
-- Think: what kind of person would a 22-year-old trust implicitly with their career anxiety? Not a career coach. Not a recruiter. Someone closer. Define that person.
-
-**Done when:** Name confirmed by Lexi. Character notes added to `ADVISOR_PERSONA.md`. Name does not appear in any user-facing copy until the product is closer to launch — this session is about internal definition.
-
-**Output:** Updated `ADVISOR_PERSONA.md` with name, character notes, backstory draft
+**Output:** `mockups/dashboard-profile.html`
 
 ---
 
-### Session 4: Features Roadmap Review
-**Status: After all design locked**
+### After profile: Basic Error States
 
-**What it achieves:** Reviews every idea in the parking lot, assigns everything to a phase. Produces a clean, sequenced feature list for Stage 1.
+**What it achieves:** Designs what the user sees when things go wrong. Fastest session — 3 states to design.
 
-**Read first:**
-- `ROADMAP.md` — full document
-- `brainstorms/career-intelligence-emotional-vision.md` — parking lot section
+**States needed:**
+1. Analysis fails (API error) — what does the user see? Can they retry?
+2. API slow / timeout — is there a fallback message? Does Arlo speak?
+3. Lost connection mid-session
 
-**Skills to invoke:**
-- `/brainstorming` — if new ideas surface that need exploring before assigning
+**Done when:** All 3 states have a locked design. Arlo voice for error messages locked in `ADVISOR_PERSONA.md`.
 
-**Done when:** Every parking lot item is assigned to a phase in `ROADMAP.md`. No unsequenced ideas remain.
+**Output:** `mockups/error-states.html`
 
-**Output:** Updated `ROADMAP.md` with all items assigned
+---
+
+### After all 3 locked: Phase 0 Complete → Phase 1 begins
 
 ---
 
@@ -420,11 +385,18 @@ _See `ROADMAP.md`. Not detailed here yet — too early to plan session-level det
 ## What's already done — do not revisit
 
 - Design tokens — locked in `SESSION_DECISIONS.md`
-- Homepage mockup — provisional lock, do not redesign
-- Dashboard home mockup — provisional lock (hierarchy fix in Session 2)
-- Roles tab mockup — fully locked (Session 9)
-- Advisor persona foundations — `ADVISOR_PERSONA.md` created
-- Backend improvements — score.js, jobs.js, analyse.js on staging (merge in Session 9)
+- Homepage — provisional lock (`mockups/homepage.html`)
+- Dashboard home — locked with hierarchy fix (`mockups/dashboard-home.html`)
+- Input page — locked (`mockups/input-page.html`)
+- Loading screen — locked (`mockups/loading-screen.html`)
+- Skills tab — locked (`mockups/dashboard-skills.html`)
+- Applications tab — locked (`mockups/dashboard-applications.html`)
+- Auth overlay — locked (decisions in `brainstorms/auth-overlay-session.md`)
+- Roles tab v2 — locked (`mockups/dashboard-roles-v2.html`)
+- Role detail — locked (`mockups/role-detail.html`)
+- Onboarding bridge — locked (`mockups/onboarding-bridge.html`)
+- Advisor name — Arlo. Icon direction locked. (`ADVISOR_PERSONA.md`)
+- Backend improvements — score.js, jobs.js, analyse.js on staging (merge in Phase 1)
 
 ---
 
