@@ -342,3 +342,55 @@ The dashboard home is the visual reference. Every other tab must be aligned to i
 - 1800ms: "Let's start with your CV. Upload it and I'll read it, or just tell me about yourself below." + upload card
 
 **Topbar Arlo toggle:** Present on all four dashboard tabs (Home, Roles, Skills, Applications). Consistent size (16px), consistent `id="arloToggle"`, consistent `toggleArlo()` call.
+
+---
+
+### Roles Tab — REDESIGNED ✓ (Session 13)
+
+**Files:** `mockups/dashboard-roles-v2.html` (replaces `dashboard-roles.html`) · `mockups/role-detail.html`
+
+**Architecture decision: role intelligence is a separate layer from live listings.**
+- "Role types" = structured educational briefs. Claude generates these for any role type. Not a static database.
+- "Live listings" = Adzuna job listings ranked by fit. Distinct from role intelligence.
+- These live in the same Roles tab via a tab switcher — they do not bleed into each other.
+
+**Tab switcher:** `Role types [n] | Live listings [n]`
+- Counts are dynamic — based on what was surfaced for that user
+- Tab switcher sits below direction card, above content
+- JS: `switchTab()` + URL param `?tab=listings` for direct linking
+
+**Direction card on Roles tab:**
+- No role pills — those belong on the onboarding bridge
+- Subtitle: "[n] role types matched · [n] live listings" — counts only
+
+**Role intelligence cards (Role types tab):**
+- One card per role type. Compact format: title, one-line description, salary range (Entry/Mid/Senior inline)
+- Arrow → navigates to role detail view
+- Grouped with slight border-radius stacking (top card: 12px 12px 6px 6px, etc.)
+
+**Role detail view:**
+- Left panel: structured brief — type label, title, summary paragraph, honest picture (What's good / Worth knowing), salary table (UK only, visual amber bars), what it rewards
+- NO Arlo commentary in the left panel — that is entirely Arlo's job in the right panel
+- Right panel: Arlo — personalised fit assessment, how to get in for this specific user, available for questions
+- "How to get in" = Arlo speaks it. Not a static section in the brief.
+- Company value matching = Arlo surfaces proactively in chat, not a visual label on job cards
+- Bottom of brief: link block "Live listings for [Role] → [n] listings · best match first" — navigates to Live Listings tab filtered for that role
+
+**Live listings (Live listings tab):**
+- Filter pills above listings: `All · [role type pills, dynamic] · Passed`
+- Role type pills are generated from whatever roles were surfaced for this user — dynamic, not fixed
+- Default sort: best match → least match. User cannot change sort order — it's the product's judgment.
+- Job card actions: `Interested` (amber) + `Pass` (ghost) — side by side at the bottom of each card
+- "Interested" → job moves to Applications (Shortlisted stage). Card shows green border + "Interested" badge + "View in Applications →"
+- "Pass" → job hidden from All/role type views. Recoverable via "Passed" filter pill.
+- No "Saved" concept — Interested IS the save action. Applications is the tracking space.
+
+**Onboarding bridge:**
+- Screen between loading and dashboard — first moment user sees their direction
+- Arlo face + name at top, direction card (cream, shadow), role pills ("Roles worth exploring"), CTA "Go to my dashboard →", ghost link "Something doesn't feel right — adjust my direction"
+- Role pills on the bridge are the same roles that appear in the Roles tab
+
+**Arlo direction refinement (parking lot):**
+- If user tells Arlo they don't want a role type, Arlo removes it, filters listings, updates direction card
+- This means filter pills in Live Listings can shrink mid-session
+
