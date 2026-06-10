@@ -100,15 +100,15 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Technical Architecture
 
-**Stack:** Single `index.html` · Vercel (staging = preview, main = production) · Supabase (auth, database, encrypted storage, 90-day deletion) · Vercel `/api/` serverless · Anthropic API (claude-sonnet-4-6) · Adzuna · Resend
+**Target stack (Phase 2 onwards):** Next.js (App Router) · Vercel · Supabase (auth, database, encrypted storage, 90-day deletion) · Vercel API routes · Anthropic API (claude-sonnet-4-6) · Adzuna · Resend
 
-**Panel structure:** `panelS1` homepage · `panelS2` input + loading + error · `panelS3` dashboard · Toggle via `.active` / `showSession(n)`
+**Current stack (legacy — do not build on top of):** Single `index.html` · Vercel `/api/` serverless. The old frontend is being replaced in Phase 2. Backend `api/` functions port to Next.js API routes with minimal changes.
 
-**API endpoints:** analyse.js · chat.js · config.js · extract.js · jobs.js · profile.js · save-job.js · save-result.js · score.js
+**API endpoints (carry over to Next.js):** analyse.js · chat.js · config.js · extract.js · jobs.js · profile.js · save-job.js · save-result.js · score.js
 
-**Outstanding performance issue:** ~90s pipeline will cause abandonment. Fix: Haiku for extraction + Sonnet for intelligence + streaming. See `INSIGHTS.md` section 1. Dedicated session required.
+**Outstanding performance issue:** ~90s pipeline will cause abandonment. Fix: Haiku for extraction + Sonnet for intelligence + streaming. See `INSIGHTS.md` section 1. Fix during Phase 2 build when analyse.js is ported.
 
-**Architecture note:** Single index.html is a known shortcut. Next.js migration recommended before Stage 1 build — after design is locked.
+**Context7 MCP:** Installed globally. Active in every session. Pulls live Next.js/React docs — prevents deprecated API suggestions. No action needed.
 
 ## Git Workflow
 
@@ -146,15 +146,17 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Current Phase
 
-**Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10). **Phase 1 engineering begins next.**
+**Phase 1 — Foundation Engineering.** Next session: scaffold Next.js project.
 
-**Phase 0 locked screens (all sessions):**
-~~Returning user~~ ✓ · ~~Profile tab~~ ✓ · ~~Basic error states~~ ✓ (Session 16)
+**Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
-**Phase 1 — next session starts here.** Read `PLAYBOOK.md` Session 5 (OTP fix). Install `systematic-debugging` and `zoom-out` skills before starting.
+**Phase 1 order (Option B — confirmed 2026-06-10):**
+1. Next.js scaffold — new project, port `api/` backend functions, set up Supabase auth, `.env.local`
+2. Phase 2 build begins (screens one by one, per PLAYBOOK.md)
+3. Backend bugs fixed as they block build: OTP auth · performance (~90s pipeline) · console.log cleanup
+4. GitHub token rotation — do not defer past this session
 
-**Live bugs (Phase 1 — do not raise until Phase 0 complete):**
-OTP sign-in failure · debug console.log commits · GitHub token rotation (must not defer past Phase 1) · staging backend merges · performance fix (~90s pipeline)
+**Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
 
 ## Professional Engineering Standards
 

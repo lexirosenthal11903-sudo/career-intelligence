@@ -84,40 +84,34 @@ Design tokens · Homepage · Dashboard home · Input page · Loading screen · S
 
 ## PHASE 1 — Foundation Engineering
 
-_Goal: Fix all known blockers before any new work is built on top of them._
+_Goal: Scaffold Next.js, then build Phase 2 screens — fixing backend bugs as they block progress._
+
+**Order confirmed (Option B, 2026-06-10):** Next.js scaffold first → Phase 2 build begins → backend bugs fixed as they block.
+**Do not fix bugs in the old `index.html` frontend.** It is being replaced entirely.
+
+**Skills already installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
 
 ---
 
-### Before Phase 1 begins: Install Engineering Skills
+### Session 5: Next.js Scaffold
 
-Before any engineering session, install these from `~/Desktop/Claude Code/All Installed Skills/`:
-- `systematic-debugging` — for diagnosing hard bugs (OTP, pipeline issues)
-- `zoom-out` — before any architectural decision or broad change
-
-Say: "We're starting Phase 1 — install systematic-debugging and zoom-out." I will do it.
-
----
-
-### Session 5: OTP Sign-In Bug Fix
-
-**What it achieves:** Fixes the returning user "Load failed" OTP failure. Currently blocks all returning users from coming back.
+**What it achieves:** Creates the new Next.js project, ports all backend `api/` functions to Next.js API routes, sets up Supabase auth, configures `.env.local`. This is the foundation everything else is built on.
 
 **Read first:**
-- `CLAUDE.md` — Live bugs section
-- `api/` directory — auth-related files
+- `CLAUDE.md` — Technical Architecture (target stack)
+- `api/` directory — all functions to be ported
+- `INSIGHTS.md` Section 7 — Next.js migration guidance
 
 **INSIGHTS.md sections:**
-- Section 1 — "OTP Sign-In Bug [NOW]" — use `/goal` with objective criteria
-- Section 3 — "/goal Usage" — how to set up the goal correctly
+- Section 7 — "Next.js Migration" — Context7 MCP is already installed; use it for live docs
 
 **Skills to invoke:**
-- `/systematic-debugging` — start here to diagnose root cause before touching code
-- Use `/goal` to drive the fix: *"Fix the returning user OTP sign-in failure — done when a returning user can successfully authenticate end-to-end on staging."*
-- `/deploy-check` — run after the fix before discussing merge
+- `/zoom-out` — before starting, to assess full scope of what's being ported
+- Context7 MCP — active automatically, no action needed
 
-**Done when:** A returning user can complete OTP authentication end-to-end on staging. `/deploy-check` passes.
+**Done when:** Next.js app runs locally and on Vercel staging. All `api/` endpoints work. Supabase auth (Google OAuth + OTP) works end-to-end. `.env.local` configured. Old `index.html` is no longer the entry point.
 
-**Output:** Fixed auth flow on staging branch
+**Output:** New Next.js project on staging branch
 
 ---
 
