@@ -151,12 +151,14 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
 **Phase 1 order (Option B — confirmed 2026-06-10):**
-1. Next.js scaffold — new project, port `api/` backend functions, set up Supabase auth, `.env.local`
-2. Phase 2 build begins (screens one by one, per PLAYBOOK.md)
-3. Backend bugs fixed as they block build: OTP auth · performance (~90s pipeline) · console.log cleanup
-4. GitHub token rotation — do not defer past this session
+1. ~~Next.js scaffold~~ ✓ DONE (Session 17) — Next.js 16 + TS, all 9 api functions ported to `src/app/api/`, old frontend in `legacy/`
+2. Phase 2 build begins (screens one by one, per PLAYBOOK.md) — **next session starts here: homepage**
+3. Backend bugs fixed as they block build: performance (~90s pipeline, fix when analyse is wired to UI) · OTP (rebuild fresh with auth overlay screen)
+4. GitHub token rotation — Lexi deferred again 2026-06-10; raise before any real users
 
-**Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
+**Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env.
+
+**Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global — active from next session)
 
 ## Professional Engineering Standards
 

@@ -93,25 +93,14 @@ _Goal: Scaffold Next.js, then build Phase 2 screens — fixing backend bugs as t
 
 ---
 
-### Session 5: Next.js Scaffold
+### Session 5: Next.js Scaffold — DONE (Session 17, 2026-06-10)
 
-**What it achieves:** Creates the new Next.js project, ports all backend `api/` functions to Next.js API routes, sets up Supabase auth, configures `.env.local`. This is the foundation everything else is built on.
+Next.js 16 + TypeScript + App Router, no Tailwind. All 9 backend functions ported to `src/app/api/` route handlers (config.js dropped — replaced by `NEXT_PUBLIC_` env vars). Old frontend archived in `legacy/`. Shared libs: `src/lib/supabase.ts`, `src/lib/anthropic.ts`. Build + lint clean, endpoints verified locally and on staging deployment.
 
-**Read first:**
-- `CLAUDE.md` — Technical Architecture (target stack)
-- `api/` directory — all functions to be ported
-- `INSIGHTS.md` Section 7 — Next.js migration guidance
-
-**INSIGHTS.md sections:**
-- Section 7 — "Next.js Migration" — Context7 MCP is already installed; use it for live docs
-
-**Skills to invoke:**
-- `/zoom-out` — before starting, to assess full scope of what's being ported
-- Context7 MCP — active automatically, no action needed
-
-**Done when:** Next.js app runs locally and on Vercel staging. All `api/` endpoints work. Supabase auth (Google OAuth + OTP) works end-to-end. `.env.local` configured. Old `index.html` is no longer the entry point.
-
-**Output:** New Next.js project on staging branch
+**Notes for future sessions:**
+- Vercel env keys are "sensitive" type — cannot be pulled locally. Local dev needs keys copied from provider dashboards (Anthropic console, Adzuna, Supabase) if full local testing is required. Staging deployment has everything.
+- `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` added to Vercel (Preview/staging branch). **Production needs the same two vars added before merge to main.**
+- Supabase auth (Google OAuth + OTP) is NOT yet rebuilt — that happens with the auth overlay screen in Phase 2. The old OTP bug died with the old frontend; verify fresh when auth is rebuilt.
 
 ---
 
