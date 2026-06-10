@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Your Direction — Career Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #FFFFFF;
+    --cream:    #F5F3EE;
+    --cream-2:  #EDEBE5;
+    --line:     rgba(0,0,0,.07);
+    --ink:      #1A1610;
+    --ink-2:    #5A5040;
+    --ink-3:    #9E9080;
+    --ink-4:    #C4B8A8;
+    --gold:     #A85E16;
+    --gold-b:   #DD8A2C;
+    --gold-soft:rgba(221,138,44,.10);
+    --f:        'Instrument Sans', system-ui, sans-serif;
+    --fm:       'DM Mono', monospace;
+    --r:        14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); font-family: var(--f); -webkit-font-smoothing: antialiased; color: var(--ink); }
+
+  /* ── PAGE LAYOUT ── */
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 72px 24px 120px;
+  }
+
+  /* ── ARLO HEADER ── */
+  .arlo-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp .5s ease .1s forwards;
+  }
+  .arlo-face {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex: none;
+    margin-bottom: 10px;
+  }
+  .arlo-face svg { width: 64px; height: 64px; display: block; }
+  .arlo-name {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* ── MAIN CARD ── */
+  .card {
+    width: 100%;
+    max-width: 600px;
+    background: var(--cream);
+    border-radius: 18px;
+    padding: 36px 40px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.055);
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp .5s ease .25s forwards;
+  }
+
+  .card-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 14px;
+  }
+
+  .direction-statement {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .direction-detail {
+    font-size: 14.5px;
+    line-height: 1.8;
+    color: var(--ink-2);
+  }
+
+  /* ── ROLES ── */
+  .roles-block {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp .5s ease .4s forwards;
+  }
+
+  .roles-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+
+  .roles-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .role-pill {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+
+  /* ── CTA ── */
+  .cta-row {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp .5s ease .55s forwards;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 15px 24px;
+    font-family: var(--f);
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn-primary:hover { background: #924E0F; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--f);
+    padding: 4px 8px;
+    transition: color .15s;
+  }
+  .btn-ghost:hover { color: var(--ink-2); }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ARLO -->
+  <div class="arlo-row">
+    <div class="arlo-face">
+      <svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="40" fill="#B87040"/>
+        <circle cx="28" cy="38" r="5" fill="#2C1A0E"/>
+        <circle cx="52" cy="38" r="5" fill="#2C1A0E"/>
+        <!-- Relaxed brows — warm, open -->
+        <path d="M23 36 Q28 31 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M47 36 Q52 31 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <!-- Highlights -->
+        <circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+        <circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/>
+        <!-- Warm smile -->
+        <path d="M30 50 Q40 55 50 50" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+    </div>
+    <div class="arlo-name">Arlo</div>
+  </div>
+
+  <!-- DIRECTION CARD -->
+  <div class="card">
+    <div class="card-label">Your direction</div>
+    <div class="direction-statement">You think in systems, but you're drawn to people problems.</div>
+    <p class="direction-detail">Your background shows strong analytical instincts — but the way you talk about your work makes it clear the problems you find most satisfying involve how organisations function and how people move through them. That points toward strategy, operations, and the space where the two meet.</p>
+  </div>
+
+  <!-- SUGGESTED ROLES -->
+  <div class="roles-block">
+    <div class="roles-label">Roles worth exploring</div>
+    <div class="roles-list">
+      <div class="role-pill">Strategy Analyst</div>
+      <div class="role-pill">Operations Associate</div>
+      <div class="role-pill">Business Analyst</div>
+      <div class="role-pill">Management Consultant</div>
+      <div class="role-pill">Chief of Staff</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-row">
+    <button class="btn-primary">Go to my dashboard →</button>
+    <button class="btn-ghost">Something doesn't feel right — adjust my direction</button>
+  </div>
+
+</div>
+</body>
+</html>

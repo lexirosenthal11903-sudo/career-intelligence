@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Dashboard — Roles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --cream:#F5F3EE;
+    --cream-2:#EDEBE5;
+    --line:rgba(0,0,0,.07);
+    --ink:#1A1610;
+    --ink-2:#5A5040;
+    --ink-3:#9E9080;
+    --gold:#A85E16;
+    --gold-b:#DD8A2C;
+    --gold-soft:rgba(168,94,22,.10);
+    --green:#3E9B6B;
+    --green-soft:rgba(62,155,107,.10);
+    --f:'Instrument Sans',system-ui,sans-serif;
+    --fm:'DM Mono',monospace;
+    --r:14px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--f);-webkit-font-smoothing:antialiased;line-height:1.5;}
+
+  .shell{display:grid;grid-template-columns:220px 1fr;height:100vh;}
+
+  /* ── SIDEBAR ── */
+  .nav{background:var(--bg);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:2px;}
+  .nav-brand{font-weight:700;font-size:14px;letter-spacing:-.02em;color:var(--ink);padding:2px 10px 22px;}
+  .nav-item{font-size:13.5px;font-weight:500;color:var(--ink-2);padding:10px 12px;border-radius:10px;display:flex;gap:11px;align-items:center;cursor:pointer;user-select:none;}
+  .nav-item svg{width:16px;height:16px;opacity:.5;flex:none;}
+  .nav-item:hover{background:var(--cream);color:var(--ink);}
+  .nav-item.active{background:var(--gold-soft);color:var(--gold);font-weight:600;}
+  .nav-item.active svg{opacity:1;}
+  .nav-item.soon{opacity:.25;pointer-events:none;}
+  .nav-item.soon .badge{margin-left:auto;font-family:var(--fm);font-size:8px;letter-spacing:.06em;}
+  .nav-gap{flex:1;}
+  .nav-profile{border-top:1px solid var(--line);padding-top:16px;margin-top:6px;display:flex;gap:10px;align-items:center;}
+  .nav-av{width:30px;height:30px;border-radius:50%;background:var(--cream-2);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:none;}
+  .nav-name{font-size:13px;font-weight:600;color:var(--ink);}
+  .nav-email{font-size:11px;color:var(--ink-3);}
+
+  /* ── MAIN ── */
+  .main{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+  .topbar{height:54px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex:none;}
+  .topbar-left{display:flex;align-items:center;gap:10px;}
+  .topbar-title{font-size:13px;font-weight:600;color:var(--ink);}
+  .topbar-toggle{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--f);font-size:12px;font-weight:500;color:var(--ink-3);}
+  .topbar-toggle svg{width:16px;height:16px;}
+  .topbar-toggle:hover{background:var(--cream);color:var(--ink);}
+
+  /* ── 50/50 SPLIT ── */
+  .content{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;}
+
+  /* ══════════════════════════════
+     LEFT — ROLES
+  ══════════════════════════════ */
+  .roles{padding:40px 44px;overflow-y:auto;border-right:1px solid var(--line);}
+  .roles::-webkit-scrollbar{width:0;}
+
+  /* direction card — universal anchor */
+  .direction-card{
+    background:var(--cream);border-radius:var(--r);
+    padding:24px 26px;margin-bottom:32px;
+    box-shadow:0 2px 16px rgba(0,0,0,.055);
+  }
+  .direction-label{font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+  .direction-title{font-size:18px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1.2;margin-bottom:6px;}
+  .direction-sub{font-size:13px;color:var(--ink-3);line-height:1.5;}
+
+  /* ── TAB SWITCHER ── */
+  .tab-row{display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--line);}
+  .tab{font-size:13px;font-weight:500;color:var(--ink-3);padding:0 2px 12px;margin-right:24px;background:none;border:none;cursor:pointer;font-family:var(--f);position:relative;transition:color .15s;}
+  .tab:hover{color:var(--ink-2);}
+  .tab.active{color:var(--ink);font-weight:600;}
+  .tab.active::after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--ink);border-radius:2px;}
+  .tab-count{font-size:11px;font-family:var(--fm);color:var(--ink-3);margin-left:5px;}
+  .tab.active .tab-count{color:var(--ink-3);}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* ── SECTION HEADERS ── */
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .section-label{font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;}
+  .section-count{font-size:11px;color:var(--ink-3);font-family:var(--fm);}
+
+  /* ── ROLE INTELLIGENCE CARDS ── */
+  .role-cards{display:flex;flex-direction:column;gap:2px;margin-bottom:36px;}
+
+  .role-card{
+    background:var(--bg);border:1px solid var(--line);border-radius:12px;
+    padding:16px 20px;display:flex;align-items:center;gap:16px;
+    cursor:pointer;transition:border-color .15s,background .15s;
+  }
+  .role-card:hover{border-color:rgba(0,0,0,.13);background:var(--cream);}
+  .role-card:first-child{border-radius:12px 12px 6px 6px;}
+  .role-card:last-child{border-radius:6px 6px 12px 12px;}
+  .role-card:only-child{border-radius:12px;}
+
+  .role-card-body{flex:1;min-width:0;}
+  .role-card-title{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin-bottom:3px;}
+  .role-card-desc{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin-bottom:6px;}
+  .role-card-salary{font-size:11.5px;font-family:var(--fm);color:var(--ink-3);}
+  .role-card-salary span{color:var(--ink-2);}
+
+  .role-card-arrow{
+    width:28px;height:28px;border-radius:8px;background:var(--cream);
+    display:flex;align-items:center;justify-content:center;flex:none;
+    transition:background .15s;
+  }
+  .role-card:hover .role-card-arrow{background:var(--cream-2);}
+  .role-card-arrow svg{width:12px;height:12px;color:var(--ink-3);}
+
+  /* ── FILTER PILLS ── */
+  .filter-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+  .fpill{font-size:12px;font-weight:600;color:var(--ink-3);background:var(--cream);border-radius:20px;padding:6px 14px;cursor:pointer;border:1px solid transparent;transition:all .15s;user-select:none;white-space:nowrap;}
+  .fpill:hover{background:var(--cream-2);color:var(--ink-2);}
+  .fpill.active{background:var(--gold-soft);color:var(--gold);border-color:rgba(168,94,22,.15);}
+
+  /* ── LIVE LISTINGS ── */
+  .jobs{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+
+  .job{
+    background:var(--bg);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px 20px;display:flex;flex-direction:column;
+    transition:border-color .15s;
+  }
+  .job:hover{border-color:rgba(0,0,0,.13);}
+  .job.interested{border-color:rgba(62,155,107,.3);}
+
+  .job-titlerow{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+  .job-title{font-size:14.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+  .job-interested-badge{font-size:10px;font-weight:700;color:var(--green);background:var(--green-soft);padding:2px 8px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;flex:none;}
+  .job-meta{font-size:12.5px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .job-company{font-weight:600;color:var(--ink-2);}
+  .dot{width:2.5px;height:2.5px;border-radius:50%;background:var(--ink-3);flex:none;}
+  .job-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+  .job-tag{font-size:11.5px;font-weight:500;color:var(--ink-3);background:var(--cream);padding:3px 10px;border-radius:20px;}
+  .job-desc{font-size:13px;line-height:1.65;color:var(--ink-3);}
+  .job-actions{display:flex;align-items:center;gap:8px;padding-top:14px;margin-top:14px;border-top:1px solid var(--line);}
+  .btn-interested{font-family:var(--f);font-size:12.5px;font-weight:600;background:var(--gold);color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;}
+  .btn-interested:hover{background:#924E0F;}
+  .btn-pass{font-family:var(--f);font-size:12.5px;font-weight:500;background:none;border:1px solid var(--line);border-radius:8px;padding:8px 16px;color:var(--ink-3);cursor:pointer;}
+  .btn-pass:hover{background:var(--cream);}
+  .btn-view-app{font-family:var(--f);font-size:12.5px;font-weight:600;background:none;border:none;color:var(--green);cursor:pointer;padding:0;}
+
+  .load-more{text-align:center;padding:8px 0 8px;}
+  .btn-load{font-family:var(--f);font-size:12.5px;font-weight:600;color:var(--ink-3);background:none;border:1px solid var(--line);border-radius:8px;padding:8px 20px;cursor:pointer;}
+  .btn-load:hover{background:var(--cream);color:var(--ink-2);}
+
+  /* ══════════════════════════════
+     RIGHT — ADVISOR
+  ══════════════════════════════ */
+  .mentor{background:var(--cream);display:flex;flex-direction:column;overflow:hidden;}
+  .mentor-head{padding:26px 32px 22px;border-bottom:1px solid var(--line);flex:none;display:flex;align-items:center;gap:14px;}
+  .mentor-av{width:42px;height:42px;border-radius:50%;overflow:hidden;flex:none;}
+  .mentor-av svg{width:42px;height:42px;display:block;}
+  .mentor-head-name{font-size:15px;font-weight:700;color:var(--ink);}
+  .mentor-head-status{font-size:12px;color:var(--ink-3);margin-top:2px;display:flex;align-items:center;gap:6px;}
+  .mentor-head-status::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);flex:none;}
+  .mentor-messages{flex:1;overflow-y:auto;padding:28px 32px 20px;display:flex;flex-direction:column;gap:20px;}
+  .mentor-messages::-webkit-scrollbar{width:0;}
+  .ai-msg{display:flex;flex-direction:column;gap:8px;}
+  .ai-bubble{background:var(--bg);border-radius:4px 16px 16px 16px;padding:15px 18px;font-size:14px;line-height:1.75;color:var(--ink-2);max-width:380px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  .ai-bubble strong{color:var(--ink);font-weight:700;}
+  .ai-bubble + .ai-bubble{border-radius:16px;}
+  .user-msg{display:flex;justify-content:flex-end;}
+  .user-bubble{background:var(--gold);border-radius:16px 4px 16px 16px;padding:13px 18px;font-size:14px;line-height:1.65;color:#fff;max-width:320px;}
+  .mentor-input-wrap{padding:18px 24px 24px;flex:none;}
+  .mentor-input-card{background:var(--bg);border-radius:16px;padding:4px 4px 4px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.05);}
+  .mentor-input{flex:1;border:none;background:none;font-family:var(--f);font-size:14px;color:var(--ink);outline:none;padding:11px 0;}
+  .mentor-input::placeholder{color:var(--ink-3);}
+  .mentor-send{width:38px;height:38px;border-radius:12px;flex:none;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .mentor-send svg{width:14px;height:14px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="nav">
+    <div class="nav-brand">Career Intelligence</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6l6-4 6 4v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>Home</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M2 4h12M2 8h8M2 12h10"/></svg>Roles</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M8 2v12M4 6l4-4 4 4M3 14h10"/></svg>Skills</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path stroke-linecap="round" d="M5 3V2M11 3V2M2 7h12"/></svg>Applications</div>
+    <div class="nav-item soon"><svg fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="5" r="2.5"/><path stroke-linecap="round" d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>Profile<span class="badge">SOON</span></div>
+    <div class="nav-gap"></div>
+    <div class="nav-profile">
+      <div class="nav-av">L</div>
+      <div><div class="nav-name">Lexi</div><div class="nav-email">lexi@careeriq.co</div></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Roles</span>
+      </div>
+      <button class="topbar-toggle">
+        <svg width="16" height="16" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+        Hide Arlo
+      </button>
+    </div>
+
+    <div class="content">
+
+      <!-- LEFT — ROLES -->
+      <div class="roles">
+
+        <!-- DIRECTION CARD -->
+        <div class="direction-card">
+          <div class="direction-label">Your direction</div>
+          <div class="direction-title">Systems thinker, people problems.</div>
+          <div class="direction-sub">5 role types matched · 18 live listings</div>
+        </div>
+
+        <!-- TAB SWITCHER -->
+        <div class="tab-row">
+          <button class="tab active" onclick="switchTab('types')">Role types <span class="tab-count">5</span></button>
+          <button class="tab" onclick="switchTab('listings')">Live listings <span class="tab-count">18</span></button>
+        </div>
+
+        <!-- TAB: ROLE TYPES -->
+        <div class="tab-panel active" id="panel-types">
+        <div class="role-cards">
+
+          <div class="role-card">
+            <div class="role-card-body">
+              <div class="role-card-title">Strategy Analyst</div>
+              <div class="role-card-desc">Turn ambiguous business problems into structured recommendations. Analysis-heavy, high exposure.</div>
+              <div class="role-card-salary">Entry <span>£35–55k</span> · Mid <span>£65–120k</span> · Senior <span>£120–250k+</span></div>
+            </div>
+            <div class="role-card-arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+          </div>
+
+          <div class="role-card">
+            <div class="role-card-body">
+              <div class="role-card-title">Operations Associate</div>
+              <div class="role-card-desc">Make organisations run better. Spans process design, resource planning, and cross-team coordination.</div>
+              <div class="role-card-salary">Entry <span>£30–45k</span> · Mid <span>£50–90k</span> · Senior <span>£90–180k+</span></div>
+            </div>
+            <div class="role-card-arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+          </div>
+
+          <div class="role-card">
+            <div class="role-card-body">
+              <div class="role-card-title">Business Analyst</div>
+              <div class="role-card-desc">Bridge between data and decisions. Translate business needs into clear analysis that shapes what happens next.</div>
+              <div class="role-card-salary">Entry <span>£28–42k</span> · Mid <span>£50–80k</span> · Senior <span>£80–150k+</span></div>
+            </div>
+            <div class="role-card-arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+          </div>
+
+          <div class="role-card">
+            <div class="role-card-body">
+              <div class="role-card-title">Management Consultant</div>
+              <div class="role-card-desc">Advise organisations on their biggest problems. Intense, well-paid, excellent exit options.</div>
+              <div class="role-card-salary">Entry <span>£40–65k</span> · Mid <span>£80–140k</span> · Senior <span>£150–400k+</span></div>
+            </div>
+            <div class="role-card-arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+          </div>
+
+          <div class="role-card">
+            <div class="role-card-body">
+              <div class="role-card-title">Chief of Staff</div>
+              <div class="role-card-desc">Run the operating system of an executive or team. High trust, high access, broad scope.</div>
+              <div class="role-card-salary">Entry <span>£35–55k</span> · Mid <span>£65–120k</span> · Senior <span>£120–300k+</span></div>
+            </div>
+            <div class="role-card-arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+          </div>
+
+        </div>
+
+        </div><!-- end panel-types -->
+
+        <!-- TAB: LIVE LISTINGS -->
+        <div class="tab-panel" id="panel-listings">
+
+          <!-- FILTER PILLS -->
+          <div class="filter-pills">
+            <div class="fpill active" onclick="filterPill(this)">All</div>
+            <div class="fpill" onclick="filterPill(this)">Strategy Analyst</div>
+            <div class="fpill" onclick="filterPill(this)">Operations Associate</div>
+            <div class="fpill" onclick="filterPill(this)">Business Analyst</div>
+            <div class="fpill" onclick="filterPill(this)">Management Consultant</div>
+            <div class="fpill" onclick="filterPill(this)">Chief of Staff</div>
+            <div class="fpill" onclick="filterPill(this)">Passed</div>
+          </div>
+
+          <div class="jobs">
+
+            <!-- Already expressed interest — goes to Applications -->
+            <div class="job interested">
+              <div class="job-titlerow">
+                <div class="job-title">Strategy Analyst</div>
+                <span class="job-interested-badge">Interested</span>
+              </div>
+              <div class="job-meta">
+                <span class="job-company">Monzo</span><span class="dot"></span>
+                <span>Hybrid · London</span><span class="dot"></span>
+                <span>£38,000 – £48,000</span><span class="dot"></span>
+                <span>1d ago</span>
+              </div>
+              <div class="job-tags">
+                <span class="job-tag">Strategy</span>
+                <span class="job-tag">Operations</span>
+                <span class="job-tag">Full-time</span>
+              </div>
+              <div class="job-desc">Working with Monzo's growth and product teams to model strategic options and surface the decisions that matter most.</div>
+              <div class="job-actions">
+                <button class="btn-view-app">View in Applications →</button>
+              </div>
+            </div>
+
+            <div class="job">
+              <div class="job-titlerow">
+                <div class="job-title">Business Analyst — Operations</div>
+              </div>
+              <div class="job-meta">
+                <span class="job-company">Deliveroo</span><span class="dot"></span>
+                <span>Hybrid · London</span><span class="dot"></span>
+                <span>£34,000 – £44,000</span><span class="dot"></span>
+                <span>3d ago</span>
+              </div>
+              <div class="job-tags">
+                <span class="job-tag">Business analysis</span>
+                <span class="job-tag">Operations</span>
+                <span class="job-tag">Full-time</span>
+              </div>
+              <div class="job-desc">Diagnosing and improving how Deliveroo's logistics operations run, using data to find the friction and recommend fixes.</div>
+              <div class="job-actions">
+                <button class="btn-interested">Interested</button>
+                <button class="btn-pass">Pass</button>
+              </div>
+            </div>
+
+            <div class="job">
+              <div class="job-titlerow">
+                <div class="job-title">Associate Consultant</div>
+              </div>
+              <div class="job-meta">
+                <span class="job-company">Oliver Wyman</span><span class="dot"></span>
+                <span>On-site · London</span><span class="dot"></span>
+                <span>£45,000 – £60,000</span><span class="dot"></span>
+                <span>5d ago</span>
+              </div>
+              <div class="job-tags">
+                <span class="job-tag">Consulting</span>
+                <span class="job-tag">Strategy</span>
+                <span class="job-tag">Graduate scheme</span>
+              </div>
+              <div class="job-desc">Graduate-entry consulting across financial services and operations clients. Structured pathway with clear promotion milestones.</div>
+              <div class="job-actions">
+                <button class="btn-interested">Interested</button>
+                <button class="btn-pass">Pass</button>
+              </div>
+            </div>
+
+          </div>
+          <div class="load-more"><button class="btn-load">Load 15 more</button></div>
+        </div><!-- end panel-listings -->
+
+      </div>
+
+      <!-- RIGHT — ADVISOR -->
+      <div class="mentor">
+        <div class="mentor-head">
+          <div class="mentor-av">
+            <svg width="42" height="42" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 31 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 31 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M30 50 Q40 55 50 50" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>
+          </div>
+          <div>
+            <div class="mentor-head-name">Arlo</div>
+            <div class="mentor-head-status">Here with you</div>
+          </div>
+        </div>
+
+        <div class="mentor-messages">
+          <div class="ai-msg">
+            <div class="ai-bubble">Five roles matched to your direction. Click into any of them and I'll tell you honestly whether I think it fits you — and what it would actually take to get there given your background.</div>
+            <div class="ai-bubble">The Monzo listing is worth looking at. They're building a strategy function from scratch and tend to hire for instinct over credentials.</div>
+          </div>
+          <div class="user-msg">
+            <div class="user-bubble">Why Strategy Analyst specifically over the others?</div>
+          </div>
+          <div class="ai-msg">
+            <div class="ai-bubble">Because of the way you described how you think. You don't just want to execute — you want to understand why a decision is being made before you help make it. That's the strategy mindset. <strong>Operations</strong> is closer to execution. <strong>Consulting</strong> has the same intellectual pull but the lifestyle is different. Worth reading both briefs before you decide.</div>
+          </div>
+        </div>
+
+        <div class="mentor-input-wrap">
+          <div class="mentor-input-card">
+            <input class="mentor-input" placeholder="Ask Arlo about any of these roles…" />
+            <button class="mentor-send">
+              <svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1 7h12M7 1l6 6-6 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+  function filterPill(el) {
+    document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+    document.getElementById(`panel-${name}`).classList.add('active');
+  }
+  const init = new URLSearchParams(window.location.search).get('tab');
+  if (init) switchTab(init);
+</script>
+</body>
+</html>

@@ -98,3 +98,21 @@ Ideas captured mid-session to revisit at the right time.
 **Principle:** Every user action — saving a job, moving a card, passing on a role, completing a step, withdrawing — should feed intelligence back into both the platform and the individual user's profile. The platform learns what works across users. The user gets a more personalised experience over time.
 **Examples:** Which role types get saved most → refine direction. Which applications progress furthest → surface similar companies. Which steps users skip → surface friction points.
 **When to address:** Phase 1 engineering — specifically the Supabase schema and advisor memory design sessions. Every table should be designed with this principle in mind from day one.
+
+---
+
+## Arlo-only mode — Session 13, 2026-06-10
+**Idea:** Some users want to skip the dashboard entirely and just talk to Arlo. A conversation-first path alongside the structured dashboard path — no job listings, no skills map, just Arlo. Could be an intentional entry point (not a hidden feature), or a full-screen expand of the Arlo panel.
+**Connection to:** Arlo panel collapse toggle (above) — the inverse of hiding Arlo is surfacing Arlo-only as a primary mode for certain users.
+**When to address:** Returning user experience session, or Phase 2 product decision. Needs a clear user persona — who would choose this over the dashboard?
+
+---
+
+## Arlo direction refinement — Session 13, 2026-06-10
+**Behaviour:** If a user tells Arlo "I don't want Strategy Analyst" (or any matched role), Arlo should:
+1. Acknowledge and remove that role type from their matched direction
+2. Filter out all live listings for that role type
+3. Update the direction card to reflect the refined direction
+4. Optionally ask why — to improve future matching
+**Why it matters:** Direction is a starting point, not a verdict. The product must feel responsive to pushback. If it can't adapt to "no", it doesn't feel intelligent — it feels like a job board with extra steps.
+**When to address:** Phase 1 engineering — specifically the Supabase direction/profile schema and the Arlo advisor system prompt. The direction must be stored as mutable user state, not a static output.
