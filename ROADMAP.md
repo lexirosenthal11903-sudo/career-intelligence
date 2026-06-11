@@ -146,7 +146,7 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 **What this phase is not:** it's not a prototype, and it's not building new features. It's connecting the pipes. The API functions already exist in `src/app/api/`. Phase 3a makes the new frontend use them.
 
 **Before first build session:**
-- [ ] **Backend audit** — read every API route against professional engineering standards before wiring anything to the frontend. Fixes needed: auth middleware on all protected routes, rate limiting, `analyse.js` maxDuration/streaming fix, `chat.js` persona system prompt, input validation. Do this before any frontend wiring begins.
+- [x] **Backend audit + hardening — DONE (Session 23, 2026-06-11).** Auth middleware (@supabase/ssr cookie sessions), Arlo persona + user-context in chat.js, Upstash rate limiting on /api/analyse (10/IP/day), input validation, env fail-fast, /api/analyse open to unauthenticated users (try-before-signup). SSE streaming deferred to Session 25 (Hobby plan = 60s cap; streaming only valuable bundled with loading-screen wiring). Full detail in PLAYBOOK.md Session 23.
 
 **Auth:**
 - [ ] Wire Google OAuth via Supabase to `AuthModal.tsx` — this is the primary auth path

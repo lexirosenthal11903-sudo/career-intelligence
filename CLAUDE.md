@@ -119,8 +119,8 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## ⚠️ START HERE — Session Continuity (updated 2026-06-11)
 
-**We are in Phase 3a. The next session is Session 23: Backend Audit + Hardening.**
-Read `PLAYBOOK.md` Phase 3a → Session 23 for the full brief before starting.
+**We are in Phase 3a. The next session is Session 24: Supabase Auth Wiring.**
+Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
@@ -129,11 +129,10 @@ Read `PLAYBOOK.md` Phase 3a → Session 23 for the full brief before starting.
 4. Check `INSIGHTS.md` — find sections tagged with the current phase
 5. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]. From INSIGHTS.md: [relevant guidance]."
 
-**For Session 23 specifically:**
-- Switch to Opus before starting: `type /model claude-opus-4-8`
-- Run `/zoom-out` first — read and assess all API routes before touching anything
-- Reinstall `systematic-debugging` from `~/Desktop/Claude Code/All Installed Skills/`
-- Context7 MCP is installed globally — use it to pull live `@supabase/ssr` and Anthropic streaming docs
+**For Session 24 specifically:**
+- Model: Sonnet is fine — switch to Opus only if debugging gets complex
+- Pre-session (Lexi does this): Supabase → Authentication → Sign In / Providers → enable Google → add Client ID + Secret from Google Cloud Console
+- Context7 MCP installed globally — use it to pull live `@supabase/ssr` auth docs
 
 **Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
 **Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
@@ -156,31 +155,28 @@ Read `PLAYBOOK.md` Phase 3a → Session 23 for the full brief before starting.
 
 ## Current Phase
 
-**Phase 3a — Make It Real (Session 22, 2026-06-11). Wire existing backend to new frontend. Next: grill-me on advisor persona → product name session → first Phase 3a build session.**
+**Phase 3a — Make It Real. Session 23 COMPLETE (2026-06-11). Next: Session 24 — Supabase Auth Wiring.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
 **Phase 1 — Foundation Engineering. PARTIALLY COMPLETE ✓**
-- ✓ Next.js scaffold (Session 17) — App Router + TS, all 9 API functions ported, legacy frontend preserved
-- ✓ Project architecture and CSS module conventions established
-- ⬜ Remaining Phase 1 items (Supabase schema, advisor tools API, OTP bug, testing) — address as they block Phase 3a
+- ✓ Next.js scaffold (Session 17)
+- ✓ Session 23: Backend hardening — auth middleware, Arlo persona, rate limiting, input validation
 
-**Phase 2 — Visual Redesign. COMPLETE ✓** All screens built + QA + walkthrough (Sessions 19–21, 2026-06-11). See ROADMAP.md for full detail.
+**Phase 2 — Visual Redesign. COMPLETE ✓** Sessions 19–21, 2026-06-11.
 
-**Phase 3a — What needs to happen:**
-- Grill-me on advisor persona (before chat.js wiring)
-- Product name session (before launch)
-- Google OAuth wired via Supabase
-- CV analysis pipeline → real results → Supabase persistence
-- 90s pipeline fix (streaming, Haiku/Sonnet split) — use `/goal`
-- Adzuna real job listings in Roles tab
-- Arlo chat wired to `chat.js` with user context
-- ICO registration + real privacy/terms before first real user
-- GitHub token rotation before first real user
+**Phase 3a — Remaining:**
+- ⬜ Session 24: Google OAuth wired via Supabase → AuthModal.tsx → session persistence
+- ⬜ Session 25: CV pipeline wiring + SSE streaming fix (bundled — streaming is only valuable with the loading screen consuming it)
+- ⬜ Session 26: Adzuna real job listings in Roles tab
+- ⬜ Session 27: Arlo chat wired to chat.js with user context
+- ⬜ ICO registration + real privacy/terms before first real user
+- ⬜ GitHub token rotation before first real user
+- ⬜ Rate limiting activation (Upstash already installed) before first real user
 
-**Phase 3b — Hand-holding layer (CV builder, cover letters, interview prep, contacts) + copywriting sessions. Lexi decides after Phase 3a whether to do 3b before launch.**
+**Phase 3b — Hand-holding layer + copywriting. Lexi decides after Phase 3a.**
 
-**Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env. Run `/deploy-check`.
+**Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel **Production** env (currently Preview-only). Run `/deploy-check`.
 
 **Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
 
