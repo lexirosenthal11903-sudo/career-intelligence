@@ -233,13 +233,13 @@ export default function ApplicationsPage() {
           Skills
         </a>
         <div className={s.navGap} />
-        <div className={s.navProfile}>
+        <a href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>L</div>
           <div>
             <div className={s.navName}>Lexi</div>
             <div className={s.navEmail}>lexi@email.com</div>
           </div>
-        </div>
+        </a>
       </nav>
 
       {/* ── MAIN ── */}

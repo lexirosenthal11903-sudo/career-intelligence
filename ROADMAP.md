@@ -150,6 +150,8 @@ Arlo doesn't tell the user what to write. It writes it. CV built and tailored fo
 
 _Goal: The product knows more than the user has told it. It brings external intelligence to the search._
 
+- [ ] **Platform intelligence & audit loop** — A continuous internal monitoring system that audits its own outputs and flags quality issues automatically. Moved from Phase 6+ — requires Phase 3 to be live (real API calls, real Arlo conversations) before it can audit anything meaningful. Needs a dedicated planning session before build. Key components: self-auditing AI layer (monitors tone, data accuracy, logic); role-based audit personas — Engineer (API errors, pipeline failures), Designer (visual regressions, token drift), Product (feature quality, edge cases); 5 user archetypes — Anxious Graduate, Career Switcher, Underconfident Achiever, Direction-Seeker, Almost Ready. Governance: who actions each finding type.
+
 - [ ] **LinkedIn integration** — contact discovery for outreach. Find the right person at a target company. Onboarding is CV-only — LinkedIn is never part of the initial flow. Optional later feature. (Note: LinkedIn API is restricted — v1 approach likely OAuth for basic profile data or user-initiated; not in onboarding)
 - [ ] **Glassdoor data** — company culture scores, real salary ranges, actual interview questions asked at that company, difficulty ratings. Feeds company research and interview prep.
 - [ ] **Reed API** — expand job sources beyond Adzuna (more volume, better UK coverage)
@@ -219,13 +221,7 @@ SVG arc approach failed at small render size (arc appears as full circle). Durin
 **Phase 5 — Applications card overflow menu (•••)**
 Replace the current Archive ghost button with a proper `•••` overflow menu per card. Actions: Archive, Go back a stage, Mark as rejected, Delete. Lexi's idea from Session 19. Current ghost button is the interim solution. "Go back a stage" added Session 19 as the undo path for accidental stage advances.
 
-**Phase 6+ — Platform intelligence & audit loop**
-A continuous internal intelligence system that monitors its own outputs and flags quality issues automatically. Lexi's idea from Session 19. Needs a dedicated planning session before activation. Key components:
-- Self-auditing AI layer: monitors advice quality, data accuracy, tone consistency, logical errors, and anything that deviates from the expected pattern
-- Role-based audit personas: Engineer (data integrity, API errors, pipeline failures), Designer (visual regressions, token drift, accessibility), Product (feature quality, user flows, edge cases), and 5 user archetypes — the Anxious Graduate (overwhelmed, uncertain), the Career Switcher (motivated but lost), the Underconfident Achiever (strong background, low self-belief), the Direction-Seeker (no idea what they want), the Almost Ready (close to applying, needs a push)
-- Continuous loop: not a one-time audit — runs as a background process, surfaces anomalies proactively
-- Governance: defines who can action each type of finding (engineer vs. designer vs. product owner)
-- Must be designed in a dedicated session before any build begins — scope, role taxonomy, audit triggers, and escalation paths all need to be locked first
+**Phase 4 — Platform intelligence & audit loop** — moved to Phase 4 (see above). Requires Phase 3 to be live before it can run meaningfully.
 
 ---
 
