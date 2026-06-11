@@ -218,18 +218,19 @@ export default function ApplicationsPage() {
           </svg>
           Roles
         </a>
-        <a href="/dashboard/skills" className={s.navItem}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 19V10M10 19V5M16 19v-6M22 19H2" />
-          </svg>
-          Skills
-        </a>
         <a href="/dashboard/applications" className={`${s.navItem} ${s.active}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M9 4V2M15 4V2M3 9h18M9 14h6" />
           </svg>
           Applications
+        </a>
+        <a href="/dashboard/skills" className={s.navItem}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M12 8v8M8 12h8" />
+          </svg>
+          Skills
         </a>
         <div className={s.navGap} />
         <div className={s.navProfile}>
