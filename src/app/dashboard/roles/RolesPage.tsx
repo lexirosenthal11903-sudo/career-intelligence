@@ -112,16 +112,17 @@ export default function RolesPage() {
 
   function handleInterested(id: string) {
     setInterested((prev) => new Set([...prev, id]));
+    setPassed((prev) => { const next = new Set(prev); next.delete(id); return next; });
   }
   function handlePass(id: string) {
     setPassed((prev) => new Set([...prev, id]));
   }
 
   const visibleJobs = JOBS.filter((j) => {
-    if (activeFilter === "Passed") return passed.has(j.id);
+    if (activeFilter === "Passed") return passed.has(j.id) && !interested.has(j.id);
     if (activeFilter === "All") return !passed.has(j.id) || interested.has(j.id);
     const typeMatch = ROLE_TYPES.find((r) => r.id === j.type)?.title === activeFilter;
-    return typeMatch && !passed.has(j.id);
+    return typeMatch && (!passed.has(j.id) || interested.has(j.id));
   });
 
   return (
