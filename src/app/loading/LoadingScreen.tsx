@@ -14,7 +14,7 @@ function face({
   rb: string;
   mouth: string;
 }) {
-  return `<svg width="160" height="160" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="96" height="96" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="40" cy="40" r="40" fill="#B87040"/>
     <circle cx="28" cy="38" r="${eyeR}" fill="#2C1A0E"/>
     <circle cx="52" cy="38" r="${eyeR}" fill="#2C1A0E"/>
@@ -58,7 +58,7 @@ export default function LoadingScreen() {
         setIndex((i) => i + 1);
         setFading(false);
       }, 400);
-    }, 14000);
+    }, 6000);
 
     return () => clearTimeout(timer);
   }, [index]);

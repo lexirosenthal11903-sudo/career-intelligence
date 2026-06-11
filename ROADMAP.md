@@ -22,7 +22,7 @@ _Goal: Every screen designed and locked before a single line of engineering begi
 
 ### Done ✓
 - ✓ Design language — tokens, colour, typography, component rules (`SESSION_DECISIONS.md`)
-- ✓ Homepage — direction locked (provisional; final polish after dashboard complete)
+- ✓ Homepage — LOCKED (Session 18, 2026-06-11). `mockups/homepage-v2.html`. Three features, fit labels, flat bg, correct nav. Copywriting session pending Phase 5.
 - ✓ Dashboard home — provisionally locked (known issue: visual hierarchy, equal weight — must fix)
 - ✓ Roles tab — locked (`mockups/dashboard-roles-v2.html` + `mockups/role-detail.html`) — redesigned Session 13
 - ✓ Advisor persona foundation — `ADVISOR_PERSONA.md` created
@@ -97,11 +97,15 @@ _Goal: Implement all locked designs. The product looks and feels like the design
 - [ ] **Vercel Analytics** — zero config, already in the stack, cookie-free, GDPR-safe. Set up before first user lands. Minimum metrics: input flow completion rate + 7-day return rate. Those two numbers tell you if the product is working.
 - [ ] **Plausible** (Phase 3) — add when granular funnel data is needed.
 
+### ⚠️ Arlo upgrade — do this before building more screens
+_Arlo appears on every screen. Upgrading him after 10 screens are built means updating 10 places. Do this session after dashboard home is built and before continuing._
+- [ ] **Arlo character elevation session** — redesign Arlo as a proper SVG illustration (not the current hand-coded approximation). Reference generation: Leonardo.ai (free tier). Animation: Rive (rive.app, free solo plan). Session produces: locked Arlo asset + smooth expression morphing (CSS `d` property transitions or Rive). Then update all built screens at once before continuing.
+
 ### Screen implementations
 _All Phase 2 screens ship before any user is let in — no 2a/2b split. Phase 2 complete = natural launch review checkpoint._
-- [ ] Implement homepage redesign
-- [ ] Implement input page redesign (from locked mockup)
-- [ ] Implement loading screen (from locked mockup)
+- [x] Implement homepage redesign
+- [x] Implement input page redesign (from locked mockup)
+- [x] Implement loading screen (from locked mockup)
 - [ ] Implement dashboard home (from locked mockup — hierarchy fix applied)
 - [ ] Implement Roles tab — live daily refresh via background job; pattern detection on 5+ declined roles of same type → advisor asks conversationally
 - [ ] Implement sidebar navigation
@@ -165,7 +169,9 @@ _Goal: The product is ready for scale. Design is perfect. Copy is final. Mobile 
 - [ ] **Voice examples session** — 20–30 sample advisor messages across all key moments. The voice reference for all future copy.
 - [ ] **Landing page copy session** — final homepage copy, including Meraki/Satori/Kavanah as narrative element. Three words displayed on the landing page.
 - [ ] **UI copy session** — all non-advisor copy: auth overlay, onboarding prompts, button labels, empty states, error messages, nav labels. Placeholder copy is in place from Phase 0/2 — this session makes it final.
-- [ ] **Full animation pass** — micro-interactions, transitions, scroll-reveal, reduced-motion support
+- [ ] **Design elevation pass** — not a redesign. Systematically elevate every screen: depth, shadow hierarchy, spacing rhythm, typographic fine-tuning. Session per screen or grouped by component type.
+- [ ] **Page transitions & animations** — Next.js App Router + Framer Motion (or CSS View Transitions API). Key moments: page-to-page fade/slide, Arlo message appear, direction card reveal, role cards loading, progress bar animation in Skills. Reference: Linear's transitions. Reduced-motion always supported.
+- [ ] **Full animation pass** — micro-interactions across all components: button lifts, card hovers, input focus states, send button press. One sweep after page transitions are done.
 - [ ] **Mobile design and build** — deferred until desktop is proven. Do not raise until Lexi raises it.
 - [ ] **Error states and empty states** — designed and built for every screen
 - [ ] **Shareable card** — user can share their direction / a milestone (optional, depends on traction)

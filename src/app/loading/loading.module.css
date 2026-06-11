@@ -14,19 +14,11 @@
 .group.fading { opacity: 0; }
 
 .face {
-  width: 160px; height: 160px;
+  width: 96px; height: 96px;
   border-radius: 50%; overflow: hidden;
   flex: none;
   margin-bottom: 20px;
   line-height: 0;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .face { animation: breathe 3.4s ease-in-out infinite; }
-  @keyframes breathe {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-6px); }
-  }
 }
 
 .name {
