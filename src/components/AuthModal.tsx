@@ -24,6 +24,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
   const [view, setView] = useState<AuthView>(initialView);
   const [email, setEmail] = useState("");
   const [otpValue, setOtpValue] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
   const otpRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +34,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
       setView(initialView);
       setEmail("");
       setOtpValue("");
+      setCodeSent(false);
     }
   }, [isOpen, initialView]);
 
@@ -78,6 +80,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
 
   function handleResend() {
     setOtpValue("");
+    setCodeSent(true);
     setView("otp");
   }
 
@@ -168,8 +171,13 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
                   That code has expired — we&apos;ve sent you a fresh one.
                 </div>
               )}
-              {view === "otp" && (
+              {view === "otp" && !codeSent && (
                 <p className={s.waitingHint}>Takes about 30 seconds to arrive.</p>
+              )}
+              {view === "otp" && codeSent && (
+                <div className={`${s.statusMsg} ${s.statusInfo}`}>
+                  New code on its way.
+                </div>
               )}
 
               <button className={s.btnPrimary} type="submit">
