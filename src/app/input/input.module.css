@@ -104,7 +104,6 @@
 .messages.show { display: flex; }
 .messages::-webkit-scrollbar { width: 0; }
 
-.msgSpacer { flex: 1; }
 
 /* AI bubble */
 .aiRow { display: flex; flex-direction: column; align-items: flex-start; }

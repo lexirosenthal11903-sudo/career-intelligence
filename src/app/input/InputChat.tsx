@@ -168,7 +168,6 @@ export default function InputChat() {
             ref={listRef}
             className={`${s.messages}${chatStarted ? ` ${s.show}` : ""}`}
           >
-            <div className={s.msgSpacer} />
             {messages.map((msg, i) => {
               if (msg.kind === "ai") {
                 return (
