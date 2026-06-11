@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import s from "./dashboard.module.css";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
@@ -17,6 +17,19 @@ const sendIcon = (
 export default function DashboardHome() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("arlo-visible");
+    if (saved !== null) setArloVisible(saved !== "false");
+  }, []);
+
+  function toggleArlo() {
+    setArloVisible((v) => {
+      const next = !v;
+      localStorage.setItem("arlo-visible", String(next));
+      return next;
+    });
+  }
 
   return (
     <div className={s.shell}>
@@ -71,7 +84,7 @@ export default function DashboardHome() {
           <span className={s.topbarTitle}>Home</span>
           <button
             className={s.arloToggle}
-            onClick={() => setArloVisible((v) => !v)}
+            onClick={toggleArlo}
           >
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
             {arloVisible ? "Hide Arlo" : "Show Arlo"}
