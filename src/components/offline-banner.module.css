@@ -1,0 +1,35 @@
+.banner {
+  background: #FEF9F2;
+  border-bottom: 1px solid #F0D9B5;
+  padding: 9px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #D4872A;
+  flex: none;
+}
+
+.text {
+  flex: 1;
+}
+
+.reconnecting {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-family: var(--fm);
+  letter-spacing: -0.01em;
+}
