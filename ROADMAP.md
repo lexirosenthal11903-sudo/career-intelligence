@@ -146,8 +146,7 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 **What this phase is not:** it's not a prototype, and it's not building new features. It's connecting the pipes. The API functions already exist in `src/app/api/`. Phase 3a makes the new frontend use them.
 
 **Before first build session:**
-- [ ] **Grill-me on advisor persona depth** — INSIGHTS.md flags this explicitly: the real depth of tone shifts, edge cases, and what Arlo never says likely still lives in Lexi's head. Run `/grill-me` targeted at `chat.js` and `ADVISOR_PERSONA.md` before any chat wiring begins. Output goes to `brainstorms/`.
-- [ ] **Product name session** — cannot launch without a real name. "Career Intelligence" is a working title. Dedicated creative session: options, stress-test, decision. Do this before Phase 3a ships publicly.
+- [ ] **Backend audit** — read every API route against professional engineering standards before wiring anything to the frontend. Fixes needed: auth middleware on all protected routes, rate limiting, `analyse.js` maxDuration/streaming fix, `chat.js` persona system prompt, input validation. Do this before any frontend wiring begins.
 
 **Auth:**
 - [ ] Wire Google OAuth via Supabase to `AuthModal.tsx` — this is the primary auth path
@@ -188,9 +187,9 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 
 _Goal: Every job the user saves becomes a full guided journey. This is the product's core promise._
 
-**Copy and product voice — do before launch:**
-- [ ] **Advisor persona grill-me** (if not done before Phase 3a) — see above
-- [ ] **Homepage copy session** — final homepage copy, including the Meraki/Satori/Kavanah narrative. Currently placeholder. Must happen before launch. Use `/copywriting` skill.
+**Copy and product voice — must do before launch:**
+- [ ] **⚠️ Product name session** — "Career Intelligence" is a working title. Cannot launch without a real name. Dedicated creative session: options, stress-test, decision. Lexi is not ready for this yet — flag at start of Phase 3b.
+- [ ] **Homepage copy session** — final homepage copy, including the Meraki/Satori/Kavanah narrative. Currently placeholder. Use `/copywriting` skill.
 - [ ] **UI copy session** — all non-advisor copy: auth overlay, onboarding prompts, button labels, empty states, error messages, nav labels. Placeholder copy is in place — this session makes it final. Use `/copywriting` skill.
 - [ ] **Advisor voice examples** — 20–30 sample Arlo messages across all key moments. The voice reference for all future copy.
 
