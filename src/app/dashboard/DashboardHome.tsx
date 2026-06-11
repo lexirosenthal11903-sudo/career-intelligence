@@ -20,7 +20,7 @@ export default function DashboardHome() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   // Phase 3: derive from real data (new matches since last login, deadline urgency, nothing new)
-  const homeState: HomeState = "new-roles";
+  const homeState = "new-roles" as HomeState;
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

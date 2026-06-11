@@ -106,16 +106,17 @@ _All Phase 2 screens ship before any user is let in — no 2a/2b split. Phase 2 
 - [x] Implement homepage redesign
 - [x] Implement input page redesign (from locked mockup)
 - [x] Implement loading screen (from locked mockup)
-- [ ] Implement dashboard home (from locked mockup — hierarchy fix applied)
-- [ ] Implement Roles tab — live daily refresh via background job; pattern detection on 5+ declined roles of same type → advisor asks conversationally
-- [ ] Implement sidebar navigation
-- [ ] Implement Auth overlay (sign in / sign up — design session in Phase 0 first)
-- [ ] Implement Applications tab — dual interaction: user tells advisor what happened OR updates directly. Advisor observes direct interactions and responds. (Design session in Phase 0 first)
-- [ ] Implement Profile tab — advisor-populated first (living summary of what product knows), editable. Includes employment status toggle (actively looking / exploring while employed). (Design session in Phase 0 first)
-- [ ] Implement Skills tab — trajectory framing not deficit/gap. Shows skills user has + path to strong candidacy, curated. Advisor highlights one priority at a time. (Design session in Phase 0 first)
-- [ ] Implement returning user experience + return mechanic — advisor reflects what user did since last visit, suggests one action today, asks if anything to share. References: roles saved/passed, chat history, time elapsed. (Design session in Phase 0 first)
-- [ ] Implement implicit away mode — advisor checks last login timestamp, calibrates tone: 1–3 days normal, 4–7 days patient, 7+ days warm re-engagement. Automatic, no user action required.
-- [ ] Implement error states — what the user sees if analysis fails, API is slow, connection lost. (Design session in Phase 0 first)
+- [x] Implement dashboard home — built Session 19. Three returning-user states (new-roles / deadline / nothing-new) exist in code, defaulting to new-roles. **Phase 3 task:** wire state to real data — last-login timestamp + new match count + nearest deadline. See `DashboardHome.tsx` comment: `// Phase 3: derive from real data`.
+- [x] Implement Roles tab — built Session 13/19. `src/app/dashboard/roles/`
+- [x] Implement sidebar navigation — shared across all dashboard pages
+- [x] Implement Auth overlay — built Session 19. `src/components/AuthModal.tsx`. Google OAuth button present; Supabase OTP wired in Phase 3.
+- [x] Implement Applications tab — built Session 19. `src/app/dashboard/applications/`
+- [x] Implement Profile tab — built Session 19. `src/app/dashboard/profile/`
+- [x] Implement Skills tab — built Session 19. `src/app/dashboard/skills/`
+- [ ] Implement role detail page — `mockups/role-detail.html` locked Session 13. Route: `/dashboard/roles/[id]`
+- [ ] Implement onboarding bridge — `mockups/onboarding-bridge.html` locked Session 13. Route: `/onboarding-bridge`
+- [ ] Implement implicit away mode — Phase 3: advisor checks last login timestamp, calibrates tone: 1–3 days normal, 4–7 days patient, 7+ days warm re-engagement.
+- [x] Implement error states — built Session 19. Analysis failure: `/analysis-error`. Offline banner: `src/components/OfflineBanner.tsx` wired to dashboard layout.
 - [ ] Advisor tool_use implementation — advisor reads and writes user data via defined tools (update_application_status, save_job, add_note, update_direction, update_preferences, mark_skill_progress). API designed in Phase 1.
 - [ ] Advisor memory implementation — activity log, conversation history, profile snapshot. Schema designed in Phase 1.
 
