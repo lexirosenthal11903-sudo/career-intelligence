@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import s from "./loading.module.css";
 
 function face({
@@ -46,13 +47,18 @@ const STATES = [
 ];
 
 export default function LoadingScreen() {
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    if (index >= STATES.length - 1) return;
+    const isLast = index >= STATES.length - 1;
 
     const timer = setTimeout(() => {
+      if (isLast) {
+        router.push("/onboarding-bridge");
+        return;
+      }
       setFading(true);
       setTimeout(() => {
         setIndex((i) => i + 1);
@@ -61,7 +67,7 @@ export default function LoadingScreen() {
     }, 6000);
 
     return () => clearTimeout(timer);
-  }, [index]);
+  }, [index, router]);
 
   const current = STATES[index];
 

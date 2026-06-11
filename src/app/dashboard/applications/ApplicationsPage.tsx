@@ -66,13 +66,13 @@ const APPS: Application[] = [
     location: "London",
     stage: "interview",
     nextAction: "Prepare for second-round interview",
-    closing: "Closes 18 Jun",
+    closing: "Closes 2 Jul",
     moveLabel: "Move to Offer",
     timeline: [
       { label: "Applied", date: "2 Jun" },
       { label: "Online assessment", date: "8 Jun · 6 days later" },
-      { label: "First-round interview", date: "12 Jun · 4 days later" },
-      { label: "Second-round interview", date: "25 Jun · upcoming", pending: true },
+      { label: "First-round interview", date: "12 Jun · upcoming", pending: true },
+      { label: "Second-round interview", date: "25 Jun · pending", pending: true },
     ],
   },
   {
@@ -82,8 +82,8 @@ const APPS: Application[] = [
     location: "London",
     stage: "applied",
     nextAction: "Follow up if no response by Friday",
-    closing: "Closes 13 Jun · 3 days",
-    closingUrgent: true,
+    closing: "Closes 20 Jun · 9 days",
+    closingUrgent: false,
     moveLabel: "Move to Interview",
   },
   {
@@ -93,7 +93,7 @@ const APPS: Application[] = [
     location: "London",
     stage: "applied",
     nextAction: "Complete online assessment",
-    assessmentDue: "Assessment due 14 Jun · 4 days",
+    assessmentDue: "Assessment due 18 Jun · 7 days",
     closing: "Application closes 30 Jun",
     moveLabel: "Move to Interview",
   },
@@ -104,7 +104,7 @@ const APPS: Application[] = [
     location: "London",
     stage: "preparing",
     nextAction: "Draft cover letter",
-    closing: "Closes 25 Jun",
+    closing: "Closes 28 Jun",
     moveLabel: "Mark as applied",
   },
   {
@@ -114,7 +114,7 @@ const APPS: Application[] = [
     location: "London",
     stage: "preparing",
     nextAction: "Complete online skills test",
-    closing: "Closes 20 Jun",
+    closing: "Closes 25 Jun",
     moveLabel: "Mark as applied",
   },
 ];
@@ -135,9 +135,25 @@ const STAGE_BADGE: Record<Stage, string> = {
   archive: s.badgeArchive,
 };
 
+type ChatMsg = { role: "arlo" | "user"; text: string };
+
 export default function ApplicationsPage() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
+  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
+
+  function handleSend() {
+    const text = chatValue.trim();
+    if (!text) return;
+    setChatValue("");
+    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
+    setTimeout(() => {
+      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
+    }, 800);
+  }
+  function handleChatKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  }
   const [activeFilter, setActiveFilter] = useState<Stage | "all">("all");
   const [expandedTimelines, setExpandedTimelines] = useState<Set<string>>(new Set());
   const [archived, setArchived] = useState<Set<string>>(new Set());
@@ -431,6 +447,17 @@ export default function ApplicationsPage() {
               </div>
             </div>
 
+            {extraMsgs.length > 0 && (
+              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
+                {extraMsgs.map((m, i) =>
+                  m.role === "user" ? (
+                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                  ) : (
+                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                  )
+                )}
+              </div>
+            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input
@@ -439,8 +466,9 @@ export default function ApplicationsPage() {
                   placeholder="Ask Arlo…"
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
+                  onKeyDown={handleChatKey}
                 />
-                <button className={s.mentorSend} aria-label="Send">
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
                   {sendIcon}
                 </button>
               </div>

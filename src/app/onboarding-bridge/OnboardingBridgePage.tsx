@@ -34,6 +34,7 @@ export default function OnboardingBridgePage() {
     { role: "arlo", text: "What doesn't feel right to you?" },
   ]);
   const [replied, setReplied] = useState(false);
+  const [sending, setSending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const msgsEndRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +50,8 @@ export default function OnboardingBridgePage() {
 
   function handleSend() {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed || sending) return;
+    setSending(true);
     setMsgs((prev) => [...prev, { role: "user", text: trimmed }]);
     setInput("");
     setReplied(true);
@@ -62,6 +64,7 @@ export default function OnboardingBridgePage() {
           text: "Got it — that's useful. I'll factor that in as we go. Head to your dashboard for now, and I'll have a sharper direction ready the more you engage with what's there.",
         },
       ]);
+      setSending(false);
     }, 800);
   }
 
@@ -148,7 +151,7 @@ export default function OnboardingBridgePage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <button className={s.chatSend} onClick={handleSend} aria-label="Send">
+            <button className={s.chatSend} onClick={handleSend} aria-label="Send" disabled={sending}>
               {sendIcon}
             </button>
           </div>

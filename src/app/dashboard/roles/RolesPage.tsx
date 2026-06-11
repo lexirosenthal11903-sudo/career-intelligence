@@ -14,6 +14,8 @@ const sendIcon = (
   </svg>
 );
 
+type ChatMsg = { role: "arlo" | "user"; text: string };
+
 const ROLE_TYPES = [
   {
     id: "strategy-analyst",
@@ -96,6 +98,20 @@ export default function RolesPage() {
   const [tab, setTab] = useState<"types" | "listings">(initialTab);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
+  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
+
+  function handleSend() {
+    const text = chatValue.trim();
+    if (!text) return;
+    setChatValue("");
+    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
+    setTimeout(() => {
+      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
+    }, 800);
+  }
+  function handleChatKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
@@ -257,6 +273,21 @@ export default function RolesPage() {
                   ))}
                 </div>
 
+                {visibleJobs.length === 0 && (
+                  <div className={s.emptyState}>
+                    {activeFilter === "Passed" ? (
+                      <>
+                        <div className={s.emptyTitle}>Nothing passed yet.</div>
+                        <div className={s.emptySub}>Roles you pass on will appear here — you can always come back and reconsider.</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className={s.emptyTitle}>No listings for this filter.</div>
+                        <div className={s.emptySub}>Try a different role type or check back soon.</div>
+                      </>
+                    )}
+                  </div>
+                )}
                 <div className={s.jobs}>
                   {visibleJobs.map((job) => {
                     const isInterested = interested.has(job.id);
@@ -304,9 +335,11 @@ export default function RolesPage() {
                   })}
                 </div>
 
-                <div className={s.loadMore}>
-                  <button className={s.btnLoad}>Load 15 more</button>
-                </div>
+                {visibleJobs.length > 0 && (
+                  <div className={s.loadMore}>
+                    <button className={s.btnLoad} disabled>More listings coming soon</button>
+                  </div>
+                )}
               </>
             )}
 
@@ -351,6 +384,17 @@ export default function RolesPage() {
               </div>
             </div>
 
+            {extraMsgs.length > 0 && (
+              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
+                {extraMsgs.map((m, i) =>
+                  m.role === "user" ? (
+                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                  ) : (
+                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                  )
+                )}
+              </div>
+            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input
@@ -359,8 +403,9 @@ export default function RolesPage() {
                   placeholder="Ask Arlo about any of these roles…"
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
+                  onKeyDown={handleChatKey}
                 />
-                <button className={s.mentorSend} aria-label="Send">
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
                   {sendIcon}
                 </button>
               </div>

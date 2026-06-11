@@ -26,6 +26,7 @@ export default function InputChat() {
   const [showInput, setShowInput] = useState(true);
   const [showSubmit, setShowSubmit] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [confirmRestart, setConfirmRestart] = useState(false);
 
   const startedRef = useRef(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -115,9 +116,12 @@ export default function InputChat() {
   }
 
   function restart() {
-    if (step > 0 && !confirm("Start over? Your answers won't be saved.")) return;
+    if (step > 0) { setConfirmRestart(true); return; }
     window.location.reload();
   }
+
+  function confirmRestartYes() { window.location.reload(); }
+  function confirmRestartNo() { setConfirmRestart(false); }
 
   const sendIcon = (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -136,12 +140,20 @@ export default function InputChat() {
     <>
       <nav className={s.nav}>
         <a className={s.navBrand} href="/">Career Intelligence</a>
-        <button
-          className={`${s.navRestart}${chatStarted ? ` ${s.show}` : ""}`}
-          onClick={restart}
-        >
-          ← Start over
-        </button>
+        {confirmRestart ? (
+          <div className={s.restartConfirm}>
+            <span className={s.restartConfirmText}>Your answers won&apos;t be saved.</span>
+            <button className={s.restartConfirmYes} onClick={confirmRestartYes}>Start over</button>
+            <button className={s.restartConfirmNo} onClick={confirmRestartNo}>Cancel</button>
+          </div>
+        ) : (
+          <button
+            className={`${s.navRestart}${chatStarted ? ` ${s.show}` : ""}`}
+            onClick={restart}
+          >
+            ← Start over
+          </button>
+        )}
       </nav>
 
       <main className={s.stage}>

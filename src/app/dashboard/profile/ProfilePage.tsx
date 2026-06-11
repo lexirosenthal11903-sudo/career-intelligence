@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import s from "./profile.module.css";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
@@ -28,10 +29,27 @@ const fileIcon = (
 const WORK_STYLES = ["Hybrid", "Remote", "In-person"];
 const EMPLOYMENT_TYPES = ["Full-time", "Part-time", "Contract", "Internship", "Postgrad scheme"];
 
+type ChatMsg = { role: "arlo" | "user"; text: string };
+
 export default function ProfilePage() {
+  const router = useRouter();
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
+  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
   const chatInputRef = useRef<HTMLInputElement>(null);
+
+  function handleSend() {
+    const text = chatValue.trim();
+    if (!text) return;
+    setChatValue("");
+    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
+    setTimeout(() => {
+      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
+    }, 800);
+  }
+  function handleChatKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
@@ -222,8 +240,8 @@ export default function ProfilePage() {
                   <div className={s.cvDate}>Uploaded 3 weeks ago</div>
                 </div>
                 <div className={s.cvActions}>
-                  <button className={s.btnDownload}>Download</button>
-                  <button className={s.btnUpdate}>Update CV</button>
+                  <button className={s.btnDownload} title="Coming in a future update" disabled>Download</button>
+                  <button className={s.btnUpdate} title="Coming in a future update" disabled>Update CV</button>
                 </div>
               </div>
             </div>
@@ -316,7 +334,7 @@ export default function ProfilePage() {
               </div>
               <div className={s.settingsRow}>
                 <span className={s.settingsLabel}>Sign out</span>
-                <button className={s.settingsBtn}>Sign out →</button>
+                <button className={s.settingsBtn} onClick={() => router.push("/")}>Sign out →</button>
               </div>
               <div className={s.settingsDivider} />
               <div className={s.settingsRow}>
@@ -324,7 +342,7 @@ export default function ProfilePage() {
                   <div className={s.settingsLabel}>Start fresh</div>
                   <div className={s.settingsHint}>Re-run your analysis with a new CV or a different direction</div>
                 </div>
-                <button className={s.settingsBtn}>Restart →</button>
+                <button className={s.settingsBtn} onClick={() => router.push("/input")}>Restart →</button>
               </div>
               <div className={s.settingsRow}>
                 <div>
@@ -358,6 +376,17 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {extraMsgs.length > 0 && (
+              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
+                {extraMsgs.map((m, i) =>
+                  m.role === "user" ? (
+                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                  ) : (
+                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                  )
+                )}
+              </div>
+            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input
@@ -367,8 +396,9 @@ export default function ProfilePage() {
                   placeholder="Ask Arlo…"
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
+                  onKeyDown={handleChatKey}
                 />
-                <button className={s.mentorSend} aria-label="Send">
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
                   {sendIcon}
                 </button>
               </div>

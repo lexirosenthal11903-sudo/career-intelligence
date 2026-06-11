@@ -1,9 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import s from "./dashboard.module.css";
 
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function getDateLabel(): string {
+  return new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+}
+
 type HomeState = "new-roles" | "deadline" | "nothing-new"; // Phase 3: derive from real data
+type ChatMsg = { role: "arlo" | "user"; text: string };
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -17,11 +30,27 @@ const sendIcon = (
 );
 
 export default function DashboardHome() {
+  const router = useRouter();
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
+  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
   // Phase 3: derive from real data (new matches since last login, deadline urgency, nothing new)
   const homeState = "new-roles" as HomeState;
   const chatInputRef = useRef<HTMLInputElement>(null);
+
+  function handleSend() {
+    const text = chatValue.trim();
+    if (!text) return;
+    setChatValue("");
+    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
+    setTimeout(() => {
+      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
+    }, 800);
+  }
+
+  function handleChatKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
@@ -101,7 +130,7 @@ export default function DashboardHome() {
 
           {/* LEFT */}
           <div className={s.homePanel}>
-            <div className={s.greetingDate}>Good morning · Wednesday, 11 June</div>
+            <div className={s.greetingDate}>{getGreeting()} · {getDateLabel()}</div>
             <div className={s.greetingName}>Welcome back, Lexi.</div>
 
             <div className={s.directionCard}>
@@ -123,7 +152,7 @@ export default function DashboardHome() {
                   Less obvious than it sounds. Arlo has thoughts on why it fits.
                 </div>
                 <div className={s.btnRow}>
-                  <button className={s.btnPrimary}>See new matches →</button>
+                  <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles?tab=listings")}>See new matches →</button>
                   <button className={s.btnGhost}>Later</button>
                 </div>
               </div>
@@ -140,7 +169,7 @@ export default function DashboardHome() {
                   Arlo has a draft outline ready if you want to move on it today.
                 </div>
                 <div className={s.btnRow}>
-                  <button className={`${s.btnPrimary} ${s.btnUrgent}`}>Start application →</button>
+                  <button className={`${s.btnPrimary} ${s.btnUrgent}`} onClick={() => router.push("/dashboard/applications")}>Start application →</button>
                   <button className={s.btnGhost}>Not today</button>
                 </div>
               </div>
@@ -156,7 +185,7 @@ export default function DashboardHome() {
                   out to — it&apos;s a better route in than applying cold.
                 </div>
                 <div className={s.btnRow}>
-                  <button className={s.btnPrimary}>Look at the role →</button>
+                  <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles")}>Look at the role →</button>
                   <button className={s.btnGhost}>Not today</button>
                 </div>
               </div>
@@ -241,6 +270,17 @@ export default function DashboardHome() {
 
             </div>
 
+            {extraMsgs.length > 0 && (
+              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
+                {extraMsgs.map((m, i) =>
+                  m.role === "user" ? (
+                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                  ) : (
+                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                  )
+                )}
+              </div>
+            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input
@@ -250,8 +290,9 @@ export default function DashboardHome() {
                   placeholder="Ask me anything…"
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
+                  onKeyDown={handleChatKey}
                 />
-                <button className={s.mentorSend} aria-label="Send">
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
                   {sendIcon}
                 </button>
               </div>

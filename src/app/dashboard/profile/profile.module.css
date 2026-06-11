@@ -212,6 +212,7 @@
   transition: background .12s;
 }
 .btnDownload:hover { background: var(--cream); }
+.btnDownload:disabled { opacity: .4; cursor: default; }
 .btnUpdate {
   background: var(--accent); color: #fff; border: none;
   border-radius: 9px; padding: 8px 14px;
@@ -219,6 +220,7 @@
   cursor: pointer; transition: opacity .12s;
 }
 .btnUpdate:hover { opacity: .88; }
+.btnUpdate:disabled { opacity: .4; cursor: default; }
 
 /* Preferences */
 .prefField { margin-bottom: 20px; }
@@ -333,7 +335,7 @@
   color: var(--ink-2); max-width: 380px;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
-.aiBubble + .aiBubble { border-radius: 16px; }
+.aiBubble + .aiBubble { margin-top: -12px; border-radius: 16px; }
 .signpost {
   font-size: 13px; color: var(--ink-3);
   box-shadow: none; background: transparent; padding: 8px 0 0;

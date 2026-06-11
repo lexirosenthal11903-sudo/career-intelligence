@@ -21,6 +21,29 @@
 .navRestart.show { opacity: 1; pointer-events: auto; }
 .navRestart:hover { color: var(--ink-2); }
 
+.restartConfirm {
+  display: flex; align-items: center; gap: 10px;
+}
+.restartConfirmText {
+  font-size: 13px; color: var(--ink-3);
+}
+.restartConfirmYes {
+  font-family: var(--f, system-ui, sans-serif);
+  font-size: 13px; font-weight: 600; color: #fff;
+  background: var(--accent); border: none; border-radius: 7px;
+  padding: 5px 12px; cursor: pointer;
+  transition: background .12s;
+}
+.restartConfirmYes:hover { background: #8f4f10; }
+.restartConfirmNo {
+  font-family: var(--f, system-ui, sans-serif);
+  font-size: 13px; font-weight: 500; color: var(--ink-3);
+  background: none; border: 1px solid var(--line);
+  border-radius: 7px; padding: 5px 12px; cursor: pointer;
+  transition: background .12s;
+}
+.restartConfirmNo:hover { background: var(--cream); }
+
 /* ── STAGE ── */
 .stage {
   height: 100vh;

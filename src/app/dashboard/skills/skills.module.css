@@ -367,7 +367,7 @@
   color: var(--ink-2); max-width: 380px;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
-.aiBubble + .aiBubble { border-radius: 16px; }
+.aiBubble + .aiBubble { margin-top: -12px; border-radius: 16px; }
 .aiBubbleSignpost {
   font-size: 13px; color: var(--ink-3);
   box-shadow: none; background: transparent;

@@ -20,6 +20,8 @@ const ArloSvgSm = () => (
     <circle cx="40" cy="40" r="40" fill="#B87040" />
     <circle cx="28" cy="38" r="5" fill="#2C1A0E" />
     <circle cx="52" cy="38" r="5" fill="#2C1A0E" />
+    <path d="M23 36 Q28 33 33 36" stroke="#1A0E06" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+    <path d="M47 36 Q52 33 57 36" stroke="#1A0E06" strokeWidth="1.8" fill="none" strokeLinecap="round" />
     <circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4" />
     <circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4" />
     <path d="M32 51 Q40 53 48 51" stroke="#7A3E10" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
@@ -72,15 +74,15 @@ export default function HomePage() {
               </div>
               <div className={s.shotNi}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 19V10M10 19V5M16 19v-6M22 19H2" />
-                </svg>
-                Skills
-              </div>
-              <div className={s.shotNi}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4V2M15 4V2M3 9h18M9 14h6" />
                 </svg>
                 Applications
+              </div>
+              <div className={s.shotNi}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 19V10M10 19V5M16 19v-6M22 19H2" />
+                </svg>
+                Skills
               </div>
               <div className={s.shotGap} />
               <div className={s.shotProfile}>
@@ -94,7 +96,7 @@ export default function HomePage() {
 
             {/* Left column */}
             <div className={s.shotLeft}>
-              <div className={s.shotDate}>Good afternoon · Sunday, 8 June</div>
+              <div className={s.shotDate}>Good afternoon · Monday, 15 June</div>
               <div className={s.shotWelcome}>Welcome back, Lexi.</div>
               <div className={s.shotDir}>
                 <div className={s.shotDlabel}>Your direction</div>
