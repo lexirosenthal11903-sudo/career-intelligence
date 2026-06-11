@@ -1,0 +1,256 @@
+/* ── Backdrop ── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(33, 26, 17, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+  animation: fadeIn .15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal card ── */
+.modal {
+  width: 100%;
+  max-width: 340px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(33,26,17,.22), 0 4px 12px rgba(33,26,17,.08);
+  animation: slideUp .18s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Wordmark ── */
+.wordmark {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #BDB7AC;
+  margin-bottom: 24px;
+}
+
+/* ── Heading + sub ── */
+.heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: #211A11;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.sub {
+  font-size: 13px;
+  color: #837B6D;
+  line-height: 1.55;
+  margin-bottom: 28px;
+}
+
+.emailStrong {
+  color: #211A11;
+  font-weight: 600;
+}
+
+/* ── Google button ── */
+.btnGoogle {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid #E6E3DC;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--f);
+  font-size: 14px;
+  font-weight: 500;
+  color: #211A11;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: border-color .15s, background .15s;
+}
+.btnGoogle:hover {
+  border-color: #BDB7AC;
+  background: #F1F0EB;
+}
+
+.googleIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Divider ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: #E6E3DC;
+}
+.dividerText {
+  font-size: 11px;
+  color: #BDB7AC;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ── Email input ── */
+.inputField {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid #E6E3DC;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0 14px;
+  font-family: var(--f);
+  font-size: 14px;
+  color: #211A11;
+  outline: none;
+  margin-bottom: 12px;
+  display: block;
+  transition: border-color .15s, box-shadow .15s;
+}
+.inputField:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(176,94,22,.1);
+}
+.inputField::placeholder { color: #BDB7AC; }
+
+/* ── OTP input ── */
+.otpInput {
+  width: 100%;
+  height: 52px;
+  border: 1.5px solid #E6E3DC;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0 14px;
+  font-family: var(--fm);
+  font-size: 22px;
+  letter-spacing: 0.22em;
+  color: #211A11;
+  text-align: center;
+  outline: none;
+  margin-bottom: 12px;
+  display: block;
+  transition: border-color .15s, box-shadow .15s;
+}
+.otpInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(176,94,22,.1);
+}
+.otpInput::placeholder {
+  color: #E6E3DC;
+  letter-spacing: 0.18em;
+}
+.otpError {
+  border-color: #C0392B;
+  box-shadow: 0 0 0 3px rgba(192,57,43,.08);
+}
+
+/* ── Status messages ── */
+.statusMsg {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+.statusError {
+  background: rgba(192,57,43,.07);
+  color: #C0392B;
+}
+.statusInfo {
+  background: #F1F0EB;
+  color: #837B6D;
+}
+
+/* ── Waiting hint ── */
+.waitingHint {
+  font-size: 12px;
+  color: #BDB7AC;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* ── Primary button ── */
+.btnPrimary {
+  width: 100%;
+  height: 44px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--f);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  margin-bottom: 12px;
+  transition: opacity .12s;
+}
+.btnPrimary:hover { opacity: .9; }
+
+/* ── Skip / secondary link ── */
+.linkSecondary {
+  display: block;
+  text-align: center;
+  font-family: var(--f);
+  font-size: 12px;
+  color: #837B6D;
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1.5;
+  padding: 0;
+}
+.linkSecondary span {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Resend row ── */
+.resendRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.resendRow span {
+  font-size: 12px;
+  color: #BDB7AC;
+}
+.resendLink {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: none;
+  border: none;
+  font-family: var(--f);
+  padding: 0;
+}

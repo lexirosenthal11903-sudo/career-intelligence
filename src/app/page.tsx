@@ -1,5 +1,6 @@
 import s from "./page.module.css";
 import RevealObserver from "@/components/RevealObserver";
+import HomepageNav from "@/components/HomepageNav";
 
 const ArloSvgLg = () => (
   <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -31,15 +32,7 @@ export default function HomePage() {
       <RevealObserver />
 
       {/* NAV */}
-      <div className={s.nav}>
-        <div className={s.navIn}>
-          <span className={s.navWordmark}>Career Intelligence</span>
-          <div className={s.navRight}>
-            <button className={s.navLogin}>Log in</button>
-            <button className={s.navCta}>Sign up →</button>
-          </div>
-        </div>
-      </div>
+      <HomepageNav />
 
       {/* HERO */}
       <div className={s.heroZone}>

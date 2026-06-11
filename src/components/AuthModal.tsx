@@ -1,0 +1,193 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import s from "./auth-modal.module.css";
+
+const googleIcon = (
+  <svg className={s.googleIcon} viewBox="0 0 18 18" fill="none">
+    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+    <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+  </svg>
+);
+
+type AuthView = "signup" | "signin" | "otp" | "otp-error" | "otp-expired";
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  initialView?: "signup" | "signin";
+}
+
+export default function AuthModal({ isOpen, onClose, initialView = "signup" }: Props) {
+  const [view, setView] = useState<AuthView>(initialView);
+  const [email, setEmail] = useState("");
+  const [otpValue, setOtpValue] = useState("");
+  const otpRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  // Reset on open
+  useEffect(() => {
+    if (isOpen) {
+      setView(initialView);
+      setEmail("");
+      setOtpValue("");
+      setTimeout(() => emailRef.current?.focus(), 80);
+    }
+  }, [isOpen, initialView]);
+
+  // ESC to close
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    if (isOpen) document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
+  // Focus OTP input when transitioning to OTP view
+  useEffect(() => {
+    if (view === "otp" || view === "otp-error" || view === "otp-expired") {
+      setTimeout(() => otpRef.current?.focus(), 80);
+    }
+  }, [view]);
+
+  function formatOtp(raw: string) {
+    const digits = raw.replace(/\D/g, "").slice(0, 6);
+    if (digits.length > 3) return digits.slice(0, 3) + " " + digits.slice(3);
+    return digits;
+  }
+
+  function handleOtpChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setOtpValue(formatOtp(e.target.value));
+  }
+
+  function handleSendCode(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setView("otp");
+  }
+
+  function handleVerify(e: React.FormEvent) {
+    e.preventDefault();
+    const digits = otpValue.replace(/\D/g, "");
+    if (digits.length < 6) return;
+    // Simulate wrong code for demo (real check comes in Phase 3)
+    setView("otp-error");
+  }
+
+  function handleResend() {
+    setOtpValue("");
+    setView("otp-expired");
+  }
+
+  if (!isOpen) return null;
+
+  const isOtpView = view === "otp" || view === "otp-error" || view === "otp-expired";
+
+  return (
+    <div className={s.backdrop} onClick={onClose} role="dialog" aria-modal="true">
+      <div className={s.modal} onClick={(e) => e.stopPropagation()}>
+
+        <div className={s.wordmark}>Career Intelligence</div>
+
+        {/* ── Email entry states ── */}
+        {!isOtpView && (
+          <>
+            <h2 className={s.heading}>
+              {view === "signup" ? "Save your results." : "Welcome back."}
+            </h2>
+            <p className={s.sub}>
+              {view === "signup"
+                ? "Create an account to keep your analysis, track applications, and come back whenever you're ready."
+                : "Sign in to pick up where you left off."}
+            </p>
+
+            <button className={s.btnGoogle}>
+              {googleIcon}
+              Continue with Google
+            </button>
+
+            <div className={s.divider}>
+              <div className={s.dividerLine} />
+              <span className={s.dividerText}>or</span>
+              <div className={s.dividerLine} />
+            </div>
+
+            <form onSubmit={handleSendCode}>
+              <input
+                ref={emailRef}
+                className={s.inputField}
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+              <button className={s.btnPrimary} type="submit">
+                Send me a code
+              </button>
+            </form>
+
+            {view === "signup" && (
+              <button className={s.linkSecondary} onClick={onClose}>
+                <span>Continue without saving</span>
+              </button>
+            )}
+          </>
+        )}
+
+        {/* ── OTP states ── */}
+        {isOtpView && (
+          <>
+            <h2 className={s.heading}>Check your inbox.</h2>
+            <p className={s.sub}>
+              We sent a 6-digit code to{" "}
+              <strong className={s.emailStrong}>{email || "your email"}</strong>
+            </p>
+
+            <form onSubmit={handleVerify}>
+              <input
+                ref={otpRef}
+                className={`${s.otpInput}${view === "otp-error" ? ` ${s.otpError}` : ""}`}
+                type="text"
+                inputMode="numeric"
+                placeholder="· · · · · ·"
+                value={otpValue}
+                onChange={handleOtpChange}
+                autoComplete="one-time-code"
+              />
+
+              {view === "otp-error" && (
+                <div className={`${s.statusMsg} ${s.statusError}`}>
+                  That code didn&apos;t match — try again, or resend.
+                </div>
+              )}
+              {view === "otp-expired" && (
+                <div className={`${s.statusMsg} ${s.statusInfo}`}>
+                  That code has expired — we&apos;ve sent you a fresh one.
+                </div>
+              )}
+              {view === "otp" && (
+                <p className={s.waitingHint}>Takes about 30 seconds to arrive.</p>
+              )}
+
+              <button className={s.btnPrimary} type="submit">
+                {view === "otp-error" ? "Try again" : "Verify"}
+              </button>
+            </form>
+
+            <div className={s.resendRow}>
+              <span>Didn&apos;t get it?</span>
+              <button className={s.resendLink} onClick={handleResend}>
+                {view === "otp-expired" ? "Resend again" : "Resend"}
+              </button>
+            </div>
+          </>
+        )}
+
+      </div>
+    </div>
+  );
+}
