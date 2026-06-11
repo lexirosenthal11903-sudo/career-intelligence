@@ -148,10 +148,14 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 **Before first build session:**
 - [x] **Backend audit + hardening — DONE (Session 23, 2026-06-11).** Auth middleware (@supabase/ssr cookie sessions), Arlo persona + user-context in chat.js, Upstash rate limiting on /api/analyse (10/IP/day), input validation, env fail-fast, /api/analyse open to unauthenticated users (try-before-signup). SSE streaming deferred to Session 25 (Hobby plan = 60s cap; streaming only valuable bundled with loading-screen wiring). Full detail in PLAYBOOK.md Session 23.
 
-**Auth:**
-- [ ] Wire Google OAuth via Supabase to `AuthModal.tsx` — this is the primary auth path
-- [ ] Basic session persistence — user stays logged in across visits
-- [ ] Fix OTP sign-in failure ("Load failed") — secondary auth path; fix before launch if email sign-in is supported, deprioritise if Google OAuth is sufficient
+**Auth — COMPLETE ✓ (Session 24, 2026-06-12):**
+- [x] Wire Google OAuth via Supabase to `AuthModal.tsx` — primary auth path
+- [x] Wire email OTP via Supabase (signInWithOtp + verifyOtp) — secondary auth path
+- [x] Auth callback route `/auth/callback` — new users → /input, returning → /dashboard
+- [x] Basic session persistence — user stays logged in across visits (via @supabase/ssr middleware)
+- [x] Sign out wired in Profile tab — Supabase signOut() → redirect to /
+- [x] Real name shown in Dashboard greeting (from Google profile or email prefix)
+- [x] Real email shown in Profile account section
 
 **Core pipeline:**
 - [ ] Wire input page → `analyse.js` → results (direction + roles inferred from CV)

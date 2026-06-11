@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import s from "./auth-modal.module.css";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const googleIcon = (
   <svg className={s.googleIcon} viewBox="0 0 18 18" fill="none">
@@ -25,20 +27,22 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
   const [email, setEmail] = useState("");
   const [otpValue, setOtpValue] = useState("");
   const [codeSent, setCodeSent] = useState(false);
+  const [loading, setLoading] = useState(false);
   const otpRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
 
-  // Reset on open
   useEffect(() => {
     if (isOpen) {
       setView(initialView);
       setEmail("");
       setOtpValue("");
       setCodeSent(false);
+      setLoading(false);
     }
   }, [isOpen, initialView]);
 
-  // ESC to close
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -47,7 +51,6 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
     return () => document.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
-  // Focus OTP input when transitioning to OTP view
   useEffect(() => {
     if (view === "otp" || view === "otp-error" || view === "otp-expired") {
       setTimeout(() => otpRef.current?.focus(), 80);
@@ -64,24 +67,61 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
     setOtpValue(formatOtp(e.target.value));
   }
 
-  function handleSendCode(e: React.FormEvent) {
+  async function handleGoogleSignIn() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  }
+
+  async function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || loading) return;
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({ email: email.trim() });
+    setLoading(false);
+    if (error) return;
     setView("otp");
   }
 
-  function handleVerify(e: React.FormEvent) {
+  async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
     const digits = otpValue.replace(/\D/g, "");
-    if (digits.length < 6) return;
-    // Simulate wrong code for demo (real check comes in Phase 3)
-    setView("otp-error");
+    if (digits.length < 6 || loading) return;
+    setLoading(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: digits,
+      type: "email",
+    });
+    setLoading(false);
+    if (error) {
+      if (error.message?.toLowerCase().includes("expired")) {
+        setView("otp-expired");
+      } else {
+        setView("otp-error");
+      }
+      return;
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    onClose();
+    if (user) {
+      const createdAt = new Date(user.created_at).getTime();
+      const lastSignIn = new Date(user.last_sign_in_at ?? user.created_at).getTime();
+      const isNewUser = lastSignIn - createdAt < 10000;
+      router.push(isNewUser ? "/input" : "/dashboard");
+    } else {
+      router.push("/dashboard");
+    }
   }
 
-  function handleResend() {
+  async function handleResend() {
     setOtpValue("");
     setCodeSent(true);
     setView("otp");
+    await supabase.auth.signInWithOtp({ email: email.trim() });
   }
 
   if (!isOpen) return null;
@@ -106,7 +146,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
                 : "Sign in to pick up where you left off."}
             </p>
 
-            <button className={s.btnGoogle}>
+            <button className={s.btnGoogle} onClick={handleGoogleSignIn} disabled={loading}>
               {googleIcon}
               Continue with Google
             </button>
@@ -126,9 +166,10 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
+                disabled={loading}
               />
-              <button className={s.btnPrimary} type="submit">
-                Send me a code
+              <button className={s.btnPrimary} type="submit" disabled={loading}>
+                {loading ? "Sending…" : "Send me a code"}
               </button>
             </form>
 
@@ -159,6 +200,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
                 value={otpValue}
                 onChange={handleOtpChange}
                 autoComplete="one-time-code"
+                disabled={loading}
               />
 
               {view === "otp-error" && (
@@ -180,14 +222,14 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
                 </div>
               )}
 
-              <button className={s.btnPrimary} type="submit">
-                {view === "otp-error" ? "Try again" : "Verify"}
+              <button className={s.btnPrimary} type="submit" disabled={loading}>
+                {loading ? "Verifying…" : view === "otp-error" ? "Try again" : "Verify"}
               </button>
             </form>
 
             <div className={s.resendRow}>
               <span>Didn&apos;t get it?</span>
-              <button className={s.resendLink} onClick={handleResend}>
+              <button className={s.resendLink} onClick={handleResend} disabled={loading}>
                 {view === "otp-expired" ? "Resend again" : "Resend"}
               </button>
             </div>

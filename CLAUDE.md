@@ -129,10 +129,14 @@ Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
 4. Check `INSIGHTS.md` — find sections tagged with the current phase
 5. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]. From INSIGHTS.md: [relevant guidance]."
 
-**For Session 24 specifically:**
-- Model: Sonnet is fine — switch to Opus only if debugging gets complex
-- Pre-session (Lexi does this): Supabase → Authentication → Sign In / Providers → enable Google → add Client ID + Secret from Google Cloud Console
-- Context7 MCP installed globally — use it to pull live `@supabase/ssr` auth docs
+**For Session 25 specifically:**
+- Model: Sonnet is fine — switch to Opus if streaming architecture gets complex
+- Wire: input page → `/api/analyse` → SSE streaming → loading screen → save result to Supabase → onboarding bridge with real direction data
+- SSE streaming was deferred from Session 23 — Session 25 is where it gets built end-to-end
+- Context7 MCP installed globally — use it to pull live Next.js + Supabase docs
+
+**Before Session 25 (Lexi does this):**
+- Add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel **Production** environment (currently Preview/staging only)
 
 **Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
 **Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
@@ -155,7 +159,7 @@ Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
 
 ## Current Phase
 
-**Phase 3a — Make It Real. Session 23 COMPLETE (2026-06-11). Next: Session 24 — Supabase Auth Wiring.**
+**Phase 3a — Make It Real. Session 24 COMPLETE (2026-06-12). Next: Session 25 — CV Pipeline Wiring.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
@@ -165,14 +169,23 @@ Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
 
 **Phase 2 — Visual Redesign. COMPLETE ✓** Sessions 19–21, 2026-06-11.
 
+**Phase 3a — Session 24 COMPLETE ✓ (2026-06-12):**
+- ✓ Google OAuth wired via Supabase → AuthModal.tsx
+- ✓ Email OTP wired to Supabase (signInWithOtp + verifyOtp)
+- ✓ Auth callback route `/auth/callback` — new users → /input, returning → /dashboard
+- ✓ Session persistence via @supabase/ssr middleware (already in place from Session 23)
+- ✓ Sign out wired in Profile (Supabase signOut → redirect to /)
+- ✓ Real name/email shown in Dashboard greeting and Profile tab
+- ✓ HomepageNav auto-opens signin modal on ?signin=required redirect
+
 **Phase 3a — Remaining:**
-- ⬜ Session 24: Google OAuth wired via Supabase → AuthModal.tsx → session persistence
-- ⬜ Session 25: CV pipeline wiring + SSE streaming fix (bundled — streaming is only valuable with the loading screen consuming it)
+- ⬜ Session 25: CV pipeline wiring + SSE streaming (input → analyse → loading screen → save → onboarding bridge)
 - ⬜ Session 26: Adzuna real job listings in Roles tab
 - ⬜ Session 27: Arlo chat wired to chat.js with user context
 - ⬜ ICO registration + real privacy/terms before first real user
 - ⬜ GitHub token rotation before first real user
 - ⬜ Rate limiting activation (Upstash already installed) before first real user
+- ⬜ Add Vercel Production env vars (NEXT_PUBLIC_SUPABASE_URL + ANON_KEY) before merging to main
 
 **Phase 3b — Hand-holding layer + copywriting. Lexi decides after Phase 3a.**
 

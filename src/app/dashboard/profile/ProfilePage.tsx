@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import s from "./profile.module.css";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -33,6 +34,8 @@ type ChatMsg = { role: "arlo" | "user"; text: string };
 
 export default function ProfilePage() {
   const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
@@ -54,6 +57,12 @@ export default function ProfilePage() {
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
     if (saved !== null) setArloVisible(saved !== "false");
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) setUserEmail(user.email);
+    });
   }, []);
 
   function toggleArlo() {
@@ -332,11 +341,11 @@ export default function ProfilePage() {
               <div className={s.sectionHead}>Account</div>
               <div className={s.settingsRow}>
                 <span className={s.settingsLabel}>Email</span>
-                <span className={s.settingsValue}>lexi@email.com</span>
+                <span className={s.settingsValue}>{userEmail ?? "—"}</span>
               </div>
               <div className={s.settingsRow}>
                 <span className={s.settingsLabel}>Sign out</span>
-                <button className={s.settingsBtn} onClick={() => router.push("/")}>Sign out →</button>
+                <button className={s.settingsBtn} onClick={async () => { await supabase.auth.signOut(); router.push("/"); }}>Sign out →</button>
               </div>
               <div className={s.settingsDivider} />
               <div className={s.settingsRow}>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import s from "./dashboard.module.css";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -31,8 +32,8 @@ const sendIcon = (
 
 export default function DashboardHome() {
   const router = useRouter();
-  // Phase 3: replace with real user name from Supabase session / CV extraction
-  const userName: string | null = null;
+  const supabase = createSupabaseBrowserClient();
+  const [userName, setUserName] = useState<string | null>(null);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
@@ -64,6 +65,15 @@ export default function DashboardHome() {
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
     if (saved !== null) setArloVisible(saved !== "false");
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        const name = user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null;
+        setUserName(name);
+      }
+    });
   }, []);
 
   function toggleArlo() {

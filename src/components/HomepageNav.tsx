@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import s from "@/app/page.module.css";
 import AuthModal from "./AuthModal";
 
@@ -10,6 +10,11 @@ export default function HomepageNav() {
 
   function openSignup() { setModalView("signup"); setModalOpen(true); }
   function openSignin() { setModalView("signin"); setModalOpen(true); }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("signin") === "required") openSignin();
+  }, []);
 
   return (
     <>
