@@ -193,6 +193,16 @@
 .closingUrgent { color: var(--accent); font-weight: 500; }
 .closingDot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); flex: none; }
 
+.footerActions { display: flex; align-items: center; gap: 8px; }
+
+.btnArchive {
+  font-family: var(--f); font-size: 12px; font-weight: 500;
+  color: var(--ink-3); background: none;
+  border: none; padding: 6px 4px; cursor: pointer;
+  transition: color .15s;
+}
+.btnArchive:hover { color: var(--ink-2); }
+
 .btnMove {
   font-family: var(--f); font-size: 12px; font-weight: 600;
   color: var(--ink-3); background: none;

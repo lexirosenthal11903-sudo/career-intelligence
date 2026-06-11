@@ -129,6 +129,14 @@ export default function ApplicationsPage() {
   const [chatValue, setChatValue] = useState("");
   const [activeFilter, setActiveFilter] = useState<Stage | "all">("all");
   const [expandedTimelines, setExpandedTimelines] = useState<Set<string>>(new Set());
+  const [archived, setArchived] = useState<Set<string>>(new Set());
+
+  function archiveApp(id: string) {
+    setArchived((prev) => new Set([...prev, id]));
+  }
+  function unarchiveApp(id: string) {
+    setArchived((prev) => { const next = new Set(prev); next.delete(id); return next; });
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
@@ -154,18 +162,21 @@ export default function ApplicationsPage() {
 
   const counts = APPS.reduce(
     (acc, app) => {
-      acc[app.stage] = (acc[app.stage] ?? 0) + 1;
+      const stage = archived.has(app.id) ? "archive" : app.stage;
+      acc[stage] = (acc[stage] ?? 0) + 1;
       return acc;
     },
     {} as Record<string, number>
   );
 
-  const activeCount = APPS.filter((a) => a.stage !== "archive").length;
+  const activeCount = APPS.filter((a) => !archived.has(a.id) && a.stage !== "archive").length;
 
   const visible =
-    activeFilter === "all"
-      ? APPS.filter((a) => a.stage !== "archive")
-      : APPS.filter((a) => a.stage === activeFilter);
+    activeFilter === "archive"
+      ? APPS.filter((a) => archived.has(a.id) || a.stage === "archive")
+      : activeFilter === "all"
+      ? APPS.filter((a) => !archived.has(a.id) && a.stage !== "archive")
+      : APPS.filter((a) => !archived.has(a.id) && a.stage === activeFilter);
 
   return (
     <div className={s.shell}>
@@ -333,9 +344,22 @@ export default function ApplicationsPage() {
                           </div>
                         )}
                       </div>
-                      <button className={`${s.btnMove}${app.stage === "interview" ? ` ${s.btnMovePrimary}` : ""}`}>
-                        {app.moveLabel}
-                      </button>
+                      <div className={s.footerActions}>
+                        {archived.has(app.id) ? (
+                          <button className={s.btnMove} onClick={() => unarchiveApp(app.id)}>
+                            Restore
+                          </button>
+                        ) : (
+                          <>
+                            <button className={s.btnArchive} onClick={() => archiveApp(app.id)}>
+                              Archive
+                            </button>
+                            <button className={`${s.btnMove}${app.stage === "interview" ? ` ${s.btnMovePrimary}` : ""}`}>
+                              {app.moveLabel}
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
 
                   </div>

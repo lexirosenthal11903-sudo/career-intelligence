@@ -216,6 +216,9 @@ This is the strongest single-line pitch for what this product actually is. Save 
 **Phase 2 polish — Retry icon in error-states.html**
 SVG arc approach failed at small render size (arc appears as full circle). During Phase 2 build, replace with a proper icon from Heroicons, Phosphor, or Lucide rather than hand-coding SVG paths.
 
+**Phase 5 — Applications card overflow menu (•••)**
+Replace the current Archive ghost button with a proper `•••` overflow menu per card. Actions: Archive, Mark as rejected, Delete. Lexi's idea from Session 19. Current ghost button is the interim solution.
+
 ---
 
 ## Document hierarchy — which file wins
