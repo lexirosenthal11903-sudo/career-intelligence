@@ -2,7 +2,7 @@
 
 _The operational guide. Every session, in order, with everything you need._
 _Read ROADMAP.md for the strategic plan. Read this for how to actually run each session._
-_Last updated: 2026-06-10_
+_Last updated: 2026-06-11 (Session 22)_
 
 ---
 
@@ -281,20 +281,193 @@ For every screen, run the same pattern:
 
 ---
 
-## PHASE 3 — The Hand-Holding Layer
+## PHASE 3a — Make It Real
 
-_Full plan in `ROADMAP.md`. Sessions will be planned when Phase 2 is complete._
+_Goal: Wire the existing backend to the new frontend. A user can go through the full journey with real data._
+_Phase 0 + 1 + 2 complete. All sessions below are the next work to do._
 
-**Before each Phase 3 feature, run:**
-- `/grill-me` — to extract decisions before building
-- `/brainstorming` — for complex features (email integration, contacts finder)
-- `/mcp-builder` — for each new external integration (email OAuth, LinkedIn, Glassdoor)
+**Model for all Phase 3a sessions:** Switch to Opus (`/model claude-opus-4-8`) — architectural decisions that affect the whole system. Switch back to Sonnet for simple wiring once the pattern is established.
 
-**INSIGHTS.md sections relevant to Phase 3:**
+**Skills to reinstall at Phase 3a start (from `~/Desktop/Claude Code/All Installed Skills/`):**
+- `systematic-debugging` — for any wiring failures or Supabase/API issues
+- `zoom-out` — before any architectural decisions
+
+---
+
+### Session 23: Backend Audit + Hardening ← DO THIS NEXT
+
+**What it achieves:** Brings every API route up to professional engineering standards before any frontend wiring. Fix the foundation before building on it.
+
+**Read first:**
+- All API routes in `src/app/api/` — read every file before touching anything
+- `src/lib/anthropic.ts` and `src/lib/supabase.ts` — shared libs
+- `ADVISOR_PERSONA.md` — Arlo's voice and rules (needed for chat.js system prompt)
+- `INSIGHTS.md` Section 1 (pipeline fix), Section 3 (Haiku/Sonnet split), Section 2 (agent risk / auth)
+
+**INSIGHTS.md sections:**
+- Section 1 — "The 90-Second Pipeline Fix [PIPELINE]" — streaming + Haiku/Sonnet split for analyse.js
+- Section 3 — "Haiku vs Sonnet Split [ALWAYS]"
+- Section 2 — "Agent Risk — The Bike Method" — auth at the capability level, not instruction level
+
+**Skills:** `/zoom-out` first (read and assess before touching anything) · `systematic-debugging` if issues arise · `/deploy-check` at the end
+
+**Model:** Switch to Opus for this session — `type /model claude-opus-4-8`
+
+**What to fix, in order:**
+
+1. **Auth middleware** (`src/middleware.ts`)
+   - Use `@supabase/ssr` package (the current Next.js App Router approach — NOT `@supabase/auth-helpers-nextjs` which is deprecated)
+   - Protect routes: `/api/analyse`, `/api/chat`, `/api/save-job`, `/api/save-result`, `/api/score`, `/api/profile`
+   - Public routes (no auth needed): `/api/jobs`, `/api/extract`
+   - Redirect unauthenticated users to `/` on dashboard routes
+   - Context7 MCP is installed globally — use it to pull live `@supabase/ssr` docs during the session
+
+2. **Rate limiting** on expensive routes (`/api/analyse` and `/api/chat`)
+   - Use **Upstash Redis + `@upstash/ratelimit`** — works on all Vercel plans, free tier available (upstash.com)
+   - Limit: 10 analyse calls per user per day, 100 chat calls per user per day (adjust after seeing real usage)
+   - Return 429 with a clear message when limit hit
+
+3. **`analyse.js` — fix the 90-second timeout**
+   - Current `maxDuration: 60` will kill the request before it finishes
+   - Fix: stream tokens to the frontend using `ReadableStream` + Server-Sent Events (SSE)
+   - Split: `extract.js` runs on `claude-haiku-4-5-20251001` (fast CV text extraction) · `analyse.js` runs on `claude-sonnet-4-6` (intelligence layer)
+   - Use `/goal` for this specific fix: "Fix analyse.js — done when first token appears within 3 seconds and full result loads within 30 seconds on staging. Use Haiku for extraction, Sonnet for intelligence. Add streaming. Do not touch score.js."
+   - Increase `maxDuration` to 120 (Vercel Pro supports up to 300s for serverless)
+
+4. **`chat.js` — add Arlo persona and user context**
+   - Currently a bare passthrough proxy — no system prompt, no persona
+   - Add Arlo's system prompt directly from `ADVISOR_PERSONA.md`
+   - On each call, read user's direction + CV summary + saved roles from Supabase and inject into the system prompt so Arlo knows who it's talking to
+   - Keep the web-search beta header — it's used and correct
+
+5. **Input validation** on all routes
+   - Validate required fields before hitting any external API
+   - Return 400 with clear error if required input is missing
+   - `analyse.js`: cvText or direction must be present
+   - `jobs.js`: keywords array must be non-empty
+
+6. **Environment variable validation**
+   - Add startup checks — if a required env var is missing, fail fast with a clear error rather than a cryptic runtime crash
+
+**External resources (research during session):**
+- `@supabase/ssr` Next.js docs — Context7 MCP will pull these live
+- Upstash rate limiting docs — upstash.com/docs/redis/sdks/ratelimit
+- Next.js App Router streaming / SSE pattern — Context7 MCP
+- Anthropic streaming SDK: `client.messages.stream()` method
+
+**Done when:** All protected routes reject unauthenticated requests. Rate limiting active on analyse + chat. analyse.js streams and returns full result in under 30 seconds. chat.js has Arlo's persona and injects user context. `/deploy-check` passes.
+
+**Output:** Updated API routes committed to staging
+
+---
+
+### Session 24: Supabase Auth Wiring
+
+**What it achieves:** Users can sign up and log in with Google OAuth. Session persists. Profile shows real name.
+
+**Read first:**
+- `src/components/AuthModal.tsx` — current UI (Google OAuth button already exists, Supabase wiring missing)
+- `ROADMAP.md` Phase 3a — auth items
+
+**What to wire:**
+- `AuthModal.tsx` → Supabase Google OAuth (needs Supabase project configured with Google provider)
+- Session persistence across visits — user stays logged in
+- Profile tab `src/app/dashboard/profile/ProfilePage.tsx` — show real name/email from Supabase session
+- Dashboard greeting — show real name when authenticated (replace `userName: null` in `DashboardHome.tsx`)
+- Sign out button in Profile → Supabase `signOut()` → redirect to `/`
+- Unauthenticated users on `/dashboard/*` → redirect to `/` via middleware
+
+**Pre-session setup (Lexi does this, not Claude):**
+- Supabase project → Authentication → Providers → Enable Google → add OAuth credentials
+- Add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env (currently only on Preview/staging)
+
+**Done when:** A real user can sign up with Google, return to the dashboard, and see their name. `/deploy-check` passes.
+
+---
+
+### Session 25: CV Pipeline Wiring
+
+**What it achieves:** Input page sends a real CV, gets real analysis, results saved to Supabase, user lands on onboarding bridge with real direction data.
+
+**Read first:**
+- `src/app/input/` — current input page
+- `src/app/loading/` — loading screen
+- `src/app/onboarding-bridge/` — onboarding bridge
+- `src/app/api/analyse/route.ts` — after Session 23 fixes
+
+**What to wire:**
+- Input page form → POST `/api/analyse` with CV text + preferences
+- Show streaming progress on loading screen (connected to SSE stream from Session 23 fix)
+- On completion: save full result to Supabase (`save-result` route)
+- Onboarding bridge reads real direction data from Supabase (not hardcoded)
+- Analysis error page (`/analysis-error`) wired to handle real API failures
+
+**Done when:** Real CV → real direction → real onboarding bridge. Result saved to Supabase. Loading screen shows streaming progress. `/deploy-check` passes.
+
+---
+
+### Session 26: Jobs + Roles Wiring
+
+**What it achieves:** Roles tab shows real live Adzuna listings based on the user's actual analysis results.
+
+**Read first:**
+- `src/app/dashboard/roles/` — current roles pages
+- `src/app/api/jobs/route.ts` — already solid, ready to use
+
+**What to wire:**
+- Roles tab reads user's `searchKeywords` and `locationSearch` from Supabase (set by analyse.js)
+- Calls `/api/jobs` with those keywords → real listings in the Live Listings tab
+- Score/rank listings — `/api/score` route
+- Interested/Pass actions write to Supabase via `/api/save-job`
+- Role type tab (Role types) reads from the user's `suggestedDirections` from analysis results
+
+**Done when:** Real jobs from Adzuna appear in Roles tab, ranked, based on the user's actual profile. Save/pass persists. `/deploy-check` passes.
+
+---
+
+### Session 27: Arlo Chat Wiring
+
+**What it achieves:** Arlo responds to real messages with real intelligence, knows who the user is.
+
+**Read first:**
+- `src/app/dashboard/DashboardHome.tsx` — current chat UI
+- `src/app/api/chat/route.ts` — after Session 23 persona fix
+- `ADVISOR_PERSONA.md` — source of truth for Arlo's voice
+
+**What to wire:**
+- All Arlo chat panels across dashboard pages → POST `/api/chat`
+- Conversation history read from Supabase at session start, written back after each exchange
+- Dashboard home state (`new-roles` / `deadline` / `nothing-new`) derived from real Supabase data: last login timestamp, new matches since last visit, nearest deadline
+
+**Done when:** Arlo responds to real messages. Chat history persists across sessions. Dashboard state is real, not hardcoded. `/deploy-check` passes.
+
+---
+
+### Phase 3a complete → launch review
+
+After all four wiring sessions: decide whether to launch to first users now, or continue to Phase 3b (hand-holding layer + copywriting) first. Lexi's call.
+
+---
+
+## PHASE 3b — The Hand-Holding Layer
+
+_Full plan in `ROADMAP.md`. Plan session-level detail when Phase 3a is complete._
+
+**⚠️ Must do before launch:**
+- Product name session (Lexi deferred — flag at start of Phase 3b)
+- Homepage copy session — `/copywriting` skill
+- UI copy session — `/copywriting` skill
+- Advisor voice examples
+
+**Before each Phase 3b feature, run:**
+- `/grill-me` — extract decisions before building
+- `/brainstorming` — for complex features (CV builder, email integration, contacts finder)
+- `/mcp-builder` — for each new external integration
+
+**INSIGHTS.md sections relevant to Phase 3b:**
 - Section 3 — "Agent Teams [PHASE3+]" — for advisor memory system
 - Section 5 — "The Hierarchy: CLI First, Then API, Then MCP [PHASE3+]" — before adding any new integration
-- Section 7 — "Voice Agents with 11 Labs [PHASE3+]" — if voice interface considered
-- Section 2 — "Git & Parallel Work [PHASE3+]" — git worktrees for parallel sessions
+- Section 7 — "Voice Agents with 11 Labs [PHASE3+]" — if voice interface is considered
 
 ---
 

@@ -117,16 +117,26 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-10)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-11)
+
+**We are in Phase 3a. The next session is Session 23: Backend Audit + Hardening.**
+Read `PLAYBOOK.md` Phase 3a → Session 23 for the full brief before starting.
 
 **At the start of every session:**
-1. Read `ROADMAP.md` — confirm current phase and today's focus
-2. Check `INSIGHTS.md` — find sections tagged with the current phase, surface relevant guidance before starting
-3. State: "We're in Phase [X]. Today's focus is [Y]. From INSIGHTS.md: [any relevant guidance]."
+1. Run `git branch` — confirm `* staging` is active before touching anything
+2. Read `ROADMAP.md` — confirm current phase and today's focus
+3. Read `PLAYBOOK.md` — find the current session, read it fully before starting
+4. Check `INSIGHTS.md` — find sections tagged with the current phase
+5. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]. From INSIGHTS.md: [relevant guidance]."
 
-**Master roadmap:** `ROADMAP.md` — single source of truth for sequencing. When Lexi has an idea mid-session: add it to the right phase, redirect back to current focus.
+**For Session 23 specifically:**
+- Switch to Opus before starting: `type /model claude-opus-4-8`
+- Run `/zoom-out` first — read and assess all API routes before touching anything
+- Reinstall `systematic-debugging` from `~/Desktop/Claude Code/All Installed Skills/`
+- Context7 MCP is installed globally — use it to pull live `@supabase/ssr` and Anthropic streaming docs
 
-**Session-by-session guide:** `PLAYBOOK.md` — the operational guide. Every session in order, with skills, file references, INSIGHTS.md sections, and external resources. Read this to know exactly what to do next and how to run the session.
+**Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
+**Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
 
 ## Document Map
 
