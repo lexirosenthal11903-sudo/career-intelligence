@@ -7,7 +7,7 @@
 // RLS enabled: users manage own profile.
 
 import { NextResponse } from 'next/server';
-import { getAuthedUser } from '@/lib/supabase';
+import { getAuthedUser } from '@/lib/supabase/server';
 
 interface ProfileData {
   values?: string[];
@@ -35,9 +35,9 @@ function calcCompleteness(p: ProfileData): number {
   return Math.min(score, 100);
 }
 
-export async function GET(request: Request) {
-  const { user, supabase } = await getAuthedUser(request);
-  if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+export async function GET() {
+  const { user, supabase } = await getAuthedUser();
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
   const { data, error } = await supabase
     .from('profiles')
@@ -50,8 +50,8 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { user, supabase } = await getAuthedUser(request);
-  if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  const { user, supabase } = await getAuthedUser();
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
   const updates: ProfileData = (await request.json()) || {};
 

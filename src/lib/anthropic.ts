@@ -1,3 +1,5 @@
+import { requireEnv } from '@/lib/env';
+
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 
 export async function callClaude(
@@ -6,7 +8,7 @@ export async function callClaude(
 ): Promise<Response> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'x-api-key': process.env.ANTHROPIC_API_KEY!,
+    'x-api-key': requireEnv('ANTHROPIC_API_KEY'),
     'anthropic-version': '2023-06-01',
   };
   if (options?.beta) headers['anthropic-beta'] = options.beta;

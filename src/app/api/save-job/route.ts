@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getAuthedUser } from '@/lib/supabase';
+import { getAuthedUser } from '@/lib/supabase/server';
 
-export async function GET(request: Request) {
-  const { user, supabase } = await getAuthedUser(request);
-  if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+export async function GET() {
+  const { user, supabase } = await getAuthedUser();
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
   const { data, error } = await supabase
     .from('saved_jobs')
@@ -16,8 +16,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { user, supabase } = await getAuthedUser(request);
-  if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  const { user, supabase } = await getAuthedUser();
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
   const { jobId, jobData } = await request.json();
   const { error } = await supabase
@@ -32,8 +32,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const { user, supabase } = await getAuthedUser(request);
-  if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  const { user, supabase } = await getAuthedUser();
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
   const { jobId } = await request.json();
   const { error } = await supabase

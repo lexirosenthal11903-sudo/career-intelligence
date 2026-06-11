@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callClaude, findToolUse } from '@/lib/anthropic';
+import { checkAnalyseRateLimit } from '@/lib/ratelimit';
 
+// 60s = Vercel Hobby plan limit. Upgrade to Pro (300s max) or implement SSE
+// streaming (Session 25) before launch to handle long analyses without timeout.
 export const maxDuration = 60;
 
 interface UserProfile {
@@ -256,7 +259,30 @@ Rules for the analysis:
 
 export async function POST(request: NextRequest) {
   const enrichOnly = request.nextUrl.searchParams.get('enrichOnly') === 'true';
-  const body = await request.json();
+
+  interface AnalyseBody {
+    cvText?: string;
+    direction?: string;
+    location?: string;
+    workStyle?: string[];
+    empType?: string[];
+    salary?: string;
+    extra?: string;
+    selfKnowledge?: string[];
+    profile?: AnalysisProfile;
+    userProfile?: UserProfile;
+  }
+
+  const rateLimitResponse = await checkAnalyseRateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  let body: AnalyseBody;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+  }
+
   const {
     cvText,
     direction,
@@ -316,6 +342,13 @@ Update the summary, directions, valuesSignals, and companySuggestions to reflect
   }
 
   // ── FULL ANALYSIS ───────────────────────────────────────────────────────────
+  if (!cvText?.trim() && !direction?.trim()) {
+    return NextResponse.json(
+      { error: 'Provide a CV or a direction to analyse.' },
+      { status: 400 }
+    );
+  }
+
   const selfKnowledgeSection = selfKnowledge?.length
     ? `\n\nSELF-KNOWLEDGE (what this person told us about themselves — use this to make the summary, directions, and values significantly more personal):\n${(selfKnowledge as string[])
         .map((a, i) => (a ? `Q${i + 1}: ${a}` : null))

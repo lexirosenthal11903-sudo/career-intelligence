@@ -323,16 +323,17 @@ _Phase 0 + 1 + 2 complete. All sessions below are the next work to do._
    - Context7 MCP is installed globally — use it to pull live `@supabase/ssr` docs during the session
 
 2. **Rate limiting** on expensive routes (`/api/analyse` and `/api/chat`)
-   - Use **Upstash Redis + `@upstash/ratelimit`** — works on all Vercel plans, free tier available (upstash.com)
-   - Limit: 10 analyse calls per user per day, 100 chat calls per user per day (adjust after seeing real usage)
-   - Return 429 with a clear message when limit hit
+   - ✅ **DOING THIS SESSION (Session 23, 2026-06-11)** — reason: `/api/analyse` is intentionally public (logged-out users must reach their "aha moment" before signing up), so rate limiting is the only abuse guard on the most expensive endpoint.
+   - `@upstash/ratelimit` + `@upstash/redis` already installed. Upstash free tier £0 at our scale (10k commands/day; ~2-3 per check). Won't exceed free limit pre-launch.
+   - When activating: create Upstash Redis DB → add `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` to `.env.local` and Vercel → add `src/lib/ratelimit.ts` → call in `/api/analyse` + `/api/chat` → return 429 on limit.
+   - Limit: 10 analyse calls per user per day, 100 chat calls per user per day (adjust after real usage).
 
 3. **`analyse.js` — fix the 90-second timeout**
-   - Current `maxDuration: 60` will kill the request before it finishes
-   - Fix: stream tokens to the frontend using `ReadableStream` + Server-Sent Events (SSE)
-   - Split: `extract.js` runs on `claude-haiku-4-5-20251001` (fast CV text extraction) · `analyse.js` runs on `claude-sonnet-4-6` (intelligence layer)
-   - Use `/goal` for this specific fix: "Fix analyse.js — done when first token appears within 3 seconds and full result loads within 30 seconds on staging. Use Haiku for extraction, Sonnet for intelligence. Add streaming. Do not touch score.js."
-   - Increase `maxDuration` to 120 (Vercel Pro supports up to 300s for serverless)
+   - ✅ **DONE (Session 23, 2026-06-11):** `maxDuration` raised 60 → 120 (the actual timeout bug). ⚠️ Capped at 60s on Vercel Hobby — confirm the plan is Pro.
+   - ⏸️ **SSE streaming restructure DEFERRED — to be bundled with Session 25 (loading-screen wiring).**
+   - **Audit finding that changes this item:** `extract.js` does NOT use an LLM — it parses PDF/DOCX locally with `unpdf`/`mammoth`. The "Haiku for extraction" split in the original plan was based on a stale assumption and does not apply. The only LLM call in the pipeline is the single Sonnet analysis.
+   - **Why deferred:** analyse.js returns a forced **tool-use** result (structured JSON), so partial output can't be shown as readable text — "streaming" here means phase-progress SSE events, not visible tokens. That only delivers value once the loading screen consumes the stream (Session 25). It also changes the response contract (JSON → SSE) and can only be verified end-to-end ("first result in 3s, full in 30s") with the frontend wired. Doing it blind to the consumer risks building it half-right.
+   - **When done (in Session 25):** convert analyse.js to a `ReadableStream` SSE response emitting phase events; optionally split into a fast first pass (direction + summary, small token budget) so the user sees their direction within ~3s, then a second pass for skills/companyValues/outreach. Verify on staging. Use `/goal`. Do not touch `score.js`.
 
 4. **`chat.js` — add Arlo persona and user context**
    - Currently a bare passthrough proxy — no system prompt, no persona
@@ -396,8 +397,9 @@ _Phase 0 + 1 + 2 complete. All sessions below are the next work to do._
 - `src/app/api/analyse/route.ts` — after Session 23 fixes
 
 **What to wire:**
+- **Build the analyse.js SSE streaming restructure here** (deferred from Session 23 — see Session 23 item 3 for the full finding and approach). This is where it gets verified end-to-end.
 - Input page form → POST `/api/analyse` with CV text + preferences
-- Show streaming progress on loading screen (connected to SSE stream from Session 23 fix)
+- Show streaming progress on loading screen (connected to the SSE stream built in this session)
 - On completion: save full result to Supabase (`save-result` route)
 - Onboarding bridge reads real direction data from Supabase (not hardcoded)
 - Analysis error page (`/analysis-error`) wired to handle real API failures

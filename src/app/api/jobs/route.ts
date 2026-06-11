@@ -26,6 +26,13 @@ function formatSalary(job: AdzunaJob): string {
 export async function POST(request: Request) {
   const { keywords, location, salaryMin, salaryMax } = await request.json();
 
+  if (!Array.isArray(keywords) || keywords.length === 0) {
+    return NextResponse.json(
+      { error: 'At least one search keyword is required.' },
+      { status: 400 }
+    );
+  }
+
   const appId = process.env.ADZUNA_APP_ID;
   const apiKey = process.env.ADZUNA_API_KEY;
 
