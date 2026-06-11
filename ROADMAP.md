@@ -223,6 +223,15 @@ Replace the current Archive ghost button with a proper `•••` overflow menu
 
 **Phase 4 — Platform intelligence & audit loop** — moved to Phase 4 (see above). Requires Phase 3 to be live before it can run meaningfully.
 
+**Phase 3 — Arlo interaction frequency setting**
+Some users want Arlo to prompt them with new ideas and conversation unprompted; others want to drive the conversation themselves. Add a preference (profile settings or via conversation with Arlo): "How active should Arlo be?" — three levels: proactive (Arlo initiates), responsive (Arlo only replies), quiet (notifications off). Needs a design pass before build. Consider whether this lives in profile preferences or purely in Arlo conversation.
+
+**Phase 2 polish — Arlo notification badge when hidden**
+When Arlo is hidden and generates a new message, show a small badge/dot on the Arlo toggle icon so the user knows something is waiting. Works like an unread count. Simple: badge number or a plain dot. Design pass needed — must not feel intrusive.
+
+**Phase 3 — Unauthenticated / empty profile state**
+Currently undesigned. When a user runs results without saving (continues without signing up), they have no account and cannot access the dashboard. Two things needed: (1) what does the profile tab look like for an authenticated user who hasn't completed their profile yet? (2) Does an unauthenticated user see a dashboard at all, or are they directed to save first? Decision needed before Phase 3 auth build. Lexi flagged 2026-06-11.
+
 ---
 
 ## Document hierarchy — which file wins

@@ -33,7 +33,6 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
       setView(initialView);
       setEmail("");
       setOtpValue("");
-      setTimeout(() => emailRef.current?.focus(), 80);
     }
   }, [isOpen, initialView]);
 
