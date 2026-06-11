@@ -78,7 +78,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
 
   function handleResend() {
     setOtpValue("");
-    setView("otp-expired");
+    setView("otp");
   }
 
   if (!isOpen) return null;
