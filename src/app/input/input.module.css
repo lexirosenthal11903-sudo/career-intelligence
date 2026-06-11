@@ -36,13 +36,22 @@
   display: flex; flex-direction: column;
 }
 
+/* Welcome mode: center welcome content + input as a group */
+.chatFrame.inWelcome {
+  justify-content: center;
+}
+.chatFrame.inWelcome .inputArea {
+  border-top: none;
+  padding-top: 0;
+}
+
 /* ── WELCOME STATE ── */
 .welcome {
-  flex: 1;
+  flex: none;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 0;
-  padding: 0 32px 80px;
+  padding: 0 32px 28px;
   text-align: center;
   transition: opacity .3s ease, transform .3s ease;
 }

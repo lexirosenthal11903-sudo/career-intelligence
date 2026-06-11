@@ -145,7 +145,7 @@ export default function InputChat() {
       </nav>
 
       <main className={s.stage}>
-        <div className={s.chatFrame}>
+        <div className={`${s.chatFrame}${!chatStarted ? ` ${s.inWelcome}` : ""}`}>
 
           {/* Welcome / resting state */}
           <div className={`${s.welcome}${chatStarted ? ` ${s.gone}` : ""}`}>
