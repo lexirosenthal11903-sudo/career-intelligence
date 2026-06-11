@@ -65,7 +65,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ### Locked ✓ (all sessions to date)
 - **Design tokens** — `.design/career-intelligence-redesign/SESSION_DECISIONS.md` (source of truth)
-- **Homepage** — `mockups/homepage.html` — provisional
+- **Homepage** — `mockups/homepage-v2.html` — LOCKED (Session 18, 2026-06-11). Three feature sections: direction / roles that fit / every day. Nav: Log in + Sign up. Fit labels (Strong fit / Good fit) not scores. Copywriting session pending (Phase 5).
 - **Dashboard home** — `mockups/dashboard-home.html` — LOCKED (hierarchy fixed Session 10)
 - **Input page** — `mockups/input-page.html` — LOCKED (Session 10). Chat UI, Arlo intro sequence.
 - **Loading screen** — `mockups/loading-screen.html` — LOCKED (Session 10). Text only, 4 phrases, Arlo 56px.
@@ -152,7 +152,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 **Phase 1 order (Option B — confirmed 2026-06-10):**
 1. ~~Next.js scaffold~~ ✓ DONE (Session 17) — Next.js 16 + TS, all 9 api functions ported to `src/app/api/`, old frontend in `legacy/`
-2. Phase 2 build begins (screens one by one, per PLAYBOOK.md) — **next session starts here: homepage**
+2. Phase 2 build in progress — ✓ homepage · ✓ input page · ✓ loading screen — **next: dashboard home**
 3. Backend bugs fixed as they block build: performance (~90s pipeline, fix when analyse is wired to UI) · OTP (rebuild fresh with auth overlay screen)
 4. GitHub token rotation — Lexi deferred again 2026-06-10; raise before any real users
 
