@@ -342,11 +342,11 @@ export default function ProfilePage() {
               <div className={s.settingsRow}>
                 <div>
                   <div className={s.settingsLabel}>Start fresh</div>
-                  <div className={s.settingsHint}>Re-run your analysis with a new CV or a different direction</div>
+                  <div className={s.settingsHint}>Re-run your analysis. Applications you&apos;re tracking stay safe.</div>
                 </div>
                 {confirmRestart ? (
                   <div className={s.inlineConfirm}>
-                    <span className={s.inlineConfirmText}>Your history won&apos;t be deleted.</span>
+                    <span className={s.inlineConfirmText}>Your analysis restarts. Applications you&apos;re tracking stay safe.</span>
                     <button className={s.inlineConfirmYes} onClick={() => router.push("/input")}>Start over</button>
                     <button className={s.inlineConfirmNo} onClick={() => setConfirmRestart(false)}>Cancel</button>
                   </div>

@@ -1,6 +1,6 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: Session 20, 2026-06-11_
+_Last updated: Session 21, 2026-06-11_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
 
@@ -127,7 +127,14 @@ _When all screen implementations are done: dedicated QA session first. Lexi walk
   - CSS token pass: 3 new tokens added (`--accent-dark`, `--green`/`--green-soft`, `--danger`/`--danger-dark`) to globals.css; all hardcoded hex values replaced across every CSS module — no bare hex values remain
   - 15 additional fixes from earlier in session (loading screen redirect, CTA wiring, Arlo send buttons, 404 page, dynamic role title, aiBubble gap, empty state, double-send prevention, inline restart confirm, profile buttons, stale dates)
   - Engineering standards updated in CLAUDE.md + INSIGHTS.md to prevent recurrence
-- [ ] **Lexi's own walkthrough** — Lexi walks every screen on staging, logs observations. Triage each as: fix now (blocks launch) or Phase 5 polish. **This is the next session.**
+- [x] **Lexi's own walkthrough (Session 21, 2026-06-11)** — walkthrough complete. Fixes shipped:
+  - Later/Not today: now fades out instead of snapping (was read as "nothing happened")
+  - Profile Delete account: inline confirmation added (was dead — did nothing)
+  - Profile Restart: inline confirmation + copy updated ("Your analysis restarts. Applications you're tracking stay safe.")
+  - Dashboard greeting: no longer hardcoded to "Welcome back, Lexi" — generic until Phase 3 auth
+  - Cookie consent banner: added to root layout (GDPR required)
+  - Parking lot additions: daily/weekly Arlo planning (Phase 3); restart behaviour revisit (Phase 3)
+  - Phase 5 polish observations logged: transitions, card design, loading Arlo animation, skills ordering, applications prep, live listings order
 - [ ] **Launch review** — after walkthrough is signed off. Decide: launch to first 100 users, or continue to Phase 3 first. Explicit decision point.
 
 ---
@@ -151,6 +158,7 @@ Arlo doesn't tell the user what to write. It writes it. CV built and tailored fo
 - [ ] **Daily Arlo coaching questions** — Arlo asks one self-discovery question per session, drawn from a curated bank, to deepen the user's profile and self-understanding over time. Separate from the main chat — feels like a coaching moment, not a form. User can answer, skip, or say "not today." Answers feed silently into direction refinement and role recommendations. Questions surface naturally — when there's not much else happening on the dashboard, or at the start of a session. This is a core return mechanic: a reason to open the product even when there are no new listings.
   - **Question bank source:** `personal_reflection_questionnaire.docx` at `/Users/Lexi/Desktop/Files/Dad/personal_reflection_questionnaire.docx`. Needs a dedicated synthesis session before build: review all questions, remove confrontational framing, reword to match Arlo's voice, filter for relevance, sequence by depth (lighter → deeper over time). Lexi's draft answers in that file are for context only — ignore them for the product.
   - **Design session required before build** — how and where does the coaching question appear? (Arlo panel on dashboard home? A dedicated coaching moment between sessions?) Needs product + design pass.
+- [ ] **Restart behaviour design decision** — current copy: "Your analysis restarts. Applications you're tracking stay safe." Decision to revisit in Phase 3 when real data exists: exactly what gets cleared (direction, roles feed, skills gap) vs what stays (applications, saved roles, conversation history). The current split is a reasonable default but needs validation once the data model is real. Lexi flagged 2026-06-11.
 - [ ] **Daily check-in mechanic** — "What did you do today?" The advisor celebrates small progress. One next step. Momentum strip.
 - [ ] **Explicit away mode** — user optionally tells the advisor they'll be away. Advisor acknowledges, waits, resumes with continuity on return. Nice-to-have; implicit away mode (Phase 2) handles most cases.
 - [ ] **Contacts finder** — ⚠️ requires solicitor opinion on UK GDPR contact discovery before this feature is built. Do not begin until legal clearance obtained. Find the right person at a target company; fallback to careers email.

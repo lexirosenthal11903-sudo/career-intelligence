@@ -146,7 +146,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Current Phase
 
-**Phase 2 — Visual Redesign. All screens built. QA complete. Next: Lexi's own walkthrough on staging.**
+**Phase 2 — Visual Redesign. All screens built. QA + Lexi's walkthrough complete (Session 21, 2026-06-11). Next: launch review decision.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
@@ -164,7 +164,9 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - ✓ Analysis error page · Offline banner (wired to dashboard layout)
 - ✓ Onboarding bridge (`/onboarding-bridge`) — inline feedback chat; direction card stays visible when user says "something doesn't feel right"; Phase 3 wires feedback to real re-analysis
 
-**QA complete (Session 20, 2026-06-11):** 66 issues audited. All broken flows fixed. CSS token pass completed (--accent-dark, --green, --danger tokens added; all hardcoded hex values replaced in CSS modules). Lexi's own walkthrough still outstanding — next session starts there.
+**QA complete (Session 20, 2026-06-11):** 66 issues audited and resolved. CSS token pass done. See ROADMAP.md Phase 2 QA section.
+
+**Lexi's walkthrough complete (Session 21, 2026-06-11):** Later/dismiss fade fixed, profile confirmations added, cookie banner added, greeting de-hardcoded. Phase 5 polish observations logged in ROADMAP.md. Restart behaviour revisit logged for Phase 3.
 
 **Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env. Run `/deploy-check`.
 
