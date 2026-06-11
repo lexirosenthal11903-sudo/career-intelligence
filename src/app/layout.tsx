@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
+import CookieBanner from "@/components/CookieBanner";
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="en" className={`${instrumentSans.variable} ${dmMono.variable}`}>
       <body style={{ fontFamily: "var(--f, system-ui, sans-serif)" }}>
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

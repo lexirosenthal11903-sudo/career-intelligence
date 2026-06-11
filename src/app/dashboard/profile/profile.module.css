@@ -290,6 +290,15 @@
 .settingsBtnDanger:hover { text-decoration: underline; color: var(--danger); }
 .settingsDivider { height: 1px; background: var(--line); margin: 4px 0; }
 
+.inlineConfirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.inlineConfirmText { font-size: 12px; color: var(--ink-3); }
+.inlineConfirmYes { font-size: 12px; font-weight: 500; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.inlineConfirmYes:hover { background: var(--accent-dark); }
+.inlineConfirmDanger { font-size: 12px; font-weight: 500; background: var(--danger); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.inlineConfirmDanger:hover { background: var(--danger-dark); }
+.inlineConfirmNo { font-size: 12px; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; color: var(--ink-3); cursor: pointer; }
+.inlineConfirmNo:hover { background: var(--cream); }
+
 /* ══════════════════════════════
    RIGHT — MENTOR PANEL
 ══════════════════════════════ */

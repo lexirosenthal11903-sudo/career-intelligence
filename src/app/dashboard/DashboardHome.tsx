@@ -31,12 +31,20 @@ const sendIcon = (
 
 export default function DashboardHome() {
   const router = useRouter();
+  // Phase 3: replace with real user name from Supabase session / CV extraction
+  const userName: string | null = null;
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
   const [todayDismissed, setTodayDismissed] = useState(false);
+  const [todayFading, setTodayFading] = useState(false);
   // Phase 3: derive from real data (new matches since last login, deadline urgency, nothing new)
   const homeState = "new-roles" as HomeState;
+
+  function dismissToday() {
+    setTodayFading(true);
+    setTimeout(() => setTodayDismissed(true), 220);
+  }
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   function handleSend() {
@@ -132,7 +140,7 @@ export default function DashboardHome() {
           {/* LEFT */}
           <div className={s.homePanel}>
             <div className={s.greetingDate}>{getGreeting()} · {getDateLabel()}</div>
-            <div className={s.greetingName}>Welcome back, Lexi.</div>
+            <div className={s.greetingName}>{userName ? `Welcome back, ${userName}.` : "Welcome back."}</div>
 
             <div className={s.directionCard}>
               <h2>Your direction</h2>
@@ -145,7 +153,7 @@ export default function DashboardHome() {
 
             {/* ── STATE: New roles ── */}
             {homeState === "new-roles" && !todayDismissed && (
-              <div className={s.todaySection}>
+              <div className={`${s.todaySection}${todayFading ? ` ${s.todayFading}` : ""}`}>
                 <div className={s.sectionLabel}>New since your last visit</div>
                 <div className={s.todayAction}>3 new roles matched to your profile.</div>
                 <div className={s.todayWhy}>
@@ -154,14 +162,14 @@ export default function DashboardHome() {
                 </div>
                 <div className={s.btnRow}>
                   <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles?tab=listings")}>See new matches →</button>
-                  <button className={s.btnGhost} onClick={() => setTodayDismissed(true)}>Later</button>
+                  <button className={s.btnGhost} onClick={dismissToday}>Later</button>
                 </div>
               </div>
             )}
 
             {/* ── STATE: Deadline urgency ── */}
             {homeState === "deadline" && !todayDismissed && (
-              <div className={s.todaySection}>
+              <div className={`${s.todaySection}${todayFading ? ` ${s.todayFading}` : ""}`}>
                 <div className={s.urgencyBadge}>Closes in 2 days</div>
                 <div className={s.sectionLabel}>This week</div>
                 <div className={s.todayAction}>Your Bloom &amp; Wild application closes Friday.</div>
@@ -171,14 +179,14 @@ export default function DashboardHome() {
                 </div>
                 <div className={s.btnRow}>
                   <button className={`${s.btnPrimary} ${s.btnUrgent}`} onClick={() => router.push("/dashboard/applications")}>Start application →</button>
-                  <button className={s.btnGhost} onClick={() => setTodayDismissed(true)}>Not today</button>
+                  <button className={s.btnGhost} onClick={dismissToday}>Not today</button>
                 </div>
               </div>
             )}
 
             {/* ── STATE: Nothing new ── */}
             {homeState === "nothing-new" && !todayDismissed && (
-              <div className={s.todaySection}>
+              <div className={`${s.todaySection}${todayFading ? ` ${s.todayFading}` : ""}`}>
                 <div className={s.sectionLabel}>Pick up here</div>
                 <div className={s.todayAction}>You saved Bloom &amp; Wild&apos;s ops role — ready to do something with it?</div>
                 <div className={s.todayWhy}>
@@ -187,7 +195,7 @@ export default function DashboardHome() {
                 </div>
                 <div className={s.btnRow}>
                   <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles")}>Look at the role →</button>
-                  <button className={s.btnGhost} onClick={() => setTodayDismissed(true)}>Not today</button>
+                  <button className={s.btnGhost} onClick={dismissToday}>Not today</button>
                 </div>
               </div>
             )}

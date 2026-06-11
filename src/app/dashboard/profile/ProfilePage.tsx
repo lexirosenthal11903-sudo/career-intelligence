@@ -70,6 +70,8 @@ export default function ProfilePage() {
   const [workStyle, setWorkStyle] = useState<Set<string>>(new Set(["Hybrid"]));
   const [employmentType, setEmploymentType] = useState<Set<string>>(new Set(["Full-time"]));
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmRestart, setConfirmRestart] = useState(false);
   const [savedFields, setSavedFields] = useState<Set<string>>(new Set());
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -342,14 +344,30 @@ export default function ProfilePage() {
                   <div className={s.settingsLabel}>Start fresh</div>
                   <div className={s.settingsHint}>Re-run your analysis with a new CV or a different direction</div>
                 </div>
-                <button className={s.settingsBtn} onClick={() => router.push("/input")}>Restart →</button>
+                {confirmRestart ? (
+                  <div className={s.inlineConfirm}>
+                    <span className={s.inlineConfirmText}>Your history won&apos;t be deleted.</span>
+                    <button className={s.inlineConfirmYes} onClick={() => router.push("/input")}>Start over</button>
+                    <button className={s.inlineConfirmNo} onClick={() => setConfirmRestart(false)}>Cancel</button>
+                  </div>
+                ) : (
+                  <button className={s.settingsBtn} onClick={() => setConfirmRestart(true)}>Restart →</button>
+                )}
               </div>
               <div className={s.settingsRow}>
                 <div>
                   <div className={`${s.settingsLabel} ${s.settingsLabelDanger}`}>Delete account</div>
-                  <div className={s.settingsHint}>Permanently removes all your data</div>
+                  <div className={s.settingsHint}>Permanently removes all your data. This cannot be undone.</div>
                 </div>
-                <button className={`${s.settingsBtn} ${s.settingsBtnDanger}`}>Delete →</button>
+                {confirmDelete ? (
+                  <div className={s.inlineConfirm}>
+                    <span className={s.inlineConfirmText}>All your data will be deleted.</span>
+                    <button className={s.inlineConfirmDanger} onClick={() => router.push("/")}>Delete everything</button>
+                    <button className={s.inlineConfirmNo} onClick={() => setConfirmDelete(false)}>Cancel</button>
+                  </div>
+                ) : (
+                  <button className={`${s.settingsBtn} ${s.settingsBtnDanger}`} onClick={() => setConfirmDelete(true)}>Delete →</button>
+                )}
               </div>
             </div>
 
