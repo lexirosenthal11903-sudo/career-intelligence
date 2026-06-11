@@ -27,6 +27,17 @@ const checkIcon = (
 
 type Stage = "preparing" | "applied" | "interview" | "offer" | "archive";
 
+const NEXT_STAGE: Partial<Record<Stage, Stage>> = {
+  preparing: "applied",
+  applied: "interview",
+  interview: "offer",
+};
+const MOVE_LABELS: Partial<Record<Stage, string>> = {
+  preparing: "Mark as applied",
+  applied: "Move to Interview",
+  interview: "Move to Offer",
+};
+
 interface TimelineItem {
   label: string;
   date: string;
@@ -130,12 +141,22 @@ export default function ApplicationsPage() {
   const [activeFilter, setActiveFilter] = useState<Stage | "all">("all");
   const [expandedTimelines, setExpandedTimelines] = useState<Set<string>>(new Set());
   const [archived, setArchived] = useState<Set<string>>(new Set());
+  const [stages, setStages] = useState<Record<string, Stage>>(
+    () => Object.fromEntries(APPS.map((a) => [a.id, a.stage]))
+  );
 
   function archiveApp(id: string) {
     setArchived((prev) => new Set([...prev, id]));
   }
   function unarchiveApp(id: string) {
     setArchived((prev) => { const next = new Set(prev); next.delete(id); return next; });
+  }
+  function moveStage(id: string) {
+    setStages((prev) => {
+      const next = NEXT_STAGE[prev[id]];
+      if (!next) return prev;
+      return { ...prev, [id]: next };
+    });
   }
 
   useEffect(() => {
@@ -162,21 +183,21 @@ export default function ApplicationsPage() {
 
   const counts = APPS.reduce(
     (acc, app) => {
-      const stage = archived.has(app.id) ? "archive" : app.stage;
+      const stage = archived.has(app.id) ? "archive" : stages[app.id];
       acc[stage] = (acc[stage] ?? 0) + 1;
       return acc;
     },
     {} as Record<string, number>
   );
 
-  const activeCount = APPS.filter((a) => !archived.has(a.id) && a.stage !== "archive").length;
+  const activeCount = APPS.filter((a) => !archived.has(a.id) && stages[a.id] !== "archive").length;
 
   const visible =
     activeFilter === "archive"
-      ? APPS.filter((a) => archived.has(a.id) || a.stage === "archive")
+      ? APPS.filter((a) => archived.has(a.id) || stages[a.id] === "archive")
       : activeFilter === "all"
-      ? APPS.filter((a) => !archived.has(a.id) && a.stage !== "archive")
-      : APPS.filter((a) => !archived.has(a.id) && a.stage === activeFilter);
+      ? APPS.filter((a) => !archived.has(a.id) && stages[a.id] !== "archive")
+      : APPS.filter((a) => !archived.has(a.id) && stages[a.id] === activeFilter);
 
   return (
     <div className={s.shell}>
@@ -270,6 +291,8 @@ export default function ApplicationsPage() {
             <div className={s.appList}>
               {visible.map((app) => {
                 const timelineOpen = expandedTimelines.has(app.id);
+                const currentStage = stages[app.id];
+                const moveLabel = MOVE_LABELS[currentStage];
                 return (
                   <div key={app.id} className={s.appCard}>
 
@@ -282,8 +305,8 @@ export default function ApplicationsPage() {
                           {app.location}
                         </div>
                       </div>
-                      <span className={`${s.stageBadge} ${STAGE_BADGE[app.stage]}`}>
-                        {app.stage.charAt(0).toUpperCase() + app.stage.slice(1)}
+                      <span className={`${s.stageBadge} ${STAGE_BADGE[currentStage]}`}>
+                        {currentStage.charAt(0).toUpperCase() + currentStage.slice(1)}
                       </span>
                     </div>
 
@@ -354,9 +377,14 @@ export default function ApplicationsPage() {
                             <button className={s.btnArchive} onClick={() => archiveApp(app.id)}>
                               Archive
                             </button>
-                            <button className={`${s.btnMove}${app.stage === "interview" ? ` ${s.btnMovePrimary}` : ""}`}>
-                              {app.moveLabel}
-                            </button>
+                            {moveLabel && (
+                              <button
+                                className={`${s.btnMove}${currentStage === "interview" ? ` ${s.btnMovePrimary}` : ""}`}
+                                onClick={() => moveStage(app.id)}
+                              >
+                                {moveLabel}
+                              </button>
+                            )}
                           </>
                         )}
                       </div>
