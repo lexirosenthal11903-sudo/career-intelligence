@@ -9,8 +9,7 @@ const ARLO_24 = `<svg width="24" height="24" viewBox="0 0 80 80" fill="none" xml
 
 type Msg =
   | { kind: "ai"; text: string }
-  | { kind: "user"; text: string }
-  | { kind: "upload" };
+  | { kind: "user"; text: string };
 
 const PLACEHOLDERS = [
   "Tell me about yourself…",
@@ -29,7 +28,6 @@ export default function InputChat() {
   const [dragOver, setDragOver] = useState(false);
 
   const startedRef = useRef(false);
-  const pendingUploadRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const fieldRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -50,31 +48,15 @@ export default function InputChat() {
     scrollBottom();
   }
 
-  function startChat() {
+  function commit() {
     if (startedRef.current) return;
     startedRef.current = true;
     setChatStarted(true);
-    setTimeout(() => pushAi("Let's start with your CV. Upload it and I'll read it, or just tell me about yourself below."), 60);
-    pendingUploadRef.current = setTimeout(() => {
-      pendingUploadRef.current = null;
-      setMessages((prev) => [...prev, { kind: "upload" }]);
-      scrollBottom();
-    }, 400);
-  }
-
-  function cancelPendingIntro() {
-    if (pendingUploadRef.current) {
-      clearTimeout(pendingUploadRef.current);
-      pendingUploadRef.current = null;
-    }
   }
 
   function finishBackground(text: string) {
-    cancelPendingIntro();
-    setMessages((prev) => [
-      ...prev.filter((m) => m.kind !== "upload"),
-      { kind: "user", text },
-    ]);
+    commit();
+    setMessages([{ kind: "user", text }]);
     setStep(1);
     setInputValue("");
     setPlaceholder(PLACEHOLDERS[1]);
@@ -115,10 +97,6 @@ export default function InputChat() {
   function onSend() {
     const val = inputValue.trim();
     if (!val) return;
-    if (!startedRef.current) {
-      startedRef.current = true;
-      setChatStarted(true);
-    }
     if (step === 0) finishBackground(val);
     else if (step === 1) finishDirection(val);
     else if (step === 2) finishPractical(val);
@@ -131,27 +109,27 @@ export default function InputChat() {
     }
   }
 
-  function onFocus() {
-    if (!startedRef.current) startChat();
-  }
-
   function handleFile(file: File) {
-    if (!startedRef.current) {
-      startedRef.current = true;
-      setChatStarted(true);
-    }
     finishBackground(`CV: ${file.name}`);
-  }
-
-  function dismissUpload() {
-    setMessages((prev) => prev.filter((m) => m.kind !== "upload"));
-    fieldRef.current?.focus();
   }
 
   function restart() {
     if (step > 0 && !confirm("Start over? Your answers won't be saved.")) return;
     window.location.reload();
   }
+
+  const sendIcon = (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+
+  const uploadIcon = (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2M12 4v11M8 8l4-4 4 4" />
+    </svg>
+  );
 
   return (
     <>
@@ -204,71 +182,77 @@ export default function InputChat() {
                   </div>
                 );
               }
-
-              if (msg.kind === "user") {
-                return (
-                  <div key={i} className={s.userRow}>
-                    <div className={s.userBubble}>{msg.text}</div>
-                  </div>
-                );
-              }
-
-              if (msg.kind === "upload") {
-                return (
-                  <div key={i} className={s.uploadCard}>
-                    <div
-                      className={`${s.uploadZone}${dragOver ? ` ${s.dragOver}` : ""}`}
-                      onClick={() => fileRef.current?.click()}
-                      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                      onDragLeave={() => setDragOver(false)}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        setDragOver(false);
-                        const f = e.dataTransfer.files[0];
-                        if (f) handleFile(f);
-                      }}
-                    >
-                      <div className={s.uploadIcon}>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2M12 4v11M8 8l4-4 4 4" />
-                        </svg>
-                      </div>
-                      <span className={s.uploadLabel}>Drag your CV here, or click to browse</span>
-                      <span className={s.uploadSub}>PDF or Word · Max 10MB</span>
-                    </div>
-                    <p className={s.altPath}>
-                      No CV yet, or prefer to type?{" "}
-                      <a onClick={dismissUpload}>Either works.</a>
-                    </p>
-                  </div>
-                );
-              }
-
-              return null;
+              return (
+                <div key={i} className={s.userRow}>
+                  <div className={s.userBubble}>{msg.text}</div>
+                </div>
+              );
             })}
           </div>
 
           {/* Input area */}
           <div className={s.inputArea}>
-            {showInput && (
-              <div className={s.inputCard}>
-                <input
-                  ref={fieldRef}
-                  className={s.inputField}
-                  type="text"
-                  value={inputValue}
-                  placeholder={placeholder}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={onKey}
-                  onFocus={onFocus}
-                />
-                <button className={s.sendBtn} onClick={onSend} aria-label="Send">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="22" y1="2" x2="11" y2="13" />
-                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                  </svg>
-                </button>
+            {!chatStarted ? (
+              /* Welcome state: unified card with text input + upload zone */
+              <div
+                className={`${s.welcomeCard}${dragOver ? ` ${s.dragActive}` : ""}`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setDragOver(false);
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  const f = e.dataTransfer.files[0];
+                  if (f) handleFile(f);
+                }}
+              >
+                <div className={s.welcomeInputRow}>
+                  <input
+                    ref={fieldRef}
+                    className={s.inputField}
+                    type="text"
+                    value={inputValue}
+                    placeholder={PLACEHOLDERS[0]}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={onKey}
+                  />
+                  <button className={s.sendBtn} onClick={onSend} aria-label="Send">
+                    {sendIcon}
+                  </button>
+                </div>
+                <div className={s.welcomeDivider} />
+                <div
+                  className={`${s.welcomeUploadRow}${dragOver ? ` ${s.uploadRowActive}` : ""}`}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <div className={s.welcomeUploadIcon}>{uploadIcon}</div>
+                  <div>
+                    <div className={s.welcomeUploadLabel}>Drag your CV here, or click to browse</div>
+                    <div className={s.welcomeUploadSub}>PDF or Word · Max 10MB</div>
+                  </div>
+                </div>
               </div>
+            ) : (
+              /* Chat state: simple input bar */
+              showInput && (
+                <div className={s.inputCard}>
+                  <input
+                    ref={fieldRef}
+                    className={s.inputField}
+                    type="text"
+                    value={inputValue}
+                    placeholder={placeholder}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={onKey}
+                  />
+                  <button className={s.sendBtn} onClick={onSend} aria-label="Send">
+                    {sendIcon}
+                  </button>
+                </div>
+              )
             )}
             {showSubmit && (
               <div className={s.submitWrap}>
