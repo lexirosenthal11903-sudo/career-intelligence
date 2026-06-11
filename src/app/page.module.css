@@ -109,6 +109,7 @@
   gap: 20px;
 }
 .ctaLg {
+  display: inline-block;
   font-size: 16px;
   font-weight: 600;
   background: var(--accent);
@@ -118,6 +119,7 @@
   padding: 15px 28px;
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
   transition: background 0.15s var(--ease), transform 0.15s var(--ease);
 }
 .ctaLg:hover { background: var(--accent-lt); transform: translateY(-2px); }
