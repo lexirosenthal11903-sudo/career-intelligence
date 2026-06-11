@@ -146,7 +146,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Current Phase
 
-**Phase 2 — Visual Redesign. All screens built. Next: QA session.**
+**Phase 2 — Visual Redesign. All screens built. QA complete. Next: Lexi's own walkthrough on staging.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 

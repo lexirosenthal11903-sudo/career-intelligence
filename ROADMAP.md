@@ -1,6 +1,6 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: Session 19, 2026-06-11_
+_Last updated: Session 20, 2026-06-11_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
 
@@ -61,8 +61,8 @@ _Goal: Fix all known blockers before any new work is built on top of them. Archi
 
 ### Legal & compliance — must complete before any user data is collected
 - [ ] **ICO registration** — legally required before processing any real UK user data. Free, 20 minutes. ico.org.uk/registration. Do this in Phase 1, not at launch.
-- [ ] **Privacy policy** — must be live before the first real user signs up. Draft using a template, have a solicitor review. Covers: data collected, retention (90 days), right to deletion, what we do with CV data.
-- [ ] **Terms of service** — draft + solicitor review before launch.
+- [ ] **Privacy policy** — stub page exists at `/privacy` (Session 20). Must be replaced with real policy before first real user signs up. Draft using a template, have a solicitor review. Covers: data collected, retention (90 days), right to deletion, what we do with CV data.
+- [ ] **Terms of service** — stub page exists at `/terms` (Session 20). Must be replaced with real terms before launch. Draft + solicitor review required.
 - [ ] **Right to deletion** — implement a user-facing delete account button. Confirm Supabase 90-day deletion works end-to-end. Test it.
 - [ ] **Contact discovery legal opinion (before Phase 3 only)** — surfacing specific people at companies is legally ambiguous under UK GDPR. Solicitor opinion required before Phase 3 contact discovery feature is built. Not a launch blocker — a Phase 3 blocker.
 
@@ -122,8 +122,13 @@ _All Phase 2 screens ship before any user is let in — no 2a/2b split. Phase 2 
 
 ### Phase 2 complete → QA session → launch review
 _When all screen implementations are done: dedicated QA session first. Lexi walks every screen and flow, notes observations and fixes needed. Only after QA is signed off: decide whether to launch to first 100 users or continue to Phase 3._
-- [ ] **QA session** — Lexi walks every built screen. Observations logged as a list. Each fix triaged: fix now (blocks launch) or park to Phase 5 polish. Session produces a signed-off build.
-- [ ] **Launch review** — review the product after QA. Decide: launch to first 100 users, or continue to Phase 3 first. This is an explicit decision point, not an automatic launch.
+- [x] **Engineer-led QA audit (Session 20, 2026-06-11)** — 66 issues found and resolved across two commits:
+  - Broken flows: Dashboard Later/Not today buttons wired; footer links fixed (/privacy + /terms stub pages created, Contact = mailto); Skills resource links use real external URLs (Microsoft Learn, Coursera, Mode Analytics, Forage)
+  - CSS token pass: 3 new tokens added (`--accent-dark`, `--green`/`--green-soft`, `--danger`/`--danger-dark`) to globals.css; all hardcoded hex values replaced across every CSS module — no bare hex values remain
+  - 15 additional fixes from earlier in session (loading screen redirect, CTA wiring, Arlo send buttons, 404 page, dynamic role title, aiBubble gap, empty state, double-send prevention, inline restart confirm, profile buttons, stale dates)
+  - Engineering standards updated in CLAUDE.md + INSIGHTS.md to prevent recurrence
+- [ ] **Lexi's own walkthrough** — Lexi walks every screen on staging, logs observations. Triage each as: fix now (blocks launch) or Phase 5 polish. **This is the next session.**
+- [ ] **Launch review** — after walkthrough is signed off. Decide: launch to first 100 users, or continue to Phase 3 first. Explicit decision point.
 
 ---
 
