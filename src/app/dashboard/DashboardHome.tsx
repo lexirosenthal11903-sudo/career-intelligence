@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import s from "./dashboard.module.css";
 
-type HomeState = "new-roles" | "deadline" | "nothing-new";
+type HomeState = "new-roles" | "deadline" | "nothing-new"; // Phase 3: derive from real data
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -19,7 +19,8 @@ const sendIcon = (
 export default function DashboardHome() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
-  const [homeState, setHomeState] = useState<HomeState>("new-roles");
+  // Phase 3: derive from real data (new matches since last login, deadline urgency, nothing new)
+  const homeState: HomeState = "new-roles";
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -88,18 +89,6 @@ export default function DashboardHome() {
         <div className={s.topbar}>
           <div className={s.topbarLeft}>
             <span className={s.topbarTitle}>Home</span>
-            {/* Demo state switcher — removed in Phase 3 when real data drives state */}
-            <div className={s.stateSwitch}>
-              {(["new-roles", "deadline", "nothing-new"] as HomeState[]).map((st) => (
-                <button
-                  key={st}
-                  className={`${s.stateSwitchBtn}${homeState === st ? ` ${s.stateSwitchBtnActive}` : ""}`}
-                  onClick={() => setHomeState(st)}
-                >
-                  {st === "new-roles" ? "New roles" : st === "deadline" ? "Deadline" : "Nothing new"}
-                </button>
-              ))}
-            </div>
           </div>
           <button className={s.arloToggle} onClick={toggleArlo}>
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
