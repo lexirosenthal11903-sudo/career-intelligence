@@ -146,19 +146,31 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Current Phase
 
-**Phase 1 — Foundation Engineering.** Next session: scaffold Next.js project.
+**Phase 2 — Visual Redesign. All screens built. Next: QA session.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
-**Phase 1 order (Option B — confirmed 2026-06-10):**
-1. ~~Next.js scaffold~~ ✓ DONE (Session 17) — Next.js 16 + TS, all 9 api functions ported to `src/app/api/`, old frontend in `legacy/`
-2. Phase 2 build in progress — ✓ homepage · ✓ input page · ✓ loading screen — **next: dashboard home**
-3. Backend bugs fixed as they block build: performance (~90s pipeline, fix when analyse is wired to UI) · OTP (rebuild fresh with auth overlay screen)
-4. GitHub token rotation — Lexi deferred again 2026-06-10; raise before any real users
+**Phase 1 — Foundation Engineering. PARTIALLY COMPLETE ✓**
+- ✓ Next.js scaffold (Session 17) — App Router + TS, all 9 API functions ported, legacy frontend preserved
+- ✓ Project architecture and CSS module conventions established
+- ⬜ Remaining Phase 1 items (Supabase schema, advisor tools API, legal/compliance, OTP bug fix, testing) — deferred; address as they block Phase 3
 
-**Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env.
+**Phase 2 — All screens built (Session 19, 2026-06-11):**
+- ✓ Homepage · Input page · Loading screen
+- ✓ Dashboard home (3 returning-user states — new-roles / deadline / nothing-new; defaults to new-roles; Phase 3 wires to real data)
+- ✓ Roles tab + Role detail (`/dashboard/roles/[id]/`) — role cards clickable, listings deep-link working
+- ✓ Applications tab · Skills tab · Profile tab
+- ✓ Auth modal (Google OAuth button + email OTP UI; Supabase wiring Phase 3)
+- ✓ Analysis error page · Offline banner (wired to dashboard layout)
+- ✓ Onboarding bridge (`/onboarding-bridge`) — inline feedback chat; direction card stays visible when user says "something doesn't feel right"; Phase 3 wires feedback to real re-analysis
 
-**Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global — active from next session)
+**Next session: QA session** — Lexi walks every screen, observations logged, fixes triaged as "now" or "Phase 5 polish."
+
+**Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env. Run `/deploy-check`.
+
+**GitHub token rotation:** still deferred — must happen before any real users.
+
+**Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
 
 ## Professional Engineering Standards
 

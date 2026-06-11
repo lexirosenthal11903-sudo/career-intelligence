@@ -1,6 +1,6 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: Session 13, 2026-06-10_
+_Last updated: Session 19, 2026-06-11_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
 
@@ -16,7 +16,7 @@ _When Lexi has an idea: add it to the right phase. Never dismiss, never do out o
 
 ---
 
-## → Phase 0: Design (CURRENT — in progress)
+## Phase 0: Design — COMPLETE ✓
 
 _Goal: Every screen designed and locked before a single line of engineering begins._
 
@@ -48,16 +48,16 @@ All of these need dedicated design sessions. None can be built before they are l
 
 ---
 
-## Phase 1: Foundation Engineering
+## Phase 1: Foundation Engineering — PARTIALLY COMPLETE ✓
 
 _Goal: Fix all known blockers before any new work is built on top of them. Architecture must be right before any Phase 2 component is written._
 
-### Architecture — must complete before any Phase 2 code is written
-- [ ] **Next.js migration — CONFIRMED DECISION: yes.** The single index.html is an acknowledged shortcut that cannot scale to Phase 2. Before any Phase 2 component is written: migrate to Next.js, establish folder structure, set up page routing. This is not optional and not "assess whether to" — it is a Phase 1 prerequisite. Dedicated session required.
-- [ ] **Reconcile tokens.css with SESSION_DECISIONS.md** — tokens.css is currently stale and out of sync. Before Phase 2 build begins: create a single `tokens.css` that matches SESSION_DECISIONS.md exactly. This file is the design-to-engineering contract. Every Phase 2 component uses it.
-- [ ] **Project architecture scaffold** — folder structure, component conventions, where CSS lives, how components import tokens. Must be documented and agreed before anyone writes a component. This prevents the "design and code tangled" problem recurring in Phase 2.
-- [ ] **Advisor memory schema (Supabase)** — three tables to design before Phase 2: activity log (roles saved/passed, timestamps), conversation history (user + advisor messages), user profile snapshot (direction, preferences, CV summary). Also enables pgvector for future semantic memory. Must exist before any Phase 2 component uses it.
-- [ ] **Advisor tool_use API design** — the advisor is an agent that can read AND write to user data. Tools needed: update_application_status, save_job, add_note, update_direction, update_preferences, mark_skill_progress. API must be designed and documented before Phase 2 build begins. Implemented using Anthropic function calling.
+### Architecture
+- [x] **Next.js migration** ✓ DONE (Session 17) — Next.js App Router + TypeScript. All 9 API functions ported to `src/app/api/`. Legacy frontend in `legacy/`.
+- [ ] **Reconcile tokens.css with SESSION_DECISIONS.md** — still stale. Before Phase 3 build begins: create a single `tokens.css` that matches SESSION_DECISIONS.md exactly. Every Phase 3 component uses it.
+- [x] **Project architecture scaffold** ✓ — folder structure and CSS module conventions established across all Phase 2 screens.
+- [ ] **Advisor memory schema (Supabase)** — three tables needed: activity log (roles saved/passed, timestamps), conversation history (user + advisor messages), user profile snapshot (direction, preferences, CV summary). Also enables pgvector for future semantic memory. Phase 3 prerequisite.
+- [ ] **Advisor tool_use API design** — advisor reads and writes user data via defined tools (update_application_status, save_job, add_note, update_direction, update_preferences, mark_skill_progress). Phase 3 prerequisite.
 
 ### Legal & compliance — must complete before any user data is collected
 - [ ] **ICO registration** — legally required before processing any real UK user data. Free, 20 minutes. ico.org.uk/registration. Do this in Phase 1, not at launch.
@@ -89,7 +89,7 @@ The following Phase 1 items predated the current design system and are now super
 
 ---
 
-## Phase 2: Visual Redesign (Stage 1 Build)
+## → Phase 2: Visual Redesign (Stage 1 Build) — CURRENT
 
 _Goal: Implement all locked designs. The product looks and feels like the designed version._
 
@@ -113,8 +113,8 @@ _All Phase 2 screens ship before any user is let in — no 2a/2b split. Phase 2 
 - [x] Implement Applications tab — built Session 19. `src/app/dashboard/applications/`
 - [x] Implement Profile tab — built Session 19. `src/app/dashboard/profile/`
 - [x] Implement Skills tab — built Session 19. `src/app/dashboard/skills/`
-- [ ] Implement role detail page — `mockups/role-detail.html` locked Session 13. Route: `/dashboard/roles/[id]`
-- [ ] Implement onboarding bridge — `mockups/onboarding-bridge.html` locked Session 13. Route: `/onboarding-bridge`
+- [x] Implement role detail page — `src/app/dashboard/roles/[id]/`. Role type cards in Roles tab now link here. Live listings link deep-links to filtered listings tab.
+- [x] Implement onboarding bridge — `src/app/onboarding-bridge/`. Inline feedback chat: if user says "something doesn't feel right", direction card stays visible and Arlo opens a chat on the same page ("What doesn't feel right to you?"). User can share as much as they want. Arlo signals readiness to move on. Phase 3: wire feedback to real re-analysis.
 - [ ] Implement implicit away mode — Phase 3: advisor checks last login timestamp, calibrates tone: 1–3 days normal, 4–7 days patient, 7+ days warm re-engagement.
 - [x] Implement error states — built Session 19. Analysis failure: `/analysis-error`. Offline banner: `src/components/OfflineBanner.tsx` wired to dashboard layout.
 - [ ] Advisor tool_use implementation — advisor reads and writes user data via defined tools (update_application_status, save_job, add_note, update_direction, update_preferences, mark_skill_progress). API designed in Phase 1.
@@ -143,6 +143,9 @@ Arlo doesn't tell the user what to write. It writes it. CV built and tailored fo
 - [ ] **Full application pipeline tracking** — Saved → Preparing → Applied → Interview → Offer/Rejection, per job
 - [ ] **Email inbox integration** — Gmail/Outlook OAuth (read-only). Advisor automatically detects interview invites, rejections, offers, assessment bookings. Updates pipeline without user having to log anything. Prompt: "I saw you heard back from Innocent Drinks — want to start preparing?" Privacy: "I only read emails from companies you've applied to." Explicit opt-in, revocable.
 - [ ] **Calendar integration** — Google/Outlook Calendar. Detects interview dates from emails, schedules prep reminders, tracks deadlines. "Your Innocent Drinks interview is in 3 days — let's prepare."
+- [ ] **Daily Arlo coaching questions** — Arlo asks one self-discovery question per session, drawn from a curated bank, to deepen the user's profile and self-understanding over time. Separate from the main chat — feels like a coaching moment, not a form. User can answer, skip, or say "not today." Answers feed silently into direction refinement and role recommendations. Questions surface naturally — when there's not much else happening on the dashboard, or at the start of a session. This is a core return mechanic: a reason to open the product even when there are no new listings.
+  - **Question bank source:** `personal_reflection_questionnaire.docx` at `/Users/Lexi/Desktop/Files/Dad/personal_reflection_questionnaire.docx`. Needs a dedicated synthesis session before build: review all questions, remove confrontational framing, reword to match Arlo's voice, filter for relevance, sequence by depth (lighter → deeper over time). Lexi's draft answers in that file are for context only — ignore them for the product.
+  - **Design session required before build** — how and where does the coaching question appear? (Arlo panel on dashboard home? A dedicated coaching moment between sessions?) Needs product + design pass.
 - [ ] **Daily check-in mechanic** — "What did you do today?" The advisor celebrates small progress. One next step. Momentum strip.
 - [ ] **Explicit away mode** — user optionally tells the advisor they'll be away. Advisor acknowledges, waits, resumes with continuity on return. Nice-to-have; implicit away mode (Phase 2) handles most cases.
 - [ ] **Contacts finder** — ⚠️ requires solicitor opinion on UK GDPR contact discovery before this feature is built. Do not begin until legal clearance obtained. Find the right person at a target company; fallback to careers email.
