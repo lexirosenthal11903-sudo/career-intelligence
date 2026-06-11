@@ -1,0 +1,134 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 72px 24px 120px;
+  background: var(--surface);
+}
+
+/* ── ARLO HEADER ── */
+.arloRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 52px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp .5s ease .1s forwards;
+}
+.arloFace {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex: none;
+  margin-bottom: 10px;
+  line-height: 0;
+}
+.arloName {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ── DIRECTION CARD ── */
+.card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--cream);
+  border-radius: 18px;
+  padding: 36px 40px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.055);
+  margin-bottom: 36px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp .5s ease .25s forwards;
+}
+.cardLabel {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+}
+.directionStatement {
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -.03em; line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.directionDetail {
+  font-size: 14.5px; line-height: 1.8;
+  color: var(--ink-2);
+}
+.cardRule {
+  height: 1px;
+  background: var(--line);
+  margin: 20px 0 16px;
+}
+.rolesLabel {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.rolesNames {
+  font-size: 14px; font-weight: 600;
+  color: var(--ink-2); line-height: 1.7;
+  letter-spacing: -.01em;
+}
+
+/* ── ARLO NOTE ── */
+.arloNote {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  font-size: 14.5px; line-height: 1.75;
+  color: var(--ink-2);
+  margin-bottom: 36px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp .5s ease .5s forwards;
+}
+
+/* ── CTA ROW ── */
+.ctaRow {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp .5s ease .5s forwards;
+}
+.btnPrimary {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 24px;
+  font-family: var(--f);
+  font-size: 14.5px; font-weight: 600;
+  letter-spacing: -.01em;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btnPrimary:hover { background: #924E0F; transform: translateY(-1px); }
+.btnPrimary:active { transform: translateY(0); }
+
+.btnGhost {
+  font-size: 13px; font-weight: 500;
+  color: var(--ink-3);
+  background: none; border: none;
+  cursor: pointer; font-family: var(--f);
+  padding: 4px 8px;
+  transition: color .15s;
+}
+.btnGhost:hover { color: var(--ink-2); }
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
