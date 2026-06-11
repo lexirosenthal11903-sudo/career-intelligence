@@ -192,67 +192,45 @@ export default function InputChat() {
 
           {/* Input area */}
           <div className={s.inputArea}>
-            {!chatStarted ? (
-              /* Welcome state: unified card with text input + upload zone */
+            {showInput && (
               <div
-                className={`${s.welcomeCard}${dragOver ? ` ${s.dragActive}` : ""}`}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                className={`${s.inputCard}${dragOver ? ` ${s.dragActive}` : ""}`}
+                onDragOver={(e) => { e.preventDefault(); if (!chatStarted) setDragOver(true); }}
                 onDragLeave={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                    setDragOver(false);
-                  }
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false);
                 }}
                 onDrop={(e) => {
                   e.preventDefault();
                   setDragOver(false);
-                  const f = e.dataTransfer.files[0];
-                  if (f) handleFile(f);
+                  if (!chatStarted) {
+                    const f = e.dataTransfer.files[0];
+                    if (f) handleFile(f);
+                  }
                 }}
               >
-                <div className={s.welcomeInputRow}>
-                  <input
-                    ref={fieldRef}
-                    className={s.inputField}
-                    type="text"
-                    value={inputValue}
-                    placeholder={PLACEHOLDERS[0]}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={onKey}
-                  />
-                  <button className={s.sendBtn} onClick={onSend} aria-label="Send">
-                    {sendIcon}
+                {!chatStarted && (
+                  <button
+                    className={s.attachBtn}
+                    onClick={() => fileRef.current?.click()}
+                    aria-label="Upload CV"
+                    title="Upload your CV"
+                  >
+                    {uploadIcon}
                   </button>
-                </div>
-                <div className={s.welcomeDivider} />
-                <div
-                  className={`${s.welcomeUploadRow}${dragOver ? ` ${s.uploadRowActive}` : ""}`}
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <div className={s.welcomeUploadIcon}>{uploadIcon}</div>
-                  <div>
-                    <div className={s.welcomeUploadLabel}>Drag your CV here, or click to browse</div>
-                    <div className={s.welcomeUploadSub}>PDF or Word · Max 10MB</div>
-                  </div>
-                </div>
+                )}
+                <input
+                  ref={fieldRef}
+                  className={s.inputField}
+                  type="text"
+                  value={inputValue}
+                  placeholder={chatStarted ? placeholder : PLACEHOLDERS[0]}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={onKey}
+                />
+                <button className={s.sendBtn} onClick={onSend} aria-label="Send">
+                  {sendIcon}
+                </button>
               </div>
-            ) : (
-              /* Chat state: simple input bar */
-              showInput && (
-                <div className={s.inputCard}>
-                  <input
-                    ref={fieldRef}
-                    className={s.inputField}
-                    type="text"
-                    value={inputValue}
-                    placeholder={placeholder}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={onKey}
-                  />
-                  <button className={s.sendBtn} onClick={onSend} aria-label="Send">
-                    {sendIcon}
-                  </button>
-                </div>
-              )
             )}
             {showSubmit && (
               <div className={s.submitWrap}>
