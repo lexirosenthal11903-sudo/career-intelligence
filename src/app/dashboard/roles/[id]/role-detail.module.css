@@ -131,7 +131,7 @@
   font-size: 11px; font-weight: 700;
   letter-spacing: .06em; text-transform: uppercase; margin-bottom: 10px;
 }
-.pictureCol.good .pictureColLabel { color: #3E9B6B; }
+.pictureCol.good .pictureColLabel { color: var(--green); }
 .pictureCol.hard .pictureColLabel { color: var(--ink-2); }
 .pictureColList { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .pictureColList li {
@@ -142,7 +142,7 @@
   content: ""; position: absolute; left: 0; top: 7px;
   width: 5px; height: 5px; border-radius: 50%;
 }
-.pictureCol.good .pictureColList li::before { background: #3E9B6B; opacity: .6; }
+.pictureCol.good .pictureColList li::before { background: var(--green); opacity: .6; }
 .pictureCol.hard .pictureColList li::before { background: var(--ink-3); opacity: .4; }
 
 /* Salary table */
@@ -225,7 +225,7 @@
 .mentorHeadStatus::before {
   content: ""; display: inline-block;
   width: 6px; height: 6px; border-radius: 50%;
-  background: #3E9B6B; flex: none;
+  background: var(--green); flex: none;
 }
 .mentorMessages {
   flex: 1; overflow-y: auto;
@@ -270,4 +270,4 @@
   display: flex; align-items: center; justify-content: center;
   color: #fff; transition: background .12s, transform .12s;
 }
-.mentorSend:hover { background: #8f4f10; transform: scale(1.05); }
+.mentorSend:hover { background: var(--accent-dark); transform: scale(1.05); }

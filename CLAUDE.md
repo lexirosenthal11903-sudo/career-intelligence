@@ -164,7 +164,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - ✓ Analysis error page · Offline banner (wired to dashboard layout)
 - ✓ Onboarding bridge (`/onboarding-bridge`) — inline feedback chat; direction card stays visible when user says "something doesn't feel right"; Phase 3 wires feedback to real re-analysis
 
-**Next session: QA session** — Lexi walks every screen, observations logged, fixes triaged as "now" or "Phase 5 polish."
+**QA complete (Session 20, 2026-06-11):** 66 issues audited. All broken flows fixed. CSS token pass completed (--accent-dark, --green, --danger tokens added; all hardcoded hex values replaced in CSS modules). Lexi's own walkthrough still outstanding — next session starts there.
 
 **Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env. Run `/deploy-check`.
 
@@ -176,8 +176,10 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 _Applies from the first line of Stage 1 engineering._
 
-- **Tokens are the contract.** `color: var(--accent)` not `color: #A85E16`. Every visual value uses a token.
+- **Tokens are the contract.** `color: var(--accent)` not `color: #A85E16`. Every visual value uses a token. Full token table in `globals.css`. Never introduce a new hex value — add a token first.
+- **Token reference (Session 20, 2026-06-11):** `--accent-dark` (#8F4F10 — hover on accent buttons) · `--green` (#3E9B6B — match/success states) · `--green-soft` (rgba(62,155,107,0.1) — badge backgrounds) · `--danger` (#C0392B — urgent/deadline) · `--danger-dark` (#A93226 — danger hover)
 - **CSS handles appearance. JS handles behaviour. They never mix.**
+- **Every interactive element must have an onClick or href before shipping.** No dead buttons. No `href="#"`. Use `disabled` with a tooltip for things that are coming in a future phase.
 - **WCAG AA minimum.** Verified text contrast. Visible focus states. Reduced-motion respected.
 - **Clean commits.** One concern per commit. No debug console.log. Descriptive messages.
 - **No dead code.** Leave the codebase cleaner than you found it.

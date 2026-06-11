@@ -34,7 +34,7 @@
   padding: 5px 12px; cursor: pointer;
   transition: background .12s;
 }
-.restartConfirmYes:hover { background: #8f4f10; }
+.restartConfirmYes:hover { background: var(--accent-dark); }
 .restartConfirmNo {
   font-family: var(--f, system-ui, sans-serif);
   font-size: 13px; font-weight: 500; color: var(--ink-3);
@@ -215,7 +215,7 @@
   transition: background .12s, transform .12s;
   color: #fff;
 }
-.sendBtn:hover { background: #8f4f10; transform: scale(1.05); }
+.sendBtn:hover { background: var(--accent-dark); transform: scale(1.05); }
 
 /* Submit button */
 .submitWrap { display: flex; justify-content: center; padding: 4px 0; }
@@ -227,4 +227,4 @@
   cursor: pointer;
   transition: background .12s, transform .12s;
 }
-.btnSubmit:hover { background: #8f4f10; transform: translateY(-1px); }
+.btnSubmit:hover { background: var(--accent-dark); transform: translateY(-1px); }

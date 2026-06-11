@@ -116,7 +116,7 @@
   cursor: pointer;
   transition: background .15s, transform .1s;
 }
-.btnPrimary:hover { background: #924E0F; transform: translateY(-1px); }
+.btnPrimary:hover { background: var(--accent-dark); transform: translateY(-1px); }
 .btnPrimary:active { transform: translateY(0); }
 
 .btnGhost {
@@ -183,7 +183,7 @@
   display: flex; align-items: center; justify-content: center;
   color: #fff; transition: background .12s, transform .12s;
 }
-.chatSend:hover { background: #924E0F; transform: scale(1.05); }
+.chatSend:hover { background: var(--accent-dark); transform: scale(1.05); }
 
 .btnPrimaryChat {
   width: 100%;
@@ -199,7 +199,7 @@
   margin-bottom: 12px;
   transition: background .15s, transform .1s;
 }
-.btnPrimaryChat:hover { background: #924E0F; transform: translateY(-1px); }
+.btnPrimaryChat:hover { background: var(--accent-dark); transform: translateY(-1px); }
 .btnPrimaryChat:active { transform: translateY(0); }
 
 .btnGhostChat {

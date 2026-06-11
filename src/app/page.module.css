@@ -316,7 +316,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #3E9B6B;
+  background: var(--green);
   flex: none;
 }
 .shotMsgs {
@@ -505,7 +505,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #3E9B6B;
+  background: var(--green);
   flex: none;
 }
 .f3Msgs { display: flex; flex-direction: column; gap: 10px; }

@@ -34,6 +34,7 @@ export default function DashboardHome() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
+  const [todayDismissed, setTodayDismissed] = useState(false);
   // Phase 3: derive from real data (new matches since last login, deadline urgency, nothing new)
   const homeState = "new-roles" as HomeState;
   const chatInputRef = useRef<HTMLInputElement>(null);
@@ -143,7 +144,7 @@ export default function DashboardHome() {
             </div>
 
             {/* ── STATE: New roles ── */}
-            {homeState === "new-roles" && (
+            {homeState === "new-roles" && !todayDismissed && (
               <div className={s.todaySection}>
                 <div className={s.sectionLabel}>New since your last visit</div>
                 <div className={s.todayAction}>3 new roles matched to your profile.</div>
@@ -153,13 +154,13 @@ export default function DashboardHome() {
                 </div>
                 <div className={s.btnRow}>
                   <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles?tab=listings")}>See new matches →</button>
-                  <button className={s.btnGhost}>Later</button>
+                  <button className={s.btnGhost} onClick={() => setTodayDismissed(true)}>Later</button>
                 </div>
               </div>
             )}
 
             {/* ── STATE: Deadline urgency ── */}
-            {homeState === "deadline" && (
+            {homeState === "deadline" && !todayDismissed && (
               <div className={s.todaySection}>
                 <div className={s.urgencyBadge}>Closes in 2 days</div>
                 <div className={s.sectionLabel}>This week</div>
@@ -170,13 +171,13 @@ export default function DashboardHome() {
                 </div>
                 <div className={s.btnRow}>
                   <button className={`${s.btnPrimary} ${s.btnUrgent}`} onClick={() => router.push("/dashboard/applications")}>Start application →</button>
-                  <button className={s.btnGhost}>Not today</button>
+                  <button className={s.btnGhost} onClick={() => setTodayDismissed(true)}>Not today</button>
                 </div>
               </div>
             )}
 
             {/* ── STATE: Nothing new ── */}
-            {homeState === "nothing-new" && (
+            {homeState === "nothing-new" && !todayDismissed && (
               <div className={s.todaySection}>
                 <div className={s.sectionLabel}>Pick up here</div>
                 <div className={s.todayAction}>You saved Bloom &amp; Wild&apos;s ops role — ready to do something with it?</div>
@@ -186,7 +187,7 @@ export default function DashboardHome() {
                 </div>
                 <div className={s.btnRow}>
                   <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles")}>Look at the role →</button>
-                  <button className={s.btnGhost}>Not today</button>
+                  <button className={s.btnGhost} onClick={() => setTodayDismissed(true)}>Not today</button>
                 </div>
               </div>
             )}

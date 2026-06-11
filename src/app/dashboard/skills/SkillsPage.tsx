@@ -49,7 +49,7 @@ interface Skill {
   time: string;
   tags: string[];
   urgent?: boolean;
-  resource: { label: string; type: "free" | "cert"; badge: string };
+  resource: { label: string; type: "free" | "cert"; badge: string; url: string };
   initiallyInProgress?: boolean;
   initiallyDone?: boolean;
 }
@@ -61,7 +61,7 @@ const BEFORE_APPLY: Skill[] = [
     time: "~ 4 hrs",
     tags: ["Deliveroo · Operations"],
     urgent: true,
-    resource: { label: "Excel for Data Analysis — Microsoft Learn", type: "free", badge: "Free" },
+    resource: { label: "Excel for Data Analysis — Microsoft Learn", type: "free", badge: "Free", url: "https://learn.microsoft.com/en-us/training/paths/excel-data-analysis/" },
   },
   {
     id: "structured-problem-solving",
@@ -69,7 +69,7 @@ const BEFORE_APPLY: Skill[] = [
     time: "~ 1 hr left",
     tags: ["Monzo · PM", "Deliveroo · Operations"],
     urgent: true,
-    resource: { label: "McKinsey Problem Solving — Coursera", type: "free", badge: "Free" },
+    resource: { label: "McKinsey Problem Solving — Coursera", type: "free", badge: "Free", url: "https://www.coursera.org/learn/solving-problems-with-creative-and-critical-thinking" },
     initiallyInProgress: true,
   },
 ];
@@ -80,14 +80,14 @@ const WORTH_BUILDING: Skill[] = [
     name: "SQL basics",
     time: "~ 6 hrs",
     tags: ["Monzo · PM", "Management consulting"],
-    resource: { label: "SQL for Beginners — Mode Analytics", type: "free", badge: "Free" },
+    resource: { label: "SQL for Beginners — Mode Analytics", type: "free", badge: "Free", url: "https://mode.com/sql-tutorial/" },
   },
   {
     id: "deloitte-virtual",
     name: "Deloitte Virtual Internship",
     time: "~ 5 hrs",
     tags: ["Management consulting"],
-    resource: { label: "Deloitte Technology — Forage", type: "cert", badge: "Free · Certificate" },
+    resource: { label: "Deloitte Technology — Forage", type: "cert", badge: "Free · Certificate", url: "https://www.theforage.com/simulations/deloitte/technology-nv7p" },
   },
 ];
 
@@ -97,7 +97,7 @@ const INITIAL_DONE: Skill[] = [
     name: "BCG Strategy Simulation",
     time: "",
     tags: ["Management consulting"],
-    resource: { label: "", type: "cert", badge: "" },
+    resource: { label: "BCG Strategy Simulation — Forage", type: "cert", badge: "Certificate", url: "https://www.theforage.com/simulations/bcg/strategy-execution-9vy4" },
     initiallyDone: true,
   },
 ];
@@ -246,7 +246,7 @@ export default function SkillsPage() {
             <div className={`${s.resourceIcon} ${isCert ? s.resourceCert : s.resourceFree}`}>
               {isCert ? starIcon : plusIcon}
             </div>
-            <a href="#" className={s.resourceLink}>{skill.resource.label}</a>
+            <a href={skill.resource.url} className={s.resourceLink} target="_blank" rel="noopener noreferrer">{skill.resource.label}</a>
             <span className={s.freeLabel}>{skill.resource.badge}</span>
           </div>
         )}

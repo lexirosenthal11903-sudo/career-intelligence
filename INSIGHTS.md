@@ -36,6 +36,22 @@ Tags: [NOW] = current build phase | [PIPELINE] = 90s analyse.js fix | [PHASE2] =
 - Run a grill me session on the core user journey before Phase 2 build begins. The emotional arc is documented at high level but granular decisions — what happens if CV upload fails, how the system handles someone with no experience, what "3 daily actions" actually looks like — need extracting before Claude Code builds them wrong.
 - Your `brainstorms/` folder already exists. Use it as the output target for all grill me sessions.
 
+### CSS Engineering Standards — learned from Session 20 QA audit
+**[ALWAYS]**
+A full QA audit found 66 issues, most of which were preventable with two rules:
+
+**1. Tokens first, always.**
+Before writing any colour value, check `globals.css` for an existing token. If none fits, add one — then use it. Never write a hex value directly into a CSS module. The full token set (as of Session 20):
+- Core: `--accent`, `--accent-dark`, `--accent-lt`, `--accent-soft`, `--accent-on-dark`
+- Surface: `--surface`, `--bg`, `--cream`, `--cream-2`, `--line`
+- Text: `--ink`, `--ink-2`, `--ink-3`, `--ink-4`, `--ink-5`
+- Dark: `--deep`, `--deep-2`, `--on-deep`, `--on-deep-2`, `--on-deep-3`
+- Semantic: `--green`, `--green-soft`, `--danger`, `--danger-dark`
+- Shadow: `--sh-shot`, `--sh-card`
+
+**2. Every interactive element needs a handler before shipping.**
+No button ships without an `onClick`. No link ships with `href="#"`. If a feature is Phase 3, use `disabled` with a `title` tooltip — never a dead handler. Resource links must have real URLs or be disabled. This also catches the pattern of building UI without wiring it — the button should be the last thing added, after the handler exists.
+
 ---
 
 ## 2. ARCHITECTURE & PATTERNS

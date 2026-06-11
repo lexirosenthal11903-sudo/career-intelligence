@@ -339,9 +339,9 @@ export default function HomePage() {
           </div>
           <div className={s.footRight}>
             <div className={s.footLinks}>
-              <a href="#">Privacy</a>
-              <a href="#">Terms</a>
-              <a href="#">Contact</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/terms">Terms</a>
+              <a href="mailto:hello@careerintelligence.co">Contact</a>
             </div>
             <div className={s.footCopy}>© 2026 Career Intelligence</div>
           </div>

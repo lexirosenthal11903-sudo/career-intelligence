@@ -16,8 +16,13 @@
   --on-deep-3: #6E6353;
   --accent: #B05E16;
   --accent-lt: #C56E20;
+  --accent-dark: #8F4F10;
   --accent-on-dark: #D4803A;
   --accent-soft: rgba(176, 94, 22, 0.08);
+  --green: #3E9B6B;
+  --green-soft: rgba(62, 155, 107, 0.1);
+  --danger: #C0392B;
+  --danger-dark: #A93226;
   --line: rgba(0, 0, 0, 0.07);
   --sh-shot: 0 40px 90px rgba(26, 22, 16, 0.18), 0 14px 34px rgba(26, 22, 16, 0.10);
   --sh-card: 0 2px 16px rgba(0, 0, 0, 0.06);

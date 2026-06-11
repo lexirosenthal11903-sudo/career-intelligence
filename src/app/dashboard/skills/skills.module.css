@@ -108,7 +108,7 @@
 .strengthsWrap { display: flex; flex-wrap: wrap; gap: 7px; }
 .strengthChip {
   font-size: 12.5px; font-weight: 600;
-  color: #3E9B6B; background: rgba(62,155,107,.12);
+  color: var(--green); background: rgba(62,155,107,.12);
   border-radius: 20px; padding: 6px 14px;
   display: flex; align-items: center; gap: 7px;
 }
@@ -173,7 +173,7 @@
   display: flex; align-items: center; justify-content: center; flex: none;
 }
 .resourceIcon svg { width: 9px; height: 9px; }
-.resourceFree { background: rgba(62,155,107,.12); color: #3E9B6B; }
+.resourceFree { background: rgba(62,155,107,.12); color: var(--green); }
 .resourceCert { background: var(--accent-soft); color: var(--accent); }
 .resourceLink {
   font-size: 12.5px; color: var(--accent); font-weight: 500;
@@ -181,7 +181,7 @@
 }
 .resourceLink:hover { text-decoration: underline; }
 .freeLabel {
-  font-size: 10px; color: #3E9B6B; font-weight: 600; font-family: var(--fm);
+  font-size: 10px; color: var(--green); font-weight: 600; font-family: var(--fm);
 }
 
 /* ── CERTIFICATE SECTION ── */
@@ -227,7 +227,7 @@
   border-radius: 7px; padding: 7px 14px; cursor: pointer;
   white-space: nowrap; flex: none; transition: background .12s;
 }
-.certSaveBtn:hover { background: #8f4f10; }
+.certSaveBtn:hover { background: var(--accent-dark); }
 .certUploadArea {
   display: block; cursor: pointer;
   border: 1.5px dashed var(--line); border-radius: 8px; padding: 16px;
@@ -246,10 +246,10 @@
 .certTellArlo:hover { color: var(--accent); }
 .certSaved {
   display: flex; align-items: center; gap: 5px;
-  margin-top: 8px; font-size: 12px; font-weight: 500; color: #3E9B6B;
+  margin-top: 8px; font-size: 12px; font-weight: 500; color: var(--green);
 }
 .certSaved svg { width: 10px; height: 10px; }
-.certSavedLink { color: #3E9B6B; text-decoration: none; font-weight: 500; }
+.certSavedLink { color: var(--green); text-decoration: none; font-weight: 500; }
 .certSavedLink:hover { text-decoration: underline; }
 
 /* ── SKILL FOOTER (single action unit) ── */
@@ -273,11 +273,11 @@
 .inProgressGroup { display: flex; align-items: center; gap: 5px; }
 .inProgressDot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: #3E9B6B; flex: none;
+  background: var(--green); flex: none;
 }
 .inProgressLabel {
   font-size: 11px; font-weight: 700; font-family: var(--fm);
-  color: #3E9B6B; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--green); letter-spacing: .04em; text-transform: uppercase;
 }
 .undoBtn {
   font-family: var(--f); font-size: 11px; font-weight: 500;
@@ -287,7 +287,7 @@
 .undoBtn:hover { color: var(--ink-2); }
 .btnMarkDone {
   font-family: var(--f); font-size: 12px; font-weight: 600;
-  color: #3E9B6B; background: rgba(62,155,107,.1);
+  color: var(--green); background: var(--green-soft);
   border: 1px solid rgba(62,155,107,.25); border-radius: 8px;
   padding: 5px 14px; cursor: pointer; white-space: nowrap;
   transition: all .15s;
@@ -297,7 +297,7 @@
 /* Done */
 .doneDate {
   display: flex; align-items: center; gap: 5px;
-  font-size: 11px; font-family: var(--fm); color: #3E9B6B;
+  font-size: 11px; font-family: var(--fm); color: var(--green);
 }
 .doneDate svg { width: 10px; height: 10px; }
 .btnIncomplete {
@@ -321,7 +321,7 @@
 }
 .completedCount {
   font-size: 10px; font-weight: 700;
-  background: rgba(62,155,107,.12); color: #3E9B6B;
+  background: rgba(62,155,107,.12); color: var(--green);
   border-radius: 20px; padding: 2px 8px;
   font-family: var(--fm); letter-spacing: 0;
 }
@@ -352,7 +352,7 @@
 .mentorHeadStatus::before {
   content: ""; display: inline-block;
   width: 6px; height: 6px; border-radius: 50%;
-  background: #3E9B6B; flex: none;
+  background: var(--green); flex: none;
 }
 .mentorMessages {
   flex: 1; overflow-y: auto;
@@ -398,4 +398,4 @@
   display: flex; align-items: center; justify-content: center;
   color: #fff; transition: background .12s, transform .12s;
 }
-.mentorSend:hover { background: #8f4f10; transform: scale(1.05); }
+.mentorSend:hover { background: var(--accent-dark); transform: scale(1.05); }

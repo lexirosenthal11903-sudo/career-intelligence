@@ -149,7 +149,7 @@
 .badgeInterview { color: var(--accent); background: var(--accent-soft); }
 .badgeApplied { color: var(--ink-2); background: var(--cream); }
 .badgePreparing { color: var(--ink-3); background: var(--cream); }
-.badgeOffer { color: #3E9B6B; background: rgba(62,155,107,.1); }
+.badgeOffer { color: var(--green); background: var(--green-soft); }
 .badgeArchive { color: var(--ink-3); background: var(--cream); }
 
 .nextAction {
@@ -170,7 +170,7 @@
   font-family: var(--f);
 }
 .timelineSummary { font-size: 12px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
-.timelineSummaryDot { width: 6px; height: 6px; border-radius: 50%; background: #3E9B6B; flex: none; }
+.timelineSummaryDot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: none; }
 .timelineChevron { color: var(--ink-3); transition: transform .2s ease; flex: none; display: flex; }
 .timelineChevronOpen { transform: rotate(180deg); }
 
@@ -178,7 +178,7 @@
 .timelineItem { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 14px; position: relative; }
 .timelineItem:last-child { padding-bottom: 0; }
 .timelineLeft { display: flex; flex-direction: column; align-items: center; flex: none; width: 16px; }
-.timelineDot { width: 8px; height: 8px; border-radius: 50%; background: #3E9B6B; flex: none; margin-top: 4px; }
+.timelineDot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; margin-top: 4px; }
 .timelineDotPending { background: none; border: 1.5px solid var(--ink-4, #BDB7AC); }
 .timelineLine { width: 1.5px; background: var(--line); flex: 1; min-height: 18px; margin-top: 3px; }
 .timelineBody { flex: 1; }
@@ -215,7 +215,7 @@
 }
 .btnMove:hover { background: var(--accent-soft); color: var(--accent); border-color: rgba(176,94,22,.2); }
 .btnMovePrimary { background: var(--accent); color: #fff; border-color: var(--accent); }
-.btnMovePrimary:hover { background: #8f4f10; }
+.btnMovePrimary:hover { background: var(--accent-dark); }
 
 /* ── RIGHT: MENTOR ── */
 .mentorPanel {
@@ -235,7 +235,7 @@
 .mentorHeadStatus::before {
   content: ""; display: inline-block;
   width: 6px; height: 6px; border-radius: 50%;
-  background: #3E9B6B; flex: none;
+  background: var(--green); flex: none;
 }
 .mentorMessages {
   flex: 1; overflow-y: auto;
@@ -276,4 +276,4 @@
   display: flex; align-items: center; justify-content: center;
   color: #fff; transition: background .12s, transform .12s;
 }
-.mentorSend:hover { background: #8f4f10; transform: scale(1.05); }
+.mentorSend:hover { background: var(--accent-dark); transform: scale(1.05); }

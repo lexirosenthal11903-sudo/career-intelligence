@@ -165,7 +165,7 @@
   letter-spacing: 0.18em;
 }
 .otpError {
-  border-color: #C0392B;
+  border-color: var(--danger);
   box-shadow: 0 0 0 3px rgba(192,57,43,.08);
 }
 
@@ -179,7 +179,7 @@
 }
 .statusError {
   background: rgba(192,57,43,.07);
-  color: #C0392B;
+  color: var(--danger);
 }
 .statusInfo {
   background: #F1F0EB;

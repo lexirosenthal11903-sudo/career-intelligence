@@ -141,12 +141,12 @@
 .urgencyBadge {
   display: inline-flex; align-items: center; gap: 5px;
   font-family: var(--fm); font-size: 11px; font-weight: 500;
-  color: #C0392B; background: rgba(192,57,43,.08);
+  color: var(--danger); background: rgba(192,57,43,.08);
   border-radius: 6px; padding: 3px 8px; margin-bottom: 14px;
 }
 .urgencyBadge::before {
   content: ""; width: 5px; height: 5px; border-radius: 50%;
-  background: #C0392B; display: inline-block;
+  background: var(--danger); display: inline-block;
 }
 
 .todaySection { margin-bottom: 36px; }
@@ -170,9 +170,9 @@
   border: none; border-radius: 10px; padding: 12px 24px;
   cursor: pointer; transition: background .12s, transform .12s;
 }
-.btnPrimary:hover { background: #8f4f10; transform: translateY(-1px); }
-.btnUrgent { background: #C0392B; }
-.btnUrgent:hover { background: #a93226; }
+.btnPrimary:hover { background: var(--accent-dark); transform: translateY(-1px); }
+.btnUrgent { background: var(--danger); }
+.btnUrgent:hover { background: var(--danger-dark); }
 .btnGhost {
   font-family: var(--f); font-size: 13px; font-weight: 500;
   background: none; border: none; color: var(--ink-3); cursor: pointer;
@@ -207,7 +207,7 @@
 }
 .momentumDot {
   width: 7px; height: 7px; border-radius: 50%;
-  background: #3E9B6B; flex: none;
+  background: var(--green); flex: none;
 }
 
 /* ── RIGHT: MENTOR ── */
@@ -235,7 +235,7 @@
 .mentorHeadStatus::before {
   content: ""; display: inline-block;
   width: 6px; height: 6px; border-radius: 50%;
-  background: #3E9B6B; flex: none;
+  background: var(--green); flex: none;
 }
 
 .mentorMessages {
@@ -284,4 +284,4 @@
   display: flex; align-items: center; justify-content: center;
   color: #fff; transition: background .12s, transform .12s;
 }
-.mentorSend:hover { background: #8f4f10; transform: scale(1.05); }
+.mentorSend:hover { background: var(--accent-dark); transform: scale(1.05); }
