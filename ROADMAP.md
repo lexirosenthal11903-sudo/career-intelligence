@@ -119,8 +119,10 @@ _All Phase 2 screens ship before any user is let in — no 2a/2b split. Phase 2 
 - [ ] Advisor tool_use implementation — advisor reads and writes user data via defined tools (update_application_status, save_job, add_note, update_direction, update_preferences, mark_skill_progress). API designed in Phase 1.
 - [ ] Advisor memory implementation — activity log, conversation history, profile snapshot. Schema designed in Phase 1.
 
-### Phase 2 complete → launch review
-_When all above items are done: review the product. Decide: launch to first 100 users, or continue to Phase 3 first. This is an explicit decision point, not an automatic launch._
+### Phase 2 complete → QA session → launch review
+_When all screen implementations are done: dedicated QA session first. Lexi walks every screen and flow, notes observations and fixes needed. Only after QA is signed off: decide whether to launch to first 100 users or continue to Phase 3._
+- [ ] **QA session** — Lexi walks every built screen. Observations logged as a list. Each fix triaged: fix now (blocks launch) or park to Phase 5 polish. Session produces a signed-off build.
+- [ ] **Launch review** — review the product after QA. Decide: launch to first 100 users, or continue to Phase 3 first. This is an explicit decision point, not an automatic launch.
 
 ---
 
