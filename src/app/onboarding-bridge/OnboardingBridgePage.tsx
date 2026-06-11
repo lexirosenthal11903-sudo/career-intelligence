@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import s from "./onboarding-bridge.module.css";
 
@@ -16,8 +17,60 @@ const arloFace = (
   </svg>
 );
 
+const sendIcon = (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+type ChatMsg = { role: "arlo" | "user"; text: string };
+
 export default function OnboardingBridgePage() {
   const router = useRouter();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [msgs, setMsgs] = useState<ChatMsg[]>([
+    { role: "arlo", text: "What doesn't feel right to you?" },
+  ]);
+  const [replied, setReplied] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const msgsEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatOpen) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [chatOpen]);
+
+  useEffect(() => {
+    msgsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs]);
+
+  function handleSend() {
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    setMsgs((prev) => [...prev, { role: "user", text: trimmed }]);
+    setInput("");
+    setReplied(true);
+    // Phase 3: send to real re-analysis with this feedback
+    setTimeout(() => {
+      setMsgs((prev) => [
+        ...prev,
+        {
+          role: "arlo",
+          text: "Got it — that's useful. I'll factor that in as we go. Head to your dashboard for now, and I'll have a sharper direction ready the more you engage with what's there.",
+        },
+      ]);
+    }, 800);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
 
   return (
     <div className={s.page}>
@@ -28,7 +81,7 @@ export default function OnboardingBridgePage() {
         <div className={s.arloName}>Arlo</div>
       </div>
 
-      {/* Direction card */}
+      {/* Direction card — always visible */}
       <div className={s.card}>
         <div className={s.cardLabel}>Your direction</div>
         <div className={s.directionStatement}>
@@ -48,22 +101,72 @@ export default function OnboardingBridgePage() {
         </div>
       </div>
 
-      {/* Arlo note */}
-      <p className={s.arloNote}>
-        These are the roles worth exploring properly. Go through them at your own pace — I&apos;ll
-        be with you in the dashboard, and the more you tell me about what resonates, the sharper
-        this gets.
-      </p>
+      {/* Default state */}
+      {!chatOpen && (
+        <>
+          <p className={s.arloNote}>
+            These are the roles worth exploring properly. Go through them at your own pace — I&apos;ll
+            be with you in the dashboard, and the more you tell me about what resonates, the sharper
+            this gets.
+          </p>
+          <div className={s.ctaRow}>
+            <button className={s.btnPrimary} onClick={() => router.push("/dashboard")}>
+              Go to my dashboard →
+            </button>
+            <button className={s.btnGhost} onClick={() => setChatOpen(true)}>
+              Something doesn&apos;t feel right — adjust my direction
+            </button>
+          </div>
+        </>
+      )}
 
-      {/* CTAs */}
-      <div className={s.ctaRow}>
-        <button className={s.btnPrimary} onClick={() => router.push("/dashboard")}>
-          Go to my dashboard →
-        </button>
-        <button className={s.btnGhost} onClick={() => router.push("/input")}>
-          Something doesn&apos;t feel right — adjust my direction
-        </button>
-      </div>
+      {/* Feedback chat — direction card stays visible above */}
+      {chatOpen && (
+        <div className={s.chatWrap}>
+          <div className={s.chatMsgs}>
+            {msgs.map((m, i) => (
+              m.role === "arlo" ? (
+                <div key={i} className={s.aiMsg}>
+                  <div className={s.aiBubble}>{m.text}</div>
+                </div>
+              ) : (
+                <div key={i} className={s.userMsg}>
+                  <div className={s.userBubble}>{m.text}</div>
+                </div>
+              )
+            ))}
+            <div ref={msgsEndRef} />
+          </div>
+
+          <div className={s.chatInputCard}>
+            <input
+              ref={inputRef}
+              className={s.chatInput}
+              type="text"
+              placeholder="Tell Arlo what's off…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <button className={s.chatSend} onClick={handleSend} aria-label="Send">
+              {sendIcon}
+            </button>
+          </div>
+
+          {replied && (
+            <button
+              className={s.btnPrimaryChat}
+              onClick={() => router.push("/dashboard")}
+            >
+              Go to my dashboard →
+            </button>
+          )}
+
+          <button className={s.btnGhostChat} onClick={() => setChatOpen(false)}>
+            ← Back
+          </button>
+        </div>
+      )}
 
     </div>
   );

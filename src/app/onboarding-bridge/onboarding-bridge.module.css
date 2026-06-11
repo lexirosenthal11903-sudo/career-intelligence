@@ -129,6 +129,90 @@
 }
 .btnGhost:hover { color: var(--ink-2); }
 
+/* ── FEEDBACK CHAT ── */
+.chatWrap {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp .35s ease forwards;
+}
+.chatMsgs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.aiMsg { display: flex; flex-direction: column; gap: 8px; }
+.aiBubble {
+  background: var(--cream);
+  border-radius: 4px 16px 16px 16px;
+  padding: 15px 18px;
+  font-size: 14.5px; line-height: 1.75; color: var(--ink-2);
+  max-width: 480px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.userMsg { display: flex; justify-content: flex-end; }
+.userBubble {
+  background: var(--accent);
+  border-radius: 16px 4px 16px 16px;
+  padding: 13px 18px;
+  font-size: 14.5px; line-height: 1.65; color: #fff;
+  max-width: 440px;
+}
+
+.chatInputCard {
+  background: var(--surface);
+  border-radius: 16px; padding: 4px 4px 4px 20px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05);
+  margin-bottom: 16px;
+}
+.chatInput {
+  flex: 1; border: none; background: none;
+  font-family: var(--f); font-size: 14.5px; color: var(--ink);
+  outline: none; padding: 11px 0;
+}
+.chatInput::placeholder { color: var(--ink-3); }
+.chatSend {
+  width: 38px; height: 38px; border-radius: 12px; flex: none;
+  background: var(--accent); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; transition: background .12s, transform .12s;
+}
+.chatSend:hover { background: #924E0F; transform: scale(1.05); }
+
+.btnPrimaryChat {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 24px;
+  font-family: var(--f);
+  font-size: 14.5px; font-weight: 600;
+  letter-spacing: -.01em;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background .15s, transform .1s;
+}
+.btnPrimaryChat:hover { background: #924E0F; transform: translateY(-1px); }
+.btnPrimaryChat:active { transform: translateY(0); }
+
+.btnGhostChat {
+  font-size: 13px; font-weight: 500;
+  color: var(--ink-3);
+  background: none; border: none;
+  cursor: pointer; font-family: var(--f);
+  padding: 4px 8px;
+  align-self: center;
+  transition: color .15s;
+}
+.btnGhostChat:hover { color: var(--ink-2); }
+
 @keyframes fadeUp {
   to { opacity: 1; transform: translateY(0); }
 }
