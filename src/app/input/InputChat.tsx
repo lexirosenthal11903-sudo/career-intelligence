@@ -110,7 +110,8 @@ export default function InputChat() {
   }
 
   function handleFile(file: File) {
-    finishBackground(`CV: ${file.name}`);
+    setInputValue(`CV: ${file.name}`);
+    fieldRef.current?.focus();
   }
 
   function restart() {
@@ -167,6 +168,7 @@ export default function InputChat() {
             ref={listRef}
             className={`${s.messages}${chatStarted ? ` ${s.show}` : ""}`}
           >
+            <div className={s.msgSpacer} />
             {messages.map((msg, i) => {
               if (msg.kind === "ai") {
                 return (
