@@ -140,6 +140,7 @@
   border-radius: 12px; padding: 16px 20px;
   display: flex; align-items: center; gap: 16px;
   cursor: pointer; transition: border-color .15s, background .15s;
+  text-decoration: none; color: inherit;
 }
 .roleCard:hover { border-color: rgba(0,0,0,.13); background: var(--cream); }
 .roleCard:first-child { border-radius: 12px 12px 6px 6px; }

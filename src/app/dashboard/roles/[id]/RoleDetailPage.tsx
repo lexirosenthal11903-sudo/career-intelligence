@@ -184,7 +184,7 @@ export default function RoleDetailPage() {
             </div>
 
             {/* Live listings link */}
-            <a href="/dashboard/roles" className={s.listingsLink}>
+            <a href="/dashboard/roles?tab=listings&filter=Strategy+Analyst" className={s.listingsLink}>
               <div>
                 <div className={s.listingsLabel}>Live listings for Strategy Analyst</div>
                 <div className={s.listingsSub}>6 listings · best match first</div>

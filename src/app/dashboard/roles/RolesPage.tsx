@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import s from "./roles.module.css";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 31 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 31 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M30 50 Q40 55 50 50" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
@@ -88,7 +89,11 @@ const JOBS = [
 const FILTERS = ["All", "Strategy Analyst", "Operations Associate", "Business Analyst", "Management Consultant", "Chief of Staff", "Passed"];
 
 export default function RolesPage() {
-  const [tab, setTab] = useState<"types" | "listings">("types");
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") === "listings" ? "listings" : "types";
+  const initialFilter = searchParams.get("filter") ?? "All";
+
+  const [tab, setTab] = useState<"types" | "listings">(initialTab);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
 
@@ -104,7 +109,9 @@ export default function RolesPage() {
       return next;
     });
   }
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [activeFilter, setActiveFilter] = useState(
+    FILTERS.includes(initialFilter) ? initialFilter : "All"
+  );
   const [interested, setInterested] = useState<Set<string>>(
     new Set(JOBS.filter((j) => j.initiallyInterested).map((j) => j.id))
   );
@@ -215,7 +222,7 @@ export default function RolesPage() {
             {tab === "types" && (
               <div className={s.roleCards}>
                 {ROLE_TYPES.map((role) => (
-                  <div key={role.id} className={s.roleCard}>
+                  <a key={role.id} href={`/dashboard/roles/${role.id}`} className={s.roleCard}>
                     <div className={s.roleCardBody}>
                       <div className={s.roleCardTitle}>{role.title}</div>
                       <div className={s.roleCardDesc}>{role.desc}</div>
@@ -230,7 +237,7 @@ export default function RolesPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M2 6h8M6 2l4 4-4 4" />
                       </svg>
                     </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             )}
