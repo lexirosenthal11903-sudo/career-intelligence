@@ -1,6 +1,6 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: Session 21, 2026-06-11_
+_Last updated: Session 22, 2026-06-11_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
 
@@ -89,7 +89,7 @@ The following Phase 1 items predated the current design system and are now super
 
 ---
 
-## → Phase 2: Visual Redesign (Stage 1 Build) — CURRENT
+## Phase 2: Visual Redesign (Stage 1 Build) — COMPLETE ✓
 
 _Goal: Implement all locked designs. The product looks and feels like the designed version._
 
@@ -135,13 +135,64 @@ _When all screen implementations are done: dedicated QA session first. Lexi walk
   - Cookie consent banner: added to root layout (GDPR required)
   - Parking lot additions: daily/weekly Arlo planning (Phase 3); restart behaviour revisit (Phase 3)
   - Phase 5 polish observations logged: transitions, card design, loading Arlo animation, skills ordering, applications prep, live listings order
-- [ ] **Launch review** — after walkthrough is signed off. Decide: launch to first 100 users, or continue to Phase 3 first. Explicit decision point.
+- [x] **Launch review checkpoint** — walkthrough signed off Session 21. Decision: continue to Phase 3a (make the product real) before launch. Phase 3b optional before launch — Lexi decides after 3a is done.
 
 ---
 
-## Phase 3: The Hand-Holding Layer
+## → Phase 3a: Make It Real — CURRENT
+
+_Goal: Wire the existing backend to the new frontend. A user can go through the full journey with real data. This is the minimum working product._
+
+**What this phase is not:** it's not a prototype, and it's not building new features. It's connecting the pipes. The API functions already exist in `src/app/api/`. Phase 3a makes the new frontend use them.
+
+**Before first build session:**
+- [ ] **Grill-me on advisor persona depth** — INSIGHTS.md flags this explicitly: the real depth of tone shifts, edge cases, and what Arlo never says likely still lives in Lexi's head. Run `/grill-me` targeted at `chat.js` and `ADVISOR_PERSONA.md` before any chat wiring begins. Output goes to `brainstorms/`.
+- [ ] **Product name session** — cannot launch without a real name. "Career Intelligence" is a working title. Dedicated creative session: options, stress-test, decision. Do this before Phase 3a ships publicly.
+
+**Auth:**
+- [ ] Wire Google OAuth via Supabase to `AuthModal.tsx` — this is the primary auth path
+- [ ] Basic session persistence — user stays logged in across visits
+- [ ] Fix OTP sign-in failure ("Load failed") — secondary auth path; fix before launch if email sign-in is supported, deprioritise if Google OAuth is sufficient
+
+**Core pipeline:**
+- [ ] Wire input page → `analyse.js` → results (direction + roles inferred from CV)
+- [ ] Save analysis results to Supabase on completion (direction, role suggestions, CV summary)
+- [ ] Fix 90s pipeline — use `/goal`: stream progress to user, Haiku for extraction (`extract.js`), Sonnet for intelligence (`analyse.js`). Done when first token appears within 3 seconds and full result loads within 30 seconds on staging. See INSIGHTS.md section 1.
+- [ ] Wire Adzuna job listings to Roles tab — real live listings, not placeholder cards
+
+**Arlo chat:**
+- [ ] Wire `chat.js` to the Arlo panel in Dashboard — real responses, not placeholder "I'll respond when connected"
+- [ ] Advisor reads user context on load — direction, CV summary, saved roles — from Supabase
+- [ ] Design Supabase memory schema: activity log table, conversation history table, user profile snapshot. See INSIGHTS.md Phase 3+ section on cross-session advisor memory.
+
+**Basic persistence:**
+- [ ] Save/pass roles writes to Supabase and persists across sessions
+- [ ] Applications tab reads from and writes to real Supabase data
+- [ ] Profile tab shows real user name (from auth or CV extraction), not hardcoded
+
+**Analytics — set up before first real user lands:**
+- [ ] **Vercel Analytics** — zero config, already in the stack, cookie-free, GDPR-safe. Minimum metrics: input flow completion rate + 7-day return rate. Those two numbers tell you if the product is working.
+
+**Legal and compliance — must complete before first real user:**
+- [ ] **ICO registration** — ⚠️ legally required before processing any real UK user data. Free, £40/year for small orgs, 20 minutes at ico.org.uk/registration. **Reminder: do this before any real user signs up, not before launch.** Lexi deferred 2026-06-11 — remind at start of production deployment session.
+- [ ] **Real privacy policy** — replace stub at `/privacy`. Draft from template, solicitor review. Covers: data collected, retention (90 days), right to deletion, CV data handling.
+- [ ] **Real terms of service** — replace stub at `/terms`. Draft + solicitor review.
+- [ ] **Right to deletion** — verify Supabase 90-day deletion works end-to-end. Test it. The delete button in Profile is already wired to navigate away — Phase 3a wires the actual Supabase deletion.
+- [ ] **GitHub token rotation** — ⚠️ must happen before any real user signs up. Lexi has been deferring — do not proceed to production with real users without this.
+
+**Phase 3a complete → launch review** — decide whether to launch now or continue to Phase 3b first. Lexi's call.
+
+---
+
+## Phase 3b: The Hand-Holding Layer
 
 _Goal: Every job the user saves becomes a full guided journey. This is the product's core promise._
+
+**Copy and product voice — do before launch:**
+- [ ] **Advisor persona grill-me** (if not done before Phase 3a) — see above
+- [ ] **Homepage copy session** — final homepage copy, including the Meraki/Satori/Kavanah narrative. Currently placeholder. Must happen before launch. Use `/copywriting` skill.
+- [ ] **UI copy session** — all non-advisor copy: auth overlay, onboarding prompts, button labels, empty states, error messages, nav labels. Placeholder copy is in place — this session makes it final. Use `/copywriting` skill.
+- [ ] **Advisor voice examples** — 20–30 sample Arlo messages across all key moments. The voice reference for all future copy.
 
 **Product philosophy for this phase — Arlo does it, doesn't just guide.**
 Arlo doesn't tell the user what to write. It writes it. CV built and tailored for each specific job. Cover letter written, not prompted. Email opened pre-filled, user clicks send. Every step of every application handled — the user provides intent and approval, Arlo provides execution. This is what separates the product from every other career tool.
@@ -184,12 +235,9 @@ _Goal: The product knows more than the user has told it. It brings external inte
 
 ## Phase 5: Growth & Polish
 
-_Goal: The product is ready for scale. Design is perfect. Copy is final. Mobile works._
+_Goal: The product is ready for scale. Design is perfect. Mobile works._
 
-- [ ] **Advisor character session** — name, icon, full backstory (Juno-model from Jack & Jill reference). This gives the advisor a specific personality, not just rules.
-- [ ] **Voice examples session** — 20–30 sample advisor messages across all key moments. The voice reference for all future copy.
-- [ ] **Landing page copy session** — final homepage copy, including Meraki/Satori/Kavanah as narrative element. Three words displayed on the landing page.
-- [ ] **UI copy session** — all non-advisor copy: auth overlay, onboarding prompts, button labels, empty states, error messages, nav labels. Placeholder copy is in place from Phase 0/2 — this session makes it final.
+- [ ] **Advisor character elevation** — full backstory, name finalised, icon elevated beyond current SVG approximation (see Arlo upgrade note in Phase 2). Juno-model from Jack & Jill reference.
 - [ ] **Design elevation pass** — not a redesign. Systematically elevate every screen: depth, shadow hierarchy, spacing rhythm, typographic fine-tuning. Session per screen or grouped by component type.
 - [ ] **Page transitions & animations** — Next.js App Router + Framer Motion (or CSS View Transitions API). Key moments: page-to-page fade/slide, Arlo message appear, direction card reveal, role cards loading, progress bar animation in Skills. Reference: Linear's transitions. Reduced-motion always supported.
 - [ ] **Full animation pass** — micro-interactions across all components: button lifts, card hovers, input focus states, send button press. One sweep after page transitions are done.

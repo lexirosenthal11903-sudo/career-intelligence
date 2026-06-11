@@ -146,31 +146,31 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Current Phase
 
-**Phase 2 — Visual Redesign. All screens built. QA + Lexi's walkthrough complete (Session 21, 2026-06-11). Next: launch review decision.**
+**Phase 3a — Make It Real (Session 22, 2026-06-11). Wire existing backend to new frontend. Next: grill-me on advisor persona → product name session → first Phase 3a build session.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
 **Phase 1 — Foundation Engineering. PARTIALLY COMPLETE ✓**
 - ✓ Next.js scaffold (Session 17) — App Router + TS, all 9 API functions ported, legacy frontend preserved
 - ✓ Project architecture and CSS module conventions established
-- ⬜ Remaining Phase 1 items (Supabase schema, advisor tools API, legal/compliance, OTP bug fix, testing) — deferred; address as they block Phase 3
+- ⬜ Remaining Phase 1 items (Supabase schema, advisor tools API, OTP bug, testing) — address as they block Phase 3a
 
-**Phase 2 — All screens built (Session 19, 2026-06-11):**
-- ✓ Homepage · Input page · Loading screen
-- ✓ Dashboard home (3 returning-user states — new-roles / deadline / nothing-new; defaults to new-roles; Phase 3 wires to real data)
-- ✓ Roles tab + Role detail (`/dashboard/roles/[id]/`) — role cards clickable, listings deep-link working
-- ✓ Applications tab · Skills tab · Profile tab
-- ✓ Auth modal (Google OAuth button + email OTP UI; Supabase wiring Phase 3)
-- ✓ Analysis error page · Offline banner (wired to dashboard layout)
-- ✓ Onboarding bridge (`/onboarding-bridge`) — inline feedback chat; direction card stays visible when user says "something doesn't feel right"; Phase 3 wires feedback to real re-analysis
+**Phase 2 — Visual Redesign. COMPLETE ✓** All screens built + QA + walkthrough (Sessions 19–21, 2026-06-11). See ROADMAP.md for full detail.
 
-**QA complete (Session 20, 2026-06-11):** 66 issues audited and resolved. CSS token pass done. See ROADMAP.md Phase 2 QA section.
+**Phase 3a — What needs to happen:**
+- Grill-me on advisor persona (before chat.js wiring)
+- Product name session (before launch)
+- Google OAuth wired via Supabase
+- CV analysis pipeline → real results → Supabase persistence
+- 90s pipeline fix (streaming, Haiku/Sonnet split) — use `/goal`
+- Adzuna real job listings in Roles tab
+- Arlo chat wired to `chat.js` with user context
+- ICO registration + real privacy/terms before first real user
+- GitHub token rotation before first real user
 
-**Lexi's walkthrough complete (Session 21, 2026-06-11):** Later/dismiss fade fixed, profile confirmations added, cookie banner added, greeting de-hardcoded. Phase 5 polish observations logged in ROADMAP.md. Restart behaviour revisit logged for Phase 3.
+**Phase 3b — Hand-holding layer (CV builder, cover letters, interview prep, contacts) + copywriting sessions. Lexi decides after Phase 3a whether to do 3b before launch.**
 
 **Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel Production env. Run `/deploy-check`.
-
-**GitHub token rotation:** still deferred — must happen before any real users.
 
 **Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
 
