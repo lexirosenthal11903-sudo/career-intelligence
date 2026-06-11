@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import s from "./skills.module.css";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
@@ -34,6 +34,12 @@ const plusIcon = (
 const starIcon = (
   <svg fill="none" viewBox="0 0 9 9" stroke="currentColor" strokeWidth="1.8">
     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 1l.9 2.6h2.7l-2.2 1.6.8 2.6-2.2-1.6-2.2 1.6.8-2.6L.9 3.6h2.7z" />
+  </svg>
+);
+
+const uploadIcon = (
+  <svg width="12" height="12" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth="1.8">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 8V2M3 5l3-3 3 3M2 10h8" />
   </svg>
 );
 
@@ -91,23 +97,39 @@ const INITIAL_DONE: Skill[] = [
     name: "BCG Strategy Simulation",
     time: "",
     tags: ["Management consulting"],
-    resource: { label: "", type: "free", badge: "" },
+    resource: { label: "", type: "cert", badge: "" },
     initiallyDone: true,
   },
 ];
 
 const ALL_SKILLS = [...BEFORE_APPLY, ...WORTH_BUILDING, ...INITIAL_DONE];
 
+function formatDate(d: Date) {
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
 export default function SkillsPage() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
+  const chatInputRef = useRef<HTMLInputElement>(null);
   const [completedOpen, setCompletedOpen] = useState(false);
   const [done, setDone] = useState<Set<string>>(
-    new Set(ALL_SKILLS.filter((s) => s.initiallyDone).map((s) => s.id))
+    new Set(ALL_SKILLS.filter((sk) => sk.initiallyDone).map((sk) => sk.id))
   );
+  const [doneAt, setDoneAt] = useState<Record<string, Date>>(() => {
+    const initial: Record<string, Date> = {};
+    ALL_SKILLS.filter((sk) => sk.initiallyDone).forEach((sk) => {
+      initial[sk.id] = new Date(2026, 5, 8); // Jun 8 as example pre-existing date
+    });
+    return initial;
+  });
   const [inProgress, setInProgress] = useState<Set<string>>(
-    new Set(ALL_SKILLS.filter((s) => s.initiallyInProgress).map((s) => s.id))
+    new Set(ALL_SKILLS.filter((sk) => sk.initiallyInProgress).map((sk) => sk.id))
   );
+  const [certOpen, setCertOpen] = useState<Set<string>>(new Set());
+  const [certMode, setCertMode] = useState<Record<string, "link" | "upload">>({});
+  const [certLinks, setCertLinks] = useState<Record<string, string>>({});
+  const [certLinkDraft, setCertLinkDraft] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
@@ -122,17 +144,45 @@ export default function SkillsPage() {
     });
   }
 
+  function markStarted(id: string) {
+    setInProgress((prev) => new Set([...prev, id]));
+  }
+
   function markDone(id: string) {
     setDone((prev) => new Set([...prev, id]));
+    setDoneAt((prev) => ({ ...prev, [id]: new Date() }));
+    setInProgress((prev) => { const next = new Set(prev); next.delete(id); return next; });
+    setCompletedOpen(true);
+  }
+
+  function markIncomplete(id: string) {
+    setDone((prev) => { const next = new Set(prev); next.delete(id); return next; });
+    setDoneAt((prev) => { const next = { ...prev }; delete next[id]; return next; });
+  }
+
+  function undoStarted(id: string) {
     setInProgress((prev) => { const next = new Set(prev); next.delete(id); return next; });
   }
 
-  function toggleInProgress(id: string) {
-    setInProgress((prev) => {
+  function toggleCert(id: string) {
+    setCertOpen((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  }
+
+  function saveCertLink(id: string) {
+    const link = certLinkDraft[id]?.trim();
+    if (!link) return;
+    setCertLinks((prev) => ({ ...prev, [id]: link }));
+    setCertLinkDraft((prev) => ({ ...prev, [id]: "" }));
+    setCertOpen((prev) => { const next = new Set(prev); next.delete(id); return next; });
+  }
+
+  function tellArlo(skillName: string) {
+    setChatValue(`I've completed ${skillName} and have my certificate.`);
+    setTimeout(() => chatInputRef.current?.focus(), 50);
   }
 
   const completedCount = done.size;
@@ -140,6 +190,10 @@ export default function SkillsPage() {
   function renderSkill(skill: Skill, showDone = false) {
     const isDone = done.has(skill.id);
     const isInProgress = inProgress.has(skill.id);
+    const isCertOpen = certOpen.has(skill.id);
+    const savedCertLink = certLinks[skill.id];
+    const isCert = skill.resource.type === "cert";
+    const currentCertMode = certMode[skill.id] ?? "link";
 
     if (isDone && !showDone) return null;
     if (!isDone && showDone) return null;
@@ -153,18 +207,14 @@ export default function SkillsPage() {
 
     return (
       <div key={skill.id} className={cardClass}>
+
+        {/* Top row */}
         <div className={s.skillTop}>
           <div className={s.skillName}>{skill.name}</div>
-          {isDone ? (
-            <div className={s.doneBadge}>
-              {checkSmall}
-              Done
-            </div>
-          ) : (
-            <div className={s.skillTime}>{skill.time}</div>
-          )}
+          {!isDone && <div className={s.skillTime}>{skill.time}</div>}
         </div>
 
+        {/* Tags */}
         {skill.tags.length > 0 && (
           <div className={s.skillMeta}>
             {skill.tags.map((t) => (
@@ -174,35 +224,113 @@ export default function SkillsPage() {
           </div>
         )}
 
+        {/* Resource */}
         {!isDone && skill.resource.label && (
           <div className={s.skillResource}>
-            <div className={`${s.resourceIcon} ${skill.resource.type === "cert" ? s.resourceCert : s.resourceFree}`}>
-              {skill.resource.type === "cert" ? starIcon : plusIcon}
+            <div className={`${s.resourceIcon} ${isCert ? s.resourceCert : s.resourceFree}`}>
+              {isCert ? starIcon : plusIcon}
             </div>
             <a href="#" className={s.resourceLink}>{skill.resource.label}</a>
             <span className={s.freeLabel}>{skill.resource.badge}</span>
           </div>
         )}
 
-        {isInProgress && !isDone && (
-          <div className={s.inProgressBadge}>
-            <span className={s.inProgressDot} />
-            In progress
+        {/* Saved certificate link */}
+        {savedCertLink && (
+          <div className={s.certSaved}>
+            {checkSmall}
+            <a href={savedCertLink} className={s.certSavedLink} target="_blank" rel="noreferrer">
+              Certificate saved
+            </a>
           </div>
         )}
 
-        {!isDone && (
-          <div className={s.skillActions}>
-            {!isInProgress && (
-              <button className={s.btnStarted} onClick={() => toggleInProgress(skill.id)}>
-                Mark as started
+        {/* Certificate input section — cert skills in progress or done */}
+        {isCert && !savedCertLink && (isInProgress || isDone) && (
+          <div className={s.certSection}>
+            {!isCertOpen ? (
+              <button className={s.certAddBtn} onClick={() => toggleCert(skill.id)}>
+                + Add certificate
               </button>
+            ) : (
+              <div className={s.certForm}>
+                <div className={s.certModeTabs}>
+                  <button
+                    className={`${s.certModeTab}${currentCertMode === "link" ? ` ${s.certModeTabActive}` : ""}`}
+                    onClick={() => setCertMode((p) => ({ ...p, [skill.id]: "link" }))}
+                  >
+                    Paste link
+                  </button>
+                  <button
+                    className={`${s.certModeTab}${currentCertMode === "upload" ? ` ${s.certModeTabActive}` : ""}`}
+                    onClick={() => setCertMode((p) => ({ ...p, [skill.id]: "upload" }))}
+                  >
+                    Upload file
+                  </button>
+                </div>
+
+                {currentCertMode === "link" ? (
+                  <div className={s.certInputRow}>
+                    <input
+                      className={s.certInput}
+                      type="url"
+                      placeholder="https://credential.net/..."
+                      value={certLinkDraft[skill.id] ?? ""}
+                      onChange={(e) => setCertLinkDraft((p) => ({ ...p, [skill.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Enter") saveCertLink(skill.id); }}
+                    />
+                    <button className={s.certSaveBtn} onClick={() => saveCertLink(skill.id)}>
+                      Save
+                    </button>
+                  </div>
+                ) : (
+                  <label className={s.certUploadArea}>
+                    <input type="file" accept=".pdf,image/*" className={s.certFileInput} />
+                    <span className={s.certUploadInner}>
+                      {uploadIcon}
+                      <span>Choose file or drag here</span>
+                    </span>
+                  </label>
+                )}
+
+                <button className={s.certTellArlo} onClick={() => { toggleCert(skill.id); tellArlo(skill.name); }}>
+                  Tell Arlo instead →
+                </button>
+              </div>
             )}
-            <button className={s.btnDone} onClick={() => markDone(skill.id)}>
-              Mark as done
-            </button>
           </div>
         )}
+
+        {/* Footer — single action unit */}
+        <div className={s.skillFooter}>
+          {isDone ? (
+            <>
+              <span className={s.doneDate}>
+                {checkSmall}
+                {doneAt[skill.id] ? formatDate(doneAt[skill.id]) : ""}
+              </span>
+              <button className={s.btnIncomplete} onClick={() => markIncomplete(skill.id)}>
+                Mark as incomplete
+              </button>
+            </>
+          ) : isInProgress ? (
+            <>
+              <div className={s.inProgressGroup}>
+                <span className={s.inProgressDot} />
+                <span className={s.inProgressLabel}>In progress</span>
+                <button className={s.undoBtn} onClick={() => undoStarted(skill.id)}>· undo</button>
+              </div>
+              <button className={s.btnMarkDone} onClick={() => markDone(skill.id)}>
+                Mark as done
+              </button>
+            </>
+          ) : (
+            <button className={s.btnStart} onClick={() => markStarted(skill.id)}>
+              Start
+            </button>
+          )}
+        </div>
+
       </div>
     );
   }
@@ -269,7 +397,6 @@ export default function SkillsPage() {
           {/* LEFT: Skills */}
           <div className={s.skillsPanel}>
 
-            {/* Direction card */}
             <div className={s.directionCard}>
               <div className={s.directionLabel}>Your direction</div>
               <div className={s.directionTitle}>Management Consulting</div>
@@ -286,7 +413,6 @@ export default function SkillsPage() {
               </div>
             </div>
 
-            {/* Before you apply */}
             <div className={s.skillSection}>
               <div className={s.sectionHead}>Before you apply</div>
               <div className={s.skillList}>
@@ -294,7 +420,6 @@ export default function SkillsPage() {
               </div>
             </div>
 
-            {/* Worth building */}
             <div className={s.skillSection}>
               <div className={s.sectionHead}>Worth building</div>
               <div className={s.skillList}>
@@ -302,7 +427,6 @@ export default function SkillsPage() {
               </div>
             </div>
 
-            {/* Completed */}
             <div className={s.skillSection}>
               <button
                 className={s.completedToggle}
@@ -348,22 +472,18 @@ export default function SkillsPage() {
                   problem-solving one — finishing it is the next move.
                 </div>
               </div>
-
               <div className={s.userMsg}>
                 <div className={s.userBubble}>Just finished the BCG Forward simulation</div>
               </div>
-
               <div className={s.aiMsg}>
                 <div className={s.aiBubble}>
                   Good — that&apos;s a real differentiator for consulting roles. Share the
-                  certificate and I&apos;ll mark it as complete and add it to your profile.
+                  certificate link and I&apos;ll log it to your profile.
                 </div>
               </div>
-
               <div className={s.userMsg}>
                 <div className={s.userBubble}>Here&apos;s the link: bcg.com/forward/certificate/...</div>
               </div>
-
               <div className={s.aiMsg}>
                 <div className={s.aiBubble}>
                   Done — it&apos;s on your profile. Want me to add it to your CV too?
@@ -373,7 +493,6 @@ export default function SkillsPage() {
                   picking up next — it comes up a lot at <strong>Monzo</strong> and it&apos;s free.
                 </div>
               </div>
-
               <div className={`${s.aiBubble} ${s.aiBubbleSignpost}`}>
                 Ask me about anything else — interview prep, networking, or something you just
                 want to learn.
@@ -383,6 +502,7 @@ export default function SkillsPage() {
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input
+                  ref={chatInputRef}
                   className={s.mentorInput}
                   type="text"
                   placeholder="Ask Arlo…"

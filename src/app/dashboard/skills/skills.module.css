@@ -181,46 +181,128 @@
   font-size: 10px; color: #3E9B6B; font-weight: 600; font-family: var(--fm);
 }
 
-.inProgressBadge {
-  display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
-  font-size: 10px; font-weight: 700; font-family: var(--fm);
-  color: #3E9B6B; letter-spacing: .04em; text-transform: uppercase;
+/* ── CERTIFICATE SECTION ── */
+.certSection { margin-top: 10px; }
+.certAddBtn {
+  font-family: var(--f); font-size: 12px; font-weight: 500;
+  color: var(--accent); background: none; border: none;
+  padding: 0; cursor: pointer; transition: opacity .15s;
 }
+.certAddBtn:hover { opacity: .7; }
+.certForm {
+  background: var(--cream); border-radius: 10px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.certModeTabs {
+  display: flex; gap: 2px;
+  background: var(--surface); border-radius: 7px; padding: 2px;
+  width: fit-content;
+}
+.certModeTab {
+  font-family: var(--f); font-size: 11px; font-weight: 500;
+  color: var(--ink-3); background: none; border: none;
+  border-radius: 5px; padding: 4px 10px; cursor: pointer;
+  transition: all .12s;
+}
+.certModeTabActive {
+  background: var(--surface); color: var(--ink); font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.certInputRow { display: flex; gap: 6px; align-items: center; }
+.certInput {
+  flex: 1; font-family: var(--f); font-size: 12.5px;
+  color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 7px;
+  padding: 7px 10px; outline: none;
+  transition: border-color .15s;
+}
+.certInput:focus { border-color: var(--accent); }
+.certInput::placeholder { color: var(--ink-3); }
+.certSaveBtn {
+  font-family: var(--f); font-size: 12px; font-weight: 600;
+  color: #fff; background: var(--accent); border: none;
+  border-radius: 7px; padding: 7px 14px; cursor: pointer;
+  white-space: nowrap; flex: none; transition: background .12s;
+}
+.certSaveBtn:hover { background: #8f4f10; }
+.certUploadArea {
+  display: block; cursor: pointer;
+  border: 1.5px dashed var(--line); border-radius: 8px; padding: 16px;
+}
+.certFileInput { display: none; }
+.certUploadInner {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 12.5px; color: var(--ink-3);
+}
+.certUploadInner svg { opacity: .6; }
+.certTellArlo {
+  font-family: var(--f); font-size: 12px; font-weight: 500;
+  color: var(--ink-3); background: none; border: none;
+  padding: 0; cursor: pointer; text-align: left; transition: color .15s;
+}
+.certTellArlo:hover { color: var(--accent); }
+.certSaved {
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 8px; font-size: 12px; font-weight: 500; color: #3E9B6B;
+}
+.certSaved svg { width: 10px; height: 10px; }
+.certSavedLink { color: #3E9B6B; text-decoration: none; font-weight: 500; }
+.certSavedLink:hover { text-decoration: underline; }
+
+/* ── SKILL FOOTER (single action unit) ── */
+.skillFooter {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--line); min-height: 30px;
+}
+
+/* Not started */
+.btnStart {
+  font-family: var(--f); font-size: 12px; font-weight: 600;
+  color: var(--ink-3); background: none;
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 5px 14px; cursor: pointer; margin-left: auto;
+  transition: all .15s;
+}
+.btnStart:hover { background: var(--cream); color: var(--ink-2); }
+
+/* In progress */
+.inProgressGroup { display: flex; align-items: center; gap: 5px; }
 .inProgressDot {
   width: 6px; height: 6px; border-radius: 50%;
   background: #3E9B6B; flex: none;
 }
-
-.doneBadge {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 10px; font-weight: 700; letter-spacing: .05em;
-  text-transform: uppercase; color: #3E9B6B; font-family: var(--fm);
-  flex: none;
+.inProgressLabel {
+  font-size: 11px; font-weight: 700; font-family: var(--fm);
+  color: #3E9B6B; letter-spacing: .04em; text-transform: uppercase;
 }
-.doneBadge svg { width: 10px; height: 10px; }
-
-/* Skill action buttons */
-.skillActions {
-  display: flex; align-items: center; gap: 8px;
-  margin-top: 12px; padding-top: 12px;
-  border-top: 1px solid var(--line);
+.undoBtn {
+  font-family: var(--f); font-size: 11px; font-weight: 500;
+  color: var(--ink-3); background: none; border: none;
+  padding: 0; cursor: pointer; margin-top: 1px; transition: color .15s;
 }
-.btnStarted {
-  font-family: var(--f); font-size: 12px; font-weight: 500;
-  color: var(--ink-3); background: none;
-  border: none; padding: 0; cursor: pointer;
-  transition: color .15s;
-}
-.btnStarted:hover { color: var(--ink-2); }
-.btnDone {
+.undoBtn:hover { color: var(--ink-2); }
+.btnMarkDone {
   font-family: var(--f); font-size: 12px; font-weight: 600;
-  color: var(--ink-3); background: none;
-  border: 1px solid var(--line); border-radius: 8px;
-  padding: 5px 12px; cursor: pointer; white-space: nowrap;
-  margin-left: auto;
+  color: #3E9B6B; background: rgba(62,155,107,.1);
+  border: 1px solid rgba(62,155,107,.25); border-radius: 8px;
+  padding: 5px 14px; cursor: pointer; white-space: nowrap;
   transition: all .15s;
 }
-.btnDone:hover { background: rgba(62,155,107,.1); color: #3E9B6B; border-color: rgba(62,155,107,.25); }
+.btnMarkDone:hover { background: rgba(62,155,107,.18); }
+
+/* Done */
+.doneDate {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-family: var(--fm); color: #3E9B6B;
+}
+.doneDate svg { width: 10px; height: 10px; }
+.btnIncomplete {
+  font-family: var(--f); font-size: 11px; font-weight: 500;
+  color: var(--ink-3); background: none; border: none;
+  padding: 0; cursor: pointer; transition: color .15s;
+}
+.btnIncomplete:hover { color: var(--ink-2); }
 
 /* Completed section */
 .completedToggle {

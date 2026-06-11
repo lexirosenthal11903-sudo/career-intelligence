@@ -219,6 +219,14 @@ SVG arc approach failed at small render size (arc appears as full circle). Durin
 **Phase 5 — Applications card overflow menu (•••)**
 Replace the current Archive ghost button with a proper `•••` overflow menu per card. Actions: Archive, Go back a stage, Mark as rejected, Delete. Lexi's idea from Session 19. Current ghost button is the interim solution. "Go back a stage" added Session 19 as the undo path for accidental stage advances.
 
+**Phase 6+ — Platform intelligence & audit loop**
+A continuous internal intelligence system that monitors its own outputs and flags quality issues automatically. Lexi's idea from Session 19. Needs a dedicated planning session before activation. Key components:
+- Self-auditing AI layer: monitors advice quality, data accuracy, tone consistency, logical errors, and anything that deviates from the expected pattern
+- Role-based audit personas: Engineer (data integrity, API errors, pipeline failures), Designer (visual regressions, token drift, accessibility), Product (feature quality, user flows, edge cases), and 5 user archetypes — the Anxious Graduate (overwhelmed, uncertain), the Career Switcher (motivated but lost), the Underconfident Achiever (strong background, low self-belief), the Direction-Seeker (no idea what they want), the Almost Ready (close to applying, needs a push)
+- Continuous loop: not a one-time audit — runs as a background process, surfaces anomalies proactively
+- Governance: defines who can action each type of finding (engineer vs. designer vs. product owner)
+- Must be designed in a dedicated session before any build begins — scope, role taxonomy, audit triggers, and escalation paths all need to be locked first
+
 ---
 
 ## Document hierarchy — which file wins
