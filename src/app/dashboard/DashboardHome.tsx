@@ -140,7 +140,7 @@ export default function DashboardHome() {
           {/* LEFT */}
           <div className={s.homePanel}>
             <div className={s.greetingDate}>{getGreeting()} · {getDateLabel()}</div>
-            <div className={s.greetingName}>{userName ? `Welcome back, ${userName}.` : "Welcome back."}</div>
+            <div className={s.greetingName}>{userName ? `Welcome back, ${userName}.` : `${getGreeting()}.`}</div>
 
             <div className={s.directionCard}>
               <h2>Your direction</h2>
