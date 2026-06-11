@@ -1,5 +1,20 @@
 import type { Metadata } from "next";
+import { Instrument_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
+
+const instrumentSans = Instrument_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--f",
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--fm",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Career Intelligence",
@@ -12,8 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className={`${instrumentSans.variable} ${dmMono.variable}`}>
+      <body style={{ fontFamily: "var(--f, system-ui, sans-serif)" }}>
+        {children}
+      </body>
     </html>
   );
 }
