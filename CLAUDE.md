@@ -117,10 +117,10 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-11)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-12)
 
-**We are in Phase 3a. The next session is Session 24: Supabase Auth Wiring.**
-Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
+**We are in Phase 3a. The next session is Session 26: Adzuna Jobs Wiring.**
+Read `PLAYBOOK.md` Phase 3a → Session 26 for the full brief before starting.
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
@@ -129,14 +129,22 @@ Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
 4. Check `INSIGHTS.md` — find sections tagged with the current phase
 5. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]. From INSIGHTS.md: [relevant guidance]."
 
-**For Session 25 specifically:**
-- Model: Sonnet is fine — switch to Opus if streaming architecture gets complex
-- Wire: input page → `/api/analyse` → SSE streaming → loading screen → save result to Supabase → onboarding bridge with real direction data
-- SSE streaming was deferred from Session 23 — Session 25 is where it gets built end-to-end
-- Context7 MCP installed globally — use it to pull live Next.js + Supabase docs
+**Before Session 26 (Lexi does this):**
+- Create `results` table in Supabase SQL editor — see SQL below
+- Test the full pipeline on staging first: input page → loading → onboarding bridge
 
-**Before Session 25 (Lexi does this):**
-- Add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel **Production** environment (currently Preview/staging only)
+**Supabase SQL — run once in the SQL editor before testing Session 25 work:**
+```sql
+CREATE TABLE results (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  data JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+ALTER TABLE results ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert own results" ON results FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can read own results" ON results FOR SELECT TO authenticated USING (auth.uid() = user_id);
+```
 
 **Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
 **Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
@@ -159,7 +167,7 @@ Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
 
 ## Current Phase
 
-**Phase 3a — Make It Real. Session 24 COMPLETE (2026-06-12). Next: Session 25 — CV Pipeline Wiring.**
+**Phase 3a — Make It Real. Session 25 COMPLETE (2026-06-12). Next: Session 26 — Adzuna Jobs Wiring.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
@@ -178,8 +186,14 @@ Read `PLAYBOOK.md` Phase 3a → Session 24 for the full brief before starting.
 - ✓ Real name/email shown in Dashboard greeting and Profile tab
 - ✓ HomepageNav auto-opens signin modal on ?signin=required redirect
 
+**Phase 3a — Session 25 COMPLETE ✓ (2026-06-12):**
+- ✓ InputChat: real file extraction via /api/extract, all inputs saved to sessionStorage
+- ✓ analyse/route.ts: SSE streaming (enrichOnly branch unchanged)
+- ✓ LoadingScreen: SSE consumer — phrase cycling for UX, saves result on complete
+- ✓ OnboardingBridgePage: reads real direction + summary + role titles from sessionStorage
+- ✓ save-result called fire-and-forget on complete (needs `results` table in Supabase — SQL in START HERE)
+
 **Phase 3a — Remaining:**
-- ⬜ Session 25: CV pipeline wiring + SSE streaming (input → analyse → loading screen → save → onboarding bridge)
 - ⬜ Session 26: Adzuna real job listings in Roles tab
 - ⬜ Session 27: Arlo chat wired to chat.js with user context
 - ⬜ ICO registration + real privacy/terms before first real user
