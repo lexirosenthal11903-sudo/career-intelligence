@@ -119,8 +119,8 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## ⚠️ START HERE — Session Continuity (updated 2026-06-12)
 
-**We are in Phase 3a. The next session is Session 26: Adzuna Jobs Wiring.**
-Read `PLAYBOOK.md` Phase 3a → Session 26 for the full brief before starting.
+**We are in Phase 3a. The next session is Session 27: Arlo Chat Wiring.**
+Read `PLAYBOOK.md` Phase 3a → Session 27 for the full brief before starting.
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
@@ -129,9 +129,10 @@ Read `PLAYBOOK.md` Phase 3a → Session 26 for the full brief before starting.
 4. Check `INSIGHTS.md` — find sections tagged with the current phase
 5. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]. From INSIGHTS.md: [relevant guidance]."
 
-**Before Session 26 (Lexi does this):**
-- Add `ANTHROPIC_API_KEY` to Vercel environment variables (it's in .env.local locally but not on Vercel — pipeline will fail on staging without it)
-- Test the full pipeline on staging URL once key is added
+**⚠️ Challenge before building — standing instruction:**
+Before writing any code in response to Lexi describing a problem or idea: state your understanding of the problem, ask 1-2 clarifying questions, confirm. Never interpret and immediately act. This is a co-founder role — engage first, build second.
+
+**Known gap to fix in Session 27:** Users who ran analysis without auth have their result only in sessionStorage — save-result 401'd silently. If they close the tab and return, result is gone. Fix: on dashboard load, if sessionStorage has a result and /api/results returns nothing, re-call /api/save-result to persist it now that the user is authed.
 
 **Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
 **Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
@@ -154,7 +155,7 @@ Read `PLAYBOOK.md` Phase 3a → Session 26 for the full brief before starting.
 
 ## Current Phase
 
-**Phase 3a — Make It Real. Session 25 COMPLETE (2026-06-12). Next: Session 26 — Adzuna Jobs Wiring.**
+**Phase 3a — Make It Real. Session 26 COMPLETE (2026-06-12). Next: Session 27 — Arlo Chat Wiring.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
@@ -180,9 +181,25 @@ Read `PLAYBOOK.md` Phase 3a → Session 26 for the full brief before starting.
 - ✓ OnboardingBridgePage: reads real direction + summary + role titles from sessionStorage
 - ✓ save-result called fire-and-forget on complete — `results` table recreated with correct schema (CASCADE drop fixed schema mismatch from previous session)
 
+**Phase 3a — Session 26 COMPLETE ✓ (2026-06-12):**
+- ✓ Adzuna real job listings in Roles tab (RolesPage reads sessionStorage → /api/results → /api/jobs → /api/score)
+- ✓ /api/results endpoint created (GET latest analysis from Supabase)
+- ✓ Pipeline architectural fix: two parallel Anthropic calls (~700 + ~1,100 tokens each), Vercel Hobby safe
+- ✓ LoadingScreen: redirect to /analysis-error on stream close without complete event
+- ✓ Auth callback: respects ?next param for all users (not just returning)
+- ✓ AuthModal: redirectTo prop — overrides isNewUser routing for both OAuth and OTP
+- ✓ OnboardingBridgePage: checks auth before navigating; opens auth modal with redirectTo=/dashboard
+- ✓ "Continue without saving" → /dashboard; /dashboard accessible without auth
+- ✓ Jobs: shorter keywords (1-3 words, mixed role/industry/function), fallback search if < 5 results
+- ✓ Jobs: score < 4 filtered out, industry-aware scoring, cross-domain collision detection
+- ✓ Jobs: 5 shown initially, Load more +5
+- ✓ Filter pills: simplified to All + Passed only
+- ✓ Input textarea: auto-expands, resets height after send
+- ✓ INSIGHTS.md: standing rule on Anthropic token budgets + call architecture
+
 **Phase 3a — Remaining:**
-- ⬜ Session 26: Adzuna real job listings in Roles tab
-- ⬜ Session 27: Arlo chat wired to chat.js with user context
+- ⬜ Session 27: Arlo chat wired to /api/chat with user context + conversation history
+- ⬜ Session 27: Fix unauthenticated result persistence (re-call save-result on dashboard load if needed)
 - ⬜ ICO registration + real privacy/terms before first real user
 - ⬜ GitHub token rotation before first real user
 - ⬜ Rate limiting activation (Upstash already installed) before first real user

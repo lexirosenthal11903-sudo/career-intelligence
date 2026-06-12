@@ -408,22 +408,19 @@ _Phase 0 + 1 + 2 complete. All sessions below are the next work to do._
 
 ---
 
-### Session 26: Jobs + Roles Wiring
+### Session 26: Jobs + Roles Wiring — COMPLETE ✓ (2026-06-12)
 
-**What it achieves:** Roles tab shows real live Adzuna listings based on the user's actual analysis results.
+**What was done:**
+- RolesPage wired: sessionStorage → /api/results → /api/jobs → /api/score → ranked listings
+- /api/results endpoint created (GET latest analysis from Supabase)
+- Pipeline split into two parallel Anthropic calls (token budget fix for Vercel Hobby)
+- LoadingScreen: stream-close-without-complete → /analysis-error (no more infinite freeze)
+- Auth flow fixed: new users from analysis → /dashboard (not /input); "Continue without saving" → /dashboard; /dashboard accessible without auth
+- Jobs: shorter keywords (1-3 words), fallback search, score < 4 filtered, industry-aware scoring
+- Filter pills: All + Passed only; 5 listings shown with Load more; keyword tag removed from cards
+- Input textarea: auto-expands, collapses after send
 
-**Read first:**
-- `src/app/dashboard/roles/` — current roles pages
-- `src/app/api/jobs/route.ts` — already solid, ready to use
-
-**What to wire:**
-- Roles tab reads user's `searchKeywords` and `locationSearch` from Supabase (set by analyse.js)
-- Calls `/api/jobs` with those keywords → real listings in the Live Listings tab
-- Score/rank listings — `/api/score` route
-- Interested/Pass actions write to Supabase via `/api/save-job`
-- Role type tab (Role types) reads from the user's `suggestedDirections` from analysis results
-
-**Done when:** Real jobs from Adzuna appear in Roles tab, ranked, based on the user's actual profile. Save/pass persists. `/deploy-check` passes.
+**Known gap carried to Session 27:** Users who ran analysis without being authenticated have results only in sessionStorage. save-result 401'd silently. If they close the tab, result is gone. Fix: on dashboard load, if sessionStorage has a result and /api/results returns nothing, re-call /api/save-result.
 
 ---
 
