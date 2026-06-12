@@ -34,16 +34,6 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  if (pathname.startsWith('/dashboard')) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/';
-      url.searchParams.set('signin', 'required');
-      return NextResponse.redirect(url);
-    }
-    return response;
-  }
-
   return response;
 }
 
@@ -54,6 +44,5 @@ export const config = {
     '/api/save-result/:path*',
     '/api/score/:path*',
     '/api/profile/:path*',
-    '/dashboard/:path*',
   ],
 };

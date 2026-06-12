@@ -22,9 +22,11 @@ interface Props {
   initialView?: "signup" | "signin";
   /** When set, overrides the isNewUser routing after auth completes. */
   redirectTo?: string;
+  /** Called when the user explicitly clicks "Continue without saving". */
+  onContinueWithoutSaving?: () => void;
 }
 
-export default function AuthModal({ isOpen, onClose, initialView = "signup", redirectTo }: Props) {
+export default function AuthModal({ isOpen, onClose, initialView = "signup", redirectTo, onContinueWithoutSaving }: Props) {
   const [view, setView] = useState<AuthView>(initialView);
   const [email, setEmail] = useState("");
   const [otpValue, setOtpValue] = useState("");
@@ -179,7 +181,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
             </form>
 
             {view === "signup" && (
-              <button className={s.linkSecondary} onClick={onClose}>
+              <button className={s.linkSecondary} onClick={onContinueWithoutSaving ?? onClose}>
                 <span>Continue without saving</span>
               </button>
             )}

@@ -209,6 +209,10 @@ export default function OnboardingBridgePage() {
         onClose={() => setAuthOpen(false)}
         initialView="signup"
         redirectTo="/dashboard"
+        onContinueWithoutSaving={() => {
+          setAuthOpen(false);
+          router.push("/dashboard");
+        }}
       />
     </div>
   );
