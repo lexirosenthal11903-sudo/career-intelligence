@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import s from "./roles.module.css";
 
@@ -16,90 +16,221 @@ const sendIcon = (
 
 type ChatMsg = { role: "arlo" | "user"; text: string };
 
-const ROLE_TYPES = [
-  {
-    id: "strategy-analyst",
-    title: "Strategy Analyst",
-    desc: "Turn ambiguous business problems into structured recommendations. Analysis-heavy, high exposure.",
-    salary: { entry: "£35–55k", mid: "£65–120k", senior: "£120–250k+" },
-  },
-  {
-    id: "operations-associate",
-    title: "Operations Associate",
-    desc: "Make organisations run better. Spans process design, resource planning, and cross-team coordination.",
-    salary: { entry: "£30–45k", mid: "£50–90k", senior: "£90–180k+" },
-  },
-  {
-    id: "business-analyst",
-    title: "Business Analyst",
-    desc: "Bridge between data and decisions. Translate business needs into clear analysis that shapes what happens next.",
-    salary: { entry: "£28–42k", mid: "£50–80k", senior: "£80–150k+" },
-  },
-  {
-    id: "management-consultant",
-    title: "Management Consultant",
-    desc: "Advise organisations on their biggest problems. Intense, well-paid, excellent exit options.",
-    salary: { entry: "£40–65k", mid: "£80–140k", senior: "£150–400k+" },
-  },
-  {
-    id: "chief-of-staff",
-    title: "Chief of Staff",
-    desc: "Run the operating system of an executive or team. High trust, high access, broad scope.",
-    salary: { entry: "£35–55k", mid: "£65–120k", senior: "£120–300k+" },
-  },
-];
+interface AnalysisProfile {
+  summary?: string;
+  suggestedDirections?: Array<{ title: string; why: string }>;
+  topRoleTitles?: string[];
+  searchKeywords?: string[];
+  locationSearch?: string;
+  seniorityLevel?: string;
+  yearsExperience?: string;
+  extractedSkills?: string[];
+  extractedSectors?: string[];
+}
 
-const JOBS = [
-  {
-    id: "monzo-strategy",
-    title: "Strategy Analyst",
-    company: "Monzo",
-    location: "Hybrid · London",
-    salary: "£38,000 – £48,000",
-    age: "1d ago",
-    tags: ["Strategy", "Operations", "Full-time"],
-    desc: "Working with Monzo's growth and product teams to model strategic options and surface the decisions that matter most.",
-    type: "strategy-analyst",
-    initiallyInterested: true,
-  },
-  {
-    id: "deliveroo-ba",
-    title: "Business Analyst — Operations",
-    company: "Deliveroo",
-    location: "Hybrid · London",
-    salary: "£34,000 – £44,000",
-    age: "3d ago",
-    tags: ["Business analysis", "Operations", "Full-time"],
-    desc: "Diagnosing and improving how Deliveroo's logistics operations run, using data to find the friction and recommend fixes.",
-    type: "business-analyst",
-    initiallyInterested: false,
-  },
-  {
-    id: "oliver-wyman",
-    title: "Associate Consultant",
-    company: "Oliver Wyman",
-    location: "On-site · London",
-    salary: "£45,000 – £60,000",
-    age: "5d ago",
-    tags: ["Consulting", "Strategy", "Graduate scheme"],
-    desc: "Graduate-entry consulting across financial services and operations clients. Structured pathway with clear promotion milestones.",
-    type: "management-consultant",
-    initiallyInterested: false,
-  },
-];
+interface AnalysisResult {
+  profile?: AnalysisProfile;
+}
 
-const FILTERS = ["All", "Strategy Analyst", "Operations Associate", "Business Analyst", "Management Consultant", "Chief of Staff", "Passed"];
+interface Job {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  salary: string;
+  datePosted: string;
+  description: string;
+  applyUrl: string;
+  workStyle: string;
+  keyword: string;
+  relevanceScore?: number;
+  relevanceReason?: string;
+}
+
+function capitalize(s: string) {
+  return s.replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function slugify(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
 
 export default function RolesPage() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "listings" ? "listings" : "types";
-  const initialFilter = searchParams.get("filter") ?? "All";
 
   const [tab, setTab] = useState<"types" | "listings">(initialTab);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
 
+  // Analysis result
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [resultLoading, setResultLoading] = useState(true);
+
+  // Jobs
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobsError, setJobsError] = useState(false);
+
+  // Interested / passed — keyed by job.id
+  const [interested, setInterested] = useState<Set<string>>(new Set());
+  const [passed, setPassed] = useState<Set<string>>(new Set());
+  const [savingJob, setSavingJob] = useState<Set<string>>(new Set());
+
+  // Filter
+  const [activeFilter, setActiveFilter] = useState("All");
+
+  // ── Load Arlo visibility ──────────────────────────────────────────────────
+  useEffect(() => {
+    const saved = localStorage.getItem("arlo-visible");
+    if (saved !== null) setArloVisible(saved !== "false");
+  }, []);
+
+  function toggleArlo() {
+    setArloVisible((v) => {
+      const next = !v;
+      localStorage.setItem("arlo-visible", String(next));
+      return next;
+    });
+  }
+
+  // ── Load saved job state ──────────────────────────────────────────────────
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/save-job");
+        if (!res.ok) return;
+        const data = await res.json();
+        const savedJobs: Array<{ id: string; status?: string }> = (data.jobs || []);
+        const interestedIds = new Set(
+          savedJobs.filter((j) => j.status === "interested").map((j) => j.id)
+        );
+        const passedIds = new Set(
+          savedJobs.filter((j) => j.status === "passed").map((j) => j.id)
+        );
+        setInterested(interestedIds);
+        setPassed(passedIds);
+      } catch {
+        // Not signed in — local state only
+      }
+    })();
+  }, []);
+
+  // ── Load analysis result ──────────────────────────────────────────────────
+  useEffect(() => {
+    (async () => {
+      setResultLoading(true);
+      try {
+        // Fast path: sessionStorage (fresh from analysis flow)
+        const stored = sessionStorage.getItem("analysis-result");
+        if (stored) {
+          setAnalysisResult(JSON.parse(stored));
+          setResultLoading(false);
+          return;
+        }
+      } catch {
+        // sessionStorage unavailable
+      }
+
+      // Fallback: Supabase (returning user)
+      try {
+        const res = await fetch("/api/results");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.result) setAnalysisResult(data.result);
+        }
+      } catch {
+        // Fetch failed — no result available
+      }
+      setResultLoading(false);
+    })();
+  }, []);
+
+  // ── Fetch and score jobs once we have the analysis result ─────────────────
+  const fetchJobs = useCallback(async (result: AnalysisResult) => {
+    const keywords = result.profile?.searchKeywords;
+    const location = result.profile?.locationSearch;
+    if (!keywords?.length) return;
+
+    setJobsLoading(true);
+    setJobsError(false);
+    try {
+      const jobsRes = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keywords, location: location || "london" }),
+      });
+      if (!jobsRes.ok) { setJobsError(true); return; }
+      const { jobs: rawJobs } = await jobsRes.json();
+      if (!rawJobs?.length) { setJobs([]); return; }
+
+      // Score and rank
+      try {
+        const scoreRes = await fetch("/api/score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobs: rawJobs, profile: result.profile }),
+        });
+        if (scoreRes.ok) {
+          const { jobs: scoredJobs } = await scoreRes.json();
+          setJobs(scoredJobs || rawJobs);
+        } else {
+          setJobs(rawJobs);
+        }
+      } catch {
+        setJobs(rawJobs);
+      }
+    } catch {
+      setJobsError(true);
+    } finally {
+      setJobsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (analysisResult) fetchJobs(analysisResult);
+  }, [analysisResult, fetchJobs]);
+
+  // ── Interested / Pass ─────────────────────────────────────────────────────
+  async function handleInterested(job: Job) {
+    const id = String(job.id);
+    setInterested((prev) => new Set([...prev, id]));
+    setPassed((prev) => { const n = new Set(prev); n.delete(id); return n; });
+
+    setSavingJob((prev) => new Set([...prev, id]));
+    try {
+      await fetch("/api/save-job", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: id, jobData: { ...job, id, status: "interested" } }),
+      });
+    } catch {
+      // Silently fail — local state already updated
+    } finally {
+      setSavingJob((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    }
+  }
+
+  async function handlePass(job: Job) {
+    const id = String(job.id);
+    setPassed((prev) => new Set([...prev, id]));
+
+    setSavingJob((prev) => new Set([...prev, id]));
+    try {
+      await fetch("/api/save-job", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId: id, jobData: { ...job, id, status: "passed" } }),
+      });
+    } catch {
+      // Silently fail
+    } finally {
+      setSavingJob((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    }
+  }
+
+  // ── Chat ──────────────────────────────────────────────────────────────────
   function handleSend() {
     const text = chatValue.trim();
     if (!text) return;
@@ -113,41 +244,31 @@ export default function RolesPage() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   }
 
-  useEffect(() => {
-    const saved = localStorage.getItem("arlo-visible");
-    if (saved !== null) setArloVisible(saved !== "false");
-  }, []);
+  // ── Derived data ──────────────────────────────────────────────────────────
+  const profile = analysisResult?.profile;
+  const directions = profile?.suggestedDirections || [];
+  const keywords = profile?.searchKeywords || [];
 
-  function toggleArlo() {
-    setArloVisible((v) => {
-      const next = !v;
-      localStorage.setItem("arlo-visible", String(next));
-      return next;
-    });
-  }
-  const [activeFilter, setActiveFilter] = useState(
-    FILTERS.includes(initialFilter) ? initialFilter : "All"
-  );
-  const [interested, setInterested] = useState<Set<string>>(
-    new Set(JOBS.filter((j) => j.initiallyInterested).map((j) => j.id))
-  );
-  const [passed, setPassed] = useState<Set<string>>(new Set());
+  const directionTagline = directions.length
+    ? directions.map((d) => d.title).join(" · ")
+    : null;
 
-  function handleInterested(id: string) {
-    setInterested((prev) => new Set([...prev, id]));
-    setPassed((prev) => { const next = new Set(prev); next.delete(id); return next; });
-  }
-  function handlePass(id: string) {
-    setPassed((prev) => new Set([...prev, id]));
-  }
+  // Filter pills: All + capitalised keywords + Passed
+  const filterPills = ["All", ...keywords.map(capitalize), "Passed"];
 
-  const visibleJobs = JOBS.filter((j) => {
-    if (activeFilter === "Passed") return passed.has(j.id) && !interested.has(j.id);
-    if (activeFilter === "All") return !passed.has(j.id) || interested.has(j.id);
-    const typeMatch = ROLE_TYPES.find((r) => r.id === j.type)?.title === activeFilter;
-    return typeMatch && (!passed.has(j.id) || interested.has(j.id));
+  const visibleJobs = jobs.filter((j) => {
+    const id = String(j.id);
+    if (passed.has(id) && !interested.has(id)) {
+      return activeFilter === "Passed";
+    }
+    if (activeFilter === "Passed") return false;
+    if (activeFilter === "All") return true;
+    return capitalize(j.keyword) === activeFilter;
   });
 
+  const listingCount = jobs.filter((j) => !passed.has(String(j.id)) || interested.has(String(j.id))).length;
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className={s.shell}>
 
@@ -212,11 +333,30 @@ export default function RolesPage() {
           {/* LEFT: Roles */}
           <div className={s.rolesPanel}>
 
-            <div className={s.directionCard}>
-              <div className={s.directionLabel}>Your direction</div>
-              <div className={s.directionTitle}>Systems thinker, people problems.</div>
-              <div className={s.directionSub}>5 role types matched · 18 live listings</div>
-            </div>
+            {/* Direction card */}
+            {resultLoading ? (
+              <div className={s.directionCard}>
+                <div className={s.directionLabel}>Your direction</div>
+                <div className={`${s.directionTitle} ${s.skeleton}`} style={{ width: "60%", height: "1.4rem" }} />
+                <div className={`${s.directionSub} ${s.skeleton}`} style={{ width: "40%", height: "0.85rem", marginTop: "0.5rem" }} />
+              </div>
+            ) : !analysisResult ? (
+              <div className={s.directionCard}>
+                <div className={s.directionLabel}>Your direction</div>
+                <div className={s.directionTitle}>Complete your profile to see matches.</div>
+                <a href="/input" className={s.directionCta}>Start your analysis →</a>
+              </div>
+            ) : (
+              <div className={s.directionCard}>
+                <div className={s.directionLabel}>Your direction</div>
+                <div className={s.directionTitle}>{directionTagline || "Your direction"}</div>
+                <div className={s.directionSub}>
+                  {directions.length > 0 && `${directions.length} role types matched`}
+                  {directions.length > 0 && !jobsLoading && listingCount > 0 && ` · ${listingCount} live listings`}
+                  {jobsLoading && " · Loading listings…"}
+                </div>
+              </div>
+            )}
 
             {/* Tab switcher */}
             <div className={s.tabRow}>
@@ -224,29 +364,40 @@ export default function RolesPage() {
                 className={`${s.tab}${tab === "types" ? ` ${s.tabActive}` : ""}`}
                 onClick={() => setTab("types")}
               >
-                Role types <span className={s.tabCount}>5</span>
+                Role types <span className={s.tabCount}>{directions.length || 0}</span>
               </button>
               <button
                 className={`${s.tab}${tab === "listings" ? ` ${s.tabActive}` : ""}`}
                 onClick={() => setTab("listings")}
               >
-                Live listings <span className={s.tabCount}>18</span>
+                Live listings{" "}
+                <span className={s.tabCount}>
+                  {jobsLoading ? "…" : listingCount}
+                </span>
               </button>
             </div>
 
             {/* Panel: Role types */}
             {tab === "types" && (
               <div className={s.roleCards}>
-                {ROLE_TYPES.map((role) => (
-                  <a key={role.id} href={`/dashboard/roles/${role.id}`} className={s.roleCard}>
+                {resultLoading && (
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className={`${s.roleCard} ${s.skeleton}`} style={{ height: "5rem" }} />
+                    ))}
+                  </>
+                )}
+                {!resultLoading && directions.length === 0 && (
+                  <div className={s.emptyState}>
+                    <div className={s.emptyTitle}>No role types yet.</div>
+                    <div className={s.emptySub}>Complete your analysis to see matched directions.</div>
+                  </div>
+                )}
+                {!resultLoading && directions.map((role) => (
+                  <a key={role.title} href={`/dashboard/roles/${slugify(role.title)}`} className={s.roleCard}>
                     <div className={s.roleCardBody}>
                       <div className={s.roleCardTitle}>{role.title}</div>
-                      <div className={s.roleCardDesc}>{role.desc}</div>
-                      <div className={s.roleCardSalary}>
-                        Entry <span>{role.salary.entry}</span> · Mid{" "}
-                        <span>{role.salary.mid}</span> · Senior{" "}
-                        <span>{role.salary.senior}</span>
-                      </div>
+                      <div className={s.roleCardDesc}>{role.why}</div>
                     </div>
                     <div className={s.roleCardArrow}>
                       <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -262,7 +413,7 @@ export default function RolesPage() {
             {tab === "listings" && (
               <>
                 <div className={s.filterPills}>
-                  {FILTERS.map((f) => (
+                  {filterPills.map((f) => (
                     <button
                       key={f}
                       className={`${s.fpill}${activeFilter === f ? ` ${s.fpillActive}` : ""}`}
@@ -273,12 +424,47 @@ export default function RolesPage() {
                   ))}
                 </div>
 
-                {visibleJobs.length === 0 && (
+                {/* Loading skeletons */}
+                {jobsLoading && (
+                  <div className={s.jobs}>
+                    {[0, 1, 2, 4].map((i) => (
+                      <div key={i} className={`${s.job} ${s.skeleton}`} style={{ height: "9rem" }} />
+                    ))}
+                  </div>
+                )}
+
+                {/* Error */}
+                {!jobsLoading && jobsError && (
+                  <div className={s.emptyState}>
+                    <div className={s.emptyTitle}>Couldn't load listings.</div>
+                    <div className={s.emptySub}>
+                      <button className={s.retryBtn} onClick={() => analysisResult && fetchJobs(analysisResult)}>
+                        Try again
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* No result */}
+                {!jobsLoading && !jobsError && !analysisResult && (
+                  <div className={s.emptyState}>
+                    <div className={s.emptyTitle}>Complete your analysis first.</div>
+                    <div className={s.emptySub}><a href="/input">Start here →</a></div>
+                  </div>
+                )}
+
+                {/* Empty filter result */}
+                {!jobsLoading && !jobsError && analysisResult && visibleJobs.length === 0 && (
                   <div className={s.emptyState}>
                     {activeFilter === "Passed" ? (
                       <>
                         <div className={s.emptyTitle}>Nothing passed yet.</div>
                         <div className={s.emptySub}>Roles you pass on will appear here — you can always come back and reconsider.</div>
+                      </>
+                    ) : jobs.length === 0 ? (
+                      <>
+                        <div className={s.emptyTitle}>No listings found right now.</div>
+                        <div className={s.emptySub}>Check back soon — Adzuna updates daily.</div>
                       </>
                     ) : (
                       <>
@@ -288,54 +474,83 @@ export default function RolesPage() {
                     )}
                   </div>
                 )}
-                <div className={s.jobs}>
-                  {visibleJobs.map((job) => {
-                    const isInterested = interested.has(job.id);
-                    return (
-                      <div key={job.id} className={`${s.job}${isInterested ? ` ${s.jobInterested}` : ""}`}>
-                        <div className={s.jobTitleRow}>
-                          <div className={s.jobTitle}>{job.title}</div>
-                          {isInterested && (
-                            <span className={s.jobBadge}>Interested</span>
-                          )}
-                        </div>
-                        <div className={s.jobMeta}>
-                          <span className={s.jobCompany}>{job.company}</span>
-                          <span className={s.dot} />
-                          <span>{job.location}</span>
-                          <span className={s.dot} />
-                          <span>{job.salary}</span>
-                          <span className={s.dot} />
-                          <span>{job.age}</span>
-                        </div>
-                        <div className={s.jobTags}>
-                          {job.tags.map((t) => (
-                            <span key={t} className={s.jobTag}>{t}</span>
-                          ))}
-                        </div>
-                        <div className={s.jobDesc}>{job.desc}</div>
-                        <div className={s.jobActions}>
-                          {isInterested ? (
-                            <a href="/dashboard/applications" className={s.btnViewApp}>
-                              View in Applications →
-                            </a>
-                          ) : (
-                            <>
-                              <button className={s.btnInterested} onClick={() => handleInterested(job.id)}>
-                                Interested
-                              </button>
-                              <button className={s.btnPass} onClick={() => handlePass(job.id)}>
-                                Pass
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
 
-                {visibleJobs.length > 0 && (
+                {/* Jobs list */}
+                {!jobsLoading && !jobsError && visibleJobs.length > 0 && (
+                  <div className={s.jobs}>
+                    {visibleJobs.map((job) => {
+                      const id = String(job.id);
+                      const isInterested = interested.has(id);
+                      const isSaving = savingJob.has(id);
+                      return (
+                        <div key={id} className={`${s.job}${isInterested ? ` ${s.jobInterested}` : ""}`}>
+                          <div className={s.jobTitleRow}>
+                            <div className={s.jobTitle}>{job.title}</div>
+                            {isInterested && <span className={s.jobBadge}>Interested</span>}
+                            {job.relevanceScore !== undefined && (
+                              <span className={s.fitBadge} data-score={job.relevanceScore}>
+                                {job.relevanceScore >= 8 ? "Strong fit" : job.relevanceScore >= 6 ? "Good fit" : "Possible fit"}
+                              </span>
+                            )}
+                          </div>
+                          <div className={s.jobMeta}>
+                            <span className={s.jobCompany}>{job.company}</span>
+                            <span className={s.dot} />
+                            <span>{job.location}</span>
+                            <span className={s.dot} />
+                            <span>{job.salary}</span>
+                            <span className={s.dot} />
+                            <span>{job.datePosted}</span>
+                          </div>
+                          <div className={s.jobTags}>
+                            <span className={s.jobTag}>{capitalize(job.keyword)}</span>
+                            <span className={s.jobTag}>{job.workStyle}</span>
+                          </div>
+                          <div className={s.jobDesc}>{job.description}</div>
+                          {job.relevanceReason && (
+                            <div className={s.jobReason}>{job.relevanceReason}</div>
+                          )}
+                          <div className={s.jobActions}>
+                            {isInterested ? (
+                              <a href="/dashboard/applications" className={s.btnViewApp}>
+                                View in Applications →
+                              </a>
+                            ) : (
+                              <>
+                                <button
+                                  className={s.btnInterested}
+                                  onClick={() => handleInterested(job)}
+                                  disabled={isSaving}
+                                >
+                                  Interested
+                                </button>
+                                <button
+                                  className={s.btnPass}
+                                  onClick={() => handlePass(job)}
+                                  disabled={isSaving}
+                                >
+                                  Pass
+                                </button>
+                                {job.applyUrl && (
+                                  <a
+                                    href={job.applyUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={s.btnApply}
+                                  >
+                                    View listing ↗
+                                  </a>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {!jobsLoading && !jobsError && visibleJobs.length > 0 && (
                   <div className={s.loadMore}>
                     <button className={s.btnLoad} disabled>More listings coming soon</button>
                   </div>
@@ -358,43 +573,30 @@ export default function RolesPage() {
             <div className={s.mentorMessages}>
               <div className={s.aiMsg}>
                 <div className={s.aiBubble}>
-                  Five roles matched to your direction. Click into any of them and I&apos;ll
-                  tell you honestly whether it fits you — and what it would actually take to
-                  get there given your background.
+                  {directions.length > 0
+                    ? `${directions.length} directions matched to your profile. Click into any role type and I'll tell you honestly whether it fits you — and what it would actually take to get there given your background.`
+                    : "Once your analysis is complete, I'll show you the roles that fit your background and what it would take to get there."}
                 </div>
-                <div className={s.aiBubble}>
-                  The Monzo listing is worth looking at. They&apos;re building a strategy
-                  function from scratch and tend to hire for instinct over credentials.
-                </div>
-              </div>
-
-              <div className={s.userMsg}>
-                <div className={s.userBubble}>Why Strategy Analyst specifically over the others?</div>
-              </div>
-
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  Because of the way you described how you think. You don&apos;t just want to
-                  execute — you want to understand why a decision is being made before you help
-                  make it. That&apos;s the strategy mindset.{" "}
-                  <strong>Operations</strong> is closer to execution.{" "}
-                  <strong>Consulting</strong> has the same intellectual pull but the lifestyle
-                  is different. Worth reading both briefs before you decide.
-                </div>
-              </div>
-            </div>
-
-            {extraMsgs.length > 0 && (
-              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
-                {extraMsgs.map((m, i) =>
-                  m.role === "user" ? (
-                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
-                  ) : (
-                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
-                  )
+                {jobs.length > 0 && (
+                  <div className={s.aiBubble}>
+                    {jobs.length} live listings pulled from Adzuna and ranked for you. The ones at the top scored highest against your profile — they're worth looking at first.
+                  </div>
                 )}
               </div>
-            )}
+
+              {extraMsgs.length > 0 && (
+                <>
+                  {extraMsgs.map((m, i) =>
+                    m.role === "user" ? (
+                      <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                    ) : (
+                      <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                    )
+                  )}
+                </>
+              )}
+            </div>
+
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input

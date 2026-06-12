@@ -256,6 +256,63 @@
 }
 .emptySub { font-size: 13px; color: var(--ink-3); line-height: 1.6; }
 
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, var(--cream) 25%, var(--cream-2) 50%, var(--cream) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+  border: none !important;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Fit badge */
+.fitBadge {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  letter-spacing: .04em; text-transform: uppercase; flex: none;
+  background: var(--accent-soft); color: var(--accent);
+}
+.fitBadge[data-score="8"], .fitBadge[data-score="9"], .fitBadge[data-score="10"] {
+  background: var(--green-soft); color: var(--green);
+}
+
+/* Relevance reason */
+.jobReason {
+  font-size: 12.5px; font-style: italic;
+  color: var(--ink-3); line-height: 1.55;
+  margin-top: 6px; padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+/* Apply link */
+.btnApply {
+  font-family: var(--f); font-size: 12.5px; font-weight: 500;
+  color: var(--ink-3); text-decoration: none;
+  margin-left: auto;
+  transition: color .12s;
+}
+.btnApply:hover { color: var(--ink-2); }
+
+/* Direction CTA (no result) */
+.directionCta {
+  display: inline-block; margin-top: 10px;
+  font-size: 13px; font-weight: 600; color: var(--accent);
+  text-decoration: none;
+}
+.directionCta:hover { text-decoration: underline; }
+
+/* Retry button */
+.retryBtn {
+  font-family: var(--f); font-size: 13px; font-weight: 600;
+  color: var(--accent); background: none; border: none;
+  cursor: pointer; padding: 0;
+}
+.retryBtn:hover { text-decoration: underline; }
+
 .loadMore { text-align: center; padding: 8px 0; }
 .btnLoad {
   font-family: var(--f); font-size: 12.5px; font-weight: 600;
