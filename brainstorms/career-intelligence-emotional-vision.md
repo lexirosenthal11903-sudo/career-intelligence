@@ -550,3 +550,35 @@ Meraki / Satori / Kavanah as narrative element on homepage. Dedicated copy sessi
 ## Parking Lot Additions — Session 11 (2026-06-10)
 
 - **Voice conversation mode** — user speaks to the advisor; advisor replies with voice. Dynamic back-and-forth conversation. High emotional resonance — feels like talking to a real person. Phase 3–4 feature. Requires voice API integration (ElevenLabs or similar). Pairs well with the companion arc (Kavanah phase especially).
+
+## Parking Lot Additions — Session 26 (2026-06-12)
+
+### Auto-apply: Arlo applies on your behalf (Phase 5+)
+Arlo identifies a role that's a strong fit, drafts the application and cover letter using the user's CV, outreach context, and tone profile, and sends it on their behalf. The user reviews before sending (or sets a confidence threshold above which Arlo acts automatically). Same mechanism applies to cold outreach emails.
+
+**Why this matters:** Applying to hundreds of roles and receiving silence is the most demoralising part of the job search. Removing the mechanical load — keeping only the human parts (interviews, conversations, decisions) — is the logical end state of the "daily companion" vision. This is what "Kavanah — moving forward with genuine intention" looks like in practice.
+
+**What it needs:**
+- Email integration (Gmail/Outlook OAuth, send permission — higher bar than read-only)
+- Application drafting from analyse output (already partially built in outreachContext)
+- User review/approval UX before anything is sent
+- Legal review: auto-sending applications on someone's behalf has employment law implications
+- Cover letter generation (natural follow-on from outreach drafting already in the pipeline)
+- Phase prerequisite: outreach drafting must be live and validated first
+
+*Requires: Phase 3 email integration, Phase 4 outreach drafting, GDPR/solicitor sign-off*
+
+---
+
+### Contacts / Industry intelligence page (Phase 4)
+A dedicated page surfacing specific people at target companies worth reaching out to, built up over time as the user explores roles and companies. Connects to the existing contact discovery in each job card (already scoped) but gives it a permanent home — a personal professional network the product builds for you, not a one-time result.
+
+**Why this matters:** Knowing who to contact at a company is as valuable as knowing what roles exist there. A curated, growing list of relevant contacts gives the user an asset that compounds — each session makes the list more useful.
+
+**What it needs:**
+- GDPR/solicitor's opinion on contact discovery to land first (already flagged in CLAUDE.md — outstanding)
+- LinkedIn API or compliant data source for contact details
+- Deduplication and staleness logic (people change roles)
+- UI: industry, company, role, connection rationale — similar to company cards
+
+*Prerequisite: GDPR sign-off on contact discovery. Do not build until legal position is clear.*
