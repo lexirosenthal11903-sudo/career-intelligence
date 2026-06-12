@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import s from "./onboarding-bridge.module.css";
+import AuthModal from "@/components/AuthModal";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const arloFace = (
   <svg width="64" height="64" viewBox="0 0 80 80" fill="none">
@@ -50,6 +52,7 @@ export default function OnboardingBridgePage() {
   const [replied, setReplied] = useState(false);
   const [sending, setSending] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const msgsEndRef = useRef<HTMLDivElement>(null);
 
@@ -99,6 +102,16 @@ export default function OnboardingBridgePage() {
     }
   }
 
+  async function handleGoToDashboard() {
+    const supabase = createSupabaseBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      router.push("/dashboard");
+    } else {
+      setAuthOpen(true);
+    }
+  }
+
   const profile = analysisResult?.profile;
   const primaryDirection = profile?.suggestedDirections?.[0];
   const directionStatement = primaryDirection?.title ?? FALLBACK_DIRECTION;
@@ -133,7 +146,7 @@ export default function OnboardingBridgePage() {
             this gets.
           </p>
           <div className={s.ctaRow}>
-            <button className={s.btnPrimary} onClick={() => router.push("/dashboard")}>
+            <button className={s.btnPrimary} onClick={handleGoToDashboard}>
               Go to my dashboard →
             </button>
             <button className={s.btnGhost} onClick={() => setChatOpen(true)}>
@@ -179,7 +192,7 @@ export default function OnboardingBridgePage() {
           {replied && (
             <button
               className={s.btnPrimaryChat}
-              onClick={() => router.push("/dashboard")}
+              onClick={handleGoToDashboard}
             >
               Go to my dashboard →
             </button>
@@ -191,6 +204,12 @@ export default function OnboardingBridgePage() {
         </div>
       )}
 
+      <AuthModal
+        isOpen={authOpen}
+        onClose={() => setAuthOpen(false)}
+        initialView="signup"
+        redirectTo="/dashboard"
+      />
     </div>
   );
 }

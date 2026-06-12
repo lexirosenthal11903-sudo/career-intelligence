@@ -20,9 +20,11 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   initialView?: "signup" | "signin";
+  /** When set, overrides the isNewUser routing after auth completes. */
+  redirectTo?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, initialView = "signup" }: Props) {
+export default function AuthModal({ isOpen, onClose, initialView = "signup", redirectTo }: Props) {
   const [view, setView] = useState<AuthView>(initialView);
   const [email, setEmail] = useState("");
   const [otpValue, setOtpValue] = useState("");
@@ -68,11 +70,12 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
   }
 
   async function handleGoogleSignIn() {
+    const callbackUrl = redirectTo
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
+      : `${window.location.origin}/auth/callback`;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { redirectTo: callbackUrl },
     });
   }
 
@@ -107,7 +110,9 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup" }: P
     }
     const { data: { user } } = await supabase.auth.getUser();
     onClose();
-    if (user) {
+    if (redirectTo) {
+      router.push(redirectTo);
+    } else if (user) {
       const createdAt = new Date(user.created_at).getTime();
       const lastSignIn = new Date(user.last_sign_in_at ?? user.created_at).getTime();
       const isNewUser = lastSignIn - createdAt < 10000;
