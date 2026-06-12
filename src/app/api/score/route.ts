@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       })),
     });
 
-  const systemPrompt = `You are a career intelligence platform scoring job matches. Write relevanceReason in second person, directly to the user — never "the candidate". Example: "Your background in X makes you a strong fit for this role." Be honest — not everything is a strong match.`;
+  const systemPrompt = `You are a career intelligence platform scoring job matches. Score on industry fit and transferable skills — not just whether the job title exactly matches. Someone with media production experience applying to content, acquisitions, or licensing roles should score well even if the title isn't an exact match. Always give at least 5 to any role in the same industry or where the person's transferable skills apply. Write relevanceReason in second person, directly to the user — never "the candidate". Be honest but generous where skills transfer.`;
 
   const userPrompt = `Score these jobs against this candidate profile.
 
@@ -68,6 +68,7 @@ CANDIDATE:
 - Seniority: ${profile.seniorityLevel}
 - Experience: ${profile.yearsExperience}
 - Target roles: ${(profile.topRoleTitles || []).join(', ')}
+- Suggested directions: ${(profile.suggestedDirections || []).map((d: { title: string }) => d.title).join(', ')}
 - Key skills: ${(profile.extractedSkills || []).slice(0, 10).join(', ')}
 - Sectors: ${(profile.extractedSectors || []).join(', ')}
 
@@ -99,10 +100,26 @@ ${(jobs as JobToScore[])
       /^0[-–]?2\b/.test(profile.yearsExperience || '') ||
       /^[01]\s*year/i.test(profile.yearsExperience || '');
 
+    const sectors = (profile.extractedSectors || []) as string[];
+    const directions = (profile.suggestedDirections || []) as Array<{ title: string }>;
+
     const scored = (jobs as JobToScore[]).map((job) => {
       const score = scores.find((s) => String(s.id) === String(job.id));
       let relevanceScore = score?.relevanceScore || 5;
       let relevanceReason = score?.relevanceReason || 'Matched to your profile';
+
+      // Industry-adjacent floor: if the job is in the same sector/direction, never below 5
+      const jobTitle = (job.title || '').toLowerCase();
+      const jobDesc = (job.description || '').toLowerCase();
+      const inSector = sectors.some((sec) =>
+        jobTitle.includes(sec.toLowerCase()) || jobDesc.includes(sec.toLowerCase())
+      );
+      const inDirection = directions.some((d) =>
+        jobTitle.includes(d.title.toLowerCase().split(' ')[0])
+      );
+      if ((inSector || inDirection) && relevanceScore < 5) {
+        relevanceScore = 5;
+      }
 
       if (isJuniorProfile && SENIOR_PATTERN.test(job.title || '') && relevanceScore >= 8) {
         relevanceScore = 4;

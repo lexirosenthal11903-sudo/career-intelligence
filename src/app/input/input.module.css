@@ -180,7 +180,7 @@
   background: var(--surface);
   border-radius: 16px;
   padding: 4px 4px 4px 6px;
-  display: flex; align-items: center; gap: 4px;
+  display: flex; align-items: flex-end; gap: 4px;
   box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.05);
   transition: box-shadow .15s;
 }
@@ -203,8 +203,10 @@
 .inputField {
   flex: 1; border: none; background: none;
   font-family: var(--f, system-ui, sans-serif);
-  font-size: 14px; color: var(--ink);
+  font-size: 14px; color: var(--ink); line-height: 1.5;
   outline: none; padding: 11px 8px 11px 10px;
+  resize: none; overflow: hidden;
+  min-height: 42px; max-height: 160px;
 }
 .inputField::placeholder { color: var(--ink-3); }
 

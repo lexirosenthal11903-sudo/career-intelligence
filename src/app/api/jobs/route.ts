@@ -81,7 +81,7 @@ export async function POST(request: Request) {
 
   try {
     const results = await Promise.all(
-      (keywords as string[]).slice(0, 5).map(fetchKeyword)
+      (keywords as string[]).slice(0, 8).map(fetchKeyword)
     );
     const allJobs = results.flat();
 
@@ -91,6 +91,23 @@ export async function POST(request: Request) {
       seen.add(j.id);
       return true;
     });
+
+    // Fallback: if sparse results, try the first word of each keyword — broader match
+    if (unique.length < 5) {
+      const fallbackTerms = [...new Set(
+        (keywords as string[])
+          .map((k: string) => k.split(' ')[0].toLowerCase())
+          .filter((k: string) => k.length > 3)
+      )].slice(0, 4);
+
+      const fallbackResults = await Promise.all(fallbackTerms.map(fetchKeyword));
+      const fallbackJobs = fallbackResults.flat().filter((j) => {
+        if (seen.has(j.id)) return false;
+        seen.add(j.id);
+        return true;
+      });
+      unique.push(...fallbackJobs);
+    }
 
     return NextResponse.json({ jobs: unique });
   } catch (err) {

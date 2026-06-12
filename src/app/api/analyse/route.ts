@@ -89,9 +89,12 @@ const profileTool = {
       searchKeywords: {
         type: 'array',
         minItems: 5,
-        maxItems: 5,
-        items: { type: 'string', description: 'Short job title keyword for UK job search' },
-        description: 'Exactly 5 job title search keywords. Must be 5, no fewer.',
+        maxItems: 8,
+        items: {
+          type: 'string',
+          description: 'Short 1-3 word term for Adzuna UK job search. Must be broad enough to return results — never a long phrase.',
+        },
+        description: 'Generate a diverse mix: 2 specific role-title terms (e.g. "acquisitions coordinator", "content executive"), 2 industry/sector terms (e.g. "media", "broadcast"), 1-2 transferable function terms (e.g. "coordinator", "licensing"). Maximum 3 words per term.',
       },
     },
     required: [
@@ -193,7 +196,7 @@ const enrichTool = {
 const PROFILE_SYSTEM = `You are a career intelligence platform speaking directly to the user. Analyse their background and produce their career profile.
 
 Rules:
-- searchKeywords: exactly 5 short job title keywords for UK job search
+- searchKeywords: 5-8 search terms for Adzuna UK job board. CRITICAL: max 3 words each. Mix role titles ("acquisitions coordinator"), industry terms ("media", "broadcast"), and function terms ("licensing", "coordinator"). Good: "acquisitions", "content media", "broadcast coordinator". Bad: "Content Acquisitions & Licensing Assistant". Terms must be short and common enough to return real listings.
 - locationSearch: default to "london" if not specified
 - suggestedDirections: exactly 3. The "why" for each speaks directly to the user — "You've spent three years building X..."
 - summary: second person, warm, honest, specific. Never "The candidate".

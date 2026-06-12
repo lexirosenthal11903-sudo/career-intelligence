@@ -38,7 +38,7 @@ export default function InputChat() {
 
   const startedRef = useRef(false);
   const listRef = useRef<HTMLDivElement>(null);
-  const fieldRef = useRef<HTMLInputElement>(null);
+  const fieldRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function scrollBottom() {
@@ -116,11 +116,16 @@ export default function InputChat() {
     else if (step === 2) finishPractical(val);
   }
 
-  function onKey(e: React.KeyboardEvent<HTMLInputElement>) {
+  function onKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onSend();
     }
+  }
+
+  function autoResize(el: HTMLTextAreaElement) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 160) + "px";
   }
 
   async function handleFile(file: File) {
@@ -268,13 +273,18 @@ export default function InputChat() {
                     {uploadIcon}
                   </button>
                 )}
-                <input
+                <textarea
                   ref={fieldRef}
                   className={s.inputField}
-                  type="text"
+                  rows={1}
                   value={extracting ? "Reading your CV…" : inputValue}
                   placeholder={chatStarted ? placeholder : PLACEHOLDERS[0]}
-                  onChange={(e) => { if (!extracting) setInputValue(e.target.value); }}
+                  onChange={(e) => {
+                    if (!extracting) {
+                      setInputValue(e.target.value);
+                      autoResize(e.target);
+                    }
+                  }}
                   onKeyDown={onKey}
                   disabled={extracting}
                   readOnly={extracting}
