@@ -130,21 +130,8 @@ Read `PLAYBOOK.md` Phase 3a → Session 26 for the full brief before starting.
 5. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]. From INSIGHTS.md: [relevant guidance]."
 
 **Before Session 26 (Lexi does this):**
-- Create `results` table in Supabase SQL editor — see SQL below
-- Test the full pipeline on staging first: input page → loading → onboarding bridge
-
-**Supabase SQL — run once in the SQL editor before testing Session 25 work:**
-```sql
-CREATE TABLE results (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  data JSONB NOT NULL DEFAULT '{}',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-ALTER TABLE results ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can insert own results" ON results FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can read own results" ON results FOR SELECT TO authenticated USING (auth.uid() = user_id);
-```
+- Add `ANTHROPIC_API_KEY` to Vercel environment variables (it's in .env.local locally but not on Vercel — pipeline will fail on staging without it)
+- Test the full pipeline on staging URL once key is added
 
 **Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
 **Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
@@ -191,7 +178,7 @@ CREATE POLICY "Users can read own results" ON results FOR SELECT TO authenticate
 - ✓ analyse/route.ts: SSE streaming (enrichOnly branch unchanged)
 - ✓ LoadingScreen: SSE consumer — phrase cycling for UX, saves result on complete
 - ✓ OnboardingBridgePage: reads real direction + summary + role titles from sessionStorage
-- ✓ save-result called fire-and-forget on complete (needs `results` table in Supabase — SQL in START HERE)
+- ✓ save-result called fire-and-forget on complete — `results` table recreated with correct schema (CASCADE drop fixed schema mismatch from previous session)
 
 **Phase 3a — Remaining:**
 - ⬜ Session 26: Adzuna real job listings in Roles tab
