@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { callClaude, findToolUse } from '@/lib/anthropic';
 import { checkAnalyseRateLimit } from '@/lib/ratelimit';
 
-// 60s = Vercel Hobby plan limit. Upgrade to Pro (300s) before launch to avoid
-// timeout on longer CVs. SSE lets the user see phase events within that window.
+// Architecture: two parallel Anthropic calls so neither exceeds ~1,200 output tokens.
+// Single calls >1,200 tokens risk Vercel Hobby's 60s timeout on slow API days.
+// Call 1: profile (~700 tokens) — directions, searchKeywords, summary
+// Call 2: details (~1,100 tokens) — skills, companyValues, outreachContext
+// Both run in parallel; complete event fires when both finish (~25s average).
 export const maxDuration = 60;
 
 interface UserProfile {
@@ -35,9 +38,7 @@ function buildUserProfileSection(p: UserProfile | undefined): string {
   if ((p.dealBreakers || []).length) lines.push(`Deal-breakers: ${p.dealBreakers!.join(', ')}`);
   if (p.rightToWork) lines.push(`Right to work: ${p.rightToWork}`);
   if (p.salaryFloor || p.salaryCeiling)
-    lines.push(
-      `Salary range: ${p.salaryFloor || '?'} – ${p.salaryCeiling || '?'} ${p.currency || 'GBP'}`
-    );
+    lines.push(`Salary range: ${p.salaryFloor || '?'} – ${p.salaryCeiling || '?'} ${p.currency || 'GBP'}`);
   if (p.workStyle?.preference) lines.push(`Work preference: ${p.workStyle.preference}`);
   if (p.workStyle?.teamSize) lines.push(`Preferred team size: ${p.workStyle.teamSize}`);
   if (p.workStyle?.companyStage) lines.push(`Preferred company stage: ${p.workStyle.companyStage}`);
@@ -46,9 +47,120 @@ function buildUserProfileSection(p: UserProfile | undefined): string {
     if (sk[k]) lines.push(`Self-knowledge Q${i + 1}: ${sk[k]}`);
   });
   if (!lines.length) return '';
-  return `\n\nUSER PROFILE (persistent preferences — factor these heavily into directions, company suggestions, and values signals):\n${lines.join('\n')}`;
+  return `\n\nUSER PROFILE:\n${lines.join('\n')}`;
 }
 
+// ── Tool 1: profile (~700 output tokens) ─────────────────────────────────────
+const profileTool = {
+  name: 'submit_career_profile',
+  description: 'Submit the career profile section of the analysis.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      seniorityLevel: { type: 'string' },
+      yearsExperience: { type: 'string' },
+      topRoleTitles: { type: 'array', items: { type: 'string' } },
+      extractedSectors: { type: 'array', items: { type: 'string' } },
+      extractedSkills: { type: 'array', items: { type: 'string' } },
+      suggestedDirections: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: { title: { type: 'string' }, why: { type: 'string' } },
+          required: ['title', 'why'],
+        },
+      },
+      valuesSignals: {
+        type: 'array',
+        description: 'Specific observations about this person\'s character and values. Must contain 4-6 items. Each item is a full sentence, not a single word trait.',
+        minItems: 4,
+        items: { type: 'string' },
+      },
+      companySuggestions: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: { type: { type: 'string' }, why: { type: 'string' } },
+          required: ['type', 'why'],
+        },
+      },
+      summary: { type: 'string' },
+      locationSearch: { type: 'string' },
+      searchKeywords: {
+        type: 'array',
+        minItems: 5,
+        maxItems: 5,
+        items: { type: 'string', description: 'Short job title keyword for UK job search' },
+        description: 'Exactly 5 job title search keywords. Must be 5, no fewer.',
+      },
+    },
+    required: [
+      'seniorityLevel', 'yearsExperience', 'topRoleTitles', 'extractedSectors',
+      'extractedSkills', 'suggestedDirections', 'valuesSignals', 'summary',
+      'locationSearch', 'searchKeywords',
+    ],
+  },
+};
+
+// ── Tool 2: details (~1,100 output tokens) ────────────────────────────────────
+const detailsTool = {
+  name: 'submit_career_details',
+  description: 'Submit the skills, company values, and outreach context.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      skills: {
+        type: 'object',
+        properties: {
+          strengths: { type: 'array', items: { type: 'string' } },
+          gaps: {
+            type: 'array',
+            minItems: 4,
+            items: {
+              type: 'object',
+              properties: {
+                skill: { type: 'string' },
+                tier: { type: 'string' },
+                why: { type: 'string' },
+                howToBuild: { type: 'string' },
+              },
+              required: ['skill', 'tier', 'why', 'howToBuild'],
+            },
+          },
+          advice: { type: 'string' },
+        },
+        required: ['strengths', 'gaps', 'advice'],
+      },
+      companyValues: {
+        type: 'array',
+        description: '3 to 5 real, named UK employers that genuinely suit this person. Never recruitment agencies.',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            why: { type: 'string' },
+            culture: { type: 'string' },
+            values: { type: 'array', items: { type: 'string' } },
+            openRole: { type: 'string' },
+          },
+          required: ['name', 'why'],
+        },
+      },
+      outreachContext: {
+        type: 'object',
+        properties: {
+          tone: { type: 'string' },
+          keyStrengths: { type: 'array', items: { type: 'string' } },
+          uniqueAngle: { type: 'string' },
+        },
+        required: ['tone', 'keyStrengths', 'uniqueAngle'],
+      },
+    },
+    required: ['skills', 'companyValues', 'outreachContext'],
+  },
+};
+
+// ── Enrich-only tool (unchanged) ──────────────────────────────────────────────
 const enrichTool = {
   name: 'submit_enrichment',
   description: 'Submit the enriched profile fields.',
@@ -78,184 +190,26 @@ const enrichTool = {
   },
 };
 
-const analysisTool = {
-  name: 'submit_career_analysis',
-  description: 'Submit the complete career analysis for the user.',
-  input_schema: {
-    type: 'object',
-    properties: {
-      profile: {
-        type: 'object',
-        properties: {
-          seniorityLevel: { type: 'string' },
-          yearsExperience: { type: 'string' },
-          topRoleTitles: { type: 'array', items: { type: 'string' } },
-          extractedSectors: { type: 'array', items: { type: 'string' } },
-          extractedSkills: { type: 'array', items: { type: 'string' } },
-          suggestedDirections: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: { title: { type: 'string' }, why: { type: 'string' } },
-              required: ['title', 'why'],
-            },
-          },
-          valuesSignals: {
-            type: 'array',
-            description:
-              "Specific observations about this person's character and values as revealed by their background. Must contain 4-6 items. Each item is a full sentence observation, not a single word trait.",
-            minItems: 4,
-            items: { type: 'string' },
-          },
-          companySuggestions: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: { type: { type: 'string' }, why: { type: 'string' } },
-              required: ['type', 'why'],
-            },
-          },
-          summary: { type: 'string' },
-          locationSearch: { type: 'string' },
-          searchKeywords: {
-            type: 'array',
-            minItems: 5,
-            maxItems: 5,
-            items: {
-              type: 'string',
-              description:
-                'A short job title keyword suitable for a UK job search — e.g. "marketing manager", "strategy analyst", "product manager"',
-            },
-            description: 'Exactly 5 job title search keywords for this person. Must be 5, no fewer.',
-          },
-        },
-        required: [
-          'seniorityLevel',
-          'yearsExperience',
-          'topRoleTitles',
-          'extractedSectors',
-          'extractedSkills',
-          'suggestedDirections',
-          'valuesSignals',
-          'summary',
-          'locationSearch',
-          'searchKeywords',
-        ],
-      },
-      skills: {
-        type: 'object',
-        properties: {
-          strengths: { type: 'array', items: { type: 'string' } },
-          gaps: {
-            type: 'array',
-            minItems: 4,
-            items: {
-              type: 'object',
-              properties: {
-                skill: { type: 'string' },
-                tier: { type: 'string' },
-                why: { type: 'string' },
-                howToBuild: { type: 'string' },
-              },
-              required: ['skill', 'tier', 'why', 'howToBuild'],
-            },
-          },
-          advice: { type: 'string' },
-        },
-        required: ['strengths', 'gaps', 'advice'],
-      },
-      companyValues: {
-        type: 'array',
-        description:
-          '3 to 5 real, named UK employers (not recruitment agencies) that genuinely suit this person based on their CV, values, and direction. Use actual company names only.',
-        items: {
-          type: 'object',
-          properties: {
-            name: {
-              type: 'string',
-              description:
-                'The real, specific name of the employer — e.g. Monzo, Bain and Company, Penguin Random House. Never a recruitment agency.',
-            },
-            why: {
-              type: 'string',
-              description:
-                'Why this specific company suits this person — reference something specific about the company and something specific from their CV.',
-            },
-            culture: {
-              type: 'string',
-              description: "One sentence on the company's working culture and environment.",
-            },
-            values: {
-              type: 'array',
-              description: '3 to 5 values or traits this company is known for.',
-              items: { type: 'string' },
-            },
-            openRole: {
-              type: 'string',
-              description:
-                'A realistic job title this person could apply for at this company given their background.',
-            },
-          },
-          required: ['name', 'why'],
-        },
-      },
-      outreachContext: {
-        type: 'object',
-        properties: {
-          tone: { type: 'string' },
-          keyStrengths: { type: 'array', items: { type: 'string' } },
-          uniqueAngle: { type: 'string' },
-        },
-        required: ['tone', 'keyStrengths', 'uniqueAngle'],
-      },
-    },
-    required: ['profile', 'skills', 'companyValues', 'outreachContext'],
-  },
-};
+const PROFILE_SYSTEM = `You are a career intelligence platform speaking directly to the user. Analyse their background and produce their career profile.
 
-const gapTool = {
-  name: 'submit_gaps',
-  description: 'Submit exactly 4 skill gaps.',
-  input_schema: {
-    type: 'object',
-    properties: {
-      strengths: { type: 'array', items: { type: 'string' } },
-      gaps: {
-        type: 'array',
-        minItems: 4,
-        items: {
-          type: 'object',
-          properties: {
-            skill: { type: 'string' },
-            tier: { type: 'string' },
-            why: { type: 'string' },
-            howToBuild: { type: 'string' },
-          },
-          required: ['skill', 'tier', 'why', 'howToBuild'],
-        },
-      },
-      advice: { type: 'string' },
-    },
-    required: ['strengths', 'gaps', 'advice'],
-  },
-};
+Rules:
+- searchKeywords: exactly 5 short job title keywords for UK job search
+- locationSearch: default to "london" if not specified
+- suggestedDirections: exactly 3. The "why" for each speaks directly to the user — "You've spent three years building X..."
+- summary: second person, warm, honest, specific. Never "The candidate".
+- valuesSignals: 4-6 specific sentence observations about character and values from their background. Never generic traits.
+- companySuggestions: types of company that suit them, with why.
+- Be honest, not falsely positive.
+- If self-knowledge answers are provided, weight them heavily in summary, directions, and valuesSignals.`;
 
-const SYSTEM_PROMPT = `You are a career intelligence platform speaking directly to the user. You have read their background carefully and you are now giving them warm, personal, second-person guidance — as if a trusted advisor is talking to them, not writing a report about them.
+const DETAILS_SYSTEM = `You are a career intelligence platform. Analyse this person's background and produce their skills assessment, company matches, and outreach context.
 
-Rules for the analysis:
-- searchKeywords: exactly 5 short job title keywords for UK job search (e.g. ["marketing manager", "brand strategist", "strategy consultant", "operations analyst", "project manager"])
-- locationSearch: location to search jobs in, defaulting to london if not specified
-- Be specific and honest — no generic advice
-- suggestedDirections: exactly 3 directions. The "why" for each must speak directly to the user — e.g. "You've spent three years building X, which means you already have Y. This direction would let you..." Not "The candidate has experience in X."
-- summary: write in second person, directly to the user. E.g. "You've built a strong foundation in..." or "Your background spans..." — warm, honest, specific. Never "The candidate" or "They have."
-- skills.advice: also second person and direct — "You're strongest when..." or "The gap to close first is..."
-- companySuggestions[].why: explain to the user why that type of company suits them specifically — "You'd thrive here because..."
-- companyValues[]: name 3 to 5 real UK employers by name that suit this person. Never include recruitment agencies, staffing firms, or job boards. Each must be a real organisation this person could actually apply to.
-- CRITICAL: The gaps array MUST contain exactly 4 items. No exceptions. Even the strongest candidate has skills to develop. If you think someone has no gaps, you are wrong — look harder. Use the four tiers: Foundation (something core to consolidate), Intermediate (something that would meaningfully strengthen them), Advanced (something that would make them exceptional), Future (something to develop over 1-2 years). Each gap MUST have skill, tier, why, and howToBuild with a real URL.
-- If self-knowledge answers are provided, use them to make the summary, directions, and valuesSignals significantly more personal and specific. These answers reveal what the CV cannot — the person's actual motivations, natural strengths, and vision for their life. Weight them heavily.
-- valuesSignals MUST always contain 4-6 specific observations about this person's character, work ethic, and values as revealed by their CV and questionnaire answers. Each signal should be a specific observation, not a generic trait. Example: "Chose postgraduate study over a full-time offer — prioritises long-term positioning over short-term gain" not just "Ambitious". Never return an empty valuesSignals array.
-- TONE: Be honest and realistic, not falsely positive. If there are genuine gaps or challenges, name them clearly but constructively. The user is better served by accurate assessment than flattery. Think of yourself as a trusted advisor who respects the person enough to tell them the truth. Never butter someone up. Never say something is a strength if it isn't.
-- In howToBuild for each skill gap, always include at least one specific named resource with its URL. Use real, free resources: Coursera (coursera.org), DataCamp (datacamp.com), Mode Analytics SQL tutorial (mode.com/sql-tutorial), LinkedIn Learning (linkedin.com/learning), Forage (theforage.com), Khan Academy (khanacademy.org). Format the URL plainly in the text, e.g. "Start with the Google Data Analytics course on coursera.org/professional-certificates/google-data-analytics".`;
+Rules:
+- skills.gaps: MUST contain exactly 4 items. Use tiers: Foundation, Intermediate, Advanced, Future. Include one specific named resource URL in each howToBuild.
+- companyValues: 3 to 5 real, named UK employers (not agencies). Reference something specific from their CV in each "why".
+- outreachContext: tone, key strengths, and unique angle for outreach.
+- Be honest and realistic. Name genuine gaps constructively.
+- Free resources for howToBuild: coursera.org, datacamp.com, mode.com/sql-tutorial, linkedin.com/learning, theforage.com, khanacademy.org.`;
 
 function sseChunk(encoder: TextEncoder, obj: object): Uint8Array {
   return encoder.encode(`data: ${JSON.stringify(obj)}\n\n`);
@@ -287,20 +241,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const {
-    cvText,
-    direction,
-    location,
-    workStyle,
-    empType,
-    salary,
-    extra,
-    selfKnowledge,
-    profile: incomingProfile,
-    userProfile,
-  } = body;
+  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge, profile: incomingProfile, userProfile } = body;
 
-  // ── ENRICH-ONLY mode: fast re-analysis from questionnaire answers only ──────
+  // ── ENRICH-ONLY mode ──────────────────────────────────────────────────────
   if (enrichOnly) {
     const p: AnalysisProfile = incomingProfile || {};
     const selfSection = ((selfKnowledge || []) as string[])
@@ -312,32 +255,17 @@ export async function POST(request: NextRequest) {
       const enrichRes = await callClaude({
         model: 'claude-sonnet-4-6',
         max_tokens: 1200,
-        system: `You are a career intelligence platform. Update this person's career profile using their self-knowledge answers. Write entirely in second person ("you", "your"). Be specific and personal — these answers reveal the person behind the CV. Return 3 suggestedDirections and 4-6 valuesSignals as specific sentence observations.`,
+        system: `You are a career intelligence platform. Update this person's career profile using their self-knowledge answers. Write entirely in second person. Be specific and personal. Return 3 suggestedDirections and 4-6 valuesSignals as specific sentence observations.`,
         tools: [enrichTool],
         tool_choice: { type: 'tool', name: 'submit_enrichment' },
-        messages: [
-          {
-            role: 'user',
-            content: `Current profile:
-- Seniority: ${p.seniorityLevel || 'unknown'}
-- Target roles: ${(p.topRoleTitles || []).join(', ')}
-- Summary: ${(p.summary || '').slice(0, 200)}
-
-Self-knowledge answers:
-${selfSection}
-
-Update the summary, directions, valuesSignals, and companySuggestions to reflect what these answers reveal about who this person really is and what they want.`,
-          },
-        ],
+        messages: [{
+          role: 'user',
+          content: `Current profile:\n- Seniority: ${p.seniorityLevel || 'unknown'}\n- Target roles: ${(p.topRoleTitles || []).join(', ')}\n- Summary: ${(p.summary || '').slice(0, 200)}\n\nSelf-knowledge answers:\n${selfSection}\n\nUpdate the summary, directions, valuesSignals, and companySuggestions.`,
+        }],
       });
       const enrichData = await enrichRes.json();
       const enrichInput = findToolUse(enrichData.content, 'submit_enrichment');
-      if (!enrichInput) {
-        return NextResponse.json(
-          { error: 'Enrichment tool not called', raw: enrichData.content },
-          { status: 500 }
-        );
-      }
+      if (!enrichInput) return NextResponse.json({ error: 'Enrichment tool not called', raw: enrichData.content }, { status: 500 });
       return NextResponse.json({ profile: { ...p, ...enrichInput } });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -345,25 +273,19 @@ Update the summary, directions, valuesSignals, and companySuggestions to reflect
     }
   }
 
-  // ── FULL ANALYSIS — SSE streaming ───────────────────────────────────────────
+  // ── FULL ANALYSIS — two parallel SSE calls ────────────────────────────────
   if (!cvText?.trim() && !direction?.trim()) {
-    return NextResponse.json(
-      { error: 'Provide a CV or a direction to analyse.' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Provide a CV or a direction to analyse.' }, { status: 400 });
   }
 
   const selfKnowledgeSection = selfKnowledge?.length
-    ? `\n\nSELF-KNOWLEDGE (what this person told us about themselves — use this to make the summary, directions, and values significantly more personal):\n${(selfKnowledge as string[])
-        .map((a, i) => (a ? `Q${i + 1}: ${a}` : null))
-        .filter(Boolean)
-        .join('\n')}`
+    ? `\n\nSELF-KNOWLEDGE (weight heavily for summary, directions, values):\n${(selfKnowledge as string[]).map((a, i) => (a ? `Q${i + 1}: ${a}` : null)).filter(Boolean).join('\n')}`
     : '';
 
   const userProfileSection = userProfile ? buildUserProfileSection(userProfile) : '';
 
   const userPrompt = `Please analyse my background carefully.
-${cvText ? `CV:\n${cvText.slice(0, 8000)}` : ''}
+${cvText ? `CV:\n${cvText.slice(0, 3000)}` : ''}
 ${direction ? `Direction: ${direction}` : 'Direction: Not stated — infer from CV'}
 ${location ? `Location: ${location}` : ''}
 ${workStyle?.length ? `Work style: ${workStyle.join(', ')}` : ''}
@@ -378,65 +300,56 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
       try {
         controller.enqueue(sseChunk(encoder, { event: 'phase', phase: 'reading' }));
 
-        const response = await callClaude({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 4000,
-          system: SYSTEM_PROMPT,
-          tools: [analysisTool],
-          tool_choice: { type: 'tool', name: 'submit_career_analysis' },
-          messages: [{ role: 'user', content: userPrompt }],
-        });
+        // Run both calls in parallel — neither exceeds ~1,200 output tokens
+        const [profileRes, detailsRes] = await Promise.all([
+          callClaude({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 1200,
+            system: PROFILE_SYSTEM,
+            tools: [profileTool],
+            tool_choice: { type: 'tool', name: 'submit_career_profile' },
+            messages: [{ role: 'user', content: userPrompt }],
+          }),
+          callClaude({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 1800,
+            system: DETAILS_SYSTEM,
+            tools: [detailsTool],
+            tool_choice: { type: 'tool', name: 'submit_career_details' },
+            messages: [{ role: 'user', content: userPrompt }],
+          }),
+        ]);
 
         controller.enqueue(sseChunk(encoder, { event: 'phase', phase: 'analysing' }));
 
-        const data = await response.json();
+        const [profileData, detailsData] = await Promise.all([
+          profileRes.json(),
+          detailsRes.json(),
+        ]);
 
-        if (data.error) {
-          controller.enqueue(sseChunk(encoder, { event: 'error', message: data.error.message || 'API error' }));
+        if (profileData.error || detailsData.error) {
+          const msg = profileData.error?.message || detailsData.error?.message || 'API error';
+          controller.enqueue(sseChunk(encoder, { event: 'error', message: msg }));
           controller.close();
           return;
         }
 
-        const toolInput = findToolUse(data.content, 'submit_career_analysis');
-        if (!toolInput) {
-          controller.enqueue(sseChunk(encoder, { event: 'error', message: 'Analysis did not complete' }));
+        const profileInput = findToolUse(profileData.content, 'submit_career_profile');
+        const detailsInput = findToolUse(detailsData.content, 'submit_career_details');
+
+        if (!profileInput) {
+          controller.enqueue(sseChunk(encoder, { event: 'error', message: 'Profile analysis did not complete' }));
           controller.close();
           return;
         }
 
-        let result = toolInput as {
-          profile?: AnalysisProfile;
-          skills?: { gaps?: unknown[] };
-          [key: string]: unknown;
+        // Merge into the same shape as before — downstream code unchanged
+        const result = {
+          profile: profileInput,
+          skills: detailsInput?.skills ?? { strengths: [], gaps: [], advice: '' },
+          companyValues: detailsInput?.companyValues ?? [],
+          outreachContext: detailsInput?.outreachContext ?? { tone: '', keyStrengths: [], uniqueAngle: '' },
         };
-
-        // Skills fallback: if gaps are missing, run a focused second call
-        if (!result.skills?.gaps?.length) {
-          try {
-            const profile = result.profile || {};
-            const gapRes = await callClaude({
-              model: 'claude-sonnet-4-6',
-              max_tokens: 1200,
-              system:
-                'You are a career coach. You MUST return exactly 4 skill gaps using tiers: Foundation, Intermediate, Advanced, Future. Every person has gaps. Include a real resource URL in each howToBuild.',
-              tools: [gapTool],
-              tool_choice: { type: 'tool', name: 'submit_gaps' },
-              messages: [
-                {
-                  role: 'user',
-                  content: `Give skill gaps for: ${profile.seniorityLevel || ''} with ${profile.yearsExperience || ''} experience. Target roles: ${(profile.topRoleTitles || []).join(', ')}. Skills: ${(profile.extractedSkills || []).slice(0, 8).join(', ')}.`,
-                },
-              ],
-            });
-            const gapData = await gapRes.json();
-            const gapInput = findToolUse(gapData.content, 'submit_gaps');
-            if (gapInput) {
-              result = { ...result, skills: gapInput as { gaps?: unknown[] } };
-            }
-          } catch {
-            // fallback gap call failed — continue with original result
-          }
-        }
 
         controller.enqueue(sseChunk(encoder, { event: 'complete', result }));
       } catch (err) {

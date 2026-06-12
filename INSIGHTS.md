@@ -8,12 +8,23 @@ Tags: [NOW] = current build phase | [PIPELINE] = 90s analyse.js fix | [PHASE2] =
 
 ## 1. IMMEDIATE PRIORITIES
 
-### The 90-Second Pipeline Fix
-**[PIPELINE]**
-- Use `/goal` to drive the refactor autonomously: "refactor analyse.js to stream progress to the user — done when first token appears within 3 seconds and full result loads within 30 seconds on staging. Sub-agents on Haiku. Do not touch score.js or chat.js."
-- Split into two calls: Haiku for CV extraction (`extract.js`), Sonnet for the intelligence layer (`analyse.js`). This is already planned — treat it as the highest priority engineering task.
-- Add streaming so users see progress rather than a blank wait. A `/goal` with an objective time-based criteria is the right primitive for this.
-- Use `ultrathink` at the start of the session where this refactor is planned. It allocates ~32k tokens of reasoning before responding — right for a complex architectural decision that affects the whole system.
+### Analysis Pipeline Architecture — CONFIRMED (Session 26, 2026-06-12)
+**[ALWAYS] [PIPELINE]**
+
+**Standing rule: any single Anthropic call generating >1,200 output tokens is an architecture problem on Vercel Hobby, not a configuration issue.**
+
+Vercel Hobby has a hard 60s function timeout. Claude Sonnet generates output at 35–80 tok/s depending on server load. A 2,200-token response times out at anything below ~37 tok/s — which happens on busy days. The fix is never to increase the limit; it is to split calls so no single call exceeds ~1,200 output tokens.
+
+**Confirmed architecture for `/api/analyse` (implemented Session 26):**
+- **Call 1** — `submit_career_profile` tool. Profile fields only: directions, summary, searchKeywords, skills, values. Max ~700 tokens output. ~10–15s.
+- **Call 2** — `submit_career_details` tool. Skills gaps, companyValues, outreachContext. Max ~1,100 tokens output. ~15–25s.
+- Both calls run **in parallel** (`Promise.all`). Wall time is determined by the slower call (~25s average, ~48s on slow days). Well within 60s.
+- CV text capped at 3,000 chars (a full 2-page CV is ~2,000–3,000 chars; 8,000 was wasteful).
+- Output shape is identical to the old single-call result — all downstream code unchanged.
+
+**Before adding any new field to the analysis:** count estimated output tokens. If either call would exceed 1,200 tokens, split further or move to a lazy second endpoint.
+
+**Upgrading to Vercel Pro** (300s limit) is still the right long-term move before scaling, but is not required for the current Hobby plan to work reliably.
 
 ### OTP Sign-In Bug
 **[NOW]**
