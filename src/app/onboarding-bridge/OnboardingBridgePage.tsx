@@ -26,6 +26,20 @@ const sendIcon = (
 
 type ChatMsg = { role: "arlo" | "user"; text: string };
 
+interface AnalysisProfile {
+  summary?: string;
+  suggestedDirections?: Array<{ title: string; why: string }>;
+  topRoleTitles?: string[];
+}
+
+interface AnalysisResult {
+  profile?: AnalysisProfile;
+}
+
+const FALLBACK_DIRECTION = "You think in systems, but you're drawn to people problems.";
+const FALLBACK_DETAIL = "Your background shows strong analytical instincts, but the problems you find most satisfying involve how organisations function and how people move through them. That points toward strategy, operations, and the space where the two meet.";
+const FALLBACK_ROLES = "Strategy Analyst · Operations Associate · Business Analyst · Management Consultant · Chief of Staff";
+
 export default function OnboardingBridgePage() {
   const router = useRouter();
   const [chatOpen, setChatOpen] = useState(false);
@@ -35,8 +49,18 @@ export default function OnboardingBridgePage() {
   ]);
   const [replied, setReplied] = useState(false);
   const [sending, setSending] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const msgsEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('analysis-result');
+      if (stored) setAnalysisResult(JSON.parse(stored));
+    } catch {
+      // sessionStorage unavailable — use fallback content
+    }
+  }, []);
 
   useEffect(() => {
     if (chatOpen) {
@@ -55,7 +79,7 @@ export default function OnboardingBridgePage() {
     setMsgs((prev) => [...prev, { role: "user", text: trimmed }]);
     setInput("");
     setReplied(true);
-    // Phase 3: send to real re-analysis with this feedback
+    // Phase 3b: send to real re-analysis with this feedback
     setTimeout(() => {
       setMsgs((prev) => [
         ...prev,
@@ -75,6 +99,12 @@ export default function OnboardingBridgePage() {
     }
   }
 
+  const profile = analysisResult?.profile;
+  const primaryDirection = profile?.suggestedDirections?.[0];
+  const directionStatement = primaryDirection?.title ?? FALLBACK_DIRECTION;
+  const directionDetail = profile?.summary ?? FALLBACK_DETAIL;
+  const rolesDisplay = profile?.topRoleTitles?.join(' · ') ?? FALLBACK_ROLES;
+
   return (
     <div className={s.page}>
 
@@ -87,21 +117,11 @@ export default function OnboardingBridgePage() {
       {/* Direction card — always visible */}
       <div className={s.card}>
         <div className={s.cardLabel}>Your direction</div>
-        <div className={s.directionStatement}>
-          You think in systems, but you&apos;re drawn to people problems.
-        </div>
-        <p className={s.directionDetail}>
-          Your background shows strong analytical instincts — but the way you talk about your
-          work makes it clear the problems you find most satisfying involve how organisations
-          function and how people move through them. That points toward strategy, operations,
-          and the space where the two meet.
-        </p>
+        <div className={s.directionStatement}>{directionStatement}</div>
+        <p className={s.directionDetail}>{directionDetail}</p>
         <div className={s.cardRule} />
         <div className={s.rolesLabel}>Roles worth exploring</div>
-        <div className={s.rolesNames}>
-          Strategy Analyst &nbsp;·&nbsp; Operations Associate &nbsp;·&nbsp; Business Analyst
-          &nbsp;·&nbsp; Management Consultant &nbsp;·&nbsp; Chief of Staff
-        </div>
+        <div className={s.rolesNames}>{rolesDisplay}</div>
       </div>
 
       {/* Default state */}

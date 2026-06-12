@@ -50,15 +50,115 @@ export default function LoadingScreen() {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [analysisError, setAnalysisError] = useState(false);
 
+  // SSE fetch — starts the real analysis
   useEffect(() => {
-    const isLast = index >= STATES.length - 1;
+    let inputs: Record<string, string> | null = null;
+    try {
+      const stored = sessionStorage.getItem('analysis-inputs');
+      if (stored) inputs = JSON.parse(stored);
+    } catch {
+      // sessionStorage unavailable
+    }
 
-    const timer = setTimeout(() => {
-      if (isLast) {
-        router.push("/onboarding-bridge");
-        return;
+    if (!inputs || (!inputs.cvText && !inputs.direction)) {
+      router.push('/input');
+      return;
+    }
+
+    const controller = new AbortController();
+
+    (async () => {
+      try {
+        const res = await fetch('/api/analyse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(inputs),
+          signal: controller.signal,
+        });
+
+        if (!res.ok || !res.body) {
+          setAnalysisError(true);
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const chunks = buffer.split('\n\n');
+          buffer = chunks.pop() ?? '';
+
+          for (const chunk of chunks) {
+            if (!chunk.startsWith('data: ')) continue;
+            try {
+              const event = JSON.parse(chunk.slice(6)) as {
+                event: string;
+                result?: unknown;
+                message?: string;
+              };
+
+              if (event.event === 'complete' && event.result) {
+                try {
+                  sessionStorage.setItem('analysis-result', JSON.stringify(event.result));
+                  sessionStorage.removeItem('analysis-inputs');
+                } catch {
+                  // sessionStorage write failed — continue anyway
+                }
+
+                // Save to Supabase — fire and forget, result is in sessionStorage
+                fetch('/api/save-result', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ data: event.result }),
+                }).catch(() => undefined);
+
+                setAnalysisComplete(true);
+              } else if (event.event === 'error') {
+                setAnalysisError(true);
+              }
+            } catch {
+              // Malformed SSE chunk — skip
+            }
+          }
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          setAnalysisError(true);
+        }
       }
+    })();
+
+    return () => controller.abort();
+  }, [router]);
+
+  // Navigate to error page
+  useEffect(() => {
+    if (analysisError) router.push('/analysis-error');
+  }, [analysisError, router]);
+
+  // On complete: jump to "Almost there", then navigate
+  useEffect(() => {
+    if (!analysisComplete) return;
+    setFading(false);
+    setIndex(STATES.length - 1);
+    const t = setTimeout(() => router.push('/onboarding-bridge'), 1500);
+    return () => clearTimeout(t);
+  }, [analysisComplete, router]);
+
+  // Phrase cycling — stops at the last phrase; navigation driven by SSE
+  useEffect(() => {
+    if (analysisComplete || analysisError) return;
+    if (index >= STATES.length - 1) return;
+
+    const t = setTimeout(() => {
       setFading(true);
       setTimeout(() => {
         setIndex((i) => i + 1);
@@ -66,8 +166,8 @@ export default function LoadingScreen() {
       }, 400);
     }, 6000);
 
-    return () => clearTimeout(timer);
-  }, [index, router]);
+    return () => clearTimeout(t);
+  }, [index, analysisComplete, analysisError]);
 
   const current = STATES[index];
 

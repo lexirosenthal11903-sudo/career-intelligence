@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import s from "./input.module.css";
 
 const ARLO_64 = `<svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
@@ -18,6 +19,7 @@ const PLACEHOLDERS = [
 ];
 
 export default function InputChat() {
+  const router = useRouter();
   const [chatStarted, setChatStarted] = useState(false);
   const [step, setStep] = useState(0);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -27,6 +29,12 @@ export default function InputChat() {
   const [showSubmit, setShowSubmit] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+
+  // Collected data for the analysis
+  const [cvText, setCvText] = useState("");
+  const [direction, setDirection] = useState("");
+  const [location, setLocation] = useState("");
 
   const startedRef = useRef(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -56,6 +64,8 @@ export default function InputChat() {
   }
 
   function finishBackground(text: string) {
+    // Prefer extracted CV text; fall back to what the user typed
+    if (!cvText) setCvText(text);
     commit();
     setMessages([{ kind: "user", text }]);
     setStep(1);
@@ -71,6 +81,7 @@ export default function InputChat() {
   }
 
   function finishDirection(text: string) {
+    setDirection(text);
     pushUser(text);
     setStep(2);
     setInputValue("");
@@ -85,6 +96,7 @@ export default function InputChat() {
   }
 
   function finishPractical(text: string) {
+    setLocation(text);
     pushUser(text);
     setStep(3);
     setInputValue("");
@@ -96,6 +108,7 @@ export default function InputChat() {
   }
 
   function onSend() {
+    if (extracting) return;
     const val = inputValue.trim();
     if (!val) return;
     if (step === 0) finishBackground(val);
@@ -110,9 +123,23 @@ export default function InputChat() {
     }
   }
 
-  function handleFile(file: File) {
+  async function handleFile(file: File) {
     setInputValue(`CV: ${file.name}`);
-    fieldRef.current?.focus();
+    setExtracting(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/extract", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.text) {
+        setCvText(data.text);
+      }
+    } catch {
+      // Extraction failed — user can still type their background manually
+    } finally {
+      setExtracting(false);
+      fieldRef.current?.focus();
+    }
   }
 
   function restart() {
@@ -122,6 +149,15 @@ export default function InputChat() {
 
   function confirmRestartYes() { window.location.reload(); }
   function confirmRestartNo() { setConfirmRestart(false); }
+
+  function handleSubmit() {
+    sessionStorage.setItem("analysis-inputs", JSON.stringify({
+      cvText,
+      direction,
+      location,
+    }));
+    router.push("/loading");
+  }
 
   const sendIcon = (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -227,6 +263,7 @@ export default function InputChat() {
                     onClick={() => fileRef.current?.click()}
                     aria-label="Upload CV"
                     title="Upload your CV"
+                    disabled={extracting}
                   >
                     {uploadIcon}
                   </button>
@@ -235,12 +272,19 @@ export default function InputChat() {
                   ref={fieldRef}
                   className={s.inputField}
                   type="text"
-                  value={inputValue}
+                  value={extracting ? "Reading your CV…" : inputValue}
                   placeholder={chatStarted ? placeholder : PLACEHOLDERS[0]}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={(e) => { if (!extracting) setInputValue(e.target.value); }}
                   onKeyDown={onKey}
+                  disabled={extracting}
+                  readOnly={extracting}
                 />
-                <button className={s.sendBtn} onClick={onSend} aria-label="Send">
+                <button
+                  className={s.sendBtn}
+                  onClick={onSend}
+                  aria-label="Send"
+                  disabled={extracting}
+                >
                   {sendIcon}
                 </button>
               </div>
@@ -249,7 +293,7 @@ export default function InputChat() {
               <div className={s.submitWrap}>
                 <button
                   className={s.btnSubmit}
-                  onClick={() => { window.location.href = "/loading"; }}
+                  onClick={handleSubmit}
                 >
                   Find my direction →
                 </button>

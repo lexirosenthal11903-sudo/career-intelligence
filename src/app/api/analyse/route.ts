@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { callClaude, findToolUse } from '@/lib/anthropic';
 import { checkAnalyseRateLimit } from '@/lib/ratelimit';
 
-// 60s = Vercel Hobby plan limit. Upgrade to Pro (300s max) or implement SSE
-// streaming (Session 25) before launch to handle long analyses without timeout.
+// 60s = Vercel Hobby plan limit. Upgrade to Pro (300s) before launch to avoid
+// timeout on longer CVs. SSE lets the user see phase events within that window.
 export const maxDuration = 60;
 
 interface UserProfile {
@@ -257,6 +257,10 @@ Rules for the analysis:
 - TONE: Be honest and realistic, not falsely positive. If there are genuine gaps or challenges, name them clearly but constructively. The user is better served by accurate assessment than flattery. Think of yourself as a trusted advisor who respects the person enough to tell them the truth. Never butter someone up. Never say something is a strength if it isn't.
 - In howToBuild for each skill gap, always include at least one specific named resource with its URL. Use real, free resources: Coursera (coursera.org), DataCamp (datacamp.com), Mode Analytics SQL tutorial (mode.com/sql-tutorial), LinkedIn Learning (linkedin.com/learning), Forage (theforage.com), Khan Academy (khanacademy.org). Format the URL plainly in the text, e.g. "Start with the Google Data Analytics course on coursera.org/professional-certificates/google-data-analytics".`;
 
+function sseChunk(encoder: TextEncoder, obj: object): Uint8Array {
+  return encoder.encode(`data: ${JSON.stringify(obj)}\n\n`);
+}
+
 export async function POST(request: NextRequest) {
   const enrichOnly = request.nextUrl.searchParams.get('enrichOnly') === 'true';
 
@@ -341,7 +345,7 @@ Update the summary, directions, valuesSignals, and companySuggestions to reflect
     }
   }
 
-  // ── FULL ANALYSIS ───────────────────────────────────────────────────────────
+  // ── FULL ANALYSIS — SSE streaming ───────────────────────────────────────────
   if (!cvText?.trim() && !direction?.trim()) {
     return NextResponse.json(
       { error: 'Provide a CV or a direction to analyse.' },
@@ -367,67 +371,89 @@ ${empType?.length ? `Employment type: ${empType.join(', ')}` : ''}
 ${salary ? `Salary: ${salary}` : ''}
 ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
 
-  try {
-    const response = await callClaude({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
-      system: SYSTEM_PROMPT,
-      tools: [analysisTool],
-      tool_choice: { type: 'tool', name: 'submit_career_analysis' },
-      messages: [{ role: 'user', content: userPrompt }],
-    });
+  const encoder = new TextEncoder();
 
-    const data = await response.json();
-
-    if (data.error) {
-      return NextResponse.json({ error: data.error.message || 'API error' }, { status: 500 });
-    }
-
-    const toolInput = findToolUse(data.content, 'submit_career_analysis');
-    if (!toolInput) {
-      return NextResponse.json(
-        { error: 'Model did not call the analysis tool', raw: data.content },
-        { status: 500 }
-      );
-    }
-
-    let result = toolInput as {
-      profile?: AnalysisProfile;
-      skills?: { gaps?: unknown[] };
-      [key: string]: unknown;
-    };
-
-    // ── Skills fallback: if gaps are missing, run a focused second call ────────
-    if (!result.skills?.gaps?.length) {
+  const stream = new ReadableStream({
+    async start(controller) {
       try {
-        const profile = result.profile || {};
-        const gapRes = await callClaude({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1200,
-          system:
-            'You are a career coach. You MUST return exactly 4 skill gaps using tiers: Foundation, Intermediate, Advanced, Future. Every person has gaps. Include a real resource URL in each howToBuild.',
-          tools: [gapTool],
-          tool_choice: { type: 'tool', name: 'submit_gaps' },
-          messages: [
-            {
-              role: 'user',
-              content: `Give skill gaps for: ${profile.seniorityLevel || ''} with ${profile.yearsExperience || ''} experience. Target roles: ${(profile.topRoleTitles || []).join(', ')}. Skills: ${(profile.extractedSkills || []).slice(0, 8).join(', ')}.`,
-            },
-          ],
-        });
-        const gapData = await gapRes.json();
-        const gapInput = findToolUse(gapData.content, 'submit_gaps');
-        if (gapInput) {
-          result = { ...result, skills: gapInput as { gaps?: unknown[] } };
-        }
-      } catch {
-        // fallback gap call failed — continue with original result
-      }
-    }
+        controller.enqueue(sseChunk(encoder, { event: 'phase', phase: 'reading' }));
 
-    return NextResponse.json(result);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+        const response = await callClaude({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 4000,
+          system: SYSTEM_PROMPT,
+          tools: [analysisTool],
+          tool_choice: { type: 'tool', name: 'submit_career_analysis' },
+          messages: [{ role: 'user', content: userPrompt }],
+        });
+
+        controller.enqueue(sseChunk(encoder, { event: 'phase', phase: 'analysing' }));
+
+        const data = await response.json();
+
+        if (data.error) {
+          controller.enqueue(sseChunk(encoder, { event: 'error', message: data.error.message || 'API error' }));
+          controller.close();
+          return;
+        }
+
+        const toolInput = findToolUse(data.content, 'submit_career_analysis');
+        if (!toolInput) {
+          controller.enqueue(sseChunk(encoder, { event: 'error', message: 'Analysis did not complete' }));
+          controller.close();
+          return;
+        }
+
+        let result = toolInput as {
+          profile?: AnalysisProfile;
+          skills?: { gaps?: unknown[] };
+          [key: string]: unknown;
+        };
+
+        // Skills fallback: if gaps are missing, run a focused second call
+        if (!result.skills?.gaps?.length) {
+          try {
+            const profile = result.profile || {};
+            const gapRes = await callClaude({
+              model: 'claude-sonnet-4-6',
+              max_tokens: 1200,
+              system:
+                'You are a career coach. You MUST return exactly 4 skill gaps using tiers: Foundation, Intermediate, Advanced, Future. Every person has gaps. Include a real resource URL in each howToBuild.',
+              tools: [gapTool],
+              tool_choice: { type: 'tool', name: 'submit_gaps' },
+              messages: [
+                {
+                  role: 'user',
+                  content: `Give skill gaps for: ${profile.seniorityLevel || ''} with ${profile.yearsExperience || ''} experience. Target roles: ${(profile.topRoleTitles || []).join(', ')}. Skills: ${(profile.extractedSkills || []).slice(0, 8).join(', ')}.`,
+                },
+              ],
+            });
+            const gapData = await gapRes.json();
+            const gapInput = findToolUse(gapData.content, 'submit_gaps');
+            if (gapInput) {
+              result = { ...result, skills: gapInput as { gaps?: unknown[] } };
+            }
+          } catch {
+            // fallback gap call failed — continue with original result
+          }
+        }
+
+        controller.enqueue(sseChunk(encoder, { event: 'complete', result }));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        controller.enqueue(sseChunk(encoder, { event: 'error', message }));
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    },
+  });
 }
