@@ -80,6 +80,7 @@ export default function RolesPage() {
 
   // Filter
   const [activeFilter, setActiveFilter] = useState("All");
+  const [visibleCount, setVisibleCount] = useState(5);
 
   // ── Load Arlo visibility ──────────────────────────────────────────────────
   useEffect(() => {
@@ -253,20 +254,21 @@ export default function RolesPage() {
     ? directions.map((d) => d.title).join(" · ")
     : null;
 
-  // Filter pills: All + capitalised keywords + Passed
-  const filterPills = ["All", ...keywords.map(capitalize), "Passed"];
+  const filterPills = ["All", "Passed"];
 
-  const visibleJobs = jobs.filter((j) => {
+  // Filter out irrelevant jobs (score below 4) — only if enough remain, else show all
+  const relevantJobs = jobs.filter((j) => !j.relevanceScore || j.relevanceScore >= 4);
+  const displayJobs = relevantJobs.length >= 3 ? relevantJobs : jobs;
+
+  const visibleJobs = displayJobs.filter((j) => {
     const id = String(j.id);
-    if (passed.has(id) && !interested.has(id)) {
-      return activeFilter === "Passed";
-    }
+    if (passed.has(id) && !interested.has(id)) return activeFilter === "Passed";
     if (activeFilter === "Passed") return false;
-    if (activeFilter === "All") return true;
-    return capitalize(j.keyword) === activeFilter;
+    return true;
   });
 
-  const listingCount = jobs.filter((j) => !passed.has(String(j.id)) || interested.has(String(j.id))).length;
+  const paginatedJobs = visibleJobs.slice(0, visibleCount);
+  const listingCount = displayJobs.filter((j) => !passed.has(String(j.id)) || interested.has(String(j.id))).length;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -417,7 +419,7 @@ export default function RolesPage() {
                     <button
                       key={f}
                       className={`${s.fpill}${activeFilter === f ? ` ${s.fpillActive}` : ""}`}
-                      onClick={() => setActiveFilter(f)}
+                      onClick={() => { setActiveFilter(f); setVisibleCount(5); }}
                     >
                       {f}
                     </button>
@@ -478,7 +480,7 @@ export default function RolesPage() {
                 {/* Jobs list */}
                 {!jobsLoading && !jobsError && visibleJobs.length > 0 && (
                   <div className={s.jobs}>
-                    {visibleJobs.map((job) => {
+                    {paginatedJobs.map((job) => {
                       const id = String(job.id);
                       const isInterested = interested.has(id);
                       const isSaving = savingJob.has(id);
@@ -503,7 +505,6 @@ export default function RolesPage() {
                             <span>{job.datePosted}</span>
                           </div>
                           <div className={s.jobTags}>
-                            <span className={s.jobTag}>{capitalize(job.keyword)}</span>
                             <span className={s.jobTag}>{job.workStyle}</span>
                           </div>
                           <div className={s.jobDesc}>{job.description}</div>
@@ -550,9 +551,14 @@ export default function RolesPage() {
                   </div>
                 )}
 
-                {!jobsLoading && !jobsError && visibleJobs.length > 0 && (
+                {!jobsLoading && !jobsError && visibleJobs.length > visibleCount && (
                   <div className={s.loadMore}>
-                    <button className={s.btnLoad} disabled>More listings coming soon</button>
+                    <button
+                      className={s.btnLoad}
+                      onClick={() => setVisibleCount((n) => n + 5)}
+                    >
+                      Load more listings
+                    </button>
                   </div>
                 )}
               </>

@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       })),
     });
 
-  const systemPrompt = `You are a career intelligence platform scoring job matches. Score on industry fit and transferable skills — not just whether the job title exactly matches. Someone with media production experience applying to content, acquisitions, or licensing roles should score well even if the title isn't an exact match. Always give at least 5 to any role in the same industry or where the person's transferable skills apply. Write relevanceReason in second person, directly to the user — never "the candidate". Be honest but generous where skills transfer.`;
+  const systemPrompt = `You are a career intelligence platform scoring job matches. Score on industry fit and transferable skills — not just whether the job title exactly matches. Be careful about cross-domain keyword collisions: a keyword like "acquisitions" used in a media context means content licensing/rights, not HR talent acquisition — score the latter as 1-2 if the candidate has no HR background. Similarly "coordinator" in media is different from admin coordination in unrelated industries. Always score from the candidate's actual industry and skill context. Give at least 5 to any role in the same industry or where transferable skills clearly apply. Write relevanceReason in second person, never "the candidate". Be honest but generous where skills genuinely transfer.`;
 
   const userPrompt = `Score these jobs against this candidate profile.
 

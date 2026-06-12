@@ -114,6 +114,8 @@ export default function InputChat() {
     if (step === 0) finishBackground(val);
     else if (step === 1) finishDirection(val);
     else if (step === 2) finishPractical(val);
+    // Collapse textarea back to single row after send
+    if (fieldRef.current) fieldRef.current.style.height = "auto";
   }
 
   function onKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
