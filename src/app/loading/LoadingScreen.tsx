@@ -88,9 +88,15 @@ export default function LoadingScreen() {
         const decoder = new TextDecoder();
         let buffer = '';
 
+        let receivedComplete = false;
+
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            // Stream closed without a complete event — Vercel timeout or network drop
+            if (!receivedComplete) setAnalysisError(true);
+            break;
+          }
           buffer += decoder.decode(value, { stream: true });
 
           const chunks = buffer.split('\n\n');
@@ -120,6 +126,7 @@ export default function LoadingScreen() {
                   body: JSON.stringify({ data: event.result }),
                 }).catch(() => undefined);
 
+                receivedComplete = true;
                 setAnalysisComplete(true);
               } else if (event.event === 'error') {
                 setAnalysisError(true);
