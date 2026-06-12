@@ -157,11 +157,11 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 - [x] Real name shown in Dashboard greeting (from Google profile or email prefix)
 - [x] Real email shown in Profile account section
 
-**Core pipeline:**
-- [ ] Wire input page → `analyse.js` → results (direction + roles inferred from CV)
-- [ ] Save analysis results to Supabase on completion (direction, role suggestions, CV summary)
-- [ ] Fix 90s pipeline — use `/goal`: stream progress to user, Haiku for extraction (`extract.js`), Sonnet for intelligence (`analyse.js`). Done when first token appears within 3 seconds and full result loads within 30 seconds on staging. See INSIGHTS.md section 1.
-- [ ] Wire Adzuna job listings to Roles tab — real live listings, not placeholder cards
+**Core pipeline — PARTIALLY COMPLETE ✓ (Session 25, 2026-06-12):**
+- [x] Wire input page → `/api/analyse` → SSE stream → loading screen → onboarding bridge with real data
+- [x] Save analysis results to Supabase on completion (`results` table, fire-and-forget)
+- [ ] Fix 90s pipeline for production — currently ~83s locally, will timeout on Vercel Hobby (60s). Fix: upgrade to Vercel Pro before launch. See INSIGHTS.md section 1.
+- [ ] Wire Adzuna job listings to Roles tab — real live listings, not placeholder cards (Session 26)
 
 **Arlo chat:**
 - [ ] Wire `chat.js` to the Arlo panel in Dashboard — real responses, not placeholder "I'll respond when connected"
