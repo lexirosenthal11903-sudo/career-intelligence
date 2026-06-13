@@ -139,7 +139,7 @@ _When all screen implementations are done: dedicated QA session first. Lexi walk
 
 ---
 
-## → Phase 3a: Make It Real — CURRENT
+## Phase 3a: Make It Real — COMPLETE ✓
 
 _Goal: Wire the existing backend to the new frontend. A user can go through the full journey with real data. This is the minimum working product._
 
@@ -169,11 +169,11 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 - [x] User context injected on every call (direction, CV summary, saved roles, values) — Arlo never re-asks
 - [x] Unauthenticated result persistence fix: re-calls save-result on dashboard load if result wasn't saved
 
-**Phase 3a remaining — must complete before launch review:**
-- [ ] **Wire dashboard direction card to real analysis data** — currently shows placeholder "Operations and strategy in early-stage companies." Must read from Supabase result on load.
-- [ ] **Rate limiting on /api/chat** — analyse route has Upstash rate limiting; chat route does not. Fix before real users. 100 calls/user/day.
-- [ ] **Run conversations SQL migration** — `supabase-migrations/20260613_conversations.sql` must be executed in Supabase dashboard before chat history works.
-- [ ] **Add Vercel Production env vars** — `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` are Preview-only. Must add to Production before merging to main.
+**Phase 3a remaining — COMPLETE ✓ (2026-06-13):**
+- [x] **Wire dashboard direction card to real analysis data** — reads `profile.suggestedDirections[0]` from sessionStorage. Fallback state for users who haven't run analysis.
+- [x] **Rate limiting on /api/chat** — 100 messages/user/day via Upstash, keyed by user ID. Fails open in local dev.
+- [x] **Run conversations SQL migration** — executed in Supabase dashboard. `conversations` table live with RLS.
+- [x] **Add Vercel Production env vars** — `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` added to Production and Preview.
 
 **⚠️ Must happen before any real user signs up — non-negotiable:**
 - [ ] **ICO registration** — legally required before processing any real UK user data. £40/year, 20 minutes at ico.org.uk/registration. Lexi has been deferring — this is now overdue.
@@ -185,11 +185,11 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 - [ ] **Vercel Analytics** — already in the stack, cookie-free, GDPR-safe, zero-config. Must be enabled before first user lands. Minimum metrics to watch: analysis completion rate + 7-day return rate.
 - [ ] **Upstash env vars in Vercel** — `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` must be added to Vercel Production env to activate rate limiting.
 
-**Phase 3a complete → launch review** — decide whether to launch now or continue to Phase 3b first. Lexi's call.
+**Phase 3a complete ✓ (2026-06-13) → launch review** — Lexi's decision: launch now or continue to Phase 3b first.
 
 ---
 
-## Phase 3b: Intelligence Quality + Data Wiring
+## → Phase 3b: Intelligence Quality + Data Wiring — CURRENT
 
 _Goal: The product works well for every user, not just the obvious cases. Intelligence is honest and results are genuinely tailored._
 
