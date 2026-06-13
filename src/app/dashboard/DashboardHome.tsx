@@ -40,6 +40,8 @@ export default function DashboardHome() {
   const [todayDismissed, setTodayDismissed] = useState(false);
   const [todayFading, setTodayFading] = useState(false);
   const [homeState, setHomeState] = useState<HomeState>("nothing-new");
+  const [directionTitle, setDirectionTitle] = useState<string | null>(null);
+  const [directionBody, setDirectionBody] = useState<string | null>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   const { extraMsgs, sendMessage, isLoading } = useArloChat({
@@ -62,6 +64,15 @@ export default function DashboardHome() {
         if (sessionResult) {
           const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
           if (!seen) setHomeState("new-roles");
+
+          try {
+            const parsed = JSON.parse(sessionResult);
+            const dir = parsed?.profile?.suggestedDirections?.[0];
+            if (dir?.title) setDirectionTitle(dir.title);
+            if (dir?.why) setDirectionBody(dir.why);
+          } catch {
+            // malformed sessionStorage — direction card keeps fallback
+          }
         }
 
         // Unauthenticated result persistence fix:
@@ -189,11 +200,17 @@ export default function DashboardHome() {
 
             <div className={s.directionCard}>
               <h2>Your direction</h2>
-              <div className={s.directionTitle}>Operations and strategy in early-stage companies.</div>
-              <p className={s.directionBody}>
-                You think in systems — how things connect, where the friction is, what&apos;s holding a team back.
-                The roles where you&apos;ll do your best work are ones where those instincts are the job.
-              </p>
+              {directionTitle ? (
+                <>
+                  <div className={s.directionTitle}>{directionTitle}</div>
+                  {directionBody && <p className={s.directionBody}>{directionBody}</p>}
+                </>
+              ) : (
+                <p className={s.directionBody}>
+                  Your direction will appear here once you&apos;ve shared your background.{" "}
+                  <a href="/input" style={{ color: "var(--accent)", textDecoration: "none" }}>Start now →</a>
+                </p>
+              )}
             </div>
 
             {/* ── STATE: New roles ── */}
