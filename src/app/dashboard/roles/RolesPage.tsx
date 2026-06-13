@@ -162,35 +162,55 @@ export default function RolesPage() {
   const fetchJobs = useCallback(async (result: AnalysisResult) => {
     const keywords = result.profile?.searchKeywords;
     const location = result.profile?.locationSearch;
+    const sectors = result.profile?.extractedSectors;
     if (!keywords?.length) return;
 
     setJobsLoading(true);
     setJobsError(false);
     try {
-      const jobsRes = await fetch("/api/jobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keywords, location: location || "london" }),
-      });
-      if (!jobsRes.ok) { setJobsError(true); return; }
-      const { jobs: rawJobs } = await jobsRes.json();
-      if (!rawJobs?.length) { setJobs([]); return; }
+      // Run Adzuna and Reed in parallel — Reed only returns results for niche sectors
+      const [adzunaRes, reedRes] = await Promise.all([
+        fetch("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keywords, location: location || "london" }),
+        }),
+        fetch("/api/reed", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keywords, location: location || "london", sectors }),
+        }),
+      ]);
 
-      // Score and rank
+      if (!adzunaRes.ok) { setJobsError(true); return; }
+      const { jobs: adzunaJobs } = await adzunaRes.json();
+      const { jobs: reedJobs } = reedRes.ok ? await reedRes.json() : { jobs: [] };
+
+      // Deduplicate by normalised title+company across both sources
+      const seen = new Set<string>();
+      const combined: typeof adzunaJobs = [];
+      for (const job of [...(adzunaJobs || []), ...(reedJobs || [])]) {
+        const key = `${(job.title || "").toLowerCase().trim()}|${(job.company || "").toLowerCase().trim()}`;
+        if (!seen.has(key)) { seen.add(key); combined.push(job); }
+      }
+
+      if (!combined.length) { setJobs([]); return; }
+
+      // Score and rank all results together
       try {
         const scoreRes = await fetch("/api/score", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ jobs: rawJobs, profile: result.profile }),
+          body: JSON.stringify({ jobs: combined, profile: result.profile }),
         });
         if (scoreRes.ok) {
           const { jobs: scoredJobs } = await scoreRes.json();
-          setJobs(scoredJobs || rawJobs);
+          setJobs(scoredJobs || combined);
         } else {
-          setJobs(rawJobs);
+          setJobs(combined);
         }
       } catch {
-        setJobs(rawJobs);
+        setJobs(combined);
       }
     } catch {
       setJobsError(true);

@@ -137,6 +137,24 @@
 .directionBody {
   font-size: 14px; line-height: 1.8; color: var(--ink-2);
 }
+.companySuggestions {
+  margin-top: 20px; padding-top: 18px;
+  border-top: 1px solid rgba(0,0,0,.07);
+}
+.companySuggestionsLabel {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 12px;
+}
+.companySuggestionItem {
+  display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px;
+}
+.companySuggestionItem:last-child { margin-bottom: 0; }
+.companySuggestionType {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+}
+.companySuggestionWhy {
+  font-size: 13px; line-height: 1.6; color: var(--ink-2);
+}
 
 .urgencyBadge {
   display: inline-flex; align-items: center; gap: 5px;

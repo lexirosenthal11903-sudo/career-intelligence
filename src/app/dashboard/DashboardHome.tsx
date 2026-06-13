@@ -42,6 +42,7 @@ export default function DashboardHome() {
   const [homeState, setHomeState] = useState<HomeState>("nothing-new");
   const [directionTitle, setDirectionTitle] = useState<string | null>(null);
   const [directionBody, setDirectionBody] = useState<string | null>(null);
+  const [companySuggestions, setCompanySuggestions] = useState<Array<{ type: string; why: string }>>([]);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   const { extraMsgs, sendMessage, isLoading } = useArloChat({
@@ -70,6 +71,10 @@ export default function DashboardHome() {
             const dir = parsed?.profile?.suggestedDirections?.[0];
             if (dir?.title) setDirectionTitle(dir.title);
             if (dir?.why) setDirectionBody(dir.why);
+            const suggestions = parsed?.profile?.companySuggestions;
+            if (Array.isArray(suggestions) && suggestions.length) {
+              setCompanySuggestions(suggestions.slice(0, 3));
+            }
           } catch {
             // malformed sessionStorage — direction card keeps fallback
           }
@@ -204,6 +209,17 @@ export default function DashboardHome() {
                 <>
                   <div className={s.directionTitle}>{directionTitle}</div>
                   {directionBody && <p className={s.directionBody}>{directionBody}</p>}
+                  {companySuggestions.length > 0 && (
+                    <div className={s.companySuggestions}>
+                      <div className={s.companySuggestionsLabel}>Types of company that fit you</div>
+                      {companySuggestions.map((c, i) => (
+                        <div key={i} className={s.companySuggestionItem}>
+                          <span className={s.companySuggestionType}>{c.type}</span>
+                          <span className={s.companySuggestionWhy}>{c.why}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </>
               ) : (
                 <p className={s.directionBody}>

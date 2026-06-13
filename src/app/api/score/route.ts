@@ -33,7 +33,7 @@ const scoreTool = {
             relevanceReason: {
               type: 'string',
               description:
-                'One sentence in second person — "Your background in X makes you a strong fit..."',
+                '2-3 sentences in second person. Sentence 1: what in their specific background applies to this role. Sentence 2: what the role actually requires and why the fit exists. Sentence 3 (optional): any honest caveat or what would make them stand out. Never generic — cite their actual skills or background.',
             },
           },
           required: ['id', 'relevanceScore', 'relevanceReason'],
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       })),
     });
 
-  const systemPrompt = `You are a career intelligence platform scoring job matches. Score on industry fit and transferable skills — not just whether the job title exactly matches. Be careful about cross-domain keyword collisions: a keyword like "acquisitions" used in a media context means content licensing/rights, not HR talent acquisition — score the latter as 1-2 if the candidate has no HR background. Similarly "coordinator" in media is different from admin coordination in unrelated industries. Always score from the candidate's actual industry and skill context. Give at least 5 to any role in the same industry or where transferable skills clearly apply. Write relevanceReason in second person, never "the candidate". Be honest but generous where skills genuinely transfer.`;
+  const systemPrompt = `You are a career intelligence platform scoring job matches. Score on industry fit and transferable skills — not just whether the job title exactly matches. Be careful about cross-domain keyword collisions: a keyword like "acquisitions" used in a media context means content licensing/rights, not HR talent acquisition — score the latter as 1-2 if the candidate has no HR background. Similarly "coordinator" in media is different from admin coordination in unrelated industries. Always score from the candidate's actual industry and skill context. Give at least 5 to any role in the same industry or where transferable skills clearly apply. Write relevanceReason in second person, never "the candidate". Be specific — cite what in their background applies, not just that it does. Be honest but generous where skills genuinely transfer.`;
 
   const userPrompt = `Score these jobs against this candidate profile.
 
