@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import s from "./dashboard.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useArloChat } from "@/hooks/useArloChat";
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -16,8 +17,7 @@ function getDateLabel(): string {
   return new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 }
 
-type HomeState = "new-roles" | "deadline" | "nothing-new"; // Phase 3: derive from real data
-type ChatMsg = { role: "arlo" | "user"; text: string };
+type HomeState = "new-roles" | "deadline" | "nothing-new";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -34,47 +34,71 @@ export default function DashboardHome() {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
-  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
   const [todayDismissed, setTodayDismissed] = useState(false);
   const [todayFading, setTodayFading] = useState(false);
-  // Phase 3: derive from real data (new matches since last login, deadline urgency, nothing new)
-  const homeState = "new-roles" as HomeState;
-
-  function dismissToday() {
-    setTodayFading(true);
-    setTimeout(() => setTodayDismissed(true), 220);
-  }
+  const [homeState, setHomeState] = useState<HomeState>("nothing-new");
   const chatInputRef = useRef<HTMLInputElement>(null);
 
-  function handleSend() {
-    const text = chatValue.trim();
-    if (!text) return;
-    setChatValue("");
-    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
-    setTimeout(() => {
-      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
-    }, 800);
-  }
+  const { extraMsgs, sendMessage, isLoading } = useArloChat({
+    page: "home",
+    supabase,
+    userId,
+  });
 
-  function handleChatKey(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
-  }
+  // Derive home state + fix unauthenticated result persistence
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        const id = user.id;
+        const name = user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null;
+        setUserId(id);
+        setUserName(name);
+
+        // homeState: new-roles if result exists and user hasn't dismissed the banner
+        const sessionResult = sessionStorage.getItem("analysisResult");
+        if (sessionResult) {
+          const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
+          if (!seen) setHomeState("new-roles");
+        }
+
+        // Unauthenticated result persistence fix:
+        // If sessionStorage has a result but Supabase doesn't, save it now
+        if (sessionResult) {
+          fetch("/api/results")
+            .then((r) => r.json())
+            .then((data) => {
+              if (!data?.data) {
+                fetch("/api/save-result", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ data: JSON.parse(sessionResult) }),
+                }).catch(() => {});
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    });
+  }, [supabase]);
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
     if (saved !== null) setArloVisible(saved !== "false");
   }, []);
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        const name = user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null;
-        setUserName(name);
-      }
-    });
-  }, []);
+  function dismissToday() {
+    if (userId) localStorage.setItem(`ci-new-roles-seen-${userId}`, "1");
+    setTodayFading(true);
+    setTimeout(() => setTodayDismissed(true), 220);
+  }
+
+  function handleSeeNewMatches() {
+    if (userId) localStorage.setItem(`ci-new-roles-seen-${userId}`, "1");
+    router.push("/dashboard/roles?tab=listings");
+  }
 
   function toggleArlo() {
     setArloVisible((v) => {
@@ -82,6 +106,17 @@ export default function DashboardHome() {
       localStorage.setItem("arlo-visible", String(next));
       return next;
     });
+  }
+
+  function handleSend() {
+    const text = chatValue.trim();
+    if (!text) return;
+    setChatValue("");
+    sendMessage(text);
+  }
+
+  function handleChatKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   }
 
   return (
@@ -122,10 +157,10 @@ export default function DashboardHome() {
         <div className={s.navGap} />
 
         <a href="/dashboard/profile" className={s.navProfile}>
-          <div className={s.navAv}>L</div>
+          <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div>
-            <div className={s.navName}>Lexi</div>
-            <div className={s.navEmail}>lexi@email.com</div>
+            <div className={s.navName}>{userName ?? "You"}</div>
+            <div className={s.navEmail}></div>
           </div>
         </a>
       </nav>
@@ -171,7 +206,7 @@ export default function DashboardHome() {
                   Less obvious than it sounds. Arlo has thoughts on why it fits.
                 </div>
                 <div className={s.btnRow}>
-                  <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles?tab=listings")}>See new matches →</button>
+                  <button className={s.btnPrimary} onClick={handleSeeNewMatches}>See new matches →</button>
                   <button className={s.btnGhost} onClick={dismissToday}>Later</button>
                 </div>
               </div>
@@ -249,29 +284,22 @@ export default function DashboardHome() {
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
                 <div className={s.mentorHeadName}>Arlo</div>
-                <div className={s.mentorHeadStatus}>Here with you</div>
+                <div className={s.mentorHeadStatus}>{isLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
 
             <div className={s.mentorMessages}>
 
-              {homeState === "new-roles" && (
+              {homeState === "new-roles" && extraMsgs.length === 0 && (
                 <>
                   <div className={s.aiMsg}>
                     <div className={s.aiBubble}>Welcome back. What did you get up to since we last spoke?</div>
                     <div className={s.aiBubble}>While you were away, three new roles came in. The logistics one caught my attention — the job title doesn&apos;t do it justice. I&apos;ll explain why when you&apos;re ready.</div>
                   </div>
-                  <div className={s.userMsg}>
-                    <div className={s.userBubble}>Just had a busy week. What&apos;s the logistics role?</div>
-                  </div>
-                  <div className={s.aiMsg}>
-                    <div className={s.aiBubble}>Head of Operations at Relay — they move goods for small brands that can&apos;t afford their own logistics. Fast, lean, real problems to solve every day. <strong>Your instinct for finding where friction lives is exactly what they need.</strong></div>
-                    <div className={s.aiBubble}>Want to look at it properly?</div>
-                  </div>
                 </>
               )}
 
-              {homeState === "deadline" && (
+              {homeState === "deadline" && extraMsgs.length === 0 && (
                 <div className={s.aiMsg}>
                   <div className={s.aiBubble}>Welcome back. What did you get up to?</div>
                   <div className={s.aiBubble}>Something to flag before anything else — your Bloom &amp; Wild application closes Friday. Two days. You saved it a while back but haven&apos;t applied yet.</div>
@@ -279,7 +307,7 @@ export default function DashboardHome() {
                 </div>
               )}
 
-              {homeState === "nothing-new" && (
+              {homeState === "nothing-new" && extraMsgs.length === 0 && (
                 <div className={s.aiMsg}>
                   <div className={s.aiBubble}>Welcome back. What did you get up to?</div>
                   <div className={s.aiBubble}>Nothing new on the roles front since your last visit — I&apos;ll let you know when something comes in.</div>
@@ -310,8 +338,9 @@ export default function DashboardHome() {
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
                   onKeyDown={handleChatKey}
+                  disabled={isLoading}
                 />
-                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend} disabled={isLoading}>
                   {sendIcon}
                 </button>
               </div>

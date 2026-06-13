@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import s from "./roles.module.css";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useArloChat } from "@/hooks/useArloChat";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 31 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 31 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M30 50 Q40 55 50 50" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -13,8 +15,6 @@ const sendIcon = (
     <path strokeLinecap="round" strokeLinejoin="round" d="M1 7h12M7 1l6 6-6 6" />
   </svg>
 );
-
-type ChatMsg = { role: "arlo" | "user"; text: string };
 
 interface AnalysisProfile {
   summary?: string;
@@ -58,11 +58,18 @@ function slugify(s: string) {
 export default function RolesPage() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "listings" ? "listings" : "types";
+  const supabase = createSupabaseBrowserClient();
 
   const [tab, setTab] = useState<"types" | "listings">(initialTab);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
-  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
+    page: "roles",
+    supabase,
+    userId,
+  });
 
   // Analysis result
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -82,11 +89,14 @@ export default function RolesPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(5);
 
-  // ── Load Arlo visibility ──────────────────────────────────────────────────
+  // ── Load Arlo visibility + user id ───────────────────────────────────────
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
     if (saved !== null) setArloVisible(saved !== "false");
-  }, []);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, [supabase]);
 
   function toggleArlo() {
     setArloVisible((v) => {
@@ -236,10 +246,7 @@ export default function RolesPage() {
     const text = chatValue.trim();
     if (!text) return;
     setChatValue("");
-    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
-    setTimeout(() => {
-      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
-    }, 800);
+    sendMessage(text);
   }
   function handleChatKey(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -572,7 +579,7 @@ export default function RolesPage() {
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
                 <div className={s.mentorHeadName}>Arlo</div>
-                <div className={s.mentorHeadStatus}>Here with you</div>
+                <div className={s.mentorHeadStatus}>{arloLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
 
@@ -612,8 +619,9 @@ export default function RolesPage() {
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
                   onKeyDown={handleChatKey}
+                  disabled={arloLoading}
                 />
-                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend} disabled={arloLoading}>
                   {sendIcon}
                 </button>
               </div>

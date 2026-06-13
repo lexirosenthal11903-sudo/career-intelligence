@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import s from "./skills.module.css";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useArloChat } from "@/hooks/useArloChat";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 33 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 33 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M32 51 Q40 53 48 51" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -108,22 +110,24 @@ function formatDate(d: Date) {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-type ChatMsg = { role: "arlo" | "user"; text: string };
-
 export default function SkillsPage() {
+  const supabase = createSupabaseBrowserClient();
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
-  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
+
+  const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
+    page: "skills",
+    supabase,
+    userId,
+  });
 
   function handleSend() {
     const text = chatValue.trim();
     if (!text) return;
     setChatValue("");
-    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
-    setTimeout(() => {
-      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
-    }, 800);
+    sendMessage(text);
   }
   function handleChatKey(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -150,7 +154,10 @@ export default function SkillsPage() {
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
     if (saved !== null) setArloVisible(saved !== "false");
-  }, []);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, [supabase]);
 
   function toggleArlo() {
     setArloVisible((v) => {
@@ -472,7 +479,7 @@ export default function SkillsPage() {
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
                 <div className={s.mentorHeadName}>Arlo</div>
-                <div className={s.mentorHeadStatus}>Here with you</div>
+                <div className={s.mentorHeadStatus}>{arloLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
 
@@ -536,8 +543,9 @@ export default function SkillsPage() {
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
                   onKeyDown={handleChatKey}
+                  disabled={arloLoading}
                 />
-                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend} disabled={arloLoading}>
                   {sendIcon}
                 </button>
               </div>
