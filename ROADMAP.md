@@ -157,39 +157,149 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 - [x] Real name shown in Dashboard greeting (from Google profile or email prefix)
 - [x] Real email shown in Profile account section
 
-**Core pipeline — PARTIALLY COMPLETE ✓ (Session 25, 2026-06-12):**
+**Core pipeline — COMPLETE ✓ (Sessions 25–26, 2026-06-12):**
 - [x] Wire input page → `/api/analyse` → SSE stream → loading screen → onboarding bridge with real data
 - [x] Save analysis results to Supabase on completion (`results` table, fire-and-forget)
-- [ ] Fix 90s pipeline for production — currently ~83s locally, will timeout on Vercel Hobby (60s). Fix: upgrade to Vercel Pro before launch. See INSIGHTS.md section 1.
-- [ ] Wire Adzuna job listings to Roles tab — real live listings, not placeholder cards (Session 26)
+- [x] Wire Adzuna job listings to Roles tab — real listings, scored by Claude, filter pills, Load more
+- [x] Fix 90s pipeline: split into two parallel calls (~25s average, within 60s Hobby cap). See INSIGHTS.md section 1.
 
-**Arlo chat:**
-- [ ] Wire `chat.js` to the Arlo panel in Dashboard — real responses, not placeholder "I'll respond when connected"
-- [ ] Advisor reads user context on load — direction, CV summary, saved roles — from Supabase
-- [ ] Design Supabase memory schema: activity log table, conversation history table, user profile snapshot. See INSIGHTS.md Phase 3+ section on cross-session advisor memory.
+**Arlo chat — COMPLETE ✓ (Session 27, 2026-06-13):**
+- [x] Wire all Arlo chat panels → `/api/chat` with real Claude responses
+- [x] Conversation history per page (home/roles/skills/applications) stored in Supabase `conversations` table
+- [x] User context injected on every call (direction, CV summary, saved roles, values) — Arlo never re-asks
+- [x] Unauthenticated result persistence fix: re-calls save-result on dashboard load if result wasn't saved
 
-**Basic persistence:**
-- [ ] Save/pass roles writes to Supabase and persists across sessions
-- [ ] Applications tab reads from and writes to real Supabase data
-- [ ] Profile tab shows real user name (from auth or CV extraction), not hardcoded
+**Phase 3a remaining — must complete before launch review:**
+- [ ] **Wire dashboard direction card to real analysis data** — currently shows placeholder "Operations and strategy in early-stage companies." Must read from Supabase result on load.
+- [ ] **Rate limiting on /api/chat** — analyse route has Upstash rate limiting; chat route does not. Fix before real users. 100 calls/user/day.
+- [ ] **Run conversations SQL migration** — `supabase-migrations/20260613_conversations.sql` must be executed in Supabase dashboard before chat history works.
+- [ ] **Add Vercel Production env vars** — `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` are Preview-only. Must add to Production before merging to main.
 
-**Analytics — set up before first real user lands:**
-- [ ] **Vercel Analytics** — zero config, already in the stack, cookie-free, GDPR-safe. Minimum metrics: input flow completion rate + 7-day return rate. Those two numbers tell you if the product is working.
-
-**Legal and compliance — must complete before first real user:**
-- [ ] **ICO registration** — ⚠️ legally required before processing any real UK user data. Free, £40/year for small orgs, 20 minutes at ico.org.uk/registration. **Reminder: do this before any real user signs up, not before launch.** Lexi deferred 2026-06-11 — remind at start of production deployment session.
+**⚠️ Must happen before any real user signs up — non-negotiable:**
+- [ ] **ICO registration** — legally required before processing any real UK user data. £40/year, 20 minutes at ico.org.uk/registration. Lexi has been deferring — this is now overdue.
+- [ ] **GitHub token rotation** — a session token was exposed in an earlier session. Must be rotated before production. This is a live security risk.
 - [ ] **Real privacy policy** — replace stub at `/privacy`. Draft from template, solicitor review. Covers: data collected, retention (90 days), right to deletion, CV data handling.
 - [ ] **Real terms of service** — replace stub at `/terms`. Draft + solicitor review.
-- [ ] **Right to deletion** — verify Supabase 90-day deletion works end-to-end. Test it. The delete button in Profile is already wired to navigate away — Phase 3a wires the actual Supabase deletion.
-- [ ] **GitHub token rotation** — ⚠️ must happen before any real user signs up. Lexi has been deferring — do not proceed to production with real users without this.
+- [ ] **Right to deletion** — the delete button in Profile navigates away but does not actually delete Supabase data. Wire the actual deletion call.
+- [ ] **Sentry error tracking** — zero visibility into production errors right now. Sentry free tier, ~20 minutes to install. Without it, silent failures will go unnoticed.
+- [ ] **Vercel Analytics** — already in the stack, cookie-free, GDPR-safe, zero-config. Must be enabled before first user lands. Minimum metrics to watch: analysis completion rate + 7-day return rate.
+- [ ] **Upstash env vars in Vercel** — `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` must be added to Vercel Production env to activate rate limiting.
 
 **Phase 3a complete → launch review** — decide whether to launch now or continue to Phase 3b first. Lexi's call.
 
 ---
 
-## Phase 3b: The Hand-Holding Layer
+## Phase 3b: Intelligence Quality + Data Wiring
 
-_Goal: Every job the user saves becomes a full guided journey. This is the product's core promise._
+_Goal: The product works well for every user, not just the obvious cases. Intelligence is honest and results are genuinely tailored._
+
+---
+
+### Session A: Pipeline Intelligence — Analysis, Scoring, and Niche Coverage
+
+**What it achieves:** The single most important quality session. Makes the analysis and job results genuinely tailored to every user regardless of sector or seniority — not just those in mainstream commercial roles.
+
+**Why this matters now:** A user with a niche background (arts management, environmental policy, social enterprise, academic-adjacent, creative industries) will currently see weak or irrelevant results. The first 100 users will include people from all kinds of backgrounds. If the product fails them, they don't come back and they don't tell others.
+
+**What to audit and improve:**
+
+**1. Analysis prompt quality**
+- Read 3–5 real CVs of different types (commercial, niche, career-changer, recent graduate with no experience, postgrad academic) and run each through the current pipeline. Look at the directions, keywords, and summary. Are they genuinely specific or could they apply to anyone?
+- Improve: the `suggestedDirections` prompt should force specificity anchored to what the CV actually shows — e.g. "You've spent three years doing X" must be verifiably true from the CV, not inferred generically
+- Improve: the `valuesSignals` should be observations that could only be written about this specific person, not observations that could apply to any ambitious graduate
+- Improve: `summary` — should pass the "could this be sent to a different user unchanged?" test. If it could, it's not specific enough.
+
+**2. Keyword generation — sector-aware strategy**
+Current: flat list of 5–8 keywords, same format regardless of sector.
+
+Improve with sector-aware branching:
+- **Commercial/consulting/finance:** standard job titles + function terms
+- **Creative/media/entertainment:** rights, licensing, content, format-specific terms (documentary, broadcast, publishing)
+- **Charity/NGO/social sector:** programme, impact, fundraising, community, advocacy — search Guardian Jobs + CharityJob via Reed API
+- **Public sector/policy:** policy, research, civil service, local government — search Civil Service Jobs
+- **Academic-adjacent:** research, think tank, knowledge, publishing — different source mix
+- **Technology:** product, engineering, data, growth — standard Adzuna coverage is good here
+
+The analysis already extracts `extractedSectors` — use it to shape the search strategy, not just the scoring.
+
+**3. Seniority-aware search (not just scoring)**
+Currently seniority only affects post-search scoring. Improve the search itself:
+- If `seniorityLevel` is graduate/entry/early-career: append "graduate", "junior", "assistant" as additional search terms
+- If senior: suppress junior/assistant terms from the keyword mix
+- The scoring already handles mismatches as a safety net; the search should reduce the problem upstream
+
+**4. Location and salary in search**
+Currently neither is passed to Adzuna. Fix:
+- Pass `locationSearch` as the Adzuna location parameter (currently defaults to London regardless)
+- If user expressed remote preference: search with location=`remote` or UK-wide
+- Salary floor: filter out listings clearly below the user's floor (where salary data is available)
+
+**5. Reed API as second job source**
+Reed API has a free tier and is significantly stronger than Adzuna for:
+- Charity and third sector
+- Healthcare and social care
+- Public sector
+- More mid-senior UK roles
+
+Implementation: when the analysis identifies a niche sector, run a parallel Reed search alongside Adzuna. Deduplicate by job title + company. Score all results together.
+
+**6. Scoring relevance reason — more depth**
+Currently one sentence. Improve to 2–3 sentences that explain:
+- What in this specific person's background applies
+- What the role actually requires
+- Why the fit exists (not just that it does)
+This appears on the job card and is the thing that makes a user decide whether to click. Make it worth reading.
+
+**7. Direction validation against real job availability**
+After generating 3 directions, quick-check Adzuna (and Reed where applicable) to see if each direction has at least 5–10 live listings. If a direction is very thin, flag it in the result so the UI can handle it appropriately ("This direction is less active right now — we'll update when more roles come in"). Don't suppress it — be honest.
+
+**8. Surface `companySuggestions` in the UI**
+The analysis generates "types of company that suit this person, with why" — this is currently generated and discarded. It should appear somewhere in the dashboard (e.g. a "Company types that fit you" section in the Roles tab or direction card). Good content being wasted.
+
+**Read first:**
+- `/api/analyse/route.ts` — full analysis prompt
+- `/api/score/route.ts` — scoring logic
+- `/api/jobs/route.ts` — Adzuna search implementation
+- `ADVISOR_PERSONA.md` — ensure any new Arlo copy in relevance reasons matches voice
+
+**Skills:** `/grill-me` before building — extract decisions about keyword strategy and sector logic. `/systematic-debugging` if pipeline issues arise. `/deploy-check` after.
+
+**Done when:** 3 real CVs of different types run through the pipeline, each producing genuinely specific directions and results. Niche-sector user sees at least 5 relevant listings. Seniority-appropriate roles dominate results for junior profiles. Reed API wired. `/deploy-check` passes.
+
+---
+
+### Session B: Real Data Wiring (Applications + Skills + Direction Card)
+
+**What it achieves:** The three dashboard tabs that still show placeholder data become real.
+
+**What to wire:**
+
+**Direction card on dashboard home:**
+- Currently shows hardcoded "Operations and strategy in early-stage companies." 
+- Must read `summary` and `suggestedDirections[0].title` from Supabase result on load
+- Direction card body should come from the first suggested direction's `why` field
+
+**Skills tab:**
+- Currently 100% hardcoded demo data
+- Skills strengths should come from `result.skills.strengths`
+- Skills gaps should come from `result.skills.gaps` (includes tier, why, howToBuild, resource URLs)
+- The existing `BEFORE_APPLY` and `WORTH_BUILDING` sections in the design map to the gap `tier` field
+- Resources are already in the data — wire to the existing resource link UI
+
+**Applications tab:**
+- Currently 100% hardcoded (Bloom & Wild, Monzo, Deloitte don't exist)
+- Need a `saved_applications` Supabase table: `user_id`, `job_id`, `job_data` (jsonb), `stage`, `created_at`
+- "Interested" jobs from Roles tab should be startable as applications
+- Stage progression (Preparing → Applied → Interview → Offer) writes to Supabase
+- Empty state when user has no applications yet
+
+**Done when:** Dashboard direction card shows real data. Skills tab shows real skills gaps from analysis. Applications tab has real Supabase persistence. `/deploy-check` passes.
+
+---
+
+### Phase 3b: The Hand-Holding Layer
+
+_The product's core promise: every job the user saves becomes a full guided journey._
 
 **Copy and product voice — must do before launch:**
 - [ ] **⚠️ Product name session** — "Career Intelligence" is a working title. Cannot launch without a real name. Dedicated creative session: options, stress-test, decision. Lexi is not ready for this yet — flag at start of Phase 3b.
@@ -227,8 +337,8 @@ _Goal: The product knows more than the user has told it. It brings external inte
 
 - [ ] **LinkedIn integration** — contact discovery for outreach. Find the right person at a target company. Onboarding is CV-only — LinkedIn is never part of the initial flow. Optional later feature. (Note: LinkedIn API is restricted — v1 approach likely OAuth for basic profile data or user-initiated; not in onboarding)
 - [ ] **Glassdoor data** — company culture scores, real salary ranges, actual interview questions asked at that company, difficulty ratings. Feeds company research and interview prep.
-- [ ] **Reed API** — expand job sources beyond Adzuna (more volume, better UK coverage)
-- [ ] **Additional job sources** — Indeed, company direct career pages, graduate-specific boards
+- [ ] **Reed API** — ✅ moved to Phase 3b Session A (Pipeline Intelligence). Already incorporated into niche-sector strategy above.
+- [ ] **Additional job sources** — Indeed, company direct career pages, graduate-specific boards (after Reed is proven)
 - [ ] **Companies House (UK)** — legal company info, headcount, financials, founding year. Adds credibility to company research.
 - [ ] **Self-knowledge questionnaire** — the 5 identity questions (Who are you without your labels? When have you felt most absorbed? etc.) surfaced gradually over time in conversation, never as a form
 - [ ] **Skills gap map** — interactive, not static. Progress bars update as user closes gaps.
