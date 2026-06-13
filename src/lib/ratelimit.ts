@@ -3,28 +3,32 @@ import { Redis } from '@upstash/redis';
 import { optionalEnv } from '@/lib/env';
 import { NextRequest, NextResponse } from 'next/server';
 
-let ratelimit: Ratelimit | null = null;
-
-function getRatelimiter(): Ratelimit | null {
-  if (ratelimit) return ratelimit;
-
+function makeRatelimiter(prefix: string, limit: number): Ratelimit | null {
   const url = optionalEnv('UPSTASH_REDIS_REST_URL');
   const token = optionalEnv('UPSTASH_REDIS_REST_TOKEN');
+  if (!url || !token) return null;
 
-  if (!url || !token) {
-    // Upstash not configured — fail open so local dev keeps working.
-    // Add UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN to .env.local to activate.
-    return null;
-  }
-
-  ratelimit = new Ratelimit({
+  return new Ratelimit({
     redis: new Redis({ url, token }),
-    limiter: Ratelimit.fixedWindow(10, '1 d'),
+    limiter: Ratelimit.fixedWindow(limit, '1 d'),
     analytics: false,
-    prefix: 'ci:analyse',
+    prefix,
   });
+}
 
-  return ratelimit;
+let analyseRatelimiter: Ratelimit | null | undefined;
+let chatRatelimiter: Ratelimit | null | undefined;
+
+function getAnalyseRatelimiter(): Ratelimit | null {
+  if (analyseRatelimiter !== undefined) return analyseRatelimiter;
+  analyseRatelimiter = makeRatelimiter('ci:analyse', 10);
+  return analyseRatelimiter;
+}
+
+function getChatRatelimiter(): Ratelimit | null {
+  if (chatRatelimiter !== undefined) return chatRatelimiter;
+  chatRatelimiter = makeRatelimiter('ci:chat', 100);
+  return chatRatelimiter;
 }
 
 /**
@@ -40,7 +44,7 @@ function getRatelimiter(): Ratelimit | null {
 export async function checkAnalyseRateLimit(
   request: NextRequest
 ): Promise<NextResponse | null> {
-  const limiter = getRatelimiter();
+  const limiter = getAnalyseRatelimiter();
   if (!limiter) return null;
 
   const ip =
@@ -60,6 +64,47 @@ export async function checkAnalyseRateLimit(
     return NextResponse.json(
       {
         error: `You've run ${limit} analyses today — the daily limit. Come back after ${resetTime} to run another.`,
+        retryAfter: reset,
+      },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)),
+          'X-RateLimit-Limit': String(limit),
+          'X-RateLimit-Remaining': String(remaining),
+          'X-RateLimit-Reset': String(reset),
+        },
+      }
+    );
+  }
+
+  return null;
+}
+
+/**
+ * Check the rate limit for /api/chat.
+ *
+ * Keyed by user ID — chat requires auth so we always have one. 100 messages/day
+ * is generous for genuine use while blocking runaway loops or abuse.
+ *
+ * Fails open if Upstash is not configured.
+ */
+export async function checkChatRateLimit(userId: string): Promise<NextResponse | null> {
+  const limiter = getChatRatelimiter();
+  if (!limiter) return null;
+
+  const { success, limit, remaining, reset } = await limiter.limit(userId);
+
+  if (!success) {
+    const resetDate = new Date(reset);
+    const resetTime = resetDate.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/London',
+    });
+    return NextResponse.json(
+      {
+        error: `You've sent ${limit} messages today — the daily limit. Come back after ${resetTime} to continue.`,
         retryAfter: reset,
       },
       {

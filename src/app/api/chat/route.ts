@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { callClaude } from '@/lib/anthropic';
 import { getAuthedUser } from '@/lib/supabase/server';
+import { checkChatRateLimit } from '@/lib/ratelimit';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const maxDuration = 60;
@@ -135,6 +136,9 @@ async function buildUserContext(
 export async function POST(request: Request) {
   const { user, supabase } = await getAuthedUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+
+  const rateLimitResponse = await checkChatRateLimit(user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   let body: { messages?: unknown };
   try {
