@@ -448,6 +448,54 @@ After all four wiring sessions: decide whether to launch to first users now, or 
 
 ---
 
+## PHASE 3b — Intelligence Quality + Data Wiring
+
+### Session 28: Pipeline Intelligence Grill + Analysis Audit ← NEXT SESSION
+
+**What it achieves:** The analysis prompt is the core intelligence of the product. Before locking it, we need to stress-test it properly. This session: run `/grill-me` on the analysis approach, audit outputs against real CVs of different types, and make any prompt changes that come out of it.
+
+**Context from Session 28 (2026-06-13/14):**
+Pipeline improvements already shipped in staging (commit 54f4309):
+- Analysis prompts updated: specificity rules force CV-anchored directions/values; sector-aware and seniority-aware keyword strategy
+- Scoring: relevanceReason expanded to 2-3 sentences (renders as small italic text at bottom of each job card — check in practice)
+- Reed API: `/api/reed` wired, runs in parallel with Adzuna for ALL profiles (not just niche — scoring sorts results). Deduplication by title+company before scoring.
+- `companySuggestions` now shown in direction card on dashboard home
+- ⚠️ Reed API key added to `.env.local`. Must add `REED_API_KEY` to Vercel Production + Preview env vars before it works in deployment.
+
+**What this session does:**
+1. Run `/grill-me` on the full analysis pipeline — directions, keywords, scoring, values signals. Extract decisions Lexi hasn't made explicitly yet.
+2. Test with 3 real CVs: commercial, niche (charity/arts/policy), recent graduate with no experience
+3. Review prompt output quality — are directions genuinely specific? Are values signals personal?
+4. Make any prompt adjustments based on real output review
+5. Verify Reed results appear correctly for niche profiles
+
+**Read first:**
+- `src/app/api/analyse/route.ts` — updated prompts
+- `src/app/api/score/route.ts` — updated scoring
+- `src/app/api/reed/route.ts` — new Reed integration
+- `ADVISOR_PERSONA.md` — ensure Arlo voice matches any new copy in scoring reasons
+
+**Skills:**
+- `/grill-me` — run before any prompt changes
+- `/systematic-debugging` — if pipeline issues arise
+- `/deploy-check` — after
+
+**Done when:** `/grill-me` complete and decisions logged. 3 real CVs produce genuinely specific directions. Niche profile returns relevant listings. `/deploy-check` passes.
+
+---
+
+### Session 29: Real Data Wiring (Skills + Applications tabs)
+
+**What it achieves:** Skills and Applications tabs show real data instead of placeholder content.
+
+**What to wire:**
+- Skills tab: reads from `result.skills.strengths` and `result.skills.gaps` (tier, why, howToBuild, resources)
+- Applications tab: `saved_applications` Supabase table — wire "Interested" jobs from Roles tab as startable applications, stage progression writes to Supabase, empty state for new users
+
+**Done when:** Both tabs show real data for a user who has completed analysis. `/deploy-check` passes.
+
+---
+
 ## PHASE 3b — The Hand-Holding Layer
 
 _Full plan in `ROADMAP.md`. Plan session-level detail when Phase 3a is complete._

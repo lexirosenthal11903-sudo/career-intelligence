@@ -94,19 +94,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Reed API key not configured.' }, { status: 500 });
   }
 
-  // Reed is only worth searching for sectors where it outperforms Adzuna.
-  // If sectors aren't niche, skip and return empty (caller falls back to Adzuna-only).
-  const REED_SECTORS = ['charity', 'ngo', 'social', 'healthcare', 'public sector', 'policy', 'third sector', 'voluntary', 'community', 'advocacy', 'housing', 'education', 'social care'];
-  const sectorList = (sectors || []) as string[];
-  const isNiche = sectorList.some((s) =>
-    REED_SECTORS.some((rs) => s.toLowerCase().includes(rs))
-  );
-
-  if (!isNiche) {
-    return NextResponse.json({ jobs: [] });
-  }
-
   const searchLocation = location || 'london';
+  void sectors; // accepted for future use — currently run Reed for all profiles
 
   try {
     const results = await Promise.all(

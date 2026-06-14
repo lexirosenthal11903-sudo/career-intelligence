@@ -117,10 +117,10 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-12)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-14)
 
-**We are in Phase 3a. The next session is Session 27: Arlo Chat Wiring.**
-Read `PLAYBOOK.md` Phase 3a → Session 27 for the full brief before starting.
+**We are in Phase 3b. The next session is Session 28: Pipeline Intelligence Grill + Analysis Audit.**
+Read `PLAYBOOK.md` Phase 3b → Session 28 for the full brief before starting.
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
@@ -132,7 +132,7 @@ Read `PLAYBOOK.md` Phase 3a → Session 27 for the full brief before starting.
 **⚠️ Challenge before building — standing instruction:**
 Before writing any code in response to Lexi describing a problem or idea: state your understanding of the problem, ask 1-2 clarifying questions, confirm. Never interpret and immediately act. This is a co-founder role — engage first, build second.
 
-**Known gap to fix in Session 27:** Users who ran analysis without auth have their result only in sessionStorage — save-result 401'd silently. If they close the tab and return, result is gone. Fix: on dashboard load, if sessionStorage has a result and /api/results returns nothing, re-call /api/save-result to persist it now that the user is authed.
+**⚠️ Action needed before Session 28:** Add `REED_API_KEY` to Vercel Production + Preview env vars. Value in `.env.local`. Without this, Reed returns nothing in deployment.
 
 **Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
 **Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
@@ -155,7 +155,7 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 
 ## Current Phase
 
-**Phase 3a — Make It Real. Session 26 COMPLETE (2026-06-12). Next: Session 27 — Arlo Chat Wiring.**
+**Phase 3a — COMPLETE ✓ (2026-06-14). Phase 3b begun.**
 
 **Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
 
@@ -197,17 +197,29 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 - ✓ Input textarea: auto-expands, resets height after send
 - ✓ INSIGHTS.md: standing rule on Anthropic token budgets + call architecture
 
-**Phase 3a — Remaining:**
-- ⬜ Session 27: Arlo chat wired to /api/chat with user context + conversation history
-- ⬜ Session 27: Fix unauthenticated result persistence (re-call save-result on dashboard load if needed)
-- ⬜ ICO registration + real privacy/terms before first real user
-- ⬜ GitHub token rotation before first real user
-- ⬜ Rate limiting activation (Upstash already installed) before first real user
-- ⬜ Add Vercel Production env vars (NEXT_PUBLIC_SUPABASE_URL + ANON_KEY) before merging to main
+**Phase 3a — COMPLETE ✓ (2026-06-14):**
+- ✓ Session 27: Arlo chat wired to /api/chat, conversation history per page in Supabase `conversations` table
+- ✓ Session 27: Unauthenticated result persistence fix — re-calls save-result on dashboard load
+- ✓ Session 27 follow-up: Rate limiting on /api/chat (100 msg/user/day, Upstash)
+- ✓ Session 27 follow-up: Dashboard direction card reads real analysis data
+- ✓ Session 27 follow-up: Vercel Production env vars added (NEXT_PUBLIC_SUPABASE_URL + ANON_KEY)
+- ✓ Conversations SQL migration run in Supabase dashboard
 
-**Phase 3b — Hand-holding layer + copywriting. Lexi decides after Phase 3a.**
+**Phase 3b — Session 28 begun (2026-06-14):**
+- ✓ Analysis prompts: specificity rules, sector-aware + seniority-aware keyword strategy
+- ✓ Scoring: relevanceReason expanded to 2-3 sentences
+- ✓ Reed API: `/api/reed` wired, runs in parallel with Adzuna for all profiles
+- ✓ companySuggestions surfaced in direction card on dashboard home
+- ⬜ Session 28 (next): `/grill-me` on analysis pipeline, audit with 3 real CVs, verify Reed output
+- ⬜ Session 29: Skills tab + Applications tab real data wiring
 
-**Before merge to main:** add `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` to Vercel **Production** env (currently Preview-only). Run `/deploy-check`.
+**Pre-launch non-negotiables (Lexi to handle — not deferred to build sessions):**
+- ⬜ Add `REED_API_KEY` to Vercel Production + Preview env vars
+- ⬜ ICO registration (ico.org.uk/registration, £40/year)
+- ⬜ GitHub token rotation (live security risk)
+- ⬜ Real privacy policy + terms of service
+- ⬜ Wire actual user deletion in Profile tab
+- ⬜ Sentry error tracking + Vercel Analytics
 
 **Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
 
