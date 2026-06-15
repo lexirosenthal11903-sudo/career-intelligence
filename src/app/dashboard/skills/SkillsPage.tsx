@@ -106,6 +106,8 @@ export default function SkillsPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [beforeApply, setBeforeApply] = useState<Skill[]>([]);
   const [worthBuilding, setWorthBuilding] = useState<Skill[]>([]);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
     page: "skills",
@@ -117,25 +119,44 @@ export default function SkillsPage() {
     const saved = localStorage.getItem("arlo-visible");
     if (saved !== null) setArloVisible(saved !== "false");
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id);
+      if (user) {
+        setUserId(user.id);
+        setUserName(user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null);
+        setUserEmail(user.email ?? null);
+      }
     });
 
-    try {
-      const raw = sessionStorage.getItem("arlo-result");
-      if (raw) {
-        const result: AnalysisResult = JSON.parse(raw);
-        setAnalysis(result);
-        const gaps = result.skills?.gaps ?? [];
-        setBeforeApply(
-          gaps.filter((g) => g.tier === "Foundation").map((g, i) => gapToSkill(g, i))
-        );
-        setWorthBuilding(
-          gaps.filter((g) => g.tier !== "Foundation").map((g, i) => gapToSkill(g, gaps.findIndex((x) => x === g)))
-        );
+    async function loadAnalysis() {
+      try {
+        const raw = sessionStorage.getItem("arlo-result");
+        let result: AnalysisResult | null = null;
+
+        if (raw) {
+          result = JSON.parse(raw);
+        } else {
+          // Fallback: returning user whose sessionStorage was cleared
+          const res = await fetch("/api/results");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.result) result = data.result;
+          }
+        }
+
+        if (result) {
+          setAnalysis(result);
+          const gaps = result.skills?.gaps ?? [];
+          setBeforeApply(
+            gaps.filter((g) => g.tier === "Foundation").map((g, i) => gapToSkill(g, i))
+          );
+          setWorthBuilding(
+            gaps.filter((g) => g.tier !== "Foundation").map((g, i) => gapToSkill(g, gaps.findIndex((x) => x === g)))
+          );
+        }
+      } catch {
+        // sessionStorage unavailable or API error
       }
-    } catch {
-      // sessionStorage unavailable or malformed
     }
+    loadAnalysis();
   }, [supabase]);
 
   function handleSend() {
@@ -390,10 +411,10 @@ export default function SkillsPage() {
         <div className={s.navGap} />
 
         <a href="/dashboard/profile" className={s.navProfile}>
-          <div className={s.navAv}>L</div>
+          <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div>
-            <div className={s.navName}>Lexi</div>
-            <div className={s.navEmail}>lexi@email.com</div>
+            <div className={s.navName}>{userName ?? "You"}</div>
+            <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>
         </a>
       </nav>

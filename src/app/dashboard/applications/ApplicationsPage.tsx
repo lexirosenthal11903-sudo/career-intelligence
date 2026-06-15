@@ -73,6 +73,8 @@ export default function ApplicationsPage() {
   const [stages, setStages] = useState<Record<string, Stage>>({});
   const [loading, setLoading] = useState(true);
   const [directionTitle, setDirectionTitle] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
     page: "applications",
@@ -85,7 +87,11 @@ export default function ApplicationsPage() {
     if (saved !== null) setArloVisible(saved !== "false");
 
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id);
+      if (user) {
+        setUserId(user.id);
+        setUserName(user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null);
+        setUserEmail(user.email ?? null);
+      }
     });
 
     try {
@@ -224,10 +230,10 @@ export default function ApplicationsPage() {
         </a>
         <div className={s.navGap} />
         <a href="/dashboard/profile" className={s.navProfile}>
-          <div className={s.navAv}>L</div>
+          <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div>
-            <div className={s.navName}>Lexi</div>
-            <div className={s.navEmail}>lexi@email.com</div>
+            <div className={s.navName}>{userName ?? "You"}</div>
+            <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>
         </a>
       </nav>
