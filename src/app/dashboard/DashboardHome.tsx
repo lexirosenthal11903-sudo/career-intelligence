@@ -53,6 +53,23 @@ export default function DashboardHome() {
 
   // Derive home state + fix unauthenticated result persistence
   useEffect(() => {
+    // Load direction card from sessionStorage regardless of auth state
+    try {
+      const sessionResult = sessionStorage.getItem("analysis-result");
+      if (sessionResult) {
+        const parsed = JSON.parse(sessionResult);
+        const dir = parsed?.profile?.suggestedDirections?.[0];
+        if (dir?.title) setDirectionTitle(dir.title);
+        if (dir?.why) setDirectionBody(dir.why);
+        const suggestions = parsed?.profile?.companySuggestions;
+        if (Array.isArray(suggestions) && suggestions.length) {
+          setCompanySuggestions(suggestions.slice(0, 3));
+        }
+      }
+    } catch {
+      // malformed sessionStorage — direction card keeps fallback
+    }
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         const id = user.id;
@@ -65,19 +82,6 @@ export default function DashboardHome() {
         if (sessionResult) {
           const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
           if (!seen) setHomeState("new-roles");
-
-          try {
-            const parsed = JSON.parse(sessionResult);
-            const dir = parsed?.profile?.suggestedDirections?.[0];
-            if (dir?.title) setDirectionTitle(dir.title);
-            if (dir?.why) setDirectionBody(dir.why);
-            const suggestions = parsed?.profile?.companySuggestions;
-            if (Array.isArray(suggestions) && suggestions.length) {
-              setCompanySuggestions(suggestions.slice(0, 3));
-            }
-          } catch {
-            // malformed sessionStorage — direction card keeps fallback
-          }
         }
 
         // Unauthenticated result persistence fix:

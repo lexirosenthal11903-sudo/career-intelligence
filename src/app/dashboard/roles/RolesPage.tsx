@@ -171,9 +171,20 @@ export default function RolesPage() {
     const sectors = result.profile?.extractedSectors;
     if (!keywords?.length) return;
 
+    // Return cached jobs if fetched within the last 30 minutes
+    try {
+      const cached = sessionStorage.getItem("cached-jobs");
+      if (cached) {
+        const { jobs: cachedJobs, ts } = JSON.parse(cached);
+        if (Date.now() - ts < 30 * 60 * 1000 && cachedJobs?.length) {
+          setJobs(cachedJobs);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+
     setJobsLoading(true);
     setJobsError(false);
-    console.log('[jobs] searching keywords:', keywords, 'location:', location);
     try {
       // Run Adzuna and Reed in parallel — Reed only returns results for niche sectors
       const [adzunaRes, reedRes] = await Promise.all([
@@ -189,10 +200,9 @@ export default function RolesPage() {
         }),
       ]);
 
-      if (!adzunaRes.ok) { console.log('[jobs] adzuna error:', adzunaRes.status); setJobsError(true); return; }
+      if (!adzunaRes.ok) { setJobsError(true); return; }
       const { jobs: adzunaJobs } = await adzunaRes.json();
       const { jobs: reedJobs } = reedRes.ok ? await reedRes.json() : { jobs: [] };
-      console.log('[jobs] adzuna:', adzunaJobs?.length ?? 0, 'reed:', reedJobs?.length ?? 0);
 
       // Deduplicate by normalised title+company across both sources
       const seen = new Set<string>();
@@ -211,12 +221,9 @@ export default function RolesPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ jobs: combined, profile: result.profile }),
         });
-        if (scoreRes.ok) {
-          const { jobs: scoredJobs } = await scoreRes.json();
-          setJobs(scoredJobs || combined);
-        } else {
-          setJobs(combined);
-        }
+        const finalJobs = scoreRes.ok ? ((await scoreRes.json()).jobs || combined) : combined;
+        setJobs(finalJobs);
+        try { sessionStorage.setItem("cached-jobs", JSON.stringify({ jobs: finalJobs, ts: Date.now() })); } catch { /* ignore */ }
       } catch {
         setJobs(combined);
       }
@@ -233,6 +240,10 @@ export default function RolesPage() {
 
   // ── Interested / Pass ─────────────────────────────────────────────────────
   async function handleInterested(job: Job) {
+    if (!userId) {
+      window.location.href = "/?signin=required";
+      return;
+    }
     const id = String(job.id);
     setInterested((prev) => new Set([...prev, id]));
     setPassed((prev) => { const n = new Set(prev); n.delete(id); return n; });

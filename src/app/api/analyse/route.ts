@@ -99,8 +99,8 @@ const profileTool = {
     },
     required: [
       'seniorityLevel', 'yearsExperience', 'locationSearch', 'searchKeywords',
-      'topRoleTitles', 'extractedSectors', 'extractedSkills', 'summary',
-      'valuesSignals', 'companySuggestions', 'suggestedDirections',
+      'topRoleTitles', 'extractedSectors', 'extractedSkills',
+      'suggestedDirections', 'summary', 'valuesSignals', 'companySuggestions',
     ],
   },
 };
@@ -204,6 +204,7 @@ SPECIFICITY RULES — these override everything else:
 DIRECTIONS RULES:
 - suggestedDirections: exactly 3. At least one must expand beyond what the candidate stated or obviously fits — propose an adjacent direction they may not have considered. The "why" for this unexpected direction must acknowledge the surprise: "This might not have been on your radar, but..." or "You probably haven't thought about this, but..." — framing it as discovery, not confusion.
 - When a candidate is making a significant pivot away from their background (different sector, non-traditional route into a competitive field): name the competitive reality honestly in the relevant direction's "why". Who they'd be competing against, what those candidates typically have that this person doesn't, and what concrete action addresses that gap. Tone: honest about the challenge, specific about the path forward. Never false optimism. Never pure discouragement. "This is the direction — here's what you're up against, and here's what to do about it."
+- CRITICAL: each direction "why" must be exactly 3 sentences. No more. Cite specific evidence in sentence 1, name the honest challenge in sentence 2, give the concrete path forward in sentence 3.
 
 KEYWORD RULES:
 - searchKeywords: 5-8 terms for Adzuna UK. CRITICAL: max 3 words each. Must be short enough to return real results.
