@@ -98,9 +98,9 @@ const profileTool = {
       },
     },
     required: [
-      'seniorityLevel', 'yearsExperience', 'topRoleTitles', 'extractedSectors',
-      'extractedSkills', 'suggestedDirections', 'valuesSignals', 'summary',
-      'locationSearch', 'searchKeywords',
+      'seniorityLevel', 'yearsExperience', 'locationSearch', 'searchKeywords',
+      'topRoleTitles', 'extractedSectors', 'extractedSkills', 'summary',
+      'valuesSignals', 'companySuggestions', 'suggestedDirections',
     ],
   },
 };
@@ -324,7 +324,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
         const [profileRes, detailsRes] = await Promise.all([
           callClaude({
             model: 'claude-sonnet-4-6',
-            max_tokens: 1200,
+            max_tokens: 1600,
             system: PROFILE_SYSTEM,
             tools: [profileTool],
             tool_choice: { type: 'tool', name: 'submit_career_profile' },
