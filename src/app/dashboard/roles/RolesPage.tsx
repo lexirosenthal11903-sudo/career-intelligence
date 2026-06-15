@@ -432,7 +432,7 @@ export default function RolesPage() {
                   <a key={role.title} href={`/dashboard/roles/${slugify(role.title)}`} className={s.roleCard}>
                     <div className={s.roleCardBody}>
                       <div className={s.roleCardTitle}>{role.title}</div>
-                      <div className={s.roleCardDesc}>{role.why}</div>
+                      <div className={s.roleCardDesc}>{role.why?.split(/[.!?]/)[0]?.trim()}</div>
                     </div>
                     <div className={s.roleCardArrow}>
                       <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -499,7 +499,7 @@ export default function RolesPage() {
                     ) : jobs.length === 0 ? (
                       <>
                         <div className={s.emptyTitle}>No listings found right now.</div>
-                        <div className={s.emptySub}>Check back soon — Adzuna updates daily.</div>
+                        <div className={s.emptySub}>Live listings update daily. Check back soon.</div>
                       </>
                     ) : (
                       <>

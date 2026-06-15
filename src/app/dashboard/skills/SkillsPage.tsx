@@ -53,7 +53,9 @@ interface SkillGap {
 }
 
 interface AnalysisResult {
-  suggestedDirections?: Array<{ title: string; why: string }>;
+  profile?: {
+    suggestedDirections?: Array<{ title: string; why: string }>;
+  };
   skills?: {
     strengths?: string[];
     gaps?: SkillGap[];
@@ -146,10 +148,10 @@ export default function SkillsPage() {
           setAnalysis(result);
           const gaps = result.skills?.gaps ?? [];
           setBeforeApply(
-            gaps.filter((g) => g.tier === "Foundation").map((g, i) => gapToSkill(g, i))
+            gaps.filter((g: SkillGap) => g.tier === "Foundation").map((g: SkillGap, i: number) => gapToSkill(g, i))
           );
           setWorthBuilding(
-            gaps.filter((g) => g.tier !== "Foundation").map((g, i) => gapToSkill(g, gaps.findIndex((x) => x === g)))
+            gaps.filter((g: SkillGap) => g.tier !== "Foundation").map((g: SkillGap, i: number) => gapToSkill(g, gaps.indexOf(g)))
           );
         }
       } catch {
@@ -228,7 +230,7 @@ export default function SkillsPage() {
   const allSkills = [...beforeApply, ...worthBuilding];
   const completedCount = done.size;
 
-  const directionTitle = analysis?.suggestedDirections?.[0]?.title ?? null;
+  const directionTitle = analysis?.profile?.suggestedDirections?.[0]?.title ?? null;
   const strengths = analysis?.skills?.strengths ?? [];
 
   function renderSkill(skill: Skill, showDone = false) {

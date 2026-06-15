@@ -98,7 +98,7 @@ export default function ApplicationsPage() {
       const raw = sessionStorage.getItem("arlo-result");
       if (raw) {
         const result = JSON.parse(raw);
-        setDirectionTitle(result?.suggestedDirections?.[0]?.title ?? null);
+        setDirectionTitle(result?.profile?.suggestedDirections?.[0]?.title ?? null);
       }
     } catch { /* ignore */ }
 
