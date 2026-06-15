@@ -130,7 +130,7 @@ export default function SkillsPage() {
 
     async function loadAnalysis() {
       try {
-        const raw = sessionStorage.getItem("arlo-result");
+        const raw = sessionStorage.getItem("analysis-result");
         let result: AnalysisResult | null = null;
 
         if (raw) {

@@ -61,7 +61,7 @@ export default function DashboardHome() {
         setUserName(name);
 
         // homeState: new-roles if result exists and user hasn't dismissed the banner
-        const sessionResult = sessionStorage.getItem("analysisResult");
+        const sessionResult = sessionStorage.getItem("analysis-result");
         if (sessionResult) {
           const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
           if (!seen) setHomeState("new-roles");
