@@ -11,9 +11,14 @@ export default function HomepageNav() {
   function openSignup() { setModalView("signup"); setModalOpen(true); }
   function openSignin() { setModalView("signin"); setModalOpen(true); }
 
+  const [redirectTo, setRedirectTo] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const next = params.get("next") || undefined;
+    if (next) setRedirectTo(next);
     if (params.get("signin") === "required") openSignin();
+    if (params.get("signup") === "required") openSignup();
   }, []);
 
   return (
@@ -32,6 +37,7 @@ export default function HomepageNav() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         initialView={modalView}
+        redirectTo={redirectTo}
       />
     </>
   );

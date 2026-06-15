@@ -241,7 +241,7 @@ export default function RolesPage() {
   // ── Interested / Pass ─────────────────────────────────────────────────────
   async function handleInterested(job: Job) {
     if (!userId) {
-      window.location.href = "/?signin=required";
+      window.location.href = "/?signup=required&next=/dashboard/roles";
       return;
     }
     const id = String(job.id);

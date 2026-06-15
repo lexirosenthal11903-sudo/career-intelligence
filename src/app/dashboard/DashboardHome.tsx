@@ -40,8 +40,7 @@ export default function DashboardHome() {
   const [todayDismissed, setTodayDismissed] = useState(false);
   const [todayFading, setTodayFading] = useState(false);
   const [homeState, setHomeState] = useState<HomeState>("nothing-new");
-  const [directionTitle, setDirectionTitle] = useState<string | null>(null);
-  const [directionBody, setDirectionBody] = useState<string | null>(null);
+  const [directions, setDirections] = useState<Array<{ title: string; why: string }>>([]);
   const [companySuggestions, setCompanySuggestions] = useState<Array<{ type: string; why: string }>>([]);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,9 +57,8 @@ export default function DashboardHome() {
       const sessionResult = sessionStorage.getItem("analysis-result");
       if (sessionResult) {
         const parsed = JSON.parse(sessionResult);
-        const dir = parsed?.profile?.suggestedDirections?.[0];
-        if (dir?.title) setDirectionTitle(dir.title);
-        if (dir?.why) setDirectionBody(dir.why);
+        const dirs = parsed?.profile?.suggestedDirections;
+        if (Array.isArray(dirs) && dirs.length) setDirections(dirs);
         const suggestions = parsed?.profile?.companySuggestions;
         if (Array.isArray(suggestions) && suggestions.length) {
           setCompanySuggestions(suggestions.slice(0, 3));
@@ -208,26 +206,24 @@ export default function DashboardHome() {
             <div className={s.greetingName}>{userName ? `Welcome back, ${userName}.` : "Welcome back."}</div>
 
             <div className={s.directionCard}>
-              <h2>Your direction</h2>
-              {directionTitle ? (
+              <h2>Directions worth exploring</h2>
+              {directions.length > 0 ? (
                 <>
-                  <div className={s.directionTitle}>{directionTitle}</div>
-                  {directionBody && <p className={s.directionBody}>{directionBody}</p>}
-                  {companySuggestions.length > 0 && (
-                    <div className={s.companySuggestions}>
-                      <div className={s.companySuggestionsLabel}>Types of company that fit you</div>
-                      {companySuggestions.map((c, i) => (
-                        <div key={i} className={s.companySuggestionItem}>
-                          <span className={s.companySuggestionType}>{c.type}</span>
-                          <span className={s.companySuggestionWhy}>{c.why}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <p className={s.directionBody} style={{ marginBottom: "1rem" }}>
+                    Based on what you&apos;ve shared, these are the directions that fit your background — some obvious, some you may not have considered.
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {directions.map((d, i) => (
+                      <a key={i} href="/dashboard/roles" className={s.directionLink}>
+                        <span>{d.title}</span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg>
+                      </a>
+                    ))}
+                  </div>
                 </>
               ) : (
                 <p className={s.directionBody}>
-                  Your direction will appear here once you&apos;ve shared your background.{" "}
+                  Your directions will appear here once you&apos;ve shared your background.{" "}
                   <a href="/input" style={{ color: "var(--accent)", textDecoration: "none" }}>Start now →</a>
                 </p>
               )}

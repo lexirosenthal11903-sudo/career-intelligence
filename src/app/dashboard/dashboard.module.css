@@ -137,6 +137,14 @@
 .directionBody {
   font-size: 14px; line-height: 1.8; color: var(--ink-2);
 }
+.directionLink {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-radius: 8px;
+  background: white; border: 1px solid rgba(0,0,0,.08);
+  font-size: 14px; font-weight: 500; color: var(--ink);
+  text-decoration: none; transition: background .15s, border-color .15s;
+}
+.directionLink:hover { background: var(--surface); border-color: rgba(0,0,0,.15); }
 .companySuggestions {
   margin-top: 20px; padding-top: 18px;
   border-top: 1px solid rgba(0,0,0,.07);
