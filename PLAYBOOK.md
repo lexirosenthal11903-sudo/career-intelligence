@@ -484,15 +484,38 @@ Pipeline improvements already shipped in staging (commit 54f4309):
 
 ---
 
-### Session 29: Real Data Wiring (Skills + Applications tabs)
+### Session 29: Real Data Wiring (Skills + Applications tabs) — COMPLETE ✓ (2026-06-15)
 
-**What it achieves:** Skills and Applications tabs show real data instead of placeholder content.
+**What was done:**
+- Skills tab wired to real data (sessionStorage + /api/results fallback)
+- Applications tab wired to /api/applications; stage changes persist to Supabase
+- saved_applications table created; save-job extended to write to it on Interested
+- Major bug fixes: sessionStorage key mismatch, token budget causing missing fields, seniority filtering, auth sidebar, job caching, sign-in flow
 
-**What to wire:**
-- Skills tab: reads from `result.skills.strengths` and `result.skills.gaps` (tier, why, howToBuild, resources)
-- Applications tab: `saved_applications` Supabase table — wire "Interested" jobs from Roles tab as startable applications, stage progression writes to Supabase, empty state for new users
+**Open on completion:** Direction concept needs product alignment (see Session 30).
 
-**Done when:** Both tabs show real data for a user who has completed analysis. `/deploy-check` passes.
+---
+
+### Session 30: Direction Concept Alignment ← NEXT SESSION
+
+**What it achieves:** Aligns on what "direction" means in this product across every screen, then implements it consistently.
+
+**⚠️ Start here — do not touch direction code without this discussion:**
+Lexi's instinct: the product is about self-discovery, not handing users a verdict. "Your Direction" (singular, definitive) contradicts the emotional arc (Meraki → Satori → Kavanah). The concept hasn't been properly designed.
+
+**Questions to resolve in this session:**
+1. What IS "direction" in this product? A possibility? A hypothesis? Something Arlo observed?
+2. How is it framed — as Arlo's voice, or as a card with a label?
+3. Does it change over time as the user reflects? Or is it fixed from the first analysis?
+4. What do we call it consistently? "Directions", "paths", "areas", "possibilities"?
+5. Which screens need updating once the concept is decided: dashboard home, onboarding bridge, roles tab direction card, role detail page, Arlo's language
+
+**Read first:**
+- `ADVISOR_PERSONA.md` — Arlo's voice and memory rules
+- `brainstorms/career-intelligence-emotional-vision.md` — the emotional arc
+- `SESSION_DECISIONS.md` — direction card rules locked so far
+
+**Done when:** Lexi and Claude agree on the direction concept. Every screen that references "direction" is updated consistently. `/deploy-check` passes.
 
 ---
 

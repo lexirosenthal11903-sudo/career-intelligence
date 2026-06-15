@@ -119,8 +119,9 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## ⚠️ START HERE — Session Continuity (updated 2026-06-14)
 
-**We are in Phase 3b. The next session is Session 28: Pipeline Intelligence Grill + Analysis Audit.**
-Read `PLAYBOOK.md` Phase 3b → Session 28 for the full brief before starting.
+**We are in Phase 3b. The next session is Session 30: Direction Concept Alignment + whatever follows.**
+⚠️ Session 30 MUST start with the direction framing discussion — see the OPEN PRODUCT QUESTION block below. Do not touch direction-related code until Lexi and Claude are aligned on the concept.
+Read `PLAYBOOK.md` Phase 3b → Session 30 for the full brief before starting.
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
@@ -205,13 +206,38 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 - ✓ Session 27 follow-up: Vercel Production env vars added (NEXT_PUBLIC_SUPABASE_URL + ANON_KEY)
 - ✓ Conversations SQL migration run in Supabase dashboard
 
-**Phase 3b — Session 28 begun (2026-06-14):**
+**Phase 3b — Session 28 COMPLETE ✓ (2026-06-14):**
 - ✓ Analysis prompts: specificity rules, sector-aware + seniority-aware keyword strategy
 - ✓ Scoring: relevanceReason expanded to 2-3 sentences
 - ✓ Reed API: `/api/reed` wired, runs in parallel with Adzuna for all profiles
 - ✓ companySuggestions surfaced in direction card on dashboard home
-- ⬜ Session 28 (next): `/grill-me` on analysis pipeline, audit with 3 real CVs, verify Reed output
-- ⬜ Session 29: Skills tab + Applications tab real data wiring
+
+**Phase 3b — Session 29 COMPLETE ✓ (2026-06-15):**
+- ✓ Skills tab: reads real data from sessionStorage (`analysis-result`) + /api/results fallback; real auth in sidebar
+- ✓ Applications tab: reads from /api/applications; stage changes PATCH /api/applications; empty state links to Roles
+- ✓ /api/applications route: GET/PATCH/DELETE for saved_applications table
+- ✓ save-job extended: when status=interested, also upserts to saved_applications (stage: preparing)
+- ✓ saved_applications table created in Supabase (SQL migration run)
+- ✓ Critical bug: sessionStorage key mismatch fixed across all tabs (all now use 'analysis-result')
+- ✓ Critical bug: profile call max_tokens raised 1200→1600; required field order fixed so searchKeywords generates before suggestedDirections
+- ✓ Critical bug: suggestedDirections now generates before summary/valuesSignals (3-sentence limit on why)
+- ✓ Seniority: ALL role-title keywords must be prefixed junior/graduate/assistant for entry-level profiles; senior roles score 1-2 (not 3); fallback removed
+- ✓ Dashboard direction card: reads sessionStorage outside auth check (works for unauthenticated users)
+- ✓ Dashboard direction card: shows all 3 directions as "Directions worth exploring" (not single verdict)
+- ✓ Sign-in gate on Interested button: redirects to signup (not signin) with ?next=/dashboard/roles
+- ✓ HomepageNav: reads ?next= param, passes as redirectTo to AuthModal; handles ?signup=required
+- ✓ Job caching: results cached in sessionStorage for 30min so listing count is stable across navigates
+- ✓ Role card descriptions: first sentence only (not truncated with ellipsis)
+- ✓ Real auth (name/email) in Skills, Applications, Roles sidebar
+- ✓ Debug console.logs removed
+
+**⚠️ OPEN PRODUCT QUESTION — must resolve at start of next session:**
+The "direction" concept needs proper product alignment across all screens before any further changes. Lexi's instinct: the product is about self-discovery and mentorship, not handing users a verdict. "Your Direction" (singular, definitive) contradicts the emotional arc. The dashboard now shows "Directions worth exploring" with all 3, but:
+- The concept hasn't been properly designed — what IS "direction" in this product?
+- How does it feel different from a career test verdict?
+- What framing works across ALL screens consistently (dashboard, onboarding bridge, roles tab, Arlo's language)?
+- Does Arlo present direction in first person ("here's what I see in you") rather than a labelled card?
+DO NOT make further changes to direction framing without this discussion first.
 
 **Pre-launch non-negotiables (Lexi to handle — not deferred to build sessions):**
 - ⬜ Add `REED_API_KEY` to Vercel Production + Preview env vars
@@ -245,3 +271,5 @@ _Applies from the first line of Stage 1 engineering._
 - Merge to main: only on explicit instruction from Lexi, after staging is verified.
 - Design sessions and build sessions are separate — never mix them.
 - B2C must prove itself before B2B is pursued. Do not raise B2B before Phase 4.
+- **Quality over quantity** — the product's goal is fewer, better applications. Never optimise for volume or activity metrics. Every feature should help users spend more time preparing, which produces better outcomes. Applies to skills, applications, outreach, and Arlo's behaviour equally.
+- **No gamification** — no streaks, points, badges, or leaderboards. Wrong register for an anxious early-career user. The return mechanic is value: new roles matched, direction clarifying, Arlo remembering.
