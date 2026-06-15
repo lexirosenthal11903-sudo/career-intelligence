@@ -6,39 +6,34 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
   const { data, error } = await supabase
-    .from('saved_jobs')
-    .select('job_data')
+    .from('saved_applications')
+    .select('id, job_id, job_data, stage, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ jobs: (data || []).map((r) => r.job_data) });
+  return NextResponse.json({ applications: data ?? [] });
 }
 
-export async function POST(request: Request) {
+export async function PATCH(request: Request) {
   const { user, supabase } = await getAuthedUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
-  const { jobId, jobData } = await request.json();
-  const { error } = await supabase
-    .from('saved_jobs')
-    .upsert(
-      { user_id: user.id, job_id: jobId, job_data: jobData },
-      { onConflict: 'user_id,job_id' }
-    );
+  const { jobId, stage } = await request.json();
+  if (!jobId || !stage) return NextResponse.json({ error: 'jobId and stage required' }, { status: 400 });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // When marked interested, create an application entry in stage "preparing"
-  if (jobData?.status === 'interested') {
-    await supabase
-      .from('saved_applications')
-      .upsert(
-        { user_id: user.id, job_id: jobId, job_data: jobData, stage: 'preparing' },
-        { onConflict: 'user_id,job_id', ignoreDuplicates: true }
-      );
+  const VALID_STAGES = ['preparing', 'applied', 'interview', 'offer', 'archive'];
+  if (!VALID_STAGES.includes(stage)) {
+    return NextResponse.json({ error: 'Invalid stage' }, { status: 400 });
   }
 
+  const { error } = await supabase
+    .from('saved_applications')
+    .update({ stage })
+    .eq('user_id', user.id)
+    .eq('job_id', jobId);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
 
@@ -48,7 +43,7 @@ export async function DELETE(request: Request) {
 
   const { jobId } = await request.json();
   const { error } = await supabase
-    .from('saved_jobs')
+    .from('saved_applications')
     .delete()
     .eq('user_id', user.id)
     .eq('job_id', jobId);

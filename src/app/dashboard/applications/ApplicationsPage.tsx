@@ -21,12 +21,6 @@ const chevronDown = (
   </svg>
 );
 
-const checkIcon = (
-  <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" strokeWidth="2">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M1.5 4.5l2 2 4-4" />
-  </svg>
-);
-
 type Stage = "preparing" | "applied" | "interview" | "offer" | "archive";
 
 const NEXT_STAGE: Partial<Record<Stage, Stage>> = {
@@ -40,86 +34,19 @@ const MOVE_LABELS: Partial<Record<Stage, string>> = {
   interview: "Move to Offer",
 };
 
-interface TimelineItem {
-  label: string;
-  date: string;
-  pending?: boolean;
-}
-
 interface Application {
   id: string;
-  role: string;
-  company: string;
-  location: string;
+  job_id: string;
+  job_data: {
+    title?: string;
+    company?: string;
+    location?: string;
+    relevanceReason?: string;
+    [key: string]: unknown;
+  };
   stage: Stage;
-  nextAction: string;
-  closing?: string;
-  closingUrgent?: boolean;
-  assessmentDue?: string;
-  moveLabel: string;
-  timeline?: TimelineItem[];
+  created_at: string;
 }
-
-const APPS: Application[] = [
-  {
-    id: "monzo-pm",
-    role: "Product Manager",
-    company: "Monzo",
-    location: "London",
-    stage: "interview",
-    nextAction: "Prepare for second-round interview",
-    closing: "Closes 2 Jul",
-    moveLabel: "Move to Offer",
-    timeline: [
-      { label: "Applied", date: "2 Jun" },
-      { label: "Online assessment", date: "8 Jun · 6 days later" },
-      { label: "First-round interview", date: "12 Jun · upcoming", pending: true },
-      { label: "Second-round interview", date: "25 Jun · pending", pending: true },
-    ],
-  },
-  {
-    id: "deloitte-strategy",
-    role: "Strategy Analyst",
-    company: "Deloitte",
-    location: "London",
-    stage: "applied",
-    nextAction: "Follow up if no response by Friday",
-    closing: "Closes 20 Jun · 9 days",
-    closingUrgent: false,
-    moveLabel: "Move to Interview",
-  },
-  {
-    id: "hsbc-grad",
-    role: "Graduate Scheme",
-    company: "HSBC",
-    location: "London",
-    stage: "applied",
-    nextAction: "Complete online assessment",
-    assessmentDue: "Assessment due 18 Jun · 7 days",
-    closing: "Application closes 30 Jun",
-    moveLabel: "Move to Interview",
-  },
-  {
-    id: "deliveroo-ops",
-    role: "Operations Associate",
-    company: "Deliveroo",
-    location: "London",
-    stage: "preparing",
-    nextAction: "Draft cover letter",
-    closing: "Closes 28 Jun",
-    moveLabel: "Mark as applied",
-  },
-  {
-    id: "wise-ux",
-    role: "UX Researcher",
-    company: "Wise",
-    location: "London",
-    stage: "preparing",
-    nextAction: "Complete online skills test",
-    closing: "Closes 25 Jun",
-    moveLabel: "Mark as applied",
-  },
-];
 
 const STAGE_LABELS: { key: Stage | "all"; label: string }[] = [
   { key: "all", label: "All" },
@@ -142,12 +69,49 @@ export default function ApplicationsPage() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [stages, setStages] = useState<Record<string, Stage>>({});
+  const [loading, setLoading] = useState(true);
+  const [directionTitle, setDirectionTitle] = useState<string | null>(null);
 
   const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
     page: "applications",
     supabase,
     userId,
   });
+
+  useEffect(() => {
+    const saved = localStorage.getItem("arlo-visible");
+    if (saved !== null) setArloVisible(saved !== "false");
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+
+    try {
+      const raw = sessionStorage.getItem("arlo-result");
+      if (raw) {
+        const result = JSON.parse(raw);
+        setDirectionTitle(result?.suggestedDirections?.[0]?.title ?? null);
+      }
+    } catch { /* ignore */ }
+
+    loadApplications();
+  }, [supabase]);
+
+  async function loadApplications() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/applications");
+      if (!res.ok) return;
+      const { applications: data } = await res.json();
+      const apps: Application[] = data ?? [];
+      setApplications(apps);
+      setStages(Object.fromEntries(apps.map((a: Application) => [a.job_id, a.stage])));
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleSend() {
     const text = chatValue.trim();
@@ -158,34 +122,9 @@ export default function ApplicationsPage() {
   function handleChatKey(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   }
+
   const [activeFilter, setActiveFilter] = useState<Stage | "all">("all");
   const [expandedTimelines, setExpandedTimelines] = useState<Set<string>>(new Set());
-  const [archived, setArchived] = useState<Set<string>>(new Set());
-  const [stages, setStages] = useState<Record<string, Stage>>(
-    () => Object.fromEntries(APPS.map((a) => [a.id, a.stage]))
-  );
-
-  function archiveApp(id: string) {
-    setArchived((prev) => new Set([...prev, id]));
-  }
-  function unarchiveApp(id: string) {
-    setArchived((prev) => { const next = new Set(prev); next.delete(id); return next; });
-  }
-  function moveStage(id: string) {
-    setStages((prev) => {
-      const next = NEXT_STAGE[prev[id]];
-      if (!next) return prev;
-      return { ...prev, [id]: next };
-    });
-  }
-
-  useEffect(() => {
-    const saved = localStorage.getItem("arlo-visible");
-    if (saved !== null) setArloVisible(saved !== "false");
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id);
-    });
-  }, [supabase]);
 
   function toggleArlo() {
     setArloVisible((v) => {
@@ -198,29 +137,57 @@ export default function ApplicationsPage() {
   function toggleTimeline(id: string) {
     setExpandedTimelines((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
 
-  const counts = APPS.reduce(
-    (acc, app) => {
-      const stage = archived.has(app.id) ? "archive" : stages[app.id];
-      acc[stage] = (acc[stage] ?? 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  async function moveStage(jobId: string) {
+    const current = stages[jobId];
+    const next = NEXT_STAGE[current];
+    if (!next) return;
 
-  const activeCount = APPS.filter((a) => !archived.has(a.id) && stages[a.id] !== "archive").length;
+    setStages((prev) => ({ ...prev, [jobId]: next }));
 
-  const visible =
-    activeFilter === "archive"
-      ? APPS.filter((a) => archived.has(a.id) || stages[a.id] === "archive")
-      : activeFilter === "all"
-      ? APPS.filter((a) => !archived.has(a.id) && stages[a.id] !== "archive")
-      : APPS.filter((a) => !archived.has(a.id) && stages[a.id] === activeFilter);
+    await fetch("/api/applications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId, stage: next }),
+    });
+  }
+
+  async function archiveApp(jobId: string) {
+    setStages((prev) => ({ ...prev, [jobId]: "archive" }));
+    await fetch("/api/applications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId, stage: "archive" }),
+    });
+  }
+
+  async function unarchiveApp(jobId: string) {
+    setStages((prev) => ({ ...prev, [jobId]: "preparing" }));
+    await fetch("/api/applications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId, stage: "preparing" }),
+    });
+  }
+
+  const counts = applications.reduce((acc, app) => {
+    const stage = stages[app.job_id] ?? app.stage;
+    acc[stage] = (acc[stage] ?? 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const activeCount = applications.filter((a) => (stages[a.job_id] ?? a.stage) !== "archive").length;
+
+  const visible = applications.filter((app) => {
+    const stage = stages[app.job_id] ?? app.stage;
+    if (activeFilter === "archive") return stage === "archive";
+    if (activeFilter === "all") return stage !== "archive";
+    return stage === activeFilter;
+  });
 
   return (
     <div className={s.shell}>
@@ -271,7 +238,7 @@ export default function ApplicationsPage() {
         <div className={s.topbar}>
           <div className={s.topbarLeft}>
             <span className={s.topbarTitle}>Applications</span>
-            <span className={s.topbarCount}>{activeCount} active</span>
+            {!loading && <span className={s.topbarCount}>{activeCount} active</span>}
           </div>
           <button className={s.arloToggle} onClick={toggleArlo}>
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
@@ -286,8 +253,9 @@ export default function ApplicationsPage() {
 
             <div className={s.directionCard}>
               <div className={s.directionLabel}>Your direction</div>
-              <div className={s.directionTitle}>Management Consulting</div>
-              <div className={s.directionSub}>Strategy, operations, and business analysis roles</div>
+              <div className={s.directionTitle}>
+                {directionTitle ?? "Complete your analysis to see your direction"}
+              </div>
             </div>
 
             <div className={s.stageFilter}>
@@ -304,7 +272,7 @@ export default function ApplicationsPage() {
                 </button>
               ))}
               <button
-                className={`${s.stagePill} ${s.stagePillArchive}`}
+                className={`${s.stagePill} ${s.stagePillArchive}${activeFilter === "archive" ? ` ${s.stagePillActive}` : ""}`}
                 onClick={() => setActiveFilter("archive")}
               >
                 Archive
@@ -313,20 +281,51 @@ export default function ApplicationsPage() {
             </div>
 
             <div className={s.appList}>
+              {loading && (
+                <div className={s.emptyState}>
+                  <p>Loading…</p>
+                </div>
+              )}
+
+              {!loading && applications.length === 0 && (
+                <div className={s.emptyState}>
+                  <div className={s.emptyTitle}>No applications yet.</div>
+                  <div className={s.emptySub}>
+                    Mark roles as Interested in the{" "}
+                    <a href="/dashboard/roles" className={s.emptyLink}>Roles tab</a>{" "}
+                    to start tracking them here.
+                  </div>
+                </div>
+              )}
+
+              {!loading && applications.length > 0 && visible.length === 0 && (
+                <div className={s.emptyState}>
+                  <div className={s.emptyTitle}>
+                    {activeFilter === "archive" ? "Nothing archived yet." : `No applications in ${activeFilter}.`}
+                  </div>
+                </div>
+              )}
+
               {visible.map((app) => {
-                const timelineOpen = expandedTimelines.has(app.id);
-                const currentStage = stages[app.id];
+                const currentStage = stages[app.job_id] ?? app.stage;
                 const moveLabel = MOVE_LABELS[currentStage];
+                const isArchived = currentStage === "archive";
+                const timelineOpen = expandedTimelines.has(app.job_id);
+
                 return (
-                  <div key={app.id} className={s.appCard}>
+                  <div key={app.job_id} className={s.appCard}>
 
                     <div className={s.appCardHeader}>
                       <div className={s.appCardMeta}>
-                        <div className={s.appRole}>{app.role}</div>
+                        <div className={s.appRole}>{app.job_data.title ?? "Role"}</div>
                         <div className={s.appCompany}>
-                          {app.company}
-                          <span className={s.appDot} />
-                          {app.location}
+                          {app.job_data.company ?? "Company"}
+                          {app.job_data.location && (
+                            <>
+                              <span className={s.appDot} />
+                              {app.job_data.location}
+                            </>
+                          )}
                         </div>
                       </div>
                       <span className={`${s.stageBadge} ${STAGE_BADGE[currentStage]}`}>
@@ -334,77 +333,29 @@ export default function ApplicationsPage() {
                       </span>
                     </div>
 
-                    <div className={s.nextAction}>
-                      <span className={s.nextArrow}>→</span>
-                      <span className={s.nextText}>{app.nextAction}</span>
-                    </div>
-
-                    {/* Collapsible timeline */}
-                    {app.timeline && (
-                      <div className={s.timelineWrap}>
-                        <button
-                          className={s.timelineToggle}
-                          aria-expanded={timelineOpen}
-                          onClick={() => toggleTimeline(app.id)}
-                        >
-                          <span className={s.timelineSummary}>
-                            <span className={s.timelineSummaryDot} />
-                            3 stages completed · Applied → 2nd round
-                          </span>
-                          <span className={`${s.timelineChevron}${timelineOpen ? ` ${s.timelineChevronOpen}` : ""}`}>
-                            {chevronDown}
-                          </span>
-                        </button>
-                        {timelineOpen && (
-                          <div className={s.timeline}>
-                            {app.timeline.map((item, i) => (
-                              <div key={i} className={s.timelineItem}>
-                                <div className={s.timelineLeft}>
-                                  <div className={`${s.timelineDot}${item.pending ? ` ${s.timelineDotPending}` : ""}`} />
-                                  {i < app.timeline!.length - 1 && <div className={s.timelineLine} />}
-                                </div>
-                                <div className={s.timelineBody}>
-                                  <div className={`${s.timelineLabel}${item.pending ? ` ${s.timelineLabelPending}` : ""}`}>
-                                    {item.label}
-                                  </div>
-                                  <div className={s.timelineDate}>{item.date}</div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                    {app.job_data.relevanceReason && (
+                      <div className={s.nextAction}>
+                        <span className={s.nextArrow}>→</span>
+                        <span className={s.nextText}>{app.job_data.relevanceReason}</span>
                       </div>
                     )}
 
-                    <div className={`${s.appCardFooter}${app.timeline ? ` ${s.appCardFooterSpaced}` : ""}`}>
-                      <div className={s.closingGroup}>
-                        {app.assessmentDue && (
-                          <div className={`${s.closing} ${s.closingUrgent}`}>
-                            <span className={s.closingDot} />
-                            {app.assessmentDue}
-                          </div>
-                        )}
-                        {app.closing && (
-                          <div className={`${s.closing}${app.closingUrgent ? ` ${s.closingUrgent}` : ""}`}>
-                            {app.closingUrgent && <span className={s.closingDot} />}
-                            {app.closing}
-                          </div>
-                        )}
-                      </div>
+                    <div className={s.appCardFooter}>
+                      <div className={s.closingGroup} />
                       <div className={s.footerActions}>
-                        {archived.has(app.id) ? (
-                          <button className={s.btnMove} onClick={() => unarchiveApp(app.id)}>
+                        {isArchived ? (
+                          <button className={s.btnMove} onClick={() => unarchiveApp(app.job_id)}>
                             Restore
                           </button>
                         ) : (
                           <>
-                            <button className={s.btnArchive} onClick={() => archiveApp(app.id)}>
+                            <button className={s.btnArchive} onClick={() => archiveApp(app.job_id)}>
                               Archive
                             </button>
                             {moveLabel && (
                               <button
                                 className={`${s.btnMove}${currentStage === "interview" ? ` ${s.btnMovePrimary}` : ""}`}
-                                onClick={() => moveStage(app.id)}
+                                onClick={() => moveStage(app.job_id)}
                               >
                                 {moveLabel}
                               </button>
@@ -432,39 +383,24 @@ export default function ApplicationsPage() {
             </div>
 
             <div className={s.mentorMessages}>
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  Your <strong>Deloitte</strong> application closes in 3 days and you
-                  haven&apos;t heard back. A short follow-up email today would be worth sending.
+              {extraMsgs.length === 0 && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble}>
+                    {applications.length === 0
+                      ? "When you mark roles as Interested, they'll appear here. I'll help you track each one and prepare for every stage."
+                      : "I can see your applications. Let me know when you want to prepare for an interview, draft a follow-up, or work on anything specific."}
+                  </div>
                 </div>
-                <div className={s.aiBubble}>
-                  You&apos;re also through to the second round at <strong>Monzo</strong> — that&apos;s
-                  a real win. Want me to help you prepare?
-                </div>
-              </div>
-              <div className={s.userMsg}>
-                <div className={s.userBubble}>Yes please — what should I focus on?</div>
-              </div>
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  Second rounds at Monzo tend to be case-based. Given your background, I&apos;d
-                  focus on structuring your thinking clearly rather than knowing every answer.
-                  Want me to run a practice question with you?
-                </div>
-              </div>
+              )}
+              {extraMsgs.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                ) : (
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                )
+              )}
             </div>
 
-            {extraMsgs.length > 0 && (
-              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
-                {extraMsgs.map((m, i) =>
-                  m.role === "user" ? (
-                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
-                  ) : (
-                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
-                  )
-                )}
-              </div>
-            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input

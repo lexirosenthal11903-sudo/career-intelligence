@@ -45,66 +45,52 @@ const uploadIcon = (
   </svg>
 );
 
+interface SkillGap {
+  skill: string;
+  tier: string;
+  why: string;
+  howToBuild: string;
+}
+
+interface AnalysisResult {
+  suggestedDirections?: Array<{ title: string; why: string }>;
+  skills?: {
+    strengths?: string[];
+    gaps?: SkillGap[];
+    advice?: string;
+  };
+}
+
 interface Skill {
   id: string;
   name: string;
-  time: string;
-  tags: string[];
+  why: string;
   urgent?: boolean;
   resource: { label: string; type: "free" | "cert"; badge: string; url: string };
-  initiallyInProgress?: boolean;
-  initiallyDone?: boolean;
 }
 
-const BEFORE_APPLY: Skill[] = [
-  {
-    id: "advanced-excel",
-    name: "Advanced Excel",
-    time: "~ 4 hrs",
-    tags: ["Deliveroo · Operations"],
-    urgent: true,
-    resource: { label: "Excel for Data Analysis — Microsoft Learn", type: "free", badge: "Free", url: "https://learn.microsoft.com/en-us/training/paths/excel-data-analysis/" },
-  },
-  {
-    id: "structured-problem-solving",
-    name: "Structured problem-solving",
-    time: "~ 1 hr left",
-    tags: ["Monzo · PM", "Deliveroo · Operations"],
-    urgent: true,
-    resource: { label: "McKinsey Problem Solving — Coursera", type: "free", badge: "Free", url: "https://www.coursera.org/learn/solving-problems-with-creative-and-critical-thinking" },
-    initiallyInProgress: true,
-  },
-];
+function parseResource(howToBuild: string): { label: string; type: "free" | "cert"; badge: string; url: string } {
+  const urlMatch = howToBuild.match(/https?:\/\/[^\s)>\]]+/);
+  const url = urlMatch ? urlMatch[0].replace(/[.,;]$/, "") : "";
+  const isCert = url.includes("theforage.com");
+  const label = howToBuild.replace(/https?:\/\/[^\s)>\]]+/g, "").replace(/[()[\]]/g, "").replace(/\s+/g, " ").trim();
+  return {
+    label: label || howToBuild,
+    type: isCert ? "cert" : "free",
+    badge: isCert ? "Free · Certificate" : "Free",
+    url,
+  };
+}
 
-const WORTH_BUILDING: Skill[] = [
-  {
-    id: "sql-basics",
-    name: "SQL basics",
-    time: "~ 6 hrs",
-    tags: ["Monzo · PM", "Management consulting"],
-    resource: { label: "SQL for Beginners — Mode Analytics", type: "free", badge: "Free", url: "https://mode.com/sql-tutorial/" },
-  },
-  {
-    id: "deloitte-virtual",
-    name: "Deloitte Virtual Internship",
-    time: "~ 5 hrs",
-    tags: ["Management consulting"],
-    resource: { label: "Deloitte Technology — Forage", type: "cert", badge: "Free · Certificate", url: "https://www.theforage.com/simulations/deloitte/technology-nv7p" },
-  },
-];
-
-const INITIAL_DONE: Skill[] = [
-  {
-    id: "bcg-simulation",
-    name: "BCG Strategy Simulation",
-    time: "",
-    tags: ["Management consulting"],
-    resource: { label: "BCG Strategy Simulation — Forage", type: "cert", badge: "Certificate", url: "https://www.theforage.com/simulations/bcg/strategy-execution-9vy4" },
-    initiallyDone: true,
-  },
-];
-
-const ALL_SKILLS = [...BEFORE_APPLY, ...WORTH_BUILDING, ...INITIAL_DONE];
+function gapToSkill(gap: SkillGap, index: number): Skill {
+  return {
+    id: `gap-${index}`,
+    name: gap.skill,
+    why: gap.why,
+    urgent: gap.tier === "Foundation",
+    resource: parseResource(gap.howToBuild),
+  };
+}
 
 function formatDate(d: Date) {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -117,11 +103,40 @@ export default function SkillsPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [beforeApply, setBeforeApply] = useState<Skill[]>([]);
+  const [worthBuilding, setWorthBuilding] = useState<Skill[]>([]);
+
   const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
     page: "skills",
     supabase,
     userId,
   });
+
+  useEffect(() => {
+    const saved = localStorage.getItem("arlo-visible");
+    if (saved !== null) setArloVisible(saved !== "false");
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+
+    try {
+      const raw = sessionStorage.getItem("arlo-result");
+      if (raw) {
+        const result: AnalysisResult = JSON.parse(raw);
+        setAnalysis(result);
+        const gaps = result.skills?.gaps ?? [];
+        setBeforeApply(
+          gaps.filter((g) => g.tier === "Foundation").map((g, i) => gapToSkill(g, i))
+        );
+        setWorthBuilding(
+          gaps.filter((g) => g.tier !== "Foundation").map((g, i) => gapToSkill(g, gaps.findIndex((x) => x === g)))
+        );
+      }
+    } catch {
+      // sessionStorage unavailable or malformed
+    }
+  }, [supabase]);
 
   function handleSend() {
     const text = chatValue.trim();
@@ -132,32 +147,15 @@ export default function SkillsPage() {
   function handleChatKey(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   }
+
   const [completedOpen, setCompletedOpen] = useState(false);
-  const [done, setDone] = useState<Set<string>>(
-    new Set(ALL_SKILLS.filter((sk) => sk.initiallyDone).map((sk) => sk.id))
-  );
-  const [doneAt, setDoneAt] = useState<Record<string, Date>>(() => {
-    const initial: Record<string, Date> = {};
-    ALL_SKILLS.filter((sk) => sk.initiallyDone).forEach((sk) => {
-      initial[sk.id] = new Date(2026, 5, 8); // Jun 8 as example pre-existing date
-    });
-    return initial;
-  });
-  const [inProgress, setInProgress] = useState<Set<string>>(
-    new Set(ALL_SKILLS.filter((sk) => sk.initiallyInProgress).map((sk) => sk.id))
-  );
+  const [done, setDone] = useState<Set<string>>(new Set());
+  const [doneAt, setDoneAt] = useState<Record<string, Date>>({});
+  const [inProgress, setInProgress] = useState<Set<string>>(new Set());
   const [certOpen, setCertOpen] = useState<Set<string>>(new Set());
   const [certMode, setCertMode] = useState<Record<string, "link" | "upload">>({});
   const [certLinks, setCertLinks] = useState<Record<string, string>>({});
   const [certLinkDraft, setCertLinkDraft] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const saved = localStorage.getItem("arlo-visible");
-    if (saved !== null) setArloVisible(saved !== "false");
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserId(user.id);
-    });
-  }, [supabase]);
 
   function toggleArlo() {
     setArloVisible((v) => {
@@ -167,9 +165,7 @@ export default function SkillsPage() {
     });
   }
 
-  function markStarted(id: string) {
-    setInProgress((prev) => new Set([...prev, id]));
-  }
+  function markStarted(id: string) { setInProgress((prev) => new Set([...prev, id])); }
 
   function markDone(id: string) {
     setDone((prev) => new Set([...prev, id]));
@@ -208,7 +204,11 @@ export default function SkillsPage() {
     setTimeout(() => chatInputRef.current?.focus(), 50);
   }
 
+  const allSkills = [...beforeApply, ...worthBuilding];
   const completedCount = done.size;
+
+  const directionTitle = analysis?.suggestedDirections?.[0]?.title ?? null;
+  const strengths = analysis?.skills?.strengths ?? [];
 
   function renderSkill(skill: Skill, showDone = false) {
     const isDone = done.has(skill.id);
@@ -231,34 +231,30 @@ export default function SkillsPage() {
     return (
       <div key={skill.id} className={cardClass}>
 
-        {/* Top row */}
         <div className={s.skillTop}>
           <div className={s.skillName}>{skill.name}</div>
-          {!isDone && <div className={s.skillTime}>{skill.time}</div>}
         </div>
 
-        {/* Tags */}
-        {skill.tags.length > 0 && (
-          <div className={s.skillMeta}>
-            {skill.tags.map((t) => (
-              <span key={t} className={s.roleTag}>{t}</span>
-            ))}
-            {skill.urgent && !isDone && <span className={s.urgentFlag}>Required</span>}
-          </div>
+        {skill.why && !isDone && (
+          <div className={s.skillWhy}>{skill.why}</div>
         )}
 
-        {/* Resource */}
         {!isDone && skill.resource.label && (
           <div className={s.skillResource}>
             <div className={`${s.resourceIcon} ${isCert ? s.resourceCert : s.resourceFree}`}>
               {isCert ? starIcon : plusIcon}
             </div>
-            <a href={skill.resource.url} className={s.resourceLink} target="_blank" rel="noopener noreferrer">{skill.resource.label}</a>
+            {skill.resource.url ? (
+              <a href={skill.resource.url} className={s.resourceLink} target="_blank" rel="noopener noreferrer">
+                {skill.resource.label}
+              </a>
+            ) : (
+              <span className={s.resourceLink}>{skill.resource.label}</span>
+            )}
             <span className={s.freeLabel}>{skill.resource.badge}</span>
           </div>
         )}
 
-        {/* Saved certificate link */}
         {savedCertLink && (
           <div className={s.certSaved}>
             {checkSmall}
@@ -268,7 +264,6 @@ export default function SkillsPage() {
           </div>
         )}
 
-        {/* Certificate input section — cert skills in progress or done */}
         {isCert && !savedCertLink && (isInProgress || isDone) && (
           <div className={s.certSection}>
             {!isCertOpen ? (
@@ -324,7 +319,6 @@ export default function SkillsPage() {
           </div>
         )}
 
-        {/* Footer — single action unit */}
         <div className={s.skillFooter}>
           {isDone ? (
             <>
@@ -420,56 +414,83 @@ export default function SkillsPage() {
           {/* LEFT: Skills */}
           <div className={s.skillsPanel}>
 
+            {/* Direction card */}
             <div className={s.directionCard}>
               <div className={s.directionLabel}>Your direction</div>
-              <div className={s.directionTitle}>Management Consulting</div>
-              <div className={s.directionSub}>Strategy, operations, and business analysis roles</div>
-              <div className={s.directionRule} />
-              <div className={s.strengthsLabel}>What you bring</div>
-              <div className={s.strengthsWrap}>
-                {["Analytical thinking", "Written communication", "Research", "Microsoft Office"].map((str) => (
-                  <div key={str} className={s.strengthChip}>
-                    {checkSmall}
-                    {str}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className={s.skillSection}>
-              <div className={s.sectionHead}>Before you apply</div>
-              <div className={s.skillList}>
-                {BEFORE_APPLY.map((skill) => renderSkill(skill))}
-              </div>
-            </div>
-
-            <div className={s.skillSection}>
-              <div className={s.sectionHead}>Worth building</div>
-              <div className={s.skillList}>
-                {WORTH_BUILDING.map((skill) => renderSkill(skill))}
-              </div>
-            </div>
-
-            <div className={s.skillSection}>
-              <button
-                className={s.completedToggle}
-                aria-expanded={completedOpen}
-                onClick={() => setCompletedOpen((v) => !v)}
-              >
-                <span className={s.completedLabel}>
-                  Completed
-                  <span className={s.completedCount}>{completedCount}</span>
-                </span>
-                <span className={`${s.completedChevron}${completedOpen ? ` ${s.completedChevronOpen}` : ""}`}>
-                  {chevronDown}
-                </span>
-              </button>
-              {completedOpen && (
-                <div className={s.completedList}>
-                  {ALL_SKILLS.filter((sk) => done.has(sk.id)).map((skill) => renderSkill(skill, true))}
+              {directionTitle ? (
+                <div className={s.directionTitle}>{directionTitle}</div>
+              ) : (
+                <div className={s.directionTitle} style={{ color: "var(--text-muted)" }}>
+                  Complete your analysis to see your direction
                 </div>
               )}
+              {strengths.length > 0 && (
+                <>
+                  <div className={s.directionRule} />
+                  <div className={s.strengthsLabel}>What you bring</div>
+                  <div className={s.strengthsWrap}>
+                    {strengths.map((str) => (
+                      <div key={str} className={s.strengthChip}>
+                        {checkSmall}
+                        {str}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
+
+            {/* No analysis state */}
+            {!analysis && (
+              <div className={s.emptyState}>
+                <p>Your skills map will appear here after you complete your analysis.</p>
+                <a href="/input" className={s.emptyLink}>Start your analysis →</a>
+              </div>
+            )}
+
+            {/* Before you apply */}
+            {beforeApply.length > 0 && (
+              <div className={s.skillSection}>
+                <div className={s.sectionHead}>Before you apply</div>
+                <div className={s.skillList}>
+                  {beforeApply.map((skill) => renderSkill(skill))}
+                </div>
+              </div>
+            )}
+
+            {/* Worth building */}
+            {worthBuilding.length > 0 && (
+              <div className={s.skillSection}>
+                <div className={s.sectionHead}>Worth building</div>
+                <div className={s.skillList}>
+                  {worthBuilding.map((skill) => renderSkill(skill))}
+                </div>
+              </div>
+            )}
+
+            {/* Completed */}
+            {analysis && (
+              <div className={s.skillSection}>
+                <button
+                  className={s.completedToggle}
+                  aria-expanded={completedOpen}
+                  onClick={() => setCompletedOpen((v) => !v)}
+                >
+                  <span className={s.completedLabel}>
+                    Completed
+                    <span className={s.completedCount}>{completedCount}</span>
+                  </span>
+                  <span className={`${s.completedChevron}${completedOpen ? ` ${s.completedChevronOpen}` : ""}`}>
+                    {chevronDown}
+                  </span>
+                </button>
+                {completedOpen && (
+                  <div className={s.completedList}>
+                    {allSkills.filter((sk) => done.has(sk.id)).map((skill) => renderSkill(skill, true))}
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
 
@@ -484,55 +505,24 @@ export default function SkillsPage() {
             </div>
 
             <div className={s.mentorMessages}>
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  You&apos;re already strong where it counts for consulting — analytical thinking
-                  and communication are the foundation.
+              {extraMsgs.length === 0 && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble}>
+                    {analysis
+                      ? "Here's what I'd focus on first. The skills marked \"Before you apply\" are the ones that will matter most for your immediate applications."
+                      : "Complete your analysis and I'll help you build a skills plan tailored to where you're heading."}
+                  </div>
                 </div>
-                <div className={s.aiBubble}>
-                  Two things to close before you apply to <strong>Deliveroo</strong>: Advanced
-                  Excel and structured problem-solving. You&apos;ve already started the
-                  problem-solving one — finishing it is the next move.
-                </div>
-              </div>
-              <div className={s.userMsg}>
-                <div className={s.userBubble}>Just finished the BCG Forward simulation</div>
-              </div>
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  Good — that&apos;s a real differentiator for consulting roles. Share the
-                  certificate link and I&apos;ll log it to your profile.
-                </div>
-              </div>
-              <div className={s.userMsg}>
-                <div className={s.userBubble}>Here&apos;s the link: bcg.com/forward/certificate/...</div>
-              </div>
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  Done — it&apos;s on your profile. Want me to add it to your CV too?
-                </div>
-                <div className={s.aiBubble}>
-                  When you&apos;ve finished the problem-solving module, SQL basics is worth
-                  picking up next — it comes up a lot at <strong>Monzo</strong> and it&apos;s free.
-                </div>
-              </div>
-              <div className={`${s.aiBubble} ${s.aiBubbleSignpost}`}>
-                Ask me about anything else — interview prep, networking, or something you just
-                want to learn.
-              </div>
+              )}
+              {extraMsgs.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                ) : (
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                )
+              )}
             </div>
 
-            {extraMsgs.length > 0 && (
-              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
-                {extraMsgs.map((m, i) =>
-                  m.role === "user" ? (
-                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
-                  ) : (
-                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
-                  )
-                )}
-              </div>
-            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input

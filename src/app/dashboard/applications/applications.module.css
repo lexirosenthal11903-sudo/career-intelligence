@@ -217,6 +217,21 @@
 .btnMovePrimary { background: var(--accent); color: #fff; border-color: var(--accent); }
 .btnMovePrimary:hover { background: var(--accent-dark); }
 
+/* ── EMPTY STATE ── */
+.emptyState {
+  padding: 40px 0; text-align: center;
+}
+.emptyTitle {
+  font-size: 14px; font-weight: 600; color: var(--ink-2); margin-bottom: 8px;
+}
+.emptySub {
+  font-size: 13px; color: var(--ink-3); line-height: 1.5;
+}
+.emptyLink {
+  color: var(--accent); font-weight: 500; text-decoration: none;
+}
+.emptyLink:hover { text-decoration: underline; }
+
 /* ── RIGHT: MENTOR ── */
 .mentorPanel {
   background: var(--cream);
