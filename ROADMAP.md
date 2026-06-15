@@ -1,6 +1,6 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: Session 22, 2026-06-11_
+_Last updated: 2026-06-15 (added follow-up email writer + ATS guidance to Phase 3b; cover letter builder clarified for both use cases)_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
 
@@ -268,6 +268,29 @@ The analysis generates "types of company that suit this person, with why" — th
 
 ---
 
+### Session A follow-up: User Archetype Grill + Test Character Building
+
+**What it achieves:** Grounded testing against realistic user types rather than CVs made up on the spot.
+
+**Two-step process (do not skip step 1):**
+1. **Grill session first** — run `/grill-me` on the 9 user archetypes identified in Session 28 (`brainstorms/session28-pipeline-grill.md`). Extract: which 3 archetypes to test first, what their background detail looks like, what "good output" means for each type. Do not build characters without this session.
+2. **Build test characters** — once archetypes are grilled and 3 are selected, build proper character profiles (name, background, CV detail, what they'd bring to the input flow). These become the permanent test set for all future pipeline audits.
+
+**9 archetypes identified (Session 28):**
+1. Direction-confident — has direction, degree-relevant, wants to be a stronger candidate
+2. Direction-blank graduate — has a degree, no idea what to do
+3. Niche-to-niche / niche-to-mainstream pivot — worked in something specialised, wants to move
+4. Degree-divergent — studied one thing, wants a job in a different field
+5. Long-term pivot — years in one role/sector, wants out
+6. Creative wanting commercial stability — arts/design/music, skills real but invisible to job boards
+7. Second-chance path — no degree or non-standard education
+8. Burnt-out specialist — competent but hollow, moving toward purpose
+9. International graduate — non-UK qualifications, right-to-work complexity
+
+**Done when:** 3 test characters exist as proper documents in `brainstorms/test-characters/`. Each has: name, background, a realistic CV text block, and what "passing" output looks like for their type.
+
+---
+
 ### Session B: Real Data Wiring (Applications + Skills + Direction Card)
 
 **What it achieves:** The three dashboard tabs that still show placeholder data become real.
@@ -285,6 +308,7 @@ The analysis generates "types of company that suit this person, with why" — th
 - Skills gaps should come from `result.skills.gaps` (includes tier, why, howToBuild, resource URLs)
 - The existing `BEFORE_APPLY` and `WORTH_BUILDING` sections in the design map to the gap `tier` field
 - Resources are already in the data — wire to the existing resource link UI
+- **Skills in-progress state** — each skill item needs three states: not started → in progress → done. "In progress" shows a subtle indicator on the card. "Done" moves the item to a collapsed "completed" section at the bottom. Self-reported for courses/exercises; certifications require proof (see ADVISOR_PERSONA.md).
 
 **Applications tab:**
 - Currently 100% hardcoded (Bloom & Wild, Monzo, Deloitte don't exist)
@@ -311,10 +335,15 @@ _The product's core promise: every job the user saves becomes a full guided jour
 Arlo doesn't tell the user what to write. It writes it. CV built and tailored for each specific job. Cover letter written, not prompted. Email opened pre-filled, user clicks send. Every step of every application handled — the user provides intent and approval, Arlo provides execution. This is what separates the product from every other career tool.
 
 - [ ] **Per-job CV builder** — Arlo generates a tailored CV for each specific role. Not tips or guidance — an actual document, ready to download or send. Based on the user's full profile + the job description.
-- [ ] **Per-job cover letter builder** — Arlo writes the cover letter. User reviews and approves. One-click: opens the user's email client with the cover letter pre-filled and the company's application email in the To field. User clicks send.
+- [ ] **Per-job cover letter builder** — Arlo writes the cover letter. User reviews and approves. Two use cases: (1) form upload — user downloads or copies the letter to paste into an application form (most common UK grad process); (2) direct email — one-click opens email client pre-filled with letter and company application email in To field. User clicks send.
+- [ ] **Follow-up email writer** — Arlo drafts a post-application or post-interview follow-up email in the user's voice. References the specific company, role, and (for post-interview) what was discussed. Available from the Applications tab when a stage is marked Applied or Interview. One-click opens email client pre-filled. No signup required to draft — but saving requires an account.
+- [ ] **Arlo direction refinement** — if a user tells Arlo "I don't want Strategy Analyst" (or any matched role), Arlo removes it: filters all listings for that role type, updates the direction card, optionally asks why to improve future matching. Direction must be stored as mutable user state, not a static output. Core to making the product feel responsive rather than algorithmic.
+- [ ] **Application focus mode** — when a user clicks "next step" on an application card, the screen shifts into a focused work mode: Arlo on the right, the active work surface on the left (CV tailoring, cover letter, interview prep). Distinct from the list view — this is where the actual work happens. Needs a design session before build.
+- [ ] **CV auto-update from skills completion** — when a user tells Arlo they've completed a course or earned a certification, Arlo asks "Want me to add this to your CV?" If yes, it's added to their CV on file automatically. Closes the loop between skills work and application materials without the user maintaining their CV manually.
+- [ ] **ATS-aware application guidance** — once a user is preparing to apply to a specific role, Arlo flags where their CV language may not survive automated screening. Not a keyword score — specific and contextual: "This job description uses 'stakeholder management' three times. Your CV doesn't use that phrase. That matters for automated screening." Philosophy: direction-fit first, but when applying, the user deserves help getting through the door. Subtle, honest, never prescriptive.
 - [ ] **Contacts finder** — moved to explicit entry above with legal warning
 - [ ] **Interview prep** — company-specific questions, assessment centre guidance, what to expect at each stage for that specific company
-- [ ] **One-way video interview prep** — increasingly standard at graduate level. Arlo explains the format, coaches the user through pacing, eye contact, handling blank time. Potentially integrates with voice mode: Arlo asks questions aloud, user practises speaking answers back. Needs a design + product session before build.
+- [ ] **One-way video interview prep** — increasingly standard at graduate level. Arlo explains the format, coaches the user through pacing, eye contact, handling blank time. Needs a design + product session before build. The longer-term version of this is full voice practice: Arlo asks questions aloud, user speaks answers back, Arlo scores the response (STAR structure, specificity, pacing). That is a Phase 5 feature — see Phase 5 for the voice practice item. Do not conflate the two.
 - [ ] **Company research layer** — values, culture, recent news, how they align with what the user has told us
 - [ ] **Full application pipeline tracking** — Saved → Preparing → Applied → Interview → Offer/Rejection, per job
 - [ ] **Email inbox integration** — Gmail/Outlook OAuth (read-only). Advisor automatically detects interview invites, rejections, offers, assessment bookings. Updates pipeline without user having to log anything. Prompt: "I saw you heard back from Innocent Drinks — want to start preparing?" Privacy: "I only read emails from companies you've applied to." Explicit opt-in, revocable.
@@ -336,9 +365,12 @@ _Goal: The product knows more than the user has told it. It brings external inte
 - [ ] **Platform intelligence & audit loop** — A continuous internal monitoring system that audits its own outputs and flags quality issues automatically. Moved from Phase 6+ — requires Phase 3 to be live (real API calls, real Arlo conversations) before it can audit anything meaningful. Needs a dedicated planning session before build. Key components: self-auditing AI layer (monitors tone, data accuracy, logic); role-based audit personas — Engineer (API errors, pipeline failures), Designer (visual regressions, token drift), Product (feature quality, edge cases); 5 user archetypes — Anxious Graduate, Career Switcher, Underconfident Achiever, Direction-Seeker, Almost Ready. Governance: who actions each finding type.
 
 - [ ] **LinkedIn integration** — contact discovery for outreach. Find the right person at a target company. Onboarding is CV-only — LinkedIn is never part of the initial flow. Optional later feature. (Note: LinkedIn API is restricted — v1 approach likely OAuth for basic profile data or user-initiated; not in onboarding)
-- [ ] **Glassdoor data** — company culture scores, real salary ranges, actual interview questions asked at that company, difficulty ratings. Feeds company research and interview prep.
+- [ ] **Glassdoor data** — feeds Arlo's context and the role detail "honest picture" section. Four specific uses: (1) **interview process data** (rounds, timeline, difficulty rating) — Arlo briefs the user on what to expect at a specific company before they apply; (2) **employee experience** (culture score, work-life balance, CEO approval %, "recommend to a friend" %) — surfaces in company values matching and role detail; (3) **UK salary benchmarks by role + company** — reliable ranges when Adzuna/Reed listings don't include salary; (4) **actual interview questions asked** at that company — feeds the interview prep layer. Note: Glassdoor's official API is closed to new partners. Requires a licensed data provider (Proxycurl, People Data Labs, or Diffbot) — research the right partner before building. Do not scrape. ⚠️ Run `/grill-me` before building — there are significant product decisions here around which data points to surface, where they appear, and how Arlo references them without feeling surveillance-like.
 - [ ] **Reed API** — ✅ moved to Phase 3b Session A (Pipeline Intelligence). Already incorporated into niche-sector strategy above.
-- [ ] **Additional job sources** — Indeed, company direct career pages, graduate-specific boards (after Reed is proven)
+- [ ] **UK salary benchmarks (independent of listings)** — salary shown on every role detail screen, not just listings that happen to include it. Two-step approach: (1) **Step 1 (early Phase 4)** — improve Adzuna salary extraction; many listings include salary but it's not consistently surfaced. Fix that first — it's near-free. (2) **Step 2 (later Phase 4)** — use ONS Annual Survey of Hours and Earnings (ASHE) as a fallback. Free UK government data, updated annually. Requires a lookup table mapping ~50 common role types to SOC codes → salary bands. Deduplicates with Glassdoor salary data if that's live by then.
+- [ ] **Direction evolution tracking** — every analysis result is already stored timestamped in Supabase. After a user's second or third analysis, surface how their direction has clarified: "When you first came in June, you were unsure. Now you know." Proof of the product's value over time. Directly supports the Satori arc. Simple to build on top of the existing results table — read historical records rather than always the latest one.
+- [ ] **Email alerts for new role matches** — weekly digest via Resend (already in stack): "3 new roles matched your direction this week." Opt-in only. User controls frequency (weekly / off). One of the strongest return mechanics — brings users back when they've gone quiet. Build after direction is stable, not immediately after first analysis when direction may still be refining. Design the email template to match the Arlo voice. ⚠️ Agent Risk (INSIGHTS.md §2): Resend has send access — never give this feature autonomous send without supervised runs first. The Bike Method applies.
+- [ ] **Additional job sources** — CharityJob API is the priority third board (specifically fills the charity/NGO/social sector gap where Adzuna + Reed are still thin; has an API). After that: Prospects (graduate-specific listings, directly suits our user). Indeed public API is closed — not viable. Guardian Jobs, Milkround: diminishing returns given existing coverage.
 - [ ] **Companies House (UK)** — legal company info, headcount, financials, founding year. Adds credibility to company research.
 - [ ] **Self-knowledge questionnaire** — the 5 identity questions (Who are you without your labels? When have you felt most absorbed? etc.) surfaced gradually over time in conversation, never as a form
 - [ ] **Skills gap map** — interactive, not static. Progress bars update as user closes gaps.
@@ -351,13 +383,18 @@ _Goal: The product knows more than the user has told it. It brings external inte
 _Goal: The product is ready for scale. Design is perfect. Mobile works._
 
 - [ ] **Advisor character elevation** — full backstory, name finalised, icon elevated beyond current SVG approximation (see Arlo upgrade note in Phase 2). Juno-model from Jack & Jill reference.
-- [ ] **Design elevation pass** — not a redesign. Systematically elevate every screen: depth, shadow hierarchy, spacing rhythm, typographic fine-tuning. Session per screen or grouped by component type.
+- [ ] **Design elevation pass** — not a redesign. Systematically elevate every screen: depth, shadow hierarchy, spacing rhythm, typographic fine-tuning. Session per screen or grouped by component type. **Tool: Figma.** This is the right moment to move into Figma properly — locked screens become Figma frames, the token system becomes a Figma variable library. The Figma Anthropic plugin (Claude inside Figma) and the "copy website into editable Figma" feature (useful for importing reference sites like Resend/Linear) are both relevant here. Install and set up at the start of this phase.
 - [ ] **Page transitions & animations** — Next.js App Router + Framer Motion (or CSS View Transitions API). Key moments: page-to-page fade/slide, Arlo message appear, direction card reveal, role cards loading, progress bar animation in Skills. Reference: Linear's transitions. Reduced-motion always supported.
 - [ ] **Full animation pass** — micro-interactions across all components: button lifts, card hovers, input focus states, send button press. One sweep after page transitions are done.
+- [ ] **Voice interview practice with Arlo** — Arlo asks a company-specific question, user speaks their answer, Arlo scores: STAR structure, specificity, pacing, fit for the role. Questions generated from the job description + Glassdoor data (Phase 4) when available. Run `/grill-me` before building — product decisions needed (does Arlo speak back or respond in text? how long are sessions? how is this triggered?). Also study how Jack & Jill AI (Juno) implement voice — reference in `brainstorms/competitor-research/jack-and-jill/`. **Cost approach — start free, upgrade if needed:** (1) MVP: Web Speech API (browser-native STT + SpeechSynthesis for TTS — zero API cost, built into Chrome); (2) Step up: OpenAI Whisper ($0.006/min) + OpenAI TTS ($0.015/1k chars) — a 5-min session costs ~5p, genuinely cheap; (3) Avoid ElevenLabs for MVP (£0.30+/min). Build with Web Speech API first to prove the mechanic costs nothing, then upgrade quality if users want it. Phase 3b covers the text version of interview prep — this is the voice layer on top.
+- [ ] **Blog content strategy** — SEO-driven acquisition channel targeting UK early-career search intent. Publish 10–15 high-quality articles before expecting meaningful organic traffic (3–6 month SEO horizon). UK topic clusters: competency questions for UK grad schemes, what to do when you don't know what career you want (directly our user), UK graduate salary benchmarks by sector, how to approach psychometric tests, personal statement writing for grad schemes, how to stand out in 500:1 application ratios. **Tools:** `/copywriting` skill + Humanizer plugin (install before any content session). Quality bar: must read like a person wrote it, not AI-generated generic advice. Do not start before Sessions 28–29 are complete and the product is working well — blog content should reflect a product that delivers on its promise. Content strategy session needed before writing begins: topic prioritisation, keyword research, publishing cadence.
+- [ ] **Arlo-only mode** — some users want to skip the dashboard entirely and just talk to Arlo. A conversation-first entry point alongside the structured dashboard path — full-screen Arlo, no job listings, no skills map. Needs a product session first: who is this user, when does this mode make sense, how does it transition back to the dashboard. Potentially Phase 5 — do not build before the core dashboard is proven.
 - [ ] **Mobile design and build** — deferred until desktop is proven. Do not raise until Lexi raises it.
 - [ ] **Error states and empty states** — designed and built for every screen
 - [ ] **Shareable card** — user can share their direction / a milestone (optional, depends on traction)
 - [ ] **Performance audit** — Lighthouse scores, Core Web Vitals, load time optimisation
+- [ ] **MarketingSkills plugin** (`github.com/coreyhaines31/marketingskills`) — CRO, copywriting, SEO, analytics, growth engineering. 32k stars. Install at the start of Phase 5 marketing work. The closest thing to a CMO you can install for free. Assessed 2026-06-15.
+- [ ] **Application funnel analytics** — once a user has tracked 10+ applications, show them their personal conversion rates: "You've applied to 12 roles. 4 reached interview. 1 reached offer." That's a 33% interview rate. It tells them whether their applications are converting, or whether they need to target differently or apply to more. Surfaces in the Applications tab or Profile. Not useful before 10+ applications — gate it. Our version is personal (about the user's own journey), not a comparison to others.
 
 ---
 
@@ -368,8 +405,12 @@ _These are real ideas. They require Phase 3–5 to be proven before they're wort
 - University career portal integrations — sync with uni-exclusive job boards for student users
 - In-job progression module — once employed, platform helps the user develop, grow, aim for promotion
 - International users — visa sponsorship filtering, legal documentation guidance
-- Autonomous job applications — product applies on the user's behalf with tailored CV and cover letter (enormous complexity; legal/ethical questions; only if demand is proven)
+- Autonomous job applications — product applies on the user's behalf with tailored CV and cover letter (enormous complexity; UK legal questions around GDPR and impersonating an applicant; only if demand is proven). Lexi is interested in exploring — flag for a dedicated product + legal session before any build consideration. Not for Phase 3–5.
 - B2B: employer intelligence and university licensing — only after B2C is proven. Do not pursue before Phase 4.
+- **Freelance / independent work track** — some users want freelance or contract work, not employment. The outreach process maps well to the existing pipeline (direction → targets → outreach → follow-up), but "applications" are framed differently. Needs its own design session before build. Post-v1.
+- **University applications (Masters)** — optional tab for users applying to Masters programmes alongside or instead of jobs. Surfaced only for users who indicate it's relevant during onboarding. Not for undergrad. Needs its own design session. Post-v1.
+- **Promotion / internal opportunity tracking** — some users are trying to get promoted or move internally. Track key conversations, milestones, evidence of impact — similar to the applications pipeline but for internal moves. Arlo helps them frame their case. Own mode or tab, unlocked by user context. Post-v1.
+- **AI workflow digest tool** — WAT automation project. Lexi sees too many Claude/AI workflow tips on Instagram, LinkedIn, X, GitHub and can't tell what's credible or relevant. Build a weekly email digest using the WAT pattern (same as newsletter demo): curated sources → filter by relevance to her stack (Claude Code, Next.js, Vercel, Supabase) + credibility check → synthesise to 3–5 actionable items per week → deliver via Resend. Output: "3 things worth knowing this week: [item + one-line why it matters to you]. Skipped: 47 other things." Start as a new project post-Phase 3b. Uses tools/ + workflows/ + CLAUDE.md + .env pattern.
 - Google Drive / Dropbox — store and version tailored CVs and cover letters
 - "Avoidance mode" users — a distinct onboarding for users who know they should be searching but aren't. Meets them differently.
 
@@ -385,9 +426,6 @@ _These are real ideas. They require Phase 3–5 to be proven before they're wort
 ### Ideas from Session 16 (2026-06-10) — LinkedIn article on AI recruitment crisis
 
 Context: article surfaced that graduates are competing ~500:1 for roles, parents paying £30k for career coaches to "beat AI recruitment systems". Product already addresses this philosophically (quality over volume, direction first). Three concrete additions:
-
-**Phase 3 — ATS awareness in CV and application guidance**
-Arlo should flag when a user's CV is unlikely to pass automated screening for a specific role. Not keyword stuffing — genuine signal: "This job description uses 'stakeholder management' three times. Your CV doesn't use that phrase. That matters for automated screening." Subtle, specific, honest.
 
 **Phase 3 — One-way video interview prep**
 Increasingly standard at the graduate level. Arlo can coach users through the specific format: how to pace yourself, how to treat a camera, what companies are looking for, how to handle blank time. Not currently in scope anywhere — needs a design session before build.

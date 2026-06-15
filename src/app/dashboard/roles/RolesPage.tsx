@@ -612,7 +612,7 @@ export default function RolesPage() {
                 </div>
                 {jobs.length > 0 && (
                   <div className={s.aiBubble}>
-                    {jobs.length} live listings pulled from Adzuna and ranked for you. The ones at the top scored highest against your profile — they're worth looking at first.
+                    {jobs.length} live listings pulled from Adzuna and Reed and ranked for you. The ones at the top scored highest against your profile — they're worth looking at first.
                   </div>
                 )}
               </div>
