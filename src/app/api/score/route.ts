@@ -121,10 +121,9 @@ ${(jobs as JobToScore[])
         relevanceScore = 5;
       }
 
-      if (isJuniorProfile && SENIOR_PATTERN.test(job.title || '') && relevanceScore >= 6) {
-        relevanceScore = 3;
-        relevanceReason =
-          relevanceReason + " Note: this role's seniority level is likely above your current experience.";
+      if (isJuniorProfile && SENIOR_PATTERN.test(job.title || '')) {
+        relevanceScore = Math.min(relevanceScore, 2);
+        relevanceReason = "This role requires seniority beyond your current experience — it's been deprioritised.";
       }
 
       return {

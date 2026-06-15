@@ -302,9 +302,8 @@ export default function RolesPage() {
 
   const filterPills = ["All", "Passed"];
 
-  // Filter out irrelevant jobs (score below 4) — only if enough remain, else show all
-  const relevantJobs = jobs.filter((j) => !j.relevanceScore || j.relevanceScore >= 4);
-  const displayJobs = relevantJobs.length >= 3 ? relevantJobs : jobs;
+  // Always filter out senior roles and low-scoring jobs — never fall back to showing senior results
+  const displayJobs = jobs.filter((j) => !j.relevanceScore || j.relevanceScore >= 4);
 
   const visibleJobs = displayJobs.filter((j) => {
     const id = String(j.id);

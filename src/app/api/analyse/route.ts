@@ -215,7 +215,7 @@ KEYWORD RULES:
   - Public sector/policy: use "policy", "research", "government", "public sector"
   - Technology: use "product", "data", "growth", "engineering"
   - Academic-adjacent: use "research", "think tank", "knowledge", "publishing"
-- If the person is graduate/early-career/entry-level (0-2 years): append "graduate", "junior", or "assistant" to 2-3 of the role-title keywords to ensure seniority-appropriate results appear.
+- CRITICAL seniority rule: if seniorityLevel contains "Graduate" or "Entry" OR yearsExperience is 0-2 years: ALL role-title keywords MUST start with "junior", "graduate", or "assistant" (e.g. "junior analyst", "graduate consultant", "assistant coordinator"). Never include a bare role title like "analyst" or "consultant" for a graduate profile — it will return senior roles.
 - locationSearch: default to "london" if not specified.
 
 OTHER RULES:
