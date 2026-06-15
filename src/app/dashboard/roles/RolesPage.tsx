@@ -173,6 +173,7 @@ export default function RolesPage() {
 
     setJobsLoading(true);
     setJobsError(false);
+    console.log('[jobs] searching keywords:', keywords, 'location:', location);
     try {
       // Run Adzuna and Reed in parallel — Reed only returns results for niche sectors
       const [adzunaRes, reedRes] = await Promise.all([
@@ -188,9 +189,10 @@ export default function RolesPage() {
         }),
       ]);
 
-      if (!adzunaRes.ok) { setJobsError(true); return; }
+      if (!adzunaRes.ok) { console.log('[jobs] adzuna error:', adzunaRes.status); setJobsError(true); return; }
       const { jobs: adzunaJobs } = await adzunaRes.json();
       const { jobs: reedJobs } = reedRes.ok ? await reedRes.json() : { jobs: [] };
+      console.log('[jobs] adzuna:', adzunaJobs?.length ?? 0, 'reed:', reedJobs?.length ?? 0);
 
       // Deduplicate by normalised title+company across both sources
       const seen = new Set<string>();
