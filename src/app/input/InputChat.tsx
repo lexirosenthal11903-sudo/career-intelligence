@@ -25,8 +25,6 @@ export default function InputChat() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [placeholder, setPlaceholder] = useState(PLACEHOLDERS[0]);
-  const [showInput, setShowInput] = useState(true);
-  const [showSubmit, setShowSubmit] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -100,11 +98,7 @@ export default function InputChat() {
     pushUser(text);
     setStep(3);
     setInputValue("");
-    setShowInput(false);
-    setTimeout(() => {
-      setShowSubmit(true);
-      scrollBottom();
-    }, 420);
+    setTimeout(() => scrollBottom(), 420);
   }
 
   function onSend() {
@@ -248,7 +242,7 @@ export default function InputChat() {
 
           {/* Input area */}
           <div className={s.inputArea}>
-            {showInput && (
+            {step < 3 && (
               <div
                 className={`${s.inputCard}${dragOver ? ` ${s.dragActive}` : ""}`}
                 onDragOver={(e) => { e.preventDefault(); if (!chatStarted) setDragOver(true); }}
@@ -301,7 +295,7 @@ export default function InputChat() {
                 </button>
               </div>
             )}
-            {showSubmit && (
+            {step >= 3 && (
               <div className={s.submitWrap}>
                 <button
                   className={s.btnSubmit}
