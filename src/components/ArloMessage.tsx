@@ -18,7 +18,7 @@ export function ArloMessage({ text }: { text: string }) {
   function flushList(key: string) {
     if (listItems.length > 0) {
       elements.push(
-        <ul key={key} style={{ margin: "4px 0 4px 16px", padding: 0 }}>
+        <ul key={key} style={{ margin: "0 0 8px 16px", padding: 0 }}>
           {listItems}
         </ul>
       );
@@ -33,9 +33,7 @@ export function ArloMessage({ text }: { text: string }) {
     } else {
       flushList(`ul-${i}`);
       if (line.trim()) {
-        elements.push(<p key={i} style={{ margin: "4px 0" }}>{applyInline(line)}</p>);
-      } else if (elements.length > 0) {
-        elements.push(<br key={i} />);
+        elements.push(<p key={i} style={{ margin: "0 0 8px" }}>{applyInline(line)}</p>);
       }
     }
   });

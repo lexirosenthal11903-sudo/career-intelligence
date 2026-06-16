@@ -21,6 +21,8 @@ const PROTECTED_API = [
   '/api/save-result',
   '/api/score',
   '/api/profile',
+  '/api/applications',
+  '/api/results',
 ];
 
 export async function middleware(request: NextRequest) {
@@ -44,5 +46,7 @@ export const config = {
     '/api/save-result/:path*',
     '/api/score/:path*',
     '/api/profile/:path*',
+    '/api/applications/:path*',
+    '/api/results/:path*',
   ],
 };

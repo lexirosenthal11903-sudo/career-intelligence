@@ -415,7 +415,7 @@ export default function SkillsPage() {
 
         <a href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
-          <div>
+          <div className={s.navInfo}>
             <div className={s.navName}>{userName ?? "You"}</div>
             <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>

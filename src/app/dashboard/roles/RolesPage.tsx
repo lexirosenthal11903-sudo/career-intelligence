@@ -118,19 +118,22 @@ export default function RolesPage() {
     (async () => {
       try {
         const res = await fetch("/api/save-job");
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.warn("[save-job GET] status:", res.status);
+          return;
+        }
         const data = await res.json();
-        const savedJobs: Array<{ id: string; status?: string }> = (data.jobs || []);
+        const savedJobs: Array<{ id: string | number; status?: string }> = (data.jobs || []);
         const interestedIds = new Set(
-          savedJobs.filter((j) => j.status === "interested").map((j) => j.id)
+          savedJobs.filter((j) => j.status === "interested").map((j) => String(j.id))
         );
         const passedIds = new Set(
-          savedJobs.filter((j) => j.status === "passed").map((j) => j.id)
+          savedJobs.filter((j) => j.status === "passed").map((j) => String(j.id))
         );
         setInterested(interestedIds);
         setPassed(passedIds);
-      } catch {
-        // Not signed in — local state only
+      } catch (err) {
+        console.warn("[save-job GET] failed:", err);
       }
     })();
   }, []);
@@ -251,13 +254,16 @@ export default function RolesPage() {
 
     setSavingJob((prev) => new Set([...prev, id]));
     try {
-      await fetch("/api/save-job", {
+      const res = await fetch("/api/save-job", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobId: id, jobData: { ...job, id, status: "interested" } }),
       });
-    } catch {
-      // Silently fail — local state already updated
+      if (!res.ok) {
+        console.warn("[save-job POST] status:", res.status, await res.text().catch(() => ""));
+      }
+    } catch (err) {
+      console.warn("[save-job POST] failed:", err);
     } finally {
       setSavingJob((prev) => { const n = new Set(prev); n.delete(id); return n; });
     }
@@ -356,7 +362,7 @@ export default function RolesPage() {
 
         <a href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
-          <div>
+          <div className={s.navInfo}>
             <div className={s.navName}>{userName ?? "You"}</div>
             <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>

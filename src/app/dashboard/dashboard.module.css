@@ -272,7 +272,7 @@
 }
 .mentorMessages::-webkit-scrollbar { width: 0; }
 
-.aiMsg { display: flex; flex-direction: column; }
+.aiMsg { display: flex; flex-direction: column; gap: 8px; }
 .aiBubble {
   background: var(--surface);
   border-radius: 4px 16px 16px 16px;
@@ -281,7 +281,6 @@
   max-width: 380px;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
-.aiBubble + .aiBubble { margin-top: -12px; border-radius: 16px; }
 
 .userMsg { display: flex; justify-content: flex-end; }
 .userBubble {

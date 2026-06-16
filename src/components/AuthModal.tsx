@@ -149,12 +149,12 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
         {!isOtpView && !isSendError && (
           <>
             <h2 className={s.heading}>
-              {view === "signup" ? "Save your results." : "Welcome back."}
+              {view === "signup" ? "Save your results." : "Sign in."}
             </h2>
             <p className={s.sub}>
               {view === "signup"
                 ? "Create an account to keep your analysis, track applications, and come back whenever you're ready."
-                : "Sign in to pick up where you left off."}
+                : "Pick up where you left off, or start fresh."}
             </p>
 
             <button className={s.btnGoogle} onClick={handleGoogleSignIn} disabled={loading}>

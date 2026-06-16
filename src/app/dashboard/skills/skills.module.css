@@ -48,8 +48,9 @@
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 12px; flex: none;
 }
-.navName { font-size: 13px; font-weight: 600; color: var(--ink); }
-.navEmail { font-size: 11px; color: var(--ink-3); }
+.navInfo { flex: 1; min-width: 0; }
+.navName { font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navEmail { font-size: 11px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ── MAIN ── */
 .main { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -384,7 +385,7 @@
   color: var(--ink-2); max-width: 380px;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
-.aiBubble + .aiBubble { margin-top: -12px; border-radius: 16px; }
+
 .aiBubbleSignpost {
   font-size: 13px; color: var(--ink-3);
   box-shadow: none; background: transparent;

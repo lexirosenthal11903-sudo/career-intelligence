@@ -73,7 +73,9 @@ export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [stages, setStages] = useState<Record<string, Stage>>({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [directionTitle, setDirectionTitle] = useState<string | null>(null);
+  const [allDirections, setAllDirections] = useState<Array<{ title: string }>>([]);
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -99,7 +101,9 @@ export default function ApplicationsPage() {
       const raw = sessionStorage.getItem("analysis-result");
       if (raw) {
         const result = JSON.parse(raw);
-        setDirectionTitle(result?.profile?.suggestedDirections?.[0]?.title ?? null);
+        const dirs = result?.profile?.suggestedDirections ?? [];
+        setAllDirections(dirs);
+        setDirectionTitle(dirs[0]?.title ?? null);
       }
     } catch { /* ignore */ }
 
@@ -108,13 +112,19 @@ export default function ApplicationsPage() {
 
   async function loadApplications() {
     setLoading(true);
+    setLoadError(false);
     try {
       const res = await fetch("/api/applications");
-      if (!res.ok) return;
+      if (!res.ok) {
+        setLoadError(true);
+        return;
+      }
       const { applications: data } = await res.json();
       const apps: Application[] = data ?? [];
       setApplications(apps);
       setStages(Object.fromEntries(apps.map((a: Application) => [a.job_id, a.stage])));
+    } catch {
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -232,7 +242,7 @@ export default function ApplicationsPage() {
         <div className={s.navGap} />
         <a href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
-          <div>
+          <div className={s.navInfo}>
             <div className={s.navName}>{userName ?? "You"}</div>
             <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>
@@ -259,9 +269,11 @@ export default function ApplicationsPage() {
           <div className={s.appPanel}>
 
             <div className={s.directionCard}>
-              <div className={s.directionLabel}>Your direction</div>
+              <div className={s.directionLabel}>Directions worth exploring</div>
               <div className={s.directionTitle}>
-                {directionTitle ?? "Complete your analysis to see your direction"}
+                {allDirections.length > 0
+                  ? allDirections.map((d) => d.title).join(" · ")
+                  : directionTitle ?? "Complete your analysis to see your directions"}
               </div>
             </div>
 
@@ -294,7 +306,16 @@ export default function ApplicationsPage() {
                 </div>
               )}
 
-              {!loading && applications.length === 0 && (
+              {!loading && loadError && (
+                <div className={s.emptyState}>
+                  <div className={s.emptyTitle}>Couldn&apos;t load your applications.</div>
+                  <div className={s.emptySub}>
+                    <button className={s.emptyLink} onClick={loadApplications}>Try again</button>
+                  </div>
+                </div>
+              )}
+
+              {!loading && !loadError && applications.length === 0 && (
                 <div className={s.emptyState}>
                   <div className={s.emptyTitle}>No applications yet.</div>
                   <div className={s.emptySub}>
@@ -305,7 +326,7 @@ export default function ApplicationsPage() {
                 </div>
               )}
 
-              {!loading && applications.length > 0 && visible.length === 0 && (
+              {!loading && !loadError && applications.length > 0 && visible.length === 0 && (
                 <div className={s.emptyState}>
                   <div className={s.emptyTitle}>
                     {activeFilter === "archive" ? "Nothing archived yet." : `No applications in ${activeFilter}.`}

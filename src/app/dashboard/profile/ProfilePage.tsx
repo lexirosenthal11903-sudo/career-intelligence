@@ -131,11 +131,11 @@ export default function ProfilePage() {
     });
   }
 
-  const [location, setLocation] = useState("London, UK");
-  const [salaryMin, setSalaryMin] = useState("25,000");
-  const [salaryMax, setSalaryMax] = useState("40,000");
-  const [workStyle, setWorkStyle] = useState<Set<string>>(new Set(["Hybrid"]));
-  const [employmentType, setEmploymentType] = useState<Set<string>>(new Set(["Full-time"]));
+  const [location, setLocation] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
+  const [workStyle, setWorkStyle] = useState<Set<string>>(new Set());
+  const [employmentType, setEmploymentType] = useState<Set<string>>(new Set());
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
@@ -334,6 +334,7 @@ export default function ProfilePage() {
             {/* Preferences */}
             <div className={s.profileSection}>
               <div className={s.sectionHead}>Preferences</div>
+              <div className={s.sectionHint}>Tell Arlo your preferences, or let Arlo ask you. These are applied across your matched roles.</div>
 
               <div className={s.prefField}>
                 <div className={s.prefLabel}>
@@ -345,6 +346,7 @@ export default function ProfilePage() {
                 <input
                   className={s.prefInput}
                   type="text"
+                  placeholder="e.g. London, UK"
                   value={location}
                   onChange={(e) => { setLocation(e.target.value); showSaved("location"); }}
                 />
@@ -363,6 +365,7 @@ export default function ProfilePage() {
                     <input
                       className={`${s.prefInput} ${s.salaryInput}`}
                       type="text"
+                      placeholder="25,000"
                       value={salaryMin}
                       onChange={(e) => { setSalaryMin(e.target.value); showSaved("salary"); }}
                     />
@@ -372,6 +375,7 @@ export default function ProfilePage() {
                     <input
                       className={`${s.prefInput} ${s.salaryInput}`}
                       type="text"
+                      placeholder="45,000"
                       value={salaryMax}
                       onChange={(e) => { setSalaryMax(e.target.value); showSaved("salary"); }}
                     />
