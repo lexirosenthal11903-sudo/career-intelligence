@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import s from "./profile.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -48,7 +48,7 @@ function slugify(str: string) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [arloVisible, setArloVisible] = useState(true);

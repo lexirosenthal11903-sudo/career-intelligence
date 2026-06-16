@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import s from "./role-detail.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -36,7 +36,7 @@ export default function RoleDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = typeof params.id === "string" ? params.id : "";
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");

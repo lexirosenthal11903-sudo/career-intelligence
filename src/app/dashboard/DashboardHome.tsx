@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import s from "./dashboard.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -32,7 +32,7 @@ const sendIcon = (
 
 export default function DashboardHome() {
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [arloVisible, setArloVisible] = useState(true);

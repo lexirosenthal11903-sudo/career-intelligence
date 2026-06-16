@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import s from "./applications.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useArloChat } from "@/hooks/useArloChat";
@@ -65,7 +65,7 @@ const STAGE_BADGE: Record<Stage, string> = {
 };
 
 export default function ApplicationsPage() {
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [userId, setUserId] = useState<string | null>(null);

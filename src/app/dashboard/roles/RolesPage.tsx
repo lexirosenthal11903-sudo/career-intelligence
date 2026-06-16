@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import s from "./roles.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -58,7 +58,7 @@ function slugify(s: string) {
 export default function RolesPage() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "listings" ? "listings" : "types";
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [tab, setTab] = useState<"types" | "listings">(initialTab);
   const [arloVisible, setArloVisible] = useState(true);
