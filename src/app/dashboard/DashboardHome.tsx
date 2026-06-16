@@ -44,28 +44,34 @@ export default function DashboardHome() {
   const [companySuggestions, setCompanySuggestions] = useState<Array<{ type: string; why: string }>>([]);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
-  const { extraMsgs, sendMessage, isLoading } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading, messagesEndRef } = useArloChat({
     page: "home",
     supabase,
     userId,
   });
 
-  // Derive home state + fix unauthenticated result persistence
+  // Load direction card data and derive home state
   useEffect(() => {
-    // Load direction card from sessionStorage regardless of auth state
+    function applyResult(parsed: Record<string, unknown>) {
+      const profile = parsed?.profile as Record<string, unknown> | undefined;
+      const dirs = profile?.suggestedDirections;
+      if (Array.isArray(dirs) && dirs.length) setDirections(dirs);
+      const suggestions = profile?.companySuggestions;
+      if (Array.isArray(suggestions) && suggestions.length) {
+        setCompanySuggestions((suggestions as Array<{ type: string; why: string }>).slice(0, 3));
+      }
+    }
+
+    // Try sessionStorage first (fastest, works for fresh analyses)
+    let hasSession = false;
     try {
       const sessionResult = sessionStorage.getItem("analysis-result");
       if (sessionResult) {
-        const parsed = JSON.parse(sessionResult);
-        const dirs = parsed?.profile?.suggestedDirections;
-        if (Array.isArray(dirs) && dirs.length) setDirections(dirs);
-        const suggestions = parsed?.profile?.companySuggestions;
-        if (Array.isArray(suggestions) && suggestions.length) {
-          setCompanySuggestions(suggestions.slice(0, 3));
-        }
+        applyResult(JSON.parse(sessionResult));
+        hasSession = true;
       }
     } catch {
-      // malformed sessionStorage — direction card keeps fallback
+      // malformed — fall through to Supabase
     }
 
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -75,25 +81,39 @@ export default function DashboardHome() {
         setUserId(id);
         setUserName(name);
 
-        // homeState: new-roles if result exists and user hasn't dismissed the banner
-        const sessionResult = sessionStorage.getItem("analysis-result");
-        if (sessionResult) {
+        if (hasSession) {
           const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
           if (!seen) setHomeState("new-roles");
-        }
 
-        // Unauthenticated result persistence fix:
-        // If sessionStorage has a result but Supabase doesn't, save it now
-        if (sessionResult) {
+          // Persist to Supabase if not already saved
           fetch("/api/results")
             .then((r) => r.json())
             .then((data) => {
               if (!data?.data) {
-                fetch("/api/save-result", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ data: JSON.parse(sessionResult) }),
-                }).catch(() => {});
+                const sessionResult = sessionStorage.getItem("analysis-result");
+                if (sessionResult) {
+                  fetch("/api/save-result", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: JSON.parse(sessionResult) }),
+                  }).catch(() => {});
+                }
+              }
+            })
+            .catch(() => {});
+        } else {
+          // Returning user with no sessionStorage — load from Supabase
+          fetch("/api/results")
+            .then((r) => r.json())
+            .then((data) => {
+              if (data?.result) {
+                applyResult(data.result);
+                // Cache in sessionStorage for this session
+                try {
+                  sessionStorage.setItem("analysis-result", JSON.stringify(data.result));
+                } catch { /* ignore */ }
+                const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
+                if (!seen) setHomeState("new-roles");
               }
             })
             .catch(() => {});
@@ -317,40 +337,44 @@ export default function DashboardHome() {
 
             <div className={s.mentorMessages}>
 
-              {homeState === "new-roles" && extraMsgs.length === 0 && (
+              {/* Initial Arlo message — only before any conversation starts */}
+              {extraMsgs.length === 0 && homeState === "new-roles" && (
                 <div className={s.aiMsg}>
                   <div className={s.aiBubble}>Your analysis is done. I&apos;ve matched roles to your background and ranked them by fit. Start with the Role types tab — it tells you the why behind each direction, not just the what.</div>
                   <div className={s.aiBubble}>Ask me anything. What do you want to understand first?</div>
                 </div>
               )}
-
-              {homeState === "deadline" && extraMsgs.length === 0 && (
+              {extraMsgs.length === 0 && homeState === "deadline" && (
                 <div className={s.aiMsg}>
                   <div className={s.aiBubble}>Welcome back. You have a deadline coming up on one of your saved roles — check your applications so nothing slips.</div>
                   <div className={s.aiBubble}>What else is on your mind?</div>
                 </div>
               )}
-
-              {homeState === "nothing-new" && extraMsgs.length === 0 && (
+              {extraMsgs.length === 0 && homeState === "nothing-new" && (
                 <div className={s.aiMsg}>
                   <div className={s.aiBubble}>Good to have you back. Nothing new on the roles front yet — I&apos;ll let you know when something comes in that&apos;s worth your attention.</div>
                   <div className={s.aiBubble}>What are you thinking about today?</div>
                 </div>
               )}
 
-            </div>
+              {/* Conversation history */}
+              {extraMsgs.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                ) : (
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                )
+              )}
 
-            {extraMsgs.length > 0 && (
-              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
-                {extraMsgs.map((m, i) =>
-                  m.role === "user" ? (
-                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
-                  ) : (
-                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
-                  )
-                )}
-              </div>
-            )}
+              {/* Typing indicator */}
+              {isLoading && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input

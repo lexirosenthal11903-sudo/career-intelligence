@@ -27,8 +27,9 @@ export default function AnalysisErrorPage() {
 
   function handleRetry() {
     setRetrying(true);
-    // Phase 3: trigger real retry. For now, navigate back to input.
-    setTimeout(() => router.push("/input"), 1200);
+    // Inputs stay in sessionStorage on failure (only removed on success) — retry directly
+    const hasInputs = !!sessionStorage.getItem("analysis-inputs");
+    setTimeout(() => router.push(hasInputs ? "/loading" : "/input"), 1200);
   }
 
   return (

@@ -76,7 +76,7 @@ export default function ApplicationsPage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef } = useArloChat({
     page: "applications",
     supabase,
     userId,
@@ -405,6 +405,12 @@ export default function ApplicationsPage() {
                   <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
                 )
               )}
+              {arloLoading && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
 
             <div className={s.mentorInputWrap}>

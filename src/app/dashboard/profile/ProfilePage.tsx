@@ -31,6 +31,21 @@ const fileIcon = (
 const WORK_STYLES = ["Hybrid", "Remote", "In-person"];
 const EMPLOYMENT_TYPES = ["Full-time", "Part-time", "Contract", "Internship", "Postgrad scheme"];
 
+interface AnalysisProfile {
+  summary?: string;
+  suggestedDirections?: Array<{ title: string; why: string }>;
+  topRoleTitles?: string[];
+  valuesSignals?: string[];
+}
+
+interface AnalysisResult {
+  profile?: AnalysisProfile;
+}
+
+function slugify(str: string) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -39,8 +54,10 @@ export default function ProfilePage() {
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const chatInputRef = useRef<HTMLInputElement>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [activeAppCount, setActiveAppCount] = useState<number | null>(null);
 
-  const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef } = useArloChat({
     page: "profile",
     supabase,
     userId,
@@ -64,14 +81,46 @@ export default function ProfilePage() {
   const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
+    // Load analysis result
+    try {
+      const stored = sessionStorage.getItem("analysis-result");
+      if (stored) {
+        setAnalysisResult(JSON.parse(stored));
+      }
+    } catch { /* ignore */ }
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user?.email) setUserEmail(user.email);
       if (user) {
         setUserId(user.id);
         setUserName(user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null);
+
+        // Fallback: load analysis from Supabase if not in sessionStorage
+        if (!sessionStorage.getItem("analysis-result")) {
+          fetch("/api/results")
+            .then((r) => r.json())
+            .then((data) => {
+              if (data?.result) {
+                setAnalysisResult(data.result);
+                try { sessionStorage.setItem("analysis-result", JSON.stringify(data.result)); } catch { /* ignore */ }
+              }
+            })
+            .catch(() => {});
+        }
+
+        // Load active application count
+        fetch("/api/applications")
+          .then((r) => r.json())
+          .then((data) => {
+            if (Array.isArray(data?.applications)) {
+              const active = data.applications.filter((a: { stage: string }) => a.stage !== "archive").length;
+              setActiveAppCount(active);
+            }
+          })
+          .catch(() => {});
       }
     });
-  }, []);
+  }, [supabase]);
 
   function toggleArlo() {
     setArloVisible((v) => {
@@ -185,59 +234,76 @@ export default function ProfilePage() {
 
             {/* Activity strip */}
             <div className={s.activityStrip}>
-              <span><strong>32</strong> roles reviewed</span>
-              <span className={s.activitySep}>·</span>
-              <span><strong>4</strong> applications active</span>
-              <span className={s.activitySep}>·</span>
-              <span><strong>12</strong> active days</span>
+              {activeAppCount !== null && activeAppCount > 0 ? (
+                <span><strong>{activeAppCount}</strong> application{activeAppCount !== 1 ? "s" : ""} active</span>
+              ) : (
+                <span>No applications tracked yet</span>
+              )}
             </div>
 
             {/* Direction card */}
             <div className={s.directionCard}>
-              <div className={s.directionCardLabel}>Your direction</div>
-              <div className={s.directionCardTitle}>Systems thinker, people problems.</div>
-              <div className={s.directionCardSub}>
-                Strategy, operations, and business analysis roles for graduates with strong analytical and communication skills.
-              </div>
-              <div className={s.directionCardRule} />
-              <div className={s.directionRolesLabel}>Roles we&apos;re looking for</div>
-              <div className={s.rolesWrap}>
-                <span className={s.roleTypeChip}>Strategy Analyst</span>
-                <span className={s.roleTypeChip}>Business Analyst</span>
-                <span className={s.roleTypeChip}>Management Consultant</span>
-                <span className={s.roleTypeChip}>Operations Associate</span>
-              </div>
+              <div className={s.directionCardLabel}>Directions worth exploring</div>
+              {analysisResult?.profile?.suggestedDirections?.length ? (
+                <>
+                  {analysisResult.profile.summary && (
+                    <div className={s.directionCardSub} style={{ marginBottom: "1rem" }}>
+                      {analysisResult.profile.summary}
+                    </div>
+                  )}
+                  <div className={s.directionCardRule} />
+                  <div className={s.directionRolesLabel}>Based on your background</div>
+                  <div className={s.rolesWrap}>
+                    {analysisResult.profile.suggestedDirections.map((d) => (
+                      <a
+                        key={d.title}
+                        href={`/dashboard/roles/${slugify(d.title)}`}
+                        className={s.roleTypeChip}
+                        style={{ textDecoration: "none" }}
+                      >
+                        {d.title}
+                      </a>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className={s.directionCardSub}>
+                  Run your analysis to see your directions.{" "}
+                  <a href="/input" style={{ color: "var(--accent)", textDecoration: "none" }}>Start now →</a>
+                </div>
+              )}
               <div className={s.directionRefine}>
-                Want to refine this?{" "}
+                Want to explore further?{" "}
                 <button
                   className={s.directionRefineLink}
-                  onClick={() => talkToArlo("I want to refine my direction.")}
+                  onClick={() => talkToArlo("I want to talk through my directions.")}
                 >
-                  Talk to Arlo →
+                  Ask Arlo →
                 </button>
               </div>
             </div>
 
             {/* What Arlo knows */}
             <div className={s.knowsCard}>
-              <div className={s.knowsRow}>
-                <div className={s.knowsLabel}>Background</div>
-                <div className={s.knowsText}>
-                  Economics, University of Leeds, 2024. One marketing internship at a creative agency.
+              {analysisResult?.profile?.valuesSignals?.length ? (
+                <>
+                  <div className={s.knowsRow}>
+                    <div className={s.knowsLabel}>What Arlo sees in you</div>
+                    <div className={s.knowsText}>
+                      {analysisResult.profile.valuesSignals.slice(0, 3).map((v, i) => (
+                        <p key={i} style={{ margin: i === 0 ? 0 : "0.5rem 0 0" }}>{v}</p>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className={s.knowsRow}>
+                  <div className={s.knowsLabel}>What Arlo knows</div>
+                  <div className={s.knowsText}>
+                    Complete your analysis and Arlo will build up a picture of what makes you specifically you.
+                  </div>
                 </div>
-              </div>
-              <div className={s.knowsRow}>
-                <div className={s.knowsLabel}>What matters to you</div>
-                <div className={s.knowsText}>
-                  Work that involves problem-solving and communication. Culture matters — you&apos;d rather take less money somewhere you genuinely fit.
-                </div>
-              </div>
-              <div className={s.knowsRow}>
-                <div className={s.knowsLabel}>What you&apos;ve ruled out</div>
-                <div className={s.knowsText}>
-                  Pure finance roles, anything fully remote long-term, sales-heavy positions.
-                </div>
-              </div>
+              )}
               <div className={s.knowsFooter}>
                 Something&apos;s changed?{" "}
                 <button
@@ -255,12 +321,11 @@ export default function ProfilePage() {
               <div className={s.cvCard}>
                 <div className={s.cvIcon}>{fileIcon}</div>
                 <div className={s.cvMeta}>
-                  <div className={s.cvName}>CV_Lexi_Rosenthal_2024.pdf</div>
-                  <div className={s.cvDate}>Uploaded 3 weeks ago</div>
+                  <div className={s.cvName}>Your CV</div>
+                  <div className={s.cvDate}>Used for your analysis</div>
                 </div>
                 <div className={s.cvActions}>
-                  <button className={s.btnDownload} title="Coming in a future update" disabled>Download</button>
-                  <button className={s.btnUpdate} title="Coming in a future update" disabled>Update CV</button>
+                  <button className={s.btnUpdate} onClick={() => router.push("/input")}>Update CV →</button>
                 </div>
               </div>
             </div>
@@ -401,27 +466,34 @@ export default function ProfilePage() {
             </div>
 
             <div className={s.mentorMessages}>
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  This is everything I know about you. If anything feels off, just tell me.
+              {extraMsgs.length === 0 && (
+                <>
+                  <div className={s.aiMsg}>
+                    <div className={s.aiBubble}>
+                      This is everything I know about you. If anything feels off, just tell me.
+                    </div>
+                  </div>
+                  <div className={s.aiMsg}>
+                    <div className={s.aiBubble}>
+                      You can update your CV, adjust your preferences, or just let me know if things have changed.
+                    </div>
+                  </div>
+                </>
+              )}
+              {extraMsgs.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                ) : (
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                )
+              )}
+              {arloLoading && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
                 </div>
-              </div>
-              <div className={`${s.aiBubble} ${s.signpost}`}>
-                You can update your CV, adjust your preferences, or just let me know if things have changed.
-              </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
-
-            {extraMsgs.length > 0 && (
-              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
-                {extraMsgs.map((m, i) =>
-                  m.role === "user" ? (
-                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
-                  ) : (
-                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
-                  )
-                )}
-              </div>
-            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input

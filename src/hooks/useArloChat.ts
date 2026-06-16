@@ -23,9 +23,10 @@ export function useArloChat({
 }) {
   const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  // API history kept in a ref — doesn't need to trigger re-renders
   const apiHistoryRef = useRef<ApiMsg[]>([]);
   const loadedRef = useRef(false);
+  // Attach to a <div> at the end of the messages list; auto-scrolls on new messages
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load persisted conversation from Supabase on mount
   useEffect(() => {
@@ -124,5 +125,10 @@ export function useArloChat({
     [isLoading, supabase, userId, page]
   );
 
-  return { extraMsgs, sendMessage, isLoading };
+  // Auto-scroll when messages change or loading state changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [extraMsgs, isLoading]);
+
+  return { extraMsgs, sendMessage, isLoading, messagesEndRef };
 }

@@ -46,7 +46,7 @@ export default function RoleDetailPage() {
   const [allDirections, setAllDirections] = useState<Direction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef } = useArloChat({
     page: `role-${slug}`,
     supabase,
     userId,
@@ -118,7 +118,6 @@ export default function RoleDetailPage() {
   }
 
   function handleArloPrompt(prompt: string) {
-    setChatValue(prompt);
     sendMessage(prompt);
   }
 
@@ -308,6 +307,12 @@ export default function RoleDetailPage() {
                   <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
                 )
               )}
+              {arloLoading && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
 
             <div className={s.mentorInputWrap}>

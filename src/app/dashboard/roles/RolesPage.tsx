@@ -67,7 +67,7 @@ export default function RolesPage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef } = useArloChat({
     page: "roles",
     supabase,
     userId,
@@ -635,17 +635,19 @@ export default function RolesPage() {
                 )}
               </div>
 
-              {extraMsgs.length > 0 && (
-                <>
-                  {extraMsgs.map((m, i) =>
-                    m.role === "user" ? (
-                      <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
-                    ) : (
-                      <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
-                    )
-                  )}
-                </>
+              {extraMsgs.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                ) : (
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                )
               )}
+              {arloLoading && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
 
             <div className={s.mentorInputWrap}>
