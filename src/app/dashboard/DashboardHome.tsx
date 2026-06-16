@@ -232,14 +232,13 @@ export default function DashboardHome() {
             {/* ── STATE: New roles ── */}
             {homeState === "new-roles" && !todayDismissed && (
               <div className={`${s.todaySection}${todayFading ? ` ${s.todayFading}` : ""}`}>
-                <div className={s.sectionLabel}>New since your last visit</div>
-                <div className={s.todayAction}>3 new roles matched to your profile.</div>
+                <div className={s.sectionLabel}>Your analysis is ready</div>
+                <div className={s.todayAction}>New roles have been matched to your profile.</div>
                 <div className={s.todayWhy}>
-                  One of them is particularly strong — a strategy role at a fast-growing logistics company.
-                  Less obvious than it sounds. Arlo has thoughts on why it fits.
+                  Arlo has scored each one against your background. Start with the Role types tab to understand the directions, then browse live listings.
                 </div>
                 <div className={s.btnRow}>
-                  <button className={s.btnPrimary} onClick={handleSeeNewMatches}>See new matches →</button>
+                  <button className={s.btnPrimary} onClick={handleSeeNewMatches}>See your matches →</button>
                   <button className={s.btnGhost} onClick={dismissToday}>Later</button>
                 </div>
               </div>
@@ -248,15 +247,13 @@ export default function DashboardHome() {
             {/* ── STATE: Deadline urgency ── */}
             {homeState === "deadline" && !todayDismissed && (
               <div className={`${s.todaySection}${todayFading ? ` ${s.todayFading}` : ""}`}>
-                <div className={s.urgencyBadge}>Closes in 2 days</div>
-                <div className={s.sectionLabel}>This week</div>
-                <div className={s.todayAction}>Your Bloom &amp; Wild application closes Friday.</div>
+                <div className={s.sectionLabel}>Application closing soon</div>
+                <div className={s.todayAction}>One of your saved roles has a deadline coming up.</div>
                 <div className={s.todayWhy}>
-                  You saved this role but haven&apos;t applied yet. It&apos;s one of your stronger matches —
-                  Arlo has a draft outline ready if you want to move on it today.
+                  Check your applications to see what&apos;s closing and what still needs doing.
                 </div>
                 <div className={s.btnRow}>
-                  <button className={`${s.btnPrimary} ${s.btnUrgent}`} onClick={() => router.push("/dashboard/applications")}>Start application →</button>
+                  <button className={`${s.btnPrimary} ${s.btnUrgent}`} onClick={() => router.push("/dashboard/applications")}>Check applications →</button>
                   <button className={s.btnGhost} onClick={dismissToday}>Not today</button>
                 </div>
               </div>
@@ -265,15 +262,14 @@ export default function DashboardHome() {
             {/* ── STATE: Nothing new ── */}
             {homeState === "nothing-new" && !todayDismissed && (
               <div className={`${s.todaySection}${todayFading ? ` ${s.todayFading}` : ""}`}>
-                <div className={s.sectionLabel}>Pick up here</div>
-                <div className={s.todayAction}>You saved Bloom &amp; Wild&apos;s ops role — ready to do something with it?</div>
+                <div className={s.sectionLabel}>Where to start</div>
+                <div className={s.todayAction}>Browse your matched roles and save the ones worth pursuing.</div>
                 <div className={s.todayWhy}>
-                  You haven&apos;t looked at the details yet. There&apos;s a specific person there worth reaching
-                  out to — it&apos;s a better route in than applying cold.
+                  Arlo has matched roles to your background. Save the ones that feel right — even if you&apos;re not sure yet. You can always pass later.
                 </div>
                 <div className={s.btnRow}>
-                  <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles")}>Look at the role →</button>
-                  <button className={s.btnGhost} onClick={dismissToday}>Not today</button>
+                  <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles")}>See your matched roles →</button>
+                  <button className={s.btnGhost} onClick={dismissToday}>Later</button>
                 </div>
               </div>
             )}
@@ -285,29 +281,27 @@ export default function DashboardHome() {
                   <div className={s.exploreCardLabel}>Your role matches</div>
                   <div className={s.exploreCardSub}>All matches, ranked by fit</div>
                 </div>
-                <div className={s.exploreCardN}>
-                  {homeState === "new-roles" ? "8 →" : "5 →"}
-                </div>
+                <div className={s.exploreCardN}>→</div>
               </a>
               <a href="/dashboard/skills" className={s.exploreCard}>
                 <div>
                   <div className={s.exploreCardLabel}>Skills to focus on</div>
                   <div className={s.exploreCardSub}>The gaps closest to closing</div>
                 </div>
-                <div className={s.exploreCardN}>3 →</div>
+                <div className={s.exploreCardN}>→</div>
               </a>
               <a href="/dashboard/applications" className={s.exploreCard}>
                 <div>
                   <div className={s.exploreCardLabel}>Applications</div>
                   <div className={s.exploreCardSub}>Track where things stand</div>
                 </div>
-                <div className={s.exploreCardN}>2 →</div>
+                <div className={s.exploreCardN}>→</div>
               </a>
             </div>
 
             <div className={s.momentum}>
               <div className={s.momentumDot} />
-              <span><strong>12 active days</strong> into your search. Good to have you back.</span>
+              <span>Good to have you back.</span>
             </div>
           </div>
 
@@ -324,27 +318,23 @@ export default function DashboardHome() {
             <div className={s.mentorMessages}>
 
               {homeState === "new-roles" && extraMsgs.length === 0 && (
-                <>
-                  <div className={s.aiMsg}>
-                    <div className={s.aiBubble}>Welcome back. What did you get up to since we last spoke?</div>
-                    <div className={s.aiBubble}>While you were away, three new roles came in. The logistics one caught my attention — the job title doesn&apos;t do it justice. I&apos;ll explain why when you&apos;re ready.</div>
-                  </div>
-                </>
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble}>Your analysis is done. I&apos;ve matched roles to your background and ranked them by fit. Start with the Role types tab — it tells you the why behind each direction, not just the what.</div>
+                  <div className={s.aiBubble}>Ask me anything. What do you want to understand first?</div>
+                </div>
               )}
 
               {homeState === "deadline" && extraMsgs.length === 0 && (
                 <div className={s.aiMsg}>
-                  <div className={s.aiBubble}>Welcome back. What did you get up to?</div>
-                  <div className={s.aiBubble}>Something to flag before anything else — your Bloom &amp; Wild application closes Friday. Two days. You saved it a while back but haven&apos;t applied yet.</div>
-                  <div className={s.aiBubble}>I have a draft outline ready. It won&apos;t take long if you want to move on it today. What do you think?</div>
+                  <div className={s.aiBubble}>Welcome back. You have a deadline coming up on one of your saved roles — check your applications so nothing slips.</div>
+                  <div className={s.aiBubble}>What else is on your mind?</div>
                 </div>
               )}
 
               {homeState === "nothing-new" && extraMsgs.length === 0 && (
                 <div className={s.aiMsg}>
-                  <div className={s.aiBubble}>Welcome back. What did you get up to?</div>
-                  <div className={s.aiBubble}>Nothing new on the roles front since your last visit — I&apos;ll let you know when something comes in.</div>
-                  <div className={s.aiBubble}>You saved the Bloom &amp; Wild ops role a while back. There&apos;s a specific person there worth reaching out to directly. Better route in than applying cold. Worth a look?</div>
+                  <div className={s.aiBubble}>Good to have you back. Nothing new on the roles front yet — I&apos;ll let you know when something comes in that&apos;s worth your attention.</div>
+                  <div className={s.aiBubble}>What are you thinking about today?</div>
                 </div>
               )}
 

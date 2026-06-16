@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import s from "./role-detail.module.css";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useArloChat } from "@/hooks/useArloChat";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 31 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 31 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M30 50 Q40 55 50 50" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -21,31 +23,80 @@ const backIcon = (
   </svg>
 );
 
-type ChatMsg = { role: "arlo" | "user"; text: string };
+function slugify(str: string) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+interface Direction {
+  title: string;
+  why: string;
+}
 
 export default function RoleDetailPage() {
+  const params = useParams();
   const router = useRouter();
+  const slug = typeof params.id === "string" ? params.id : "";
+  const supabase = createSupabaseBrowserClient();
+
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
-  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [direction, setDirection] = useState<Direction | null>(null);
+  const [allDirections, setAllDirections] = useState<Direction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  function handleSend() {
-    const text = chatValue.trim();
-    if (!text) return;
-    setChatValue("");
-    setExtraMsgs((prev) => [...prev, { role: "user", text }]);
-    setTimeout(() => {
-      setExtraMsgs((prev) => [...prev, { role: "arlo", text: "I hear you. I'll be able to respond properly once everything is connected — keep exploring for now." }]);
-    }, 800);
-  }
-  function handleChatKey(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
-  }
+  const { extraMsgs, sendMessage, isLoading: arloLoading } = useArloChat({
+    page: `role-${slug}`,
+    supabase,
+    userId,
+  });
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
     if (saved !== null) setArloVisible(saved !== "false");
-  }, []);
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUserId(user.id);
+        setUserName(
+          user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null
+        );
+      }
+    });
+
+    // Load direction from sessionStorage
+    let found = false;
+    try {
+      const stored = sessionStorage.getItem("analysis-result");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const dirs: Direction[] = parsed?.profile?.suggestedDirections ?? [];
+        setAllDirections(dirs);
+        const match = dirs.find((d) => slugify(d.title) === slug);
+        if (match) {
+          setDirection(match);
+          found = true;
+        }
+      }
+    } catch { /* ignore */ }
+
+    // Fallback: /api/results
+    if (!found) {
+      fetch("/api/results")
+        .then((r) => r.json())
+        .then((data) => {
+          const dirs: Direction[] = data?.result?.profile?.suggestedDirections ?? [];
+          setAllDirections(dirs);
+          const match = dirs.find((d) => slugify(d.title) === slug);
+          if (match) setDirection(match);
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [supabase, slug]);
 
   function toggleArlo() {
     setArloVisible((v) => {
@@ -54,6 +105,24 @@ export default function RoleDetailPage() {
       return next;
     });
   }
+
+  function handleSend() {
+    const text = chatValue.trim();
+    if (!text || arloLoading) return;
+    setChatValue("");
+    sendMessage(text);
+  }
+
+  function handleChatKey(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  }
+
+  function handleArloPrompt(prompt: string) {
+    setChatValue(prompt);
+    sendMessage(prompt);
+  }
+
+  const displayTitle = direction?.title ?? (loading ? "" : "Direction");
 
   return (
     <div className={s.shell}>
@@ -93,10 +162,9 @@ export default function RoleDetailPage() {
         <div className={s.navGap} />
 
         <a href="/dashboard/profile" className={s.navProfile}>
-          <div className={s.navAv}>L</div>
+          <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div>
-            <div className={s.navName}>Lexi</div>
-            <div className={s.navEmail}>lexi@email.com</div>
+            <div className={s.navName}>{userName ?? "You"}</div>
           </div>
         </a>
       </nav>
@@ -112,7 +180,7 @@ export default function RoleDetailPage() {
               Roles
             </button>
             <div className={s.topbarSep} />
-            <span className={s.topbarTitle}>Strategy Analyst</span>
+            <span className={s.topbarTitle}>{displayTitle || "Loading…"}</span>
           </div>
           <button className={s.arloToggle} onClick={toggleArlo}>
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
@@ -125,88 +193,87 @@ export default function RoleDetailPage() {
 
           {/* LEFT: Brief */}
           <div className={s.brief}>
-            <div className={s.briefType}>Advisory · Strategy</div>
-            <div className={s.briefTitle}>Strategy Analyst</div>
+            {loading ? (
+              <>
+                <div className={`${s.briefTitle} ${s.skeleton}`} style={{ width: "50%", height: "1.6rem" }} />
+                <div className={`${s.briefSummary} ${s.skeleton}`} style={{ width: "100%", height: "4rem", marginTop: "1rem" }} />
+              </>
+            ) : direction ? (
+              <>
+                <div className={s.briefTitle}>{direction.title}</div>
 
-            <p className={s.briefSummary}>
-              Structured problem-solving at scale. You&apos;re given a messy question and expected to break it
-              down, find the signal in the data, and present a clear recommendation. The work spans multiple
-              industries and problem types — breadth is the defining feature of the early career.
-            </p>
+                <div className={s.sLabel} style={{ marginTop: "1.5rem" }}>Why this fits you</div>
+                <p className={s.briefSummary}>{direction.why}</p>
 
-            {/* Honest picture */}
-            <div className={s.sLabel}>The honest picture</div>
-            <div className={s.pictureGrid}>
-              <div className={`${s.pictureCol} ${s.good}`}>
-                <div className={s.pictureColLabel}>What&apos;s good</div>
-                <ul className={s.pictureColList}>
-                  <li>Unmatched breadth — you touch different industries and problems quickly</li>
-                  <li>Strong analyst toolkit: modelling, frameworks, structured writing</li>
-                  <li>Excellent exit options — VC, corporate strategy, PE, product</li>
-                  <li>Direct exposure to senior decision-making early on</li>
-                </ul>
-              </div>
-              <div className={`${s.pictureCol} ${s.hard}`}>
-                <div className={s.pictureColLabel}>Worth knowing</div>
-                <ul className={s.pictureColList}>
-                  <li>First 1–2 years are heavily slide-production, not real strategy</li>
-                  <li>Up-or-out culture at most firms — promotion pressure is constant</li>
-                  <li>You rarely see long-term outcomes of your own work</li>
-                  <li>Lifestyle demands vary widely — tier-one firms are intense</li>
-                </ul>
-              </div>
-            </div>
+                {/* Other directions in this analysis */}
+                {allDirections.length > 1 && (
+                  <>
+                    <div className={s.sLabel} style={{ marginTop: "2rem" }}>Other directions worth exploring</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      {allDirections
+                        .filter((d) => slugify(d.title) !== slug)
+                        .map((d) => (
+                          <a
+                            key={d.title}
+                            href={`/dashboard/roles/${slugify(d.title)}`}
+                            className={s.listingsLink}
+                            style={{ textDecoration: "none" }}
+                          >
+                            <div>
+                              <div className={s.listingsLabel}>{d.title}</div>
+                              <div className={s.listingsSub}>{d.why?.split(/[.!?]/)[0]?.trim()}</div>
+                            </div>
+                            <div className={s.listingsArrow}>→</div>
+                          </a>
+                        ))}
+                    </div>
+                  </>
+                )}
 
-            {/* Salary */}
-            <div className={s.sLabel}>What it pays (UK)</div>
-            <div className={s.salaryTable}>
-              <div className={s.salaryRow}>
-                <span className={s.salaryLevel} style={{ color: "var(--ink-3)", fontSize: "11px", letterSpacing: ".05em", textTransform: "uppercase", fontWeight: 700 }}>Level</span>
-                <div className={s.salaryBar} style={{ opacity: 0 }} />
-                <span className={s.salaryVal} style={{ color: "var(--ink-3)", fontSize: "11px", fontFamily: "var(--f)", fontWeight: 700, letterSpacing: ".05em", textTransform: "uppercase" }}>Typical range</span>
-              </div>
-              <div className={s.salaryRow}>
-                <span className={s.salaryLevel}>Entry</span>
-                <div className={s.salaryBar}><div className={s.salaryFill} style={{ width: "30%" }} /></div>
-                <span className={s.salaryVal}>£35,000 – £55,000</span>
-              </div>
-              <div className={s.salaryRow}>
-                <span className={s.salaryLevel}>Mid</span>
-                <div className={s.salaryBar}><div className={s.salaryFill} style={{ width: "60%" }} /></div>
-                <span className={s.salaryVal}>£65,000 – £120,000</span>
-              </div>
-              <div className={s.salaryRow}>
-                <span className={s.salaryLevel}>Senior</span>
-                <div className={s.salaryBar}><div className={s.salaryFill} style={{ width: "100%" }} /></div>
-                <span className={`${s.salaryVal} ${s.top}`}>£120,000 – £250,000+</span>
-              </div>
-            </div>
-
-            {/* What it rewards */}
-            <div className={s.sLabel}>What it rewards</div>
-            <div className={s.skillsList}>
-              {[
-                "Structured thinking — the ability to break a problem down before jumping to solutions",
-                "Data fluency — not necessarily advanced, but comfortable building and reading models",
-                "Storytelling through documents — translating analysis into a clear, persuasive narrative",
-                "Intellectual curiosity across sectors — you need to care about unfamiliar industries",
-                "Composure under ambiguity — you're often given a half-formed question and expected to sharpen it",
-              ].map((skill) => (
-                <div key={skill} className={s.skillItem}>
-                  <div className={s.skillDot} />
-                  {skill}
+                {/* Ask Arlo prompts */}
+                <div className={s.sLabel} style={{ marginTop: "2rem" }}>Ask Arlo</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {[
+                    `What does a ${direction.title} actually do day to day?`,
+                    `What does it take to get into ${direction.title} from my background?`,
+                    `What's the honest downside of ${direction.title}?`,
+                  ].map((prompt) => (
+                    <button
+                      key={prompt}
+                      className={s.listingsLink}
+                      style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+                      onClick={() => handleArloPrompt(prompt)}
+                    >
+                      <div className={s.listingsLabel}>{prompt}</div>
+                      <div className={s.listingsArrow}>→</div>
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            {/* Live listings link */}
-            <a href="/dashboard/roles?tab=listings&filter=Strategy+Analyst" className={s.listingsLink}>
+                {/* Live listings link */}
+                <a
+                  href={`/dashboard/roles?tab=listings&filter=${encodeURIComponent(direction.title)}`}
+                  className={s.listingsLink}
+                  style={{ marginTop: "2rem" }}
+                >
+                  <div>
+                    <div className={s.listingsLabel}>Live listings for {direction.title}</div>
+                    <div className={s.listingsSub}>See all matched roles →</div>
+                  </div>
+                  <div className={s.listingsArrow}>→</div>
+                </a>
+              </>
+            ) : (
               <div>
-                <div className={s.listingsLabel}>Live listings for Strategy Analyst</div>
-                <div className={s.listingsSub}>6 listings · best match first</div>
+                <div className={s.briefTitle}>Direction not found</div>
+                <p className={s.briefSummary}>
+                  We couldn&apos;t find this direction in your analysis.{" "}
+                  <a href="/dashboard/roles" style={{ color: "var(--accent)", textDecoration: "none" }}>
+                    Go back to your matched roles →
+                  </a>
+                </p>
               </div>
-              <div className={s.listingsArrow}>→</div>
-            </a>
+            )}
           </div>
 
           {/* RIGHT: Arlo */}
@@ -215,57 +282,34 @@ export default function RoleDetailPage() {
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
                 <div className={s.mentorHeadName}>Arlo</div>
-                <div className={s.mentorHeadStatus}>Here with you</div>
+                <div className={s.mentorHeadStatus}>{arloLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
 
             <div className={s.mentorMessages}>
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  This is a strong match for you. The way you described your thinking — wanting to understand
-                  the why before the what — is exactly the instinct strategy roles reward. It&apos;s rare to
-                  find that at entry level.
+              {extraMsgs.length === 0 && direction && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble}>
+                    {direction.title} is a direction I matched to you for specific reasons — not just because it sounds right on paper. Ask me anything about it: what it actually involves, whether it fits your background, what getting in looks like, or what the honest downsides are.
+                  </div>
                 </div>
-                <div className={s.aiBubble}>
-                  The honest limitation worth flagging: <strong>the first year is heavy on production
-                  work.</strong> Decks, models, research. The actual strategic input comes as you prove your
-                  judgement. That&apos;s worth knowing going in — people who find it frustrating usually
-                  weren&apos;t told.
+              )}
+              {extraMsgs.length === 0 && !direction && !loading && (
+                <div className={s.aiMsg}>
+                  <div className={s.aiBubble}>
+                    Run your analysis first and I&apos;ll be able to tell you exactly why this direction fits you — and what it would take to get there.
+                  </div>
                 </div>
-                <div className={s.aiBubble}>
-                  On getting in: you don&apos;t need a consulting background. You need to show that you think
-                  in problems, not tasks. I&apos;d focus your application around one or two moments where you
-                  diagnosed something that wasn&apos;t obvious and acted on it. That&apos;s what the interview
-                  is really testing.
-                </div>
-              </div>
-
-              <div className={s.userMsg}>
-                <div className={s.userBubble}>What about consulting vs. in-house strategy?</div>
-              </div>
-
-              <div className={s.aiMsg}>
-                <div className={s.aiBubble}>
-                  Consulting gives you breadth early and a strong exit platform. In-house gives you depth in
-                  one organisation and a more sustainable lifestyle.{" "}
-                  <strong>The real question is what you want at 27.</strong> Consulting alumni often move
-                  in-house by then. In-house people rarely move to consulting. So consulting buys optionality;
-                  in-house buys depth. Neither is wrong — depends on what you&apos;re optimising for.
-                </div>
-              </div>
+              )}
+              {extraMsgs.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
+                ) : (
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                )
+              )}
             </div>
 
-            {extraMsgs.length > 0 && (
-              <div className={s.mentorMessages} style={{ paddingTop: 0 }}>
-                {extraMsgs.map((m, i) =>
-                  m.role === "user" ? (
-                    <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
-                  ) : (
-                    <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
-                  )
-                )}
-              </div>
-            )}
             <div className={s.mentorInputWrap}>
               <div className={s.mentorInputCard}>
                 <input
@@ -275,8 +319,9 @@ export default function RoleDetailPage() {
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
                   onKeyDown={handleChatKey}
+                  disabled={arloLoading}
                 />
-                <button className={s.mentorSend} aria-label="Send" onClick={handleSend}>
+                <button className={s.mentorSend} aria-label="Send" onClick={handleSend} disabled={arloLoading}>
                   {sendIcon}
                 </button>
               </div>

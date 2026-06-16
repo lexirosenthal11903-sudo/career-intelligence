@@ -14,7 +14,7 @@ const googleIcon = (
   </svg>
 );
 
-type AuthView = "signup" | "signin" | "otp" | "otp-error" | "otp-expired";
+type AuthView = "signup" | "signin" | "otp" | "otp-error" | "otp-expired" | "send-error";
 
 interface Props {
   isOpen: boolean;
@@ -87,7 +87,10 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({ email: email.trim() });
     setLoading(false);
-    if (error) return;
+    if (error) {
+      setView("send-error");
+      return;
+    }
     setView("otp");
   }
 
@@ -134,6 +137,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
   if (!isOpen) return null;
 
   const isOtpView = view === "otp" || view === "otp-error" || view === "otp-expired";
+  const isSendError = view === "send-error";
 
   return (
     <div className={s.backdrop} onClick={onClose} role="dialog" aria-modal="true">
@@ -142,7 +146,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
         <div className={s.wordmark}>Career Intelligence</div>
 
         {/* ── Email entry states ── */}
-        {!isOtpView && (
+        {!isOtpView && !isSendError && (
           <>
             <h2 className={s.heading}>
               {view === "signup" ? "Save your results." : "Welcome back."}
@@ -185,6 +189,17 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
                 <span>Continue without saving</span>
               </button>
             )}
+          </>
+        )}
+
+        {/* ── Send error state ── */}
+        {isSendError && (
+          <>
+            <h2 className={s.heading}>Something went wrong.</h2>
+            <p className={s.sub}>
+              We couldn&apos;t send a code to <strong className={s.emailStrong}>{email}</strong>. This sometimes happens if you&apos;ve requested a code very recently — wait a minute and try again.
+            </p>
+            <button className={s.btnPrimary} onClick={() => setView(initialView)}>Try again</button>
           </>
         )}
 

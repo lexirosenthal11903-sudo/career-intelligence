@@ -1,8 +1,33 @@
 # Career Intelligence — Master Roadmap
 
-_Last updated: 2026-06-15 (added follow-up email writer + ATS guidance to Phase 3b; cover letter builder clarified for both use cases)_
+_Last updated: 2026-06-16 (strategic repositioning; Session 30 bug fixes)_
 _This is the single source of truth for sequencing. Read this at the start of every session._
 _When Lexi has an idea: add it to the right phase. Never dismiss, never do out of sequence._
+
+---
+
+## ⚠️ Strategic Context — Read Before Any Session (added 2026-06-16)
+
+**Competitive positioning:** Jack & Jill AI ($20M funded, Anthropic/Lovable-backed) is the closest competitor. They match job seekers to employers via a 20-minute conversation + warm introductions to hiring managers. Their model assumes the user knows what they want. They own that market.
+
+**Our lane:** Users who genuinely don't know what they want. Self-discovery + mentorship as the core, not job matching. Arlo is the product — not the listings.
+
+**Strategic shift confirmed Session 30:**
+- Stop competing on listings. Adzuna/Reed are utilities, not differentiators. Never pitch "we find you jobs." 
+- Arlo is the pitch: direction clarity, mentorship, preparation — all done by Arlo, not guided by Arlo.
+- Job listings stay in the product as a useful tool, but they're not the reason someone uses this.
+
+**Evolution path (long-term):**
+- Phase 3b: Arlo + direction + preparation as the core experience
+- Phase 4: University careers office partnerships — they pay for the tool, graduates use it free. This builds a validated, direction-aware talent pool.
+- Phase 5+: With that talent pool, go to employers with warm introductions. This is how we build the Jack & Jill network model — but with a moat (our candidates are self-aware and prepared).
+
+**University angle (Phase 4 priority):**
+Careers advisors have 30 minutes per student and 2,000 students. Arlo gives every student 24/7 direction support and arrives at the appointment already knowing what they want. Pitch: "We make your careers office more effective, not replace it."
+- Target: 3–5 smaller universities first (easier to reach than Russell Group)
+- Approach: LinkedIn outreach to careers directors + free pilot for one cohort (20–30 students)
+- Do NOT build anything for universities yet. Validate the conversation first.
+- The B2B angle only moves forward once B2C has real users and a real product.
 
 ---
 
