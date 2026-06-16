@@ -117,11 +117,11 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-14)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-16)
 
-**We are in Phase 3b. The next session is Session 30: Direction Concept Alignment + whatever follows.**
-⚠️ Session 30 MUST start with the direction framing discussion — see the OPEN PRODUCT QUESTION block below. Do not touch direction-related code until Lexi and Claude are aligned on the concept.
-Read `PLAYBOOK.md` Phase 3b → Session 30 for the full brief before starting.
+**We are in Phase 3b. The next session is Session 31: Direction Concept Alignment + get 10 real users.**
+⚠️ Session 31 MUST start with the direction framing discussion — see the OPEN PRODUCT QUESTION block below. Do not touch direction-related code until Lexi and Claude are aligned on the concept.
+Read `PLAYBOOK.md` Phase 3b → Session 31 for the full brief before starting.
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
