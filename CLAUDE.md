@@ -119,8 +119,16 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## ⚠️ START HERE — Session Continuity (updated 2026-06-16)
 
-**We are in Phase 3b. The next session is Session 31: Direction Concept Alignment + get 10 real users.**
-⚠️ Session 31 MUST start with the direction framing discussion — see the OPEN PRODUCT QUESTION block below. Do not touch direction-related code until Lexi and Claude are aligned on the concept.
+**We are in Phase 3b. Session 31 is IN PROGRESS.**
+Session 31 so far (2026-06-16):
+- ✓ Full post-audit bug fix pass (9 fixes, committed bd6f07e) — see Phase 3b Session 31 block below
+- ⬜ Direction concept alignment discussion — STILL PENDING (see OPEN PRODUCT QUESTION below)
+- ⬜ Chrome audit prompt rewrite — IN PROGRESS (`brainstorms/chrome-audit-prompt.md`)
+- ⬜ Arlo unauthenticated chat: says "sign in first" but no button/link exists — NEEDS FIX before audit
+- ⬜ Roadmap review — Lexi wants to re-orient after this session
+
+**Next action:** Fix the Arlo unauthenticated sign-in button, finish the chrome audit prompt (continue the grill-me), then roadmap review.
+
 Read `PLAYBOOK.md` Phase 3b → Session 31 for the full brief before starting.
 
 **At the start of every session:**
@@ -239,7 +247,14 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 - ✓ ProfilePage: Arlo wired to /api/chat via useArloChat (removed fake timeout response)
 - ✓ DashboardHome: all hardcoded placeholder content removed (Bloom & Wild, logistics role, 12 active days, fake counts)
 
-**⚠️ OPEN PRODUCT QUESTION — must resolve at start of Session 31:**
+**Phase 3b — Session 31 IN PROGRESS (2026-06-16):**
+- ✓ Post-audit bug fix pass (commit bd6f07e): Applications loading, direction card labels, Arlo bubble spacing, sidebar email truncation, Profile preference defaults, Arlo system prompt (no fake UI actions), login modal copy, Interested button error logging, middleware session refresh for /api/applications + /api/results
+- ⬜ Direction concept alignment — DEFERRED AGAIN (context ran short)
+- ⬜ Chrome audit prompt rewrite — in `brainstorms/chrome-audit-prompt.md`
+- ⬜ Fix: Arlo unauthenticated chat has no sign-in button (dead end)
+- ⬜ Roadmap review session needed
+
+**⚠️ OPEN PRODUCT QUESTION — must resolve at start of Session 32:**
 The "direction" concept needs proper product alignment. This discussion was deferred from Session 30 (strategic repositioning took priority). Questions to resolve:
 - What IS "direction" in this product? A possibility Arlo observed? A hypothesis? Not a verdict.
 - Does Arlo present it in first person ("here's what I see in you") rather than as a labelled card?
