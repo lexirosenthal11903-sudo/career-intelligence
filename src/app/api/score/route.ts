@@ -96,9 +96,10 @@ ${(jobs as JobToScore[])
 
     const SENIOR_PATTERN = /\b(manager|senior|director|head of|vp|vice president|principal|lead)\b/i;
     const isJuniorProfile =
-      /graduate|early.?career/i.test(profile.seniorityLevel || '') ||
-      /^0[-–]?2\b/.test(profile.yearsExperience || '') ||
-      /^[01]\s*year/i.test(profile.yearsExperience || '');
+      /graduate|junior|entry.?level|early.?career|intern/i.test(profile.seniorityLevel || '') ||
+      /^0[-–]?[12]\b/.test(profile.yearsExperience || '') ||
+      /^[01]\s*year/i.test(profile.yearsExperience || '') ||
+      /\b[01]\s*[-–]\s*[23]\s*year/i.test(profile.yearsExperience || '');
 
     const sectors = (profile.extractedSectors || []) as string[];
     const directions = (profile.suggestedDirections || []) as Array<{ title: string }>;
