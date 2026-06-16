@@ -321,10 +321,12 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
       try {
         controller.enqueue(sseChunk(encoder, { event: 'phase', phase: 'reading' }));
 
-        // Run both calls in parallel — neither exceeds ~1,200 output tokens
+        // Profile call on Haiku (fast, structured output — directions/keywords/signals)
+        // Details call on Sonnet (richer reasoning — skills gaps, company matches)
+        // Parallel execution; Haiku finishes first, total time well within 60s
         const [profileRes, detailsRes] = await Promise.all([
           callClaude({
-            model: 'claude-sonnet-4-6',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 1600,
             system: PROFILE_SYSTEM,
             tools: [profileTool],
