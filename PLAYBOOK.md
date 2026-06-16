@@ -496,26 +496,54 @@ Pipeline improvements already shipped in staging (commit 54f4309):
 
 ---
 
-### Session 30: Direction Concept Alignment ← NEXT SESSION
+### Session 30: Strategic Repositioning + Bug Fixes — COMPLETE ✓ (2026-06-16)
 
-**What it achieves:** Aligns on what "direction" means in this product across every screen, then implements it consistently.
+**What it achieved:** Competitive analysis vs Jack & Jill AI; strategic repositioning; removed all hardcoded placeholder content from the product.
 
-**⚠️ Start here — do not touch direction code without this discussion:**
-Lexi's instinct: the product is about self-discovery, not handing users a verdict. "Your Direction" (singular, definitive) contradicts the emotional arc (Meraki → Satori → Kavanah). The concept hasn't been properly designed.
+**Strategic decisions made:**
+- Jack & Jill AI ($20M funded) owns "I know what I want" market. Our lane: people who don't know yet.
+- Arlo is the product. Listings are a utility, not the pitch.
+- Evolution path: self-discovery → university B2B (Phase 4) → employer network (Phase 5+)
+- University angle: careers offices as B2B wedge. Do NOT build for them yet — one conversation first.
+- Full context in ROADMAP.md strategic context block.
 
-**Questions to resolve in this session:**
-1. What IS "direction" in this product? A possibility? A hypothesis? Something Arlo observed?
-2. How is it framed — as Arlo's voice, or as a card with a label?
-3. Does it change over time as the user reflects? Or is it fixed from the first analysis?
-4. What do we call it consistently? "Directions", "paths", "areas", "possibilities"?
-5. Which screens need updating once the concept is decided: dashboard home, onboarding bridge, roles tab direction card, role detail page, Arlo's language
+**Bug fixes shipped:**
+- OTP silent failure: now shows error state instead of swallowing the error
+- Profile sidebar: hardcoded Lexi/lexi@email.com → real auth data
+- RoleDetailPage: fully rewritten with real sessionStorage data + useArloChat
+- ProfilePage: Arlo wired to real /api/chat (was using fake setTimeout)
+- DashboardHome: all Bloom & Wild / logistics / 12 active days placeholders removed
+
+**Note:** Direction concept discussion was deferred — strategic repositioning took the session. See Session 31.
+
+---
+
+### Session 31: Direction Concept Alignment ← NEXT SESSION
+
+**What it achieves:** Aligns on what "direction" means in this product, then the product goes in front of real users.
+
+**⚠️ Start with the direction discussion — do not touch direction code before it:**
+The product is about self-discovery, not handing users a verdict. "Your Direction" (singular, definitive) contradicts the emotional arc. The concept needs to be locked before the product meets real users.
+
+**Questions to resolve:**
+1. What IS "direction" — a possibility Arlo observed? A hypothesis? Not a verdict.
+2. Arlo's voice vs a labelled card — does Arlo say "here's what I see in you" rather than "Your direction: X"?
+3. Does direction change over time as the user reflects, or is it fixed from first analysis?
+4. Consistent language across ALL screens: dashboard home, onboarding bridge, roles tab, role detail, Arlo
+
+**Then: get 10 users in front of the product.** Direction concept locked → deploy check → share with real people → watch what happens.
+
+**Pre-launch non-negotiables to handle before sharing with anyone:**
+- ⬜ ICO registration — ico.org.uk/registration, £40, legally required before any real UK user data
+- ⬜ Add REED_API_KEY to Vercel Production + Preview env vars
+- ⬜ Test OTP on staging — does it work now? See what error appears if not.
 
 **Read first:**
-- `ADVISOR_PERSONA.md` — Arlo's voice and memory rules
-- `brainstorms/career-intelligence-emotional-vision.md` — the emotional arc
-- `SESSION_DECISIONS.md` — direction card rules locked so far
+- `ADVISOR_PERSONA.md` — Arlo's voice
+- `brainstorms/career-intelligence-emotional-vision.md` — emotional arc
+- `ROADMAP.md` — strategic context block (Session 30)
 
-**Done when:** Lexi and Claude agree on the direction concept. Every screen that references "direction" is updated consistently. `/deploy-check` passes.
+**Done when:** Direction concept locked. Pre-launch non-negotiables done. Link shared with 10 real people.
 
 ---
 

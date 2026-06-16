@@ -231,13 +231,28 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 - ✓ Real auth (name/email) in Skills, Applications, Roles sidebar
 - ✓ Debug console.logs removed
 
-**⚠️ OPEN PRODUCT QUESTION — must resolve at start of next session:**
-The "direction" concept needs proper product alignment across all screens before any further changes. Lexi's instinct: the product is about self-discovery and mentorship, not handing users a verdict. "Your Direction" (singular, definitive) contradicts the emotional arc. The dashboard now shows "Directions worth exploring" with all 3, but:
-- The concept hasn't been properly designed — what IS "direction" in this product?
-- How does it feel different from a career test verdict?
-- What framing works across ALL screens consistently (dashboard, onboarding bridge, roles tab, Arlo's language)?
-- Does Arlo present direction in first person ("here's what I see in you") rather than a labelled card?
+**Phase 3b — Session 30 COMPLETE ✓ (2026-06-16):**
+- ✓ Strategic repositioning discussion — see ROADMAP.md strategic context block
+- ✓ OTP: show error state instead of silently failing when signInWithOtp errors
+- ✓ Profile sidebar: replace hardcoded Lexi/lexi@email.com with real auth data
+- ✓ RoleDetailPage: fully rewritten — reads real direction from sessionStorage (slug match); Arlo wired to /api/chat via useArloChat; shows direction title + why + ask-Arlo prompts + other directions
+- ✓ ProfilePage: Arlo wired to /api/chat via useArloChat (removed fake timeout response)
+- ✓ DashboardHome: all hardcoded placeholder content removed (Bloom & Wild, logistics role, 12 active days, fake counts)
+
+**⚠️ OPEN PRODUCT QUESTION — must resolve at start of Session 31:**
+The "direction" concept needs proper product alignment. This discussion was deferred from Session 30 (strategic repositioning took priority). Questions to resolve:
+- What IS "direction" in this product? A possibility Arlo observed? A hypothesis? Not a verdict.
+- Does Arlo present it in first person ("here's what I see in you") rather than as a labelled card?
+- What framing works consistently across: dashboard home, onboarding bridge, roles tab, role detail, Arlo's language?
+- What do we call it? "Directions", "paths", "areas worth exploring"?
 DO NOT make further changes to direction framing without this discussion first.
+
+**⚠️ STRATEGIC CONTEXT (added Session 30, 2026-06-16):**
+- Competitive: Jack & Jill AI ($20M funded) owns the "I know what I want" market. Our lane: people who don't know yet.
+- Arlo is the product. Job listings are a utility. Never pitch "we find you jobs."
+- Evolution path: B2C self-discovery → university partnerships (Phase 4) → employer network (Phase 5+)
+- University angle: careers offices are the B2B wedge. Don't build for them yet — have ONE conversation first.
+- Full context in ROADMAP.md strategic context block.
 
 **Pre-launch non-negotiables (Lexi to handle — not deferred to build sessions):**
 - ⬜ Add `REED_API_KEY` to Vercel Production + Preview env vars
