@@ -443,6 +443,8 @@ _These are real ideas. They require Phase 3–5 to be proven before they're wort
 
 ## Parking lot (ideas without a phase yet)
 
+- **Full Opus audit** — once the product is stable and real users have run through it, do a full audit run on claude-opus-4-8 using the four-perspective prompt (user / UX designer / QA engineer / product strategist). Sonnet is fine for now. Do this before Phase 4 university outreach begins — you want the product at its sharpest before showing it to a careers director.
+
 - Response time tracker per company — "Innocent Drinks typically responds within 2 weeks." Build from aggregated data over time. Phase 4–5.
 - Industry encyclopaedia — show users what exists before they search. Multiple interviewees couldn't search for what they didn't know existed. Phase 4.
 - CV creation from scratch — for users who don't have a CV yet. Phase 3.
