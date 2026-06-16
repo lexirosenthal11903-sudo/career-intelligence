@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import s from "./role-detail.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useArloChat } from "@/hooks/useArloChat";
+import { ArloMessage } from "@/components/ArloMessage";
 
 const ARLO_42 = `<svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#B87040"/><circle cx="28" cy="38" r="5" fill="#2C1A0E"/><circle cx="52" cy="38" r="5" fill="#2C1A0E"/><path d="M23 36 Q28 31 33 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M47 36 Q52 31 57 36" stroke="#1A0E06" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="29.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><circle cx="53.5" cy="36.5" r="1.4" fill="white" opacity="0.4"/><path d="M30 50 Q40 55 50 50" stroke="#7A3E10" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/></svg>`;
 
@@ -304,7 +305,7 @@ export default function RoleDetailPage() {
                 m.role === "user" ? (
                   <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
                 ) : (
-                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}><ArloMessage text={m.text} /></div></div>
                 )
               )}
               {arloLoading && (

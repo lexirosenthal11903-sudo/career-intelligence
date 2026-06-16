@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import s from "./onboarding-bridge.module.css";
 import AuthModal from "@/components/AuthModal";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { ArloMessage } from "@/components/ArloMessage";
 
 const arloFace = (
   <svg width="64" height="64" viewBox="0 0 80 80" fill="none">
@@ -163,7 +164,7 @@ export default function OnboardingBridgePage() {
             {msgs.map((m, i) => (
               m.role === "arlo" ? (
                 <div key={i} className={s.aiMsg}>
-                  <div className={s.aiBubble}>{m.text}</div>
+                  <div className={s.aiBubble}><ArloMessage text={m.text} /></div>
                 </div>
               ) : (
                 <div key={i} className={s.userMsg}>

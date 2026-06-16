@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import s from "./dashboard.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useArloChat } from "@/hooks/useArloChat";
+import { ArloMessage } from "@/components/ArloMessage";
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -362,7 +363,7 @@ export default function DashboardHome() {
                 m.role === "user" ? (
                   <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
                 ) : (
-                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}>{m.text}</div></div>
+                  <div key={i} className={s.aiMsg}><div className={s.aiBubble}><ArloMessage text={m.text} /></div></div>
                 )
               )}
 
