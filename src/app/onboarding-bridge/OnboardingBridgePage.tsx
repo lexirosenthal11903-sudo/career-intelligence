@@ -118,6 +118,7 @@ export default function OnboardingBridgePage() {
   const directionStatement = primaryDirection?.title ?? FALLBACK_DIRECTION;
   const directionDetail = profile?.summary ?? FALLBACK_DETAIL;
   const rolesDisplay = profile?.topRoleTitles?.join(' · ') ?? FALLBACK_ROLES;
+  const totalDirections = profile?.suggestedDirections?.length ?? 0;
 
   return (
     <div className={s.page}>
@@ -142,9 +143,10 @@ export default function OnboardingBridgePage() {
       {!chatOpen && (
         <>
           <p className={s.arloNote}>
-            These are the roles worth exploring properly. Go through them at your own pace — I&apos;ll
-            be with you in the dashboard, and the more you tell me about what resonates, the sharper
-            this gets.
+            {totalDirections > 1
+              ? `I've matched you with ${totalDirections} directions — this is the strongest fit. You'll see all of them on your dashboard, and the more you explore, the sharper this gets.`
+              : "These are the roles worth exploring properly. Go through them at your own pace — I'll be with you in the dashboard, and the more you tell me about what resonates, the sharper this gets."
+            }
           </p>
           <div className={s.ctaRow}>
             <button className={s.btnPrimary} onClick={handleGoToDashboard}>
