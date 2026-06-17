@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type ChatMsg = { role: "arlo" | "user"; text: string };
+export type ChatMsg = { role: "arlo" | "user"; text: string; action?: "sign-in" };
 type ApiMsg = { role: "user" | "assistant"; content: string };
 
 const SIGN_IN_PROMPT =
@@ -64,7 +64,7 @@ export function useArloChat({
 
       // Unauthenticated — warm sign-in prompt, no API call
       if (!userId) {
-        setExtraMsgs((prev) => [...prev, { role: "arlo", text: SIGN_IN_PROMPT }]);
+        setExtraMsgs((prev) => [...prev, { role: "arlo", text: SIGN_IN_PROMPT, action: "sign-in" as const }]);
         return;
       }
 

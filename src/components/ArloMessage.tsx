@@ -10,7 +10,7 @@ function applyInline(text: string): React.ReactNode[] {
   });
 }
 
-export function ArloMessage({ text }: { text: string }) {
+export function ArloMessage({ text, action }: { text: string; action?: "sign-in" }) {
   const lines = text.split("\n");
   const elements: React.ReactNode[] = [];
   let listItems: React.ReactNode[] = [];
@@ -39,5 +39,28 @@ export function ArloMessage({ text }: { text: string }) {
   });
 
   flushList("ul-final");
-  return <>{elements}</>;
+  return (
+    <>
+      {elements}
+      {action === "sign-in" && (
+        <a
+          href="/?signup=required"
+          style={{
+            display: "inline-block",
+            marginTop: "10px",
+            padding: "7px 16px",
+            background: "var(--accent)",
+            color: "#fff",
+            borderRadius: "8px",
+            fontSize: "13px",
+            fontWeight: 600,
+            textDecoration: "none",
+            fontFamily: "var(--f)",
+          }}
+        >
+          Sign in
+        </a>
+      )}
+    </>
+  );
 }
