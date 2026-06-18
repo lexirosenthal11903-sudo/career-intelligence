@@ -102,7 +102,7 @@
   display: flex; align-items: center; gap: 12px;
   margin-bottom: 22px;
   font-size: 12px; color: var(--ink-3);
-  font-family: var(--fm);
+  font-family: var(--f);
   flex-wrap: wrap;
 }
 .activityStrip strong { color: var(--ink-2); font-weight: 500; }

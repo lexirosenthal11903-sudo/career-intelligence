@@ -253,17 +253,28 @@ export default function RolesPage() {
     setPassed((prev) => { const n = new Set(prev); n.delete(id); return n; });
 
     setSavingJob((prev) => new Set([...prev, id]));
+    const jobPayload = { ...job, id, status: "interested" };
     try {
-      const res = await fetch("/api/save-job", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId: id, jobData: { ...job, id, status: "interested" } }),
-      });
-      if (!res.ok) {
-        console.warn("[save-job POST] status:", res.status, await res.text().catch(() => ""));
+      const [saveRes, appRes] = await Promise.all([
+        fetch("/api/save-job", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId: id, jobData: jobPayload }),
+        }),
+        fetch("/api/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId: id, jobData: jobPayload }),
+        }),
+      ]);
+      if (!saveRes.ok) {
+        console.warn("[save-job POST] status:", saveRes.status, await saveRes.text().catch(() => ""));
+      }
+      if (!appRes.ok) {
+        console.warn("[applications POST] status:", appRes.status, await appRes.text().catch(() => ""));
       }
     } catch (err) {
-      console.warn("[save-job POST] failed:", err);
+      console.warn("[handleInterested] failed:", err);
     } finally {
       setSavingJob((prev) => { const n = new Set(prev); n.delete(id); return n; });
     }
@@ -390,20 +401,20 @@ export default function RolesPage() {
             {/* Direction card */}
             {resultLoading ? (
               <div className={s.directionCard}>
-                <div className={s.directionLabel}>Your direction</div>
+                <div className={s.directionLabel}>Directions worth exploring</div>
                 <div className={`${s.directionTitle} ${s.skeleton}`} style={{ width: "60%", height: "1.4rem" }} />
                 <div className={`${s.directionSub} ${s.skeleton}`} style={{ width: "40%", height: "0.85rem", marginTop: "0.5rem" }} />
               </div>
             ) : !analysisResult ? (
               <div className={s.directionCard}>
-                <div className={s.directionLabel}>Your direction</div>
+                <div className={s.directionLabel}>Directions worth exploring</div>
                 <div className={s.directionTitle}>Complete your profile to see matches.</div>
                 <a href="/input" className={s.directionCta}>Start your analysis →</a>
               </div>
             ) : (
               <div className={s.directionCard}>
-                <div className={s.directionLabel}>Your direction</div>
-                <div className={s.directionTitle}>{directionTagline || "Your direction"}</div>
+                <div className={s.directionLabel}>Directions worth exploring</div>
+                <div className={s.directionTitle}>{directionTagline || "Directions worth exploring"}</div>
                 <div className={s.directionSub}>
                   {directions.length > 0 && `${directions.length} role types matched`}
                   {directions.length > 0 && !jobsLoading && listingCount > 0 && ` · ${listingCount} live listings`}
@@ -643,7 +654,13 @@ export default function RolesPage() {
               </div>
 
               {extraMsgs.map((m, i) =>
-                m.role === "user" ? (
+                m.role === "divider" ? (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0", color: "var(--ink-3)", fontSize: 11, letterSpacing: ".04em" }}>
+                    <span style={{ flex: 1, height: 1, background: "var(--line)" }} />
+                    <span>New session</span>
+                    <span style={{ flex: 1, height: 1, background: "var(--line)" }} />
+                  </div>
+                ) : m.role === "user" ? (
                   <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
                 ) : (
                   <div key={i} className={s.aiMsg}><div className={s.aiBubble}><ArloMessage text={m.text} action={m.action} /></div></div>

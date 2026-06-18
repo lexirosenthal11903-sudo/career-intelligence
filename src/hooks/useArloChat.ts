@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type ChatMsg = { role: "arlo" | "user"; text: string; action?: "sign-in" };
+export type ChatMsg = { role: "arlo" | "user" | "divider"; text: string; action?: "sign-in" };
 type ApiMsg = { role: "user" | "assistant"; content: string };
 
 const SIGN_IN_PROMPT =
@@ -43,13 +43,14 @@ export function useArloChat({
         if (data?.messages && Array.isArray(data.messages) && data.messages.length > 0) {
           const stored = data.messages as ApiMsg[];
           apiHistoryRef.current = stored;
-          // Convert API format → display format
-          setExtraMsgs(
-            stored.map((m) => ({
-              role: m.role === "assistant" ? "arlo" : "user",
+          // Convert API format → display format, then mark session boundary
+          setExtraMsgs([
+            ...stored.map((m) => ({
+              role: (m.role === "assistant" ? "arlo" : "user") as ChatMsg["role"],
               text: m.content,
-            }))
-          );
+            })),
+            { role: "divider" as const, text: "New session" },
+          ]);
         }
       });
   }, [supabase, userId, page]);

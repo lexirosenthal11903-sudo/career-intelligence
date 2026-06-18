@@ -120,6 +120,17 @@
   letter-spacing: -.04em; color: var(--ink);
   line-height: 1.1; margin-bottom: 36px;
 }
+.greetingSkeleton {
+  height: 38px; width: 260px; border-radius: 8px;
+  background: linear-gradient(90deg, var(--cream) 25%, var(--cream-2) 50%, var(--cream) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  margin-bottom: 36px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 
 .directionCard {
   background: var(--cream); border-radius: 14px;

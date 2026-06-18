@@ -28,17 +28,6 @@ export async function POST(request: Request) {
     );
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  // When marked interested, create an application entry in stage "preparing"
-  if (jobData?.status === 'interested') {
-    await supabase
-      .from('saved_applications')
-      .upsert(
-        { user_id: user.id, job_id: jobId, job_data: jobData, stage: 'preparing' },
-        { onConflict: 'user_id,job_id', ignoreDuplicates: true }
-      );
-  }
-
   return NextResponse.json({ ok: true });
 }
 

@@ -440,7 +440,7 @@ export default function SkillsPage() {
 
             {/* Direction card */}
             <div className={s.directionCard}>
-              <div className={s.directionLabel}>Your direction</div>
+              <div className={s.directionLabel}>Directions worth exploring</div>
               {directionTitle ? (
                 <div className={s.directionTitle}>{directionTitle}</div>
               ) : (
@@ -539,7 +539,13 @@ export default function SkillsPage() {
                 </div>
               )}
               {extraMsgs.map((m, i) =>
-                m.role === "user" ? (
+                m.role === "divider" ? (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0", color: "var(--ink-3)", fontSize: 11, letterSpacing: ".04em" }}>
+                    <span style={{ flex: 1, height: 1, background: "var(--line)" }} />
+                    <span>New session</span>
+                    <span style={{ flex: 1, height: 1, background: "var(--line)" }} />
+                  </div>
+                ) : m.role === "user" ? (
                   <div key={i} className={s.userMsg}><div className={s.userBubble}>{m.text}</div></div>
                 ) : (
                   <div key={i} className={s.aiMsg}><div className={s.aiBubble}><ArloMessage text={m.text} action={m.action} /></div></div>
