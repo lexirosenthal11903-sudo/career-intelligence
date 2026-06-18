@@ -36,6 +36,8 @@ export default function DashboardHome() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [greeting, setGreeting] = useState<string>("");
+  const [dateLabel, setDateLabel] = useState<string>("");
   const [arloVisible, setArloVisible] = useState(true);
   const [chatValue, setChatValue] = useState("");
   const [todayDismissed, setTodayDismissed] = useState(false);
@@ -50,6 +52,12 @@ export default function DashboardHome() {
     supabase,
     userId,
   });
+
+  // Compute time-dependent values client-side to prevent hydration mismatch
+  useEffect(() => {
+    setGreeting(getGreeting());
+    setDateLabel(getDateLabel());
+  }, []);
 
   // Load direction card data and derive home state
   useEffect(() => {
@@ -223,7 +231,7 @@ export default function DashboardHome() {
 
           {/* LEFT */}
           <div className={s.homePanel}>
-            <div className={s.greetingDate}>{getGreeting()} · {getDateLabel()}</div>
+            <div className={s.greetingDate}>{greeting}{dateLabel ? ` · ${dateLabel}` : ""}</div>
             {userName === null
               ? <div className={s.greetingSkeleton} />
               : <div className={s.greetingName}>{`Welcome back, ${userName}.`}</div>
