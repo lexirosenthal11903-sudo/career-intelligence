@@ -107,12 +107,9 @@ ${jobsToScore
     const sectors = (profile.extractedSectors || []) as string[];
     const directions = (profile.suggestedDirections || []) as Array<{ title: string }>;
 
-    const scored = jobsToScore.map((job) => {
-      const score = scores.find((s) => String(s.id) === String(job.id));
-      let relevanceScore = score?.relevanceScore || 5;
-      let relevanceReason = score?.relevanceReason || 'Matched to your profile';
-
-      // Industry-adjacent floor: if the job is in the same sector/direction, never below 5
+    function applyRules(job: JobToScore, aiScore: number, aiReason: string) {
+      let relevanceScore = aiScore;
+      let relevanceReason = aiReason;
       const jobTitle = (job.title || '').toLowerCase();
       const jobDesc = (job.description || '').toLowerCase();
       const inSector = sectors.some((sec) =>
@@ -121,27 +118,28 @@ ${jobsToScore
       const inDirection = directions.some((d) =>
         jobTitle.includes(d.title.toLowerCase().split(' ')[0])
       );
-      if ((inSector || inDirection) && relevanceScore < 5) {
-        relevanceScore = 5;
-      }
-
+      if ((inSector || inDirection) && relevanceScore < 5) relevanceScore = 5;
       if (isJuniorProfile && SENIOR_PATTERN.test(job.title || '')) {
         relevanceScore = Math.min(relevanceScore, 2);
         relevanceReason = "This role requires seniority beyond your current experience — it's been deprioritised.";
       }
+      return { ...job, relevanceScore, relevanceReason, contactName: 'Not found', contactTitle: 'Not found', contactLinkedIn: 'Not found' };
+    }
 
-      return {
-        ...job,
-        relevanceScore,
-        relevanceReason,
-        contactName: 'Not found',
-        contactTitle: 'Not found',
-        contactLinkedIn: 'Not found',
-      };
+    // AI-scored jobs (first 20)
+    const scoredTop = jobsToScore.map((job) => {
+      const s = scores.find((sc) => String(sc.id) === String(job.id));
+      return applyRules(job, s?.relevanceScore || 5, s?.relevanceReason || 'Matched to your profile');
     });
 
-    scored.sort((a, b) => b.relevanceScore - a.relevanceScore);
-    return NextResponse.json({ jobs: scored });
+    // Remaining jobs beyond the cap: deterministic rules only, baseline score 5
+    const remainder = (jobs as JobToScore[]).slice(20).map((job) =>
+      applyRules(job, 5, 'Matched to your profile')
+    );
+
+    const allScored = [...scoredTop, ...remainder];
+    allScored.sort((a, b) => b.relevanceScore - a.relevanceScore);
+    return NextResponse.json({ jobs: allScored });
   } catch {
     return fallback();
   }
