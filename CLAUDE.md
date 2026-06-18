@@ -117,17 +117,31 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-16)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-18)
 
-**We are in Phase 3b. Session 31 is IN PROGRESS.**
-Session 31 so far (2026-06-16):
-- ✓ Full post-audit bug fix pass (9 fixes, committed bd6f07e) — see Phase 3b Session 31 block below
-- ⬜ Direction concept alignment discussion — STILL PENDING (see OPEN PRODUCT QUESTION below)
-- ⬜ Chrome audit prompt rewrite — IN PROGRESS (`brainstorms/chrome-audit-prompt.md`)
-- ⬜ Arlo unauthenticated chat: says "sign in first" but no button/link exists — NEEDS FIX before audit
-- ⬜ Roadmap review — Lexi wants to re-orient after this session
+**We are in Phase 3b. Session 33 begins next.**
 
-**Next action:** Fix the Arlo unauthenticated sign-in button, finish the chrome audit prompt (continue the grill-me), then roadmap review.
+**Session 32 COMPLETE ✓ (2026-06-18):**
+- ✓ Fix: Arlo unauthenticated chat now shows amber "Sign in" button (commit 2daa8db)
+- ✓ Chrome audit prompt completed via grill-me — saved to `research/audit-prompt.md`
+- ✓ Full product audit run — results in `career_intelligence_audit_18jun2026.md`
+- ✓ All 8 recent fixes confirmed ✓ in audit
+- ✓ Competitive analysis: Apt AI (tryapt.ai) — we are in a different lane (self-discovery vs tools bundle)
+- ⬜ Roadmap review — Lexi wants to re-orient and get back on the roadmap. START HERE next session.
+- ⬜ Direction concept alignment — still deferred. Address during roadmap review.
+
+**Next action (Session 33): Roadmap review first, then bug fixes from audit.**
+
+**Bugs from audit to fix (Session 33):**
+1. 🔴 CRITICAL: Interested → Applications cross-tab data flow broken — jobs marked Interested don't appear in Applications
+2. 🟡 Direction card label says "YOUR DIRECTION" on Roles + Skills tabs (should be "DIRECTIONS WORTH EXPLORING")
+3. 🟡 Profile page: "No applications tracked yet" renders in monospace at top of page — stray debug render
+4. 🟡 "Welcome back." greeting sometimes renders without name — race condition, needs skeleton state
+5. 🟡 Arlo chat history: no session boundary for returning users — jarring on re-sign-in
+6. 🟠 React hydration error #418 firing on every page transition — run dev build to identify component
+7. 🟠 Authenticated Roles tab: 15–17s load vs ~5s unauthenticated — worth profiling
+
+**Audit file:** `career_intelligence_audit_18jun2026.md` — full report with Arlo quality scores, pipeline timing, data quality assessment.
 
 Read `PLAYBOOK.md` Phase 3b → Session 31 for the full brief before starting.
 
@@ -247,12 +261,14 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 - ✓ ProfilePage: Arlo wired to /api/chat via useArloChat (removed fake timeout response)
 - ✓ DashboardHome: all hardcoded placeholder content removed (Bloom & Wild, logistics role, 12 active days, fake counts)
 
-**Phase 3b — Session 31 IN PROGRESS (2026-06-16):**
+**Phase 3b — Session 31 COMPLETE ✓ (2026-06-16):**
 - ✓ Post-audit bug fix pass (commit bd6f07e): Applications loading, direction card labels, Arlo bubble spacing, sidebar email truncation, Profile preference defaults, Arlo system prompt (no fake UI actions), login modal copy, Interested button error logging, middleware session refresh for /api/applications + /api/results
-- ⬜ Direction concept alignment — DEFERRED AGAIN (context ran short)
-- ⬜ Chrome audit prompt rewrite — in `brainstorms/chrome-audit-prompt.md`
-- ⬜ Fix: Arlo unauthenticated chat has no sign-in button (dead end)
-- ⬜ Roadmap review session needed
+
+**Phase 3b — Session 32 COMPLETE ✓ (2026-06-18):**
+- ✓ Fix: Arlo unauthenticated chat sign-in button (commit 2daa8db)
+- ✓ Chrome audit prompt written — `research/audit-prompt.md`
+- ✓ Full product audit completed — `career_intelligence_audit_18jun2026.md`
+- ✓ Competitive analysis: Apt AI documented
 
 **⚠️ OPEN PRODUCT QUESTION — must resolve at start of Session 32:**
 The "direction" concept needs proper product alignment. This discussion was deferred from Session 30 (strategic repositioning took priority). Questions to resolve:
