@@ -98,7 +98,7 @@ export default function DashboardHome() {
           fetch("/api/results")
             .then((r) => r.json())
             .then((data) => {
-              if (!data?.data) {
+              if (!data?.result) {
                 const sessionResult = sessionStorage.getItem("analysis-result");
                 if (sessionResult) {
                   fetch("/api/save-result", {

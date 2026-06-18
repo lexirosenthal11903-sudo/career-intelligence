@@ -210,7 +210,7 @@ KEYWORD RULES:
 - searchKeywords: 5-8 terms for Adzuna UK. CRITICAL: max 3 words each. Must be short enough to return real results.
 - Adapt keyword strategy to the person's sector:
   - Commercial/consulting/finance: job title terms + function terms (e.g. "analyst", "strategy", "operations")
-  - Creative/media/entertainment: use specific format terms — "television production", "radio", "content production", "film", "publishing", "licensing", "digital media". Do NOT use "broadcast" alone — it returns AV/transmission engineering roles, not editorial or creative.
+  - Creative/media/entertainment: use specific format terms — "television production", "radio", "content production", "film", "publishing", "licensing", "digital media". Do NOT use "broadcast" alone — it returns AV/transmission engineering roles, not editorial or creative. NEVER use bare "production" as a keyword — it returns factory and manufacturing jobs. Always qualify: "television production", "film production", "content production".
   - Charity/NGO/social sector: use "programme", "impact", "fundraising", "charity", "advocacy", "community"
   - Public sector/policy: use "policy", "research", "government", "public sector"
   - Technology: use "product", "data", "growth", "engineering"

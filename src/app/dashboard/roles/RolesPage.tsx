@@ -115,6 +115,7 @@ export default function RolesPage() {
 
   // ── Load saved job state ──────────────────────────────────────────────────
   useEffect(() => {
+    if (!userId) return;
     (async () => {
       try {
         const res = await fetch("/api/save-job");
@@ -136,7 +137,7 @@ export default function RolesPage() {
         console.warn("[save-job GET] failed:", err);
       }
     })();
-  }, []);
+  }, [userId]);
 
   // ── Load analysis result ──────────────────────────────────────────────────
   useEffect(() => {
