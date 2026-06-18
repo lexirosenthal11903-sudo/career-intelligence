@@ -53,6 +53,7 @@ export default function OnboardingBridgePage() {
   const [replied, setReplied] = useState(false);
   const [sending, setSending] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [resultMounted, setResultMounted] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const msgsEndRef = useRef<HTMLDivElement>(null);
@@ -62,8 +63,9 @@ export default function OnboardingBridgePage() {
       const stored = sessionStorage.getItem('analysis-result');
       if (stored) setAnalysisResult(JSON.parse(stored));
     } catch {
-      // sessionStorage unavailable — use fallback content
+      // ignore — fallback content will show
     }
+    setResultMounted(true);
   }, []);
 
   useEffect(() => {
@@ -132,11 +134,21 @@ export default function OnboardingBridgePage() {
       {/* Direction card — always visible */}
       <div className={s.card}>
         <div className={s.cardLabel}>Your direction</div>
-        <div className={s.directionStatement}>{directionStatement}</div>
-        <p className={s.directionDetail}>{directionDetail}</p>
-        <div className={s.cardRule} />
-        <div className={s.rolesLabel}>Roles worth exploring</div>
-        <div className={s.rolesNames}>{rolesDisplay}</div>
+        {!resultMounted ? (
+          <>
+            <div style={{ height: "1.6rem", width: "70%", borderRadius: 6, background: "var(--cream-2)", marginBottom: "0.75rem" }} />
+            <div style={{ height: "0.85rem", width: "90%", borderRadius: 6, background: "var(--cream-2)", marginBottom: "0.4rem" }} />
+            <div style={{ height: "0.85rem", width: "60%", borderRadius: 6, background: "var(--cream-2)" }} />
+          </>
+        ) : (
+          <>
+            <div className={s.directionStatement}>{directionStatement}</div>
+            <p className={s.directionDetail}>{directionDetail}</p>
+            <div className={s.cardRule} />
+            <div className={s.rolesLabel}>Roles worth exploring</div>
+            <div className={s.rolesNames}>{rolesDisplay}</div>
+          </>
+        )}
       </div>
 
       {/* Default state */}
