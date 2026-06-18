@@ -51,9 +51,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ jobs: [] });
   }
 
+  // Cap at 20 jobs before scoring — user sees 5 at a time, 20 is more than enough
+  const jobsToScore = (jobs as JobToScore[]).slice(0, 20);
+
   const fallback = () =>
     NextResponse.json({
-      jobs: (jobs as JobToScore[]).map((j) => ({
+      jobs: jobsToScore.map((j) => ({
         ...j,
         relevanceScore: 5,
         relevanceReason: 'Matched to your profile',
@@ -73,14 +76,14 @@ CANDIDATE:
 - Sectors: ${(profile.extractedSectors || []).join(', ')}
 
 JOBS TO SCORE:
-${(jobs as JobToScore[])
+${jobsToScore
   .map((j) => `ID: ${j.id}\nTitle: ${j.title}\nCompany: ${j.company}\nDescription: ${j.description}`)
   .join('\n---\n')}`;
 
   try {
     const response = await callClaude({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4096,
       system: systemPrompt,
       tools: [scoreTool],
       tool_choice: { type: 'tool', name: 'submit_scores' },
@@ -104,7 +107,7 @@ ${(jobs as JobToScore[])
     const sectors = (profile.extractedSectors || []) as string[];
     const directions = (profile.suggestedDirections || []) as Array<{ title: string }>;
 
-    const scored = (jobs as JobToScore[]).map((job) => {
+    const scored = jobsToScore.map((job) => {
       const score = scores.find((s) => String(s.id) === String(job.id));
       let relevanceScore = score?.relevanceScore || 5;
       let relevanceReason = score?.relevanceReason || 'Matched to your profile';
