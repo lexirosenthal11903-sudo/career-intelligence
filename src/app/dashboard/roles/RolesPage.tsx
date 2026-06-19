@@ -68,7 +68,7 @@ export default function RolesPage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef, hasPrevious, showPrevious, togglePrevious } = useArloChat({
     page: "roles",
     supabase,
     userId,
@@ -641,6 +641,11 @@ export default function RolesPage() {
             </div>
 
             <div className={s.mentorMessages}>
+              {hasPrevious && (
+                <button onClick={togglePrevious} style={{ display: "block", margin: "0 auto 8px", fontSize: 11, color: "var(--ink-3)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+                  {showPrevious ? "Hide previous conversation" : "View previous conversation"}
+                </button>
+              )}
               <div className={s.aiMsg}>
                 <div className={s.aiBubble}>
                   {directions.length > 0

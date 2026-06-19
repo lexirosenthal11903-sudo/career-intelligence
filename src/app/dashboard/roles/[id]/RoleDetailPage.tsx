@@ -47,7 +47,7 @@ export default function RoleDetailPage() {
   const [allDirections, setAllDirections] = useState<Direction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef, hasPrevious, showPrevious, togglePrevious } = useArloChat({
     page: `role-${slug}`,
     supabase,
     userId,
@@ -287,6 +287,11 @@ export default function RoleDetailPage() {
             </div>
 
             <div className={s.mentorMessages}>
+              {hasPrevious && (
+                <button onClick={togglePrevious} style={{ display: "block", margin: "0 auto 8px", fontSize: 11, color: "var(--ink-3)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+                  {showPrevious ? "Hide previous conversation" : "View previous conversation"}
+                </button>
+              )}
               {extraMsgs.length === 0 && direction && (
                 <div className={s.aiMsg}>
                   <div className={s.aiBubble}>

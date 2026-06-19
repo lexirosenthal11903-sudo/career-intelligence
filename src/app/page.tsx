@@ -86,10 +86,10 @@ export default function HomePage() {
               </div>
               <div className={s.shotGap} />
               <div className={s.shotProfile}>
-                <div className={s.shotAv}>L</div>
+                <div className={s.shotAv}>A</div>
                 <div>
-                  <div className={s.shotPname}>Lexi R.</div>
-                  <div className={s.shotPemail}>lexi@email.com</div>
+                  <div className={s.shotPname}>Alex C.</div>
+                  <div className={s.shotPemail}>alex@email.com</div>
                 </div>
               </div>
             </nav>
@@ -97,7 +97,7 @@ export default function HomePage() {
             {/* Left column */}
             <div className={s.shotLeft}>
               <div className={s.shotDate}>Good afternoon · Monday, 15 June</div>
-              <div className={s.shotWelcome}>Welcome back, Lexi.</div>
+              <div className={s.shotWelcome}>Welcome back, Alex.</div>
               <div className={s.shotDir}>
                 <div className={s.shotDlabel}>Your direction</div>
                 <div className={s.shotDtitle}>Early-stage fintech, moving fast.</div>
@@ -127,7 +127,7 @@ export default function HomePage() {
               </div>
               <div className={s.shotMsgs}>
                 <div className={s.shotAi}>
-                  Good afternoon, Lexi. You have <strong>3 roles waiting</strong>, and Monzo is ahead by some distance. Want to talk through why?
+                  Good afternoon, Alex. You have <strong>3 roles waiting</strong>, and Monzo is ahead by some distance. Want to talk through why?
                 </div>
                 <div className={s.shotUser}>Yes — why Monzo specifically?</div>
                 <div className={s.shotAi}>

@@ -58,7 +58,7 @@ export default function ProfilePage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [activeAppCount, setActiveAppCount] = useState<number | null>(null);
 
-  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading: arloLoading, messagesEndRef, hasPrevious, showPrevious, togglePrevious } = useArloChat({
     page: "profile",
     supabase,
     userId,
@@ -138,6 +138,7 @@ export default function ProfilePage() {
   const [employmentType, setEmploymentType] = useState<Set<string>>(new Set());
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [savedFields, setSavedFields] = useState<Set<string>>(new Set());
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -447,7 +448,17 @@ export default function ProfilePage() {
                 {confirmDelete ? (
                   <div className={s.inlineConfirm}>
                     <span className={s.inlineConfirmText}>All your data will be deleted.</span>
-                    <button className={s.inlineConfirmDanger} onClick={() => router.push("/")}>Delete everything</button>
+                    <button className={s.inlineConfirmDanger} disabled={deleting} onClick={async () => {
+                      setDeleting(true);
+                      const res = await fetch('/api/delete-account', { method: 'DELETE' });
+                      if (res.ok) {
+                        sessionStorage.clear();
+                        router.push('/');
+                      } else {
+                        setDeleting(false);
+                        setConfirmDelete(false);
+                      }
+                    }}>{deleting ? "Deleting…" : "Delete everything"}</button>
                     <button className={s.inlineConfirmNo} onClick={() => setConfirmDelete(false)}>Cancel</button>
                   </div>
                 ) : (
@@ -469,6 +480,11 @@ export default function ProfilePage() {
             </div>
 
             <div className={s.mentorMessages}>
+              {hasPrevious && (
+                <button onClick={togglePrevious} style={{ display: "block", margin: "0 auto 8px", fontSize: 11, color: "var(--ink-3)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+                  {showPrevious ? "Hide previous conversation" : "View previous conversation"}
+                </button>
+              )}
               {extraMsgs.length === 0 && (
                 <>
                   <div className={s.aiMsg}>

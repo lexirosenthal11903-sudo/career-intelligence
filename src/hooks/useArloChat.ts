@@ -21,7 +21,8 @@ export function useArloChat({
   supabase: SupabaseClient | null;
   userId: string | null;
 }) {
-  const [extraMsgs, setExtraMsgs] = useState<ChatMsg[]>([]);
+  const [allMsgs, setAllMsgs] = useState<ChatMsg[]>([]);
+  const [showPrevious, setShowPrevious] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const apiHistoryRef = useRef<ApiMsg[]>([]);
   const loadedRef = useRef(false);
@@ -44,7 +45,7 @@ export function useArloChat({
           const stored = data.messages as ApiMsg[];
           apiHistoryRef.current = stored;
           // Convert API format → display format, then mark session boundary
-          setExtraMsgs([
+          setAllMsgs([
             ...stored.map((m) => ({
               role: (m.role === "assistant" ? "arlo" : "user") as ChatMsg["role"],
               text: m.content,
@@ -61,11 +62,11 @@ export function useArloChat({
       if (!trimmed || isLoading) return;
 
       // Add user message to display immediately
-      setExtraMsgs((prev) => [...prev, { role: "user", text: trimmed }]);
+      setAllMsgs((prev) => [...prev, { role: "user", text: trimmed }]);
 
       // Unauthenticated — warm sign-in prompt, no API call
       if (!userId) {
-        setExtraMsgs((prev) => [...prev, { role: "arlo", text: SIGN_IN_PROMPT, action: "sign-in" as const }]);
+        setAllMsgs((prev) => [...prev, { role: "arlo", text: SIGN_IN_PROMPT, action: "sign-in" as const }]);
         return;
       }
 
@@ -83,7 +84,7 @@ export function useArloChat({
         });
 
         if (!res.ok) {
-          setExtraMsgs((prev) => [...prev, { role: "arlo", text: ERROR_MSG }]);
+          setAllMsgs((prev) => [...prev, { role: "arlo", text: ERROR_MSG }]);
           apiHistoryRef.current = apiHistoryRef.current.slice(0, -1);
           return;
         }
@@ -95,7 +96,7 @@ export function useArloChat({
             .map((b) => b.text ?? "")
             .join("") || ERROR_MSG;
 
-        setExtraMsgs((prev) => [...prev, { role: "arlo", text: arloText }]);
+        setAllMsgs((prev) => [...prev, { role: "arlo", text: arloText }]);
 
         const newArloMsg: ApiMsg = { role: "assistant", content: arloText };
         const updatedHistory = [...apiHistoryRef.current, newArloMsg];
@@ -117,7 +118,7 @@ export function useArloChat({
             .then(() => {});
         }
       } catch {
-        setExtraMsgs((prev) => [...prev, { role: "arlo", text: ERROR_MSG }]);
+        setAllMsgs((prev) => [...prev, { role: "arlo", text: ERROR_MSG }]);
         apiHistoryRef.current = apiHistoryRef.current.slice(0, -1);
       } finally {
         setIsLoading(false);
@@ -129,7 +130,14 @@ export function useArloChat({
   // Auto-scroll when messages change or loading state changes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [extraMsgs, isLoading]);
+  }, [allMsgs, isLoading]);
 
-  return { extraMsgs, sendMessage, isLoading, messagesEndRef };
+  // Split at divider: messages before it are "previous session", after are current
+  const dividerIndex = allMsgs.findIndex((m) => m.role === "divider");
+  const hasPrevious = dividerIndex > 0;
+  const extraMsgs = !showPrevious && hasPrevious ? allMsgs.slice(dividerIndex) : allMsgs;
+
+  const togglePrevious = useCallback(() => setShowPrevious((v) => !v), []);
+
+  return { extraMsgs, sendMessage, isLoading, messagesEndRef, hasPrevious, showPrevious, togglePrevious };
 }

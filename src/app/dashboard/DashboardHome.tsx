@@ -44,10 +44,11 @@ export default function DashboardHome() {
   const [todayFading, setTodayFading] = useState(false);
   const [homeState, setHomeState] = useState<HomeState>("nothing-new");
   const [directions, setDirections] = useState<Array<{ title: string; why: string }>>([]);
+  const [directionsLoaded, setDirectionsLoaded] = useState(false);
   const [companySuggestions, setCompanySuggestions] = useState<Array<{ type: string; why: string }>>([]);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
-  const { extraMsgs, sendMessage, isLoading, messagesEndRef } = useArloChat({
+  const { extraMsgs, sendMessage, isLoading, messagesEndRef, hasPrevious, showPrevious, togglePrevious } = useArloChat({
     page: "home",
     supabase,
     userId,
@@ -78,6 +79,7 @@ export default function DashboardHome() {
       if (sessionResult) {
         applyResult(JSON.parse(sessionResult));
         hasSession = true;
+        setDirectionsLoaded(true);
       }
     } catch {
       // malformed — fall through to Supabase
@@ -124,9 +126,13 @@ export default function DashboardHome() {
                 const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
                 if (!seen) setHomeState("new-roles");
               }
+              setDirectionsLoaded(true);
             })
-            .catch(() => {});
+            .catch(() => { setDirectionsLoaded(true); });
         }
+      } else {
+        // No session at all — show the CTA to start
+        setDirectionsLoaded(true);
       }
     });
   }, [supabase]);
@@ -239,7 +245,13 @@ export default function DashboardHome() {
 
             <div className={s.directionCard}>
               <h2>Directions worth exploring</h2>
-              {directions.length > 0 ? (
+              {!directionsLoaded ? (
+                <>
+                  <div className={s.greetingSkeleton} style={{ height: "1rem", width: "80%", marginBottom: "0.5rem" }} />
+                  <div className={s.greetingSkeleton} style={{ height: "1rem", width: "60%", marginBottom: "0.5rem" }} />
+                  <div className={s.greetingSkeleton} style={{ height: "1rem", width: "70%" }} />
+                </>
+              ) : directions.length > 0 ? (
                 <>
                   <p className={s.directionBody} style={{ marginBottom: "1rem" }}>
                     Based on what you&apos;ve shared, these are the directions that fit your background — some obvious, some you may not have considered.
@@ -348,6 +360,13 @@ export default function DashboardHome() {
             </div>
 
             <div className={s.mentorMessages}>
+
+              {/* Previous session toggle */}
+              {hasPrevious && (
+                <button onClick={togglePrevious} style={{ display: "block", margin: "0 auto 8px", fontSize: 11, color: "var(--ink-3)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+                  {showPrevious ? "Hide previous conversation" : "View previous conversation"}
+                </button>
+              )}
 
               {/* Initial Arlo message — only before any conversation starts */}
               {extraMsgs.length === 0 && homeState === "new-roles" && (

@@ -70,7 +70,7 @@ export default function InputChat() {
     setInputValue("");
     setPlaceholder(PLACEHOLDERS[1]);
     setTimeout(() => {
-      pushAi("Got what I need.");
+      pushAi("Got it.");
       setTimeout(() => {
         pushAi("Where are you trying to go? Even if it's vague — a direction you're drawn toward, or something you want to move away from. There's no wrong answer.");
         fieldRef.current?.focus();
@@ -204,11 +204,11 @@ export default function InputChat() {
             />
             <div className={s.welcomeName}>Arlo</div>
             <h1 className={s.welcomeHeading}>
-              Hi — I&apos;m here to help you find your direction.
+              You don&apos;t need to have it figured out.
             </h1>
             <p className={s.welcomeSub}>
-              I&apos;ll ask you two or three things. That&apos;s it.<br />
-              Start by sharing your CV below, or just tell me about yourself.
+              Share your background — a CV, a few sentences, whatever you&apos;ve got.<br />
+              I&apos;ll take it from there.
             </p>
           </div>
 
