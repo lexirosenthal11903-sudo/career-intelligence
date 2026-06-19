@@ -1,118 +1,61 @@
-# Parking Lot
+# Parking Lot — Archived
 
-Ideas captured mid-session to revisit at the right time.
+_Reconciled into ROADMAP.md, ADVISOR_PERSONA.md, and CLAUDE.md on 2026-06-15._
 
----
+All items from this file have been given a proper home:
 
-## Arlo tab behaviour — Session 11, 2026-06-10
-**Question:** Does Arlo refresh/reset every time the user changes tabs, or does he maintain a continuous conversation across tabs?
-**Trade-off:** Per-tab feels purposeful and contextually relevant, but switching tabs causes jumpy resets. Continuous conversation feels more natural and human, but Arlo may lose contextual focus.
-**When to address:** During Applications tab design session — this is the first tab where the question becomes real.
+| Item | Destination |
+|---|---|
+| Arlo tab behaviour | ✓ Built — Phase 3a (per-tab conversation history) |
+| Arlo panel collapse toggle | ✓ Built — Phase 2 |
+| Application focus mode | ROADMAP.md — Phase 3b Hand-Holding Layer |
+| Calendar integration | ROADMAP.md — Phase 3b Hand-Holding Layer (already there) |
+| Skills in-progress state | ROADMAP.md — Phase 3b Session B |
+| Quality over quantity | CLAUDE.md — Permanent Product Decisions |
+| CV auto-update from skills | ROADMAP.md — Phase 3b Hand-Holding Layer |
+| Certification completion rule | ADVISOR_PERSONA.md — Behaviour patterns |
+| Freelance / independent track | ROADMAP.md — Future Vision (Phase 6+) |
+| University applications (Masters) | ROADMAP.md — Future Vision (Phase 6+) |
+| Promotion / internal tracking | ROADMAP.md — Future Vision (Phase 6+) |
+| Company hiring process data | ROADMAP.md — Phase 4 (Glassdoor, already there) |
+| Skills are optional — not a gate | ADVISOR_PERSONA.md — Behaviour patterns |
+| Platform intelligence principle | ROADMAP.md — Phase 4 (already there) |
+| Arlo-only mode | ROADMAP.md — Phase 5 |
+| Arlo direction refinement | ROADMAP.md — Phase 3b Hand-Holding Layer |
 
----
-
-## Arlo panel collapse toggle — Session 11, 2026-06-10
-**Decision locked:** Yes, Arlo's panel should be collapsible on every tab. Collapsed = left side expands full width. Toggle icon on edge to restore. Conversation preserved.
-**Scope:** Global dashboard shell decision — applies to all tabs equally.
-**When to address:** Design the collapsed state as part of the dashboard shell spec.
-
----
-
-## Application focus mode — Session 11, 2026-06-10
-**Question:** When a user clicks "next step" on an application card, should the screen shift into a focused mode — full attention on that specific application, with Arlo supporting on one side and the work surface on the other?
-**Why it matters:** The current pipeline view is an overview. Actual work (writing a cover letter, prepping for an interview) needs a different kind of screen — focused, not a list.
-**When to address:** Dedicated session after the main Applications tab layout is locked. This is likely a separate "Application detail / work mode" screen.
-
----
-
-## Calendar integration — Session 11, 2026-06-10
-**Idea:** When a user has an interview booked, surface it in a calendar view so they can see upcoming events alongside past stage history.
-**Decision:** Timeline on the card (past stages + upcoming dates) is in v1. A full calendar view or Google Calendar integration is out of scope for v1 — too much scope.
-**Decision:** Internal platform calendar confirmed as a Phase 2 feature. Optional Google/Apple Calendar sync also confirmed. Timeline on the card (past stages + upcoming dates) covers v1.
-**When to address:** Phase 2 — needs its own design session. Includes: calendar view design, Google Calendar OAuth, Apple Calendar (CalDAV) integration.
+**New mid-session ideas go directly into the right phase in ROADMAP.md, or here if phase is unclear.**
 
 ---
 
-## Skills in-progress state — Session 12, 2026-06-10
-**Decision:** Skill items need three states: not started → in progress → done. "In progress" shows on the card (e.g. a subtle progress indicator or "started" label). "Done" moves the item off the active list — either archived or shown in a collapsed "completed" section at the bottom.
-**When to address:** Skills tab design session — add the three states before the mockup is locked.
+## Session 35 — 2026-06-19 — From Perplexity Computer research
+
+**LinkedIn OAuth import** — Phase 4
+Users paste/link their LinkedIn URL, we pull data via OAuth (not scraping). Major friction reduction vs CV upload. Perplexity does this well. Full research in `research/competitor-perplexity-computer-2026-06-19.md`.
+
+**Monitor & Alert** — Phase 4
+Arlo pings the user (email or in-app notification) when a new high-fit role appears. "Arlo spotted something worth your time." Builds the return mechanic without gamification.
+
+**Interview prep via Arlo** — Phase 4
+Before an interview, user asks Arlo to prep them. Arlo briefs: what the company actually does, what the role requires, likely questions, honest gaps to address. Natural extension of the existing Arlo relationship.
+
+**Offer evaluation via Arlo** — Phase 5
+When a user gets an offer, Arlo helps assess it — salary benchmarking, culture signals, red flags. "Is this right for where you're going?" Keeps Arlo relevant beyond the search phase.
+
+**Application tracker export** — Phase 4
+Light version of Perplexity's Google Sheets integration. Export saved applications as a CSV or Google Sheet for users who want to manage tracking in their own tools.
+
+**Multi-model routing (internal)** — Already doing this
+Haiku for scoring, Sonnet for analysis. Continue this pattern. Never expose the seams to the user — Arlo is always one presence even if different models power different tasks.
+
+**Homepage feature grid** — Homepage redesign session
+Perplexity's 6-card feature grid is a strong pattern for communicating product completeness. Use as reference for our homepage redesign (alongside Resend/Linear). See `research/competitor-perplexity-computer-2026-06-19.md`.
+
+**Loading checklist pattern** — Homepage redesign session
+Their loading screen step-by-step with icons is more visually informative than most. Reference for our loading screen redesign.
 
 ---
 
-## Quality over quantity — standing product principle — Session 12, 2026-06-10
-**Principle:** The platform's goal is fewer, better applications — not volume. Every feature should help users spend more productive time preparing, which produces better outcomes. This applies to skills, applications, outreach, and Arlo's behaviour equally. Never optimise for activity metrics at the expense of quality.
+## Session 33 — 2026-06-18
 
----
-
-## CV auto-update from skills completion — Session 12, 2026-06-10
-**Feature:** When a user tells Arlo they've completed a course or earned a certification, Arlo asks "Want me to add this to your CV?" If yes, it's added to their CV on file automatically. Updated CV is always downloadable from Profile.
-**Why it matters:** Closes the loop between skills work and application materials without the user having to maintain their CV manually.
-**When to address:** Phase 2 engineering — requires CV storage and edit capability in Supabase, and Arlo write-back to profile. Design it during the Profile tab session.
-
----
-
-## Certification completion rule — Session 13, 2026-06-10
-**Decision:** Certifications can only be marked as complete if the user shares their certificate with Arlo as evidence (link or file). Self-reporting alone is not sufficient for certifications — anything that goes on a CV must be factually verified. Courses and practice exercises use self-reporting (Arlo asks "where are you up to?"). Certifications require proof first.
-**Arlo flow:** User says they've finished → Arlo asks for the certificate → user shares it → Arlo marks it complete, adds to profile, offers CV update.
-**Credential link verification (future):** Some providers (Credly, Forage) issue verifiable credential links the platform could validate automatically. Phase 3+ — v1 relies on Arlo reviewing what the user shares.
-
----
-
-## Freelance / independent work track — Session 12, 2026-06-10
-**Idea:** Some users want freelance or contract work, not employment. The outreach process is similar — identify the right people, personalise the pitch, follow up. Could run as a parallel track to the job application pipeline.
-**When to address:** Post-v1. Needs its own design session. The core pipeline (direction → targets → outreach → follow-up) maps well; the differences are in how "applications" are framed.
-
----
-
-## University applications (Masters) — Session 12, 2026-06-10
-**Idea:** Some users are applying to Masters programmes alongside or instead of jobs. Could be an optional tab ("University Applications") surfaced only for users who indicate it's relevant during onboarding or setup. Not for undergrad — the product is aimed at people already past that point.
-**When to address:** Post-v1. Needs its own design session. The tab pattern (conditional, user-toggled) is interesting and may apply to the promotion track too.
-
----
-
-## Promotion / internal opportunity tracking — Session 12, 2026-06-10
-**Idea:** Some users are trying to get promoted or move internally. Could track key conversations, milestones, evidence of impact — similar to the applications pipeline but for internal moves. Arlo could help them frame their case.
-**When to address:** Post-v1. Likely its own mode or tab, unlocked by user context. Shares the same emotional need as job applications — "I want to move forward and I don't know how."
-
----
-
-## Company hiring process data — Session 12, 2026-06-10
-**Decision:** Show typical hiring processes based on external crowd-sourced data (Glassdoor, candidate reports). This is distinct from platform prediction — it's documented pattern, not a guess. Always labelled as "typical process" or "based on candidate reports", never stated as guaranteed.
-**Phasing:**
-- v1: Arlo surfaces it conversationally when a company is added ("Based on what candidates have shared, Monzo typically runs…"). No API needed — Claude has this knowledge for major graduate employers.
-- v2: Structured "Typical process" component on the card, pulled from a proper API (Glassdoor, Adzuna, or similar). Covers all employer types — grad schemes, internships, entry-level, standard roles. Not limited to graduate employers. Check API terms before building.
-- v3: Platform's own confirmed data from users who completed the process supplements/replaces external sources.
-**Honesty rule preserved:** "typical process" = ✓. "You'll hear back by Friday" = ✗. Source must always be shown.
-
----
-
-## Skills are optional — not a gate — Session 12, 2026-06-10
-**Principle:** Some users don't have time to work on skills between applications. The platform must never make skills building feel like a prerequisite for applying. A user should be able to arrive, get help applying right now, and send applications — with zero friction from Skills.
-**Implication for Skills tab design:** Skills should feel like an optional enhancement — "want to get stronger while you wait?" — not a to-do list that blocks application help.
-**Implication for onboarding:** The pipeline (CV → direction → roles → apply) should be completable without ever touching Skills. Skills is a parallel track, not a gate.
-**When to address:** Skills tab design session — this is the first constraint to establish before any UI decisions.
-
----
-
-## Platform intelligence — standing product principle — Session 11, 2026-06-10
-**Principle:** Every user action — saving a job, moving a card, passing on a role, completing a step, withdrawing — should feed intelligence back into both the platform and the individual user's profile. The platform learns what works across users. The user gets a more personalised experience over time.
-**Examples:** Which role types get saved most → refine direction. Which applications progress furthest → surface similar companies. Which steps users skip → surface friction points.
-**When to address:** Phase 1 engineering — specifically the Supabase schema and advisor memory design sessions. Every table should be designed with this principle in mind from day one.
-
----
-
-## Arlo-only mode — Session 13, 2026-06-10
-**Idea:** Some users want to skip the dashboard entirely and just talk to Arlo. A conversation-first path alongside the structured dashboard path — no job listings, no skills map, just Arlo. Could be an intentional entry point (not a hidden feature), or a full-screen expand of the Arlo panel.
-**Connection to:** Arlo panel collapse toggle (above) — the inverse of hiding Arlo is surfacing Arlo-only as a primary mode for certain users.
-**When to address:** Returning user experience session, or Phase 2 product decision. Needs a clear user persona — who would choose this over the dashboard?
-
----
-
-## Arlo direction refinement — Session 13, 2026-06-10
-**Behaviour:** If a user tells Arlo "I don't want Strategy Analyst" (or any matched role), Arlo should:
-1. Acknowledge and remove that role type from their matched direction
-2. Filter out all live listings for that role type
-3. Update the direction card to reflect the refined direction
-4. Optionally ask why — to improve future matching
-**Why it matters:** Direction is a starting point, not a verdict. The product must feel responsive to pushback. If it can't adapt to "no", it doesn't feel intelligent — it feels like a job board with extra steps.
-**When to address:** Phase 1 engineering — specifically the Supabase direction/profile schema and the Arlo advisor system prompt. The direction must be stored as mutable user state, not a static output.
+**Arlo identity and visual register — dedicated session needed**
+Lexi flagged that Arlo currently reads as childish/cute, which undercuts the trust register the product needs. This is a fundamental question about Arlo's execution (and possibly concept): no face/illustration, name potentially needs to change, visual presence should come from quality of words not a drawn character. Principle agreed: concept (named advisor) is likely right, execution is wrong. Do not make further Arlo changes until a dedicated session resolves: new name candidate(s), visual register, how advisor presence is conveyed without a character illustration. This session should happen before any significant new UI build that involves Arlo.
