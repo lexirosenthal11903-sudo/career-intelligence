@@ -117,45 +117,44 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-18)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-19)
 
-**We are in Phase 3b. Session 33 begins next.**
+**We are in Phase 3b. Session 36 begins next.**
 
-**Session 32 COMPLETE ✓ (2026-06-18):**
-- ✓ Fix: Arlo unauthenticated chat now shows amber "Sign in" button (commit 2daa8db)
-- ✓ Chrome audit prompt completed via grill-me — saved to `research/audit-prompt.md`
-- ✓ Full product audit run — results in `career_intelligence_audit_18jun2026.md`
-- ✓ All 8 recent fixes confirmed ✓ in audit
-- ✓ Competitive analysis: Apt AI (tryapt.ai) — we are in a different lane (self-discovery vs tools bundle)
-- ⬜ Roadmap review — Lexi wants to re-orient and get back on the roadmap. START HERE next session.
-- ⬜ Direction concept alignment — still deferred. Address during roadmap review.
+**Session 35 COMPLETE ✓ (2026-06-19):**
+- ✓ Code audit agent run — 5 root causes found and fixed
+- ✓ Returning user empty direction card — DashboardHome data?.data → data?.result fix
+- ✓ Interested state race condition — useEffect now depends on userId
+- ✓ Production keyword collision — score route + analyse route both fixed
+- ✓ Input page copy — warmer Arlo welcome voice
+- ✓ Homepage hardcoded name — "Lexi R." → "Alex C."
+- ✓ Delete account wired for real — /api/delete-account uses service client, deletes all data
+- ✓ Direction card loading skeleton — shows shimmer while waiting, not empty CTA
+- ✓ Stale Arlo conversations — hidden by default, "View previous" toggle on all 6 panels
+- ✓ Reed API auth — locked to authenticated users
+- ✓ Perplexity Computer competitive analysis — `research/competitor-perplexity-computer-2026-06-19.md`
+- ✓ Parking lot updated with LinkedIn import, Monitor & Alert, interview prep, offer eval
 
-**Next action (Session 33): Roadmap review first, then bug fixes from audit.**
+**New standing instructions (Session 35):**
+- Run audit agent at start of every session before Lexi tests anything
+- Batch working: agree full list upfront → build autonomously → push once → Lexi tests
 
-**Bugs from audit to fix (Session 33):**
-1. 🔴 CRITICAL: Interested → Applications cross-tab data flow broken — jobs marked Interested don't appear in Applications
-2. 🟡 Direction card label says "YOUR DIRECTION" on Roles + Skills tabs (should be "DIRECTIONS WORTH EXPLORING")
-3. 🟡 Profile page: "No applications tracked yet" renders in monospace at top of page — stray debug render
-4. 🟡 "Welcome back." greeting sometimes renders without name — race condition, needs skeleton state
-5. 🟡 Arlo chat history: no session boundary for returning users — jarring on re-sign-in
-6. 🟠 React hydration error #418 firing on every page transition — run dev build to identify component
-7. 🟠 Authenticated Roles tab: 15–17s load vs ~5s unauthenticated — worth profiling
-
-**Audit file:** `career_intelligence_audit_18jun2026.md` — full report with Arlo quality scores, pipeline timing, data quality assessment.
-
-Read `PLAYBOOK.md` Phase 3b → Session 31 for the full brief before starting.
+**Next action (Session 36):**
+1. Run audit agent
+2. Lexi tests staging — specifically returning user flow + Interested state persistence
+3. Direction refinement — what happens when a user rejects a direction
+4. Arlo identity session (if time) — must happen before any new Arlo UI build
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
 2. Read `ROADMAP.md` — confirm current phase and today's focus
-3. Read `PLAYBOOK.md` — find the current session, read it fully before starting
-4. Check `INSIGHTS.md` — find sections tagged with the current phase
-5. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]. From INSIGHTS.md: [relevant guidance]."
+3. Check `INSIGHTS.md` — find sections tagged with the current phase
+4. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]."
 
 **⚠️ Challenge before building — standing instruction:**
 Before writing any code in response to Lexi describing a problem or idea: state your understanding of the problem, ask 1-2 clarifying questions, confirm. Never interpret and immediately act. This is a co-founder role — engage first, build second.
 
-**⚠️ Action needed before Session 28:** Add `REED_API_KEY` to Vercel Production + Preview env vars. Value in `.env.local`. Without this, Reed returns nothing in deployment.
+**⚠️ Action needed:** Add `REED_API_KEY` to Vercel Production + Preview env vars. Value in `.env.local`. Without this, Reed returns nothing in deployment.
 
 **Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
 **Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
@@ -270,13 +269,8 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 - ✓ Full product audit completed — `career_intelligence_audit_18jun2026.md`
 - ✓ Competitive analysis: Apt AI documented
 
-**⚠️ OPEN PRODUCT QUESTION — must resolve at start of Session 32:**
-The "direction" concept needs proper product alignment. This discussion was deferred from Session 30 (strategic repositioning took priority). Questions to resolve:
-- What IS "direction" in this product? A possibility Arlo observed? A hypothesis? Not a verdict.
-- Does Arlo present it in first person ("here's what I see in you") rather than as a labelled card?
-- What framing works consistently across: dashboard home, onboarding bridge, roles tab, role detail, Arlo's language?
-- What do we call it? "Directions", "paths", "areas worth exploring"?
-DO NOT make further changes to direction framing without this discussion first.
+**✓ Direction concept RESOLVED (Session 33, 2026-06-18):**
+"Directions" stays as the word. Directions = what the user *could become* — not a verdict, Arlo's observation. Onboarding bridge intro line (locked): "I've been looking at what you shared — here's where I see this going." UI label: "DIRECTIONS WORTH EXPLORING" across all tabs (never "YOUR DIRECTION"). Full detail in ADVISOR_PERSONA.md "Direction framing" section.
 
 **⚠️ STRATEGIC CONTEXT (added Session 30, 2026-06-16):**
 - Competitive: Jack & Jill AI ($20M funded) owns the "I know what I want" market. Our lane: people who don't know yet.
