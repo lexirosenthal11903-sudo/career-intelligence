@@ -10,7 +10,7 @@ _When Lexi has an idea: add it to the right phase. Never dismiss, never do out o
 
 **Competitive positioning:** Jack & Jill AI ($20M funded, Anthropic/Lovable-backed) is the closest competitor. They match job seekers to employers via a 20-minute conversation + warm introductions to hiring managers. Their model assumes the user knows what they want. They own that market.
 
-**Our lane:** Users who genuinely don't know what they want. Self-discovery + mentorship as the core, not job matching. Arlo is the product — not the listings.
+**Our lane:** Users who genuinely don't know what they want. Self-discovery + mentorship as the core, not job matching. The advisor is the product — not the listings. Product name: **Meridian** (locked Session 36, 2026-06-20). Advisor has no name, no face — panel header is "Meridian".
 
 **Strategic shift confirmed Session 30:**
 - Stop competing on listings. Adzuna/Reed are utilities, not differentiators. Never pitch "we find you jobs." 
@@ -216,11 +216,37 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 
 ## → Phase 3b: Intelligence Quality + Data Wiring — CURRENT
 
+_Last updated: 2026-06-18 (Session 33 — launch gate defined)_
 _Goal: The product works well for every user, not just the obvious cases. Intelligence is honest and results are genuinely tailored._
 
 ---
 
-### Session A: Pipeline Intelligence — Analysis, Scoring, and Niche Coverage
+### ⚠️ LAUNCH GATE — Complete before inviting any real user
+
+_Agreed Session 33, 2026-06-18. Everything below this gate is post-launch. Review the gate when all items are done — not before._
+
+- [ ] **All audit bugs fixed** — the list in CLAUDE.md START HERE. Priority: critical Interested → Applications data flow, then medium/minor.
+- [ ] **React hydration error #418 resolved** — firing on every page transition. Run dev build to identify component. Fix before production users land.
+- [ ] **Direction refinement** — Arlo updates when a user rejects a direction ("I don't want marketing roles"). Filters listings for that type, updates direction card. Direction must be mutable state, not static output. Core to the product feeling alive.
+- [ ] **CV tailoring per job — basic version** — user's saved CV + job description → tailored CV output from Arlo. Not design guidance, the actual document. User reviews and downloads.
+- [ ] **Cover letter per job — basic version** — Arlo writes it. User reviews and approves. Two outputs: download/copy for form-based applications, or one-click pre-filled email for direct applications.
+- [x] **Advisor identity session** — COMPLETE ✓ Session 36, 2026-06-20. "Arlo" retired. No face, no character name. Advisor panel header = "Meridian". Visual language = astronomical photography as abstract texture. Rebrand design (Session 37) + build (Session 38) required before launch.
+- [x] **Product name session** — COMPLETE ✓ Session 36, 2026-06-20. Name: **Meridian**.
+- [ ] **Pre-launch legal** — ICO registration (£40/year, ico.org.uk/registration) · real privacy policy · real terms of service · working account deletion. Lexi's action, not a build task.
+- [ ] **Analytics** — Sentry error tracking (free tier, ~20 min to install) · Vercel Analytics (already in stack, zero-config). Must be live before first user. Lexi's action.
+
+**Session priority order (agreed Session 36):**
+1. Session 37 — Meridian homepage + advisor panel design (design session only)
+2. Session 38 — Build rebrand: replace all Arlo/Career Intelligence references, build new homepage
+3. Session 39 — Direction refinement feature
+4. Session 40 — CV tailoring + cover letter
+→ Launch gate review after Session 40
+
+**When this gate is done:** review together. Decide whether to launch to first 10–20 users or continue. Do not defer the review — real signal is the fastest path to knowing what to build next.
+
+---
+
+### Session A: Pipeline Intelligence — COMPLETE ✓ (Session 28, 2026-06-14)
 
 **What it achieves:** The single most important quality session. Makes the analysis and job results genuinely tailored to every user regardless of sector or seniority — not just those in mainstream commercial roles.
 
@@ -316,7 +342,7 @@ The analysis generates "types of company that suit this person, with why" — th
 
 ---
 
-### Session B: Real Data Wiring (Applications + Skills + Direction Card)
+### Session B: Real Data Wiring — COMPLETE ✓ (Session 29, 2026-06-15)
 
 **What it achieves:** The three dashboard tabs that still show placeholder data become real.
 
@@ -346,12 +372,12 @@ The analysis generates "types of company that suit this person, with why" — th
 
 ---
 
-### Phase 3b: The Hand-Holding Layer
+## Phase 3c: The Hand-Holding Layer — Post-Launch
 
 _The product's core promise: every job the user saves becomes a full guided journey._
+_Build after the launch gate is complete and first users are in. Sequence based on what real users need most._
 
-**Copy and product voice — must do before launch:**
-- [ ] **⚠️ Product name session** — "Career Intelligence" is a working title. Cannot launch without a real name. Dedicated creative session: options, stress-test, decision. Lexi is not ready for this yet — flag at start of Phase 3b.
+**Copy and product voice:**
 - [ ] **Homepage copy session** — final homepage copy, including the Meraki/Satori/Kavanah narrative. Currently placeholder. Use `/copywriting` skill.
 - [ ] **UI copy session** — all non-advisor copy: auth overlay, onboarding prompts, button labels, empty states, error messages, nav labels. Placeholder copy is in place — this session makes it final. Use `/copywriting` skill.
 - [ ] **Advisor voice examples** — 20–30 sample Arlo messages across all key moments. The voice reference for all future copy.

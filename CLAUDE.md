@@ -36,7 +36,7 @@ _Full context: `INSIGHTS.md` — read before any complex session._
 
 ## The Product
 
-Career Intelligence is a career intelligence platform for graduates and early-career individuals who don't know what they're looking for. Not a job board. Not an AI tool.
+**Meridian** is a career intelligence platform for graduates and early-career individuals who don't know what they're looking for. Not a job board. Not an AI tool.
 
 **The user:** Someone at a genuine crossroads — anxious, uncertain, without a clear direction. They need to understand themselves before they can search at all. Emotional context is anxiety. Every design and copy decision must address this.
 
@@ -56,10 +56,12 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 **Full voice guide + memory rules:** `ADVISOR_PERSONA.md` — source of truth for all advisor behaviour.
 **Full emotional vision + parking lot:** `brainstorms/career-intelligence-emotional-vision.md`
 
-**Design references (confirmed):** Resend.com, Linear.app, Craft.do, Dayone, Headspace.
+**Design references (confirmed):** Resend.com, Linear.app, Craft.do, Dayone, Headspace. Perplexity Computer — homepage structure only (hero → feature grid → CTA layout). Never copy Perplexity aesthetics directly.
 **Never use for this project:** Aman, bulthaup — those are DG Air Conditioning references. Wrong register entirely.
 
 ## Design Status
+
+**⚠️ Arlo → Meridian override (Session 36, 2026-06-20):** All references to "Arlo" in locked screens are superseded. The advisor has no face, no character name. Advisor panel header = "Meridian". Visual language = astronomical photography as abstract texture. Homepage redesign locked to Perplexity structure. Rebrand design session (37) must complete before any build touches advisor UI.
 
 **Phase 0 — Design. In progress. Do not start engineering until all screens are locked.**
 
@@ -85,7 +87,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - Sidebar: white. Direction card: cream. Amber ONLY on: primary button, user chat bubbles, active nav.
 - Left-border colour accents on cards = BANNED. Amber/yellow featured card = BANNED.
 - Espresso brown ONLY at the bottom (closing CTA + footer as one block). Never mid-page.
-- Mentor panel = cream (#F5F3EE). Advisor present on every screen — it is half the product.
+- Advisor panel = cream (#F5F3EE). Advisor present on every screen — it is half the product. Panel header: "Meridian". No face, no character name.
 - Full token table: `SESSION_DECISIONS.md`
 
 ## Design Build Discipline — non-negotiable
@@ -117,33 +119,36 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-19)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-20)
 
-**We are in Phase 3b. Session 36 begins next.**
+**We are in Phase 3b. Session 37 begins next.**
 
-**Session 35 COMPLETE ✓ (2026-06-19):**
-- ✓ Code audit agent run — 5 root causes found and fixed
-- ✓ Returning user empty direction card — DashboardHome data?.data → data?.result fix
-- ✓ Interested state race condition — useEffect now depends on userId
-- ✓ Production keyword collision — score route + analyse route both fixed
-- ✓ Input page copy — warmer Arlo welcome voice
-- ✓ Homepage hardcoded name — "Lexi R." → "Alex C."
-- ✓ Delete account wired for real — /api/delete-account uses service client, deletes all data
-- ✓ Direction card loading skeleton — shows shimmer while waiting, not empty CTA
-- ✓ Stale Arlo conversations — hidden by default, "View previous" toggle on all 6 panels
-- ✓ Reed API auth — locked to authenticated users
-- ✓ Perplexity Computer competitive analysis — `research/competitor-perplexity-computer-2026-06-19.md`
-- ✓ Parking lot updated with LinkedIn import, Monitor & Alert, interview prep, offer eval
+**Session 36 COMPLETE ✓ (2026-06-20):**
+- ✓ Product name: **Meridian** — locked
+- ✓ Advisor identity resolved: "Arlo" retired — no face, no character name
+- ✓ Advisor panel header: "Meridian"
+- ✓ Visual language: astronomical photography as abstract texture (not illustration)
+- ✓ Key image references identified: moon surface B&W (extreme close-up) + nebula amber/rust
+- ✓ Homepage structure: Perplexity Computer layout (hero → feature grid → CTA), Meridian execution
+- ✓ University licensing confirmed as Phase 4 B2B path (careers offices, 24/7 direction support)
 
-**New standing instructions (Session 35):**
+**Standing instructions (Sessions 35–36):**
 - Run audit agent at start of every session before Lexi tests anything
 - Batch working: agree full list upfront → build autonomously → push once → Lexi tests
+- Design session before build session — never mix them
 
-**Next action (Session 36):**
-1. Run audit agent
-2. Lexi tests staging — specifically returning user flow + Interested state persistence
-3. Direction refinement — what happens when a user rejects a direction
-4. Arlo identity session (if time) — must happen before any new Arlo UI build
+**Next action (Session 37 — DESIGN session):**
+1. Finalise astronomical imagery references with Lexi
+2. Design new Meridian homepage (Perplexity structure, Meridian brand, astronomical texture)
+3. Design advisor panel — no face, "Meridian" header, cream panel
+4. Lock all designs → Session 38 builds them
+
+**Session priority order (next 4 sessions):**
+1. Session 37: Meridian homepage + advisor panel design (design only)
+2. Session 38: Build rebrand — replace all Arlo/Career Intelligence references, build new homepage
+3. Session 39: Direction refinement feature
+4. Session 40: CV tailoring + cover letter
+→ Launch gate review after Session 40
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
@@ -274,7 +279,7 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 
 **⚠️ STRATEGIC CONTEXT (added Session 30, 2026-06-16):**
 - Competitive: Jack & Jill AI ($20M funded) owns the "I know what I want" market. Our lane: people who don't know yet.
-- Arlo is the product. Job listings are a utility. Never pitch "we find you jobs."
+- The advisor is the product. Job listings are a utility. Never pitch "we find you jobs."
 - Evolution path: B2C self-discovery → university partnerships (Phase 4) → employer network (Phase 5+)
 - University angle: careers offices are the B2B wedge. Don't build for them yet — have ONE conversation first.
 - Full context in ROADMAP.md strategic context block.
@@ -305,7 +310,7 @@ _Applies from the first line of Stage 1 engineering._
 
 ## Permanent Product Decisions
 
-- Platform name: **unresolved.** Do not use a new name without explicit confirmation from Lexi.
+- Platform name: **Meridian** — locked Session 36, 2026-06-20. All "Career Intelligence" references in product/copy replace with Meridian.
 - Mobile: deferred. Desktop first. Do not raise mobile unless Lexi raises it.
 - GDPR: solicitor's opinion on contact discovery outstanding. Flag proactively.
 - Merge to main: only on explicit instruction from Lexi, after staging is verified.
