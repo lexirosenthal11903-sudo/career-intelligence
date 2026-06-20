@@ -119,11 +119,13 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-20, Session 37)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-20, Session 38)
 
-**We are in Phase 3b. Session 38 is next. It is a BUG FIX + TESTING session.**
+**⚠️ `REBUILD.md` (repo root) is now the single source of truth.** Session 38 reset the plan: we are doing a **spine-first rebuild**, not more features on a broken base. Read `REBUILD.md` + `.session-handoff.md` before anything else — they supersede the phase/bug detail below until the docs are consolidated (REBUILD.md Part 4).
 
-**⚠️ THE PRODUCT IS CURRENTLY BROKEN. Fix this before anything else.**
+**Where we are:** Step 0 (engineering floor) started — Playwright harness is in (`npm run test:e2e`, 7 green). Next: reproduce the conditional production crash, then finish the floor. Model: **Opus** for the debugging/architecture.
+
+**⚠️ THE PRODUCT IS STILL BROKEN for some flows. The floor + spine fix this. The bug detail below remains accurate but is now tracked in `REBUILD.md`.**
 
 ### Critical bugs found by Lexi (Session 37, 2026-06-20)
 

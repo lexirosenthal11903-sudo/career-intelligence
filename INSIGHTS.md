@@ -1,4 +1,6 @@
 # INSIGHTS.md
+> ℹ️ **Predates the Session 38 rebuild.** The engineering *lessons* here are still useful; the phase tags and any claims about current product state are stale. `REBUILD.md` is the source of truth for plan and state.
+
 ## Claude Code Knowledge Base — Career Intelligence Project
 
 Synthesised from expert video transcripts. Each insight is tagged with when it applies.
@@ -419,6 +421,18 @@ These are battle-tested, widely used plugins that address real production proble
 **Bonus: Frontend Design Skill** (`/pluginstall frontend-design`)
 - Anthropic's official skill. Makes Claude Code produce designs that don't look generically AI-generated. Install globally before any Phase 2 UI work. Reduces drift from your locked design system.
 
+### Additional Plugins — Assessed 2026-06-15
+**[ALWAYS]**
+Five plugins reviewed against Lexi's actual setup. Decision per plugin:
+
+| Plugin | Decision | Reason |
+|---|---|---|
+| **Caveman** (github.com/juliusbrussee/caveman, 69.5k ★) | ❌ No | Cuts tokens by compressing output to minimal language. Context discipline already handled via `/compact` + session handoffs. Compressed output is harder to read. Low value given existing setup. |
+| **Claude-Mem** (github.com/thedotmack/claude-mem, 81k ★) | ❌ No | Already solved. The auto-memory system in `~/.claude/projects/` does exactly what claude-mem does — persistent context injected at session start. Don't double up. |
+| **Taste-Skill** (github.com/leonxlnx/taste-skill, 35k ★) | ⚠️ Borderline | Kills AI slop in designs. CLAUDE.md already has "Zero AI design patterns" section that does the same job. May add marginal value in Phase 5 design sessions — revisit then. |
+| **Humanizer** (github.com/blader/humanizer, 23k ★) | ✅ Yes — blog/copy sessions | Removes AI writing tells from text. Directly useful for blog content and any copy work. Install before any content session. Not needed in engineering sessions. |
+| **MarketingSkills** (github.com/coreyhaines31/marketingskills, 32k ★) | ✅ Phase 5 | CRO, SEO, copywriting, growth engineering. Right tool for Phase 5 marketing work. Park until then. |
+
 ### Skills vs Plugins — the Distinction
 **[ALWAYS]**
 - A **skill** is a single markdown file that teaches Claude how to do a specific job.
@@ -674,6 +688,30 @@ The transcript author's free School community (linked in video descriptions) con
 - **Directly relevant to Career Intelligence:** the advisor is currently text-based chat. A voice interface is a natural future evolution — users could talk through their career situation rather than type. The same `chat.js` persona and knowledge could back a voice layer.
 - **Cal.com + 11 Labs booking pattern:** demonstrated end-to-end — voice agent collects name, email, company, problem, then books a call directly via cal.com API. Relevant if Career Intelligence ever needs a human coaching call booking flow.
 - **Debugging pattern for voice agents:** when something goes wrong, describe the experience to Claude Code rather than digging through documentation. It will identify which of the three possible failure points (platform returning wrong data, agent querying incorrectly, agent misreading output) caused the issue and fix it.
+
+### Voice Interview Practice — Cost Architecture
+**[PHASE3+]**
+For the voice interview practice feature (Phase 5), three tiers of implementation in ascending cost:
+
+| Approach | STT | TTS | Cost per session | Quality |
+|---|---|---|---|---|
+| **MVP (free)** | Web Speech API (browser-native) | SpeechSynthesis API (browser-native) | £0 | Acceptable on Chrome, robotic TTS |
+| **Step up (cheap)** | OpenAI Whisper | OpenAI TTS | ~5p per 5-min session | Good STT, natural TTS |
+| **Premium** | OpenAI Whisper | ElevenLabs | £0.30+/min | Natural voice clone |
+
+**Recommendation:** Build with Web Speech API first — zero cost, proves the mechanic. Upgrade to Whisper + OpenAI TTS if users want better quality. ElevenLabs only if premium voice becomes a selling point worth paying for.
+
+**Reference:** Jack & Jill AI (Juno) implement voice coaching — study their approach in `brainstorms/competitor-research/jack-and-jill/` before building. They are likely on Web Speech API or Whisper, not ElevenLabs, given their pricing.
+
+### CV Export — ATS-Safe PDF Approach
+**[PHASE3+]**
+When building the per-job CV builder (Phase 3b), the right approach for PDF export is server-side LaTeX rendering, not HTML-to-PDF (Puppeteer/wkhtmltopdf).
+
+- LaTeX produces a clean text layer that ATS systems parse reliably — no hidden characters, no formatting noise
+- HTML-to-PDF tools embed fonts and styles that some ATS systems misread or skip
+- Implementation: user CV data → LaTeX template (server-side) → `pdflatex` compilation → PDF returned. Runs in a Node/Python serverless function.
+- This is what professional CV tools use (including Jobeefy). The setup overhead is worth it — ATS compatibility is the whole point of a tailored CV.
+- Add as a requirement when the CV builder session is planned, not as an afterthought.
 
 **Security considerations for any public-facing AI widget:**
 - Lock widget to allowed domains — prevents someone stealing the HTML snippet and running your agent on their site at your cost.

@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED for plan, sequence, and state by `REBUILD.md` (Session 38, 2026-06-20).**
+> We are doing a spine-first rebuild. This file overclaims in places (e.g. "Playwright is in the stack" — it wasn't until Session 38) and its phase/session order is stale. **Read `REBUILD.md` first.** Keep this only for the feature catalogue and historical context until the docs are consolidated (REBUILD.md Part 4). The feature catalogue here is now mirrored, organised, in REBUILD.md Part 9.
+
 # Career Intelligence — Master Roadmap
 
 _Last updated: 2026-06-16 (strategic repositioning; Session 30 bug fixes)_

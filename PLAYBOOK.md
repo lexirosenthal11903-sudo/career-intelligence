@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED by `REBUILD.md` (Session 38, 2026-06-20).** The session-by-session order here predates the rebuild and no longer reflects what we're doing. **Read `REBUILD.md` + `.session-handoff.md` first.** Do not follow this file's session sequence.
+
 # Career Intelligence — Session Playbook
 
 _The operational guide. Every session, in order, with everything you need._
