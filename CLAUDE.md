@@ -144,11 +144,11 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - Astronomical images saved: img-moon.jpg + img-nebula.jpg in mockups/ for future use.
 
 **Session priority order (revised 2026-06-20):**
-1. Session 38: Engineering — Arlo → Meridian fix (remove SVG, update all panel headers + text references)
-2. Session 39: Direction refinement feature
-3. Session 40: CV tailoring + cover letter
-→ Homepage redesign: deferred. Revisit after first real users and feedback.
-→ Launch gate review after Session 40
+1. Session 38: Direction refinement feature
+2. Session 39: CV tailoring + cover letter
+→ Arlo → Meridian rebrand: deferred. First users are close contacts — Arlo is fine. Fix before first university pitch (Phase 4).
+→ Homepage redesign: deferred. Revisit after first users and feedback.
+→ Launch gate review after Session 39
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
