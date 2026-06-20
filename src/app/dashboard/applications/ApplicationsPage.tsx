@@ -101,7 +101,10 @@ export default function ApplicationsPage() {
       const raw = sessionStorage.getItem("analysis-result");
       if (raw) {
         const result = JSON.parse(raw);
-        const dirs = result?.profile?.suggestedDirections ?? [];
+        // Guard: older analyses stored suggestedDirections as a string; calling
+        // .map on a non-array crashed the page.
+        const raw_dirs = result?.profile?.suggestedDirections;
+        const dirs = Array.isArray(raw_dirs) ? raw_dirs : [];
         setAllDirections(dirs);
         setDirectionTitle(dirs[0]?.title ?? null);
       }

@@ -244,7 +244,7 @@ export default function ProfilePage() {
             {/* Direction card */}
             <div className={s.directionCard}>
               <div className={s.directionCardLabel}>Directions worth exploring</div>
-              {analysisResult?.profile?.suggestedDirections?.length ? (
+              {Array.isArray(analysisResult?.profile?.suggestedDirections) && analysisResult.profile.suggestedDirections.length ? (
                 <>
                   {analysisResult.profile.summary && (
                     <div className={s.directionCardSub} style={{ marginBottom: "1rem" }}>
@@ -285,7 +285,7 @@ export default function ProfilePage() {
 
             {/* What Arlo knows */}
             <div className={s.knowsCard}>
-              {analysisResult?.profile?.valuesSignals?.length ? (
+              {Array.isArray(analysisResult?.profile?.valuesSignals) && analysisResult.profile.valuesSignals.length ? (
                 <>
                   <div className={s.knowsRow}>
                     <div className={s.knowsLabel}>What Arlo sees in you</div>

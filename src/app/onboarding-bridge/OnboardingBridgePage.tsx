@@ -116,11 +116,13 @@ export default function OnboardingBridgePage() {
   }
 
   const profile = analysisResult?.profile;
-  const primaryDirection = profile?.suggestedDirections?.[0];
+  // Guard against older analyses that stored these as strings, not arrays.
+  const directionsArr = Array.isArray(profile?.suggestedDirections) ? profile.suggestedDirections : [];
+  const primaryDirection = directionsArr[0];
   const directionStatement = primaryDirection?.title ?? FALLBACK_DIRECTION;
   const directionDetail = profile?.summary ?? FALLBACK_DETAIL;
-  const rolesDisplay = profile?.topRoleTitles?.join(' · ') ?? FALLBACK_ROLES;
-  const totalDirections = profile?.suggestedDirections?.length ?? 0;
+  const rolesDisplay = Array.isArray(profile?.topRoleTitles) ? profile.topRoleTitles.join(' · ') : FALLBACK_ROLES;
+  const totalDirections = directionsArr.length;
 
   return (
     <div className={s.page}>

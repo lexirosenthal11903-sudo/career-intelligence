@@ -72,7 +72,8 @@ export default function RoleDetailPage() {
       const stored = sessionStorage.getItem("analysis-result");
       if (stored) {
         const parsed = JSON.parse(stored);
-        const dirs: Direction[] = parsed?.profile?.suggestedDirections ?? [];
+        const sd = parsed?.profile?.suggestedDirections;
+        const dirs: Direction[] = Array.isArray(sd) ? sd : [];
         setAllDirections(dirs);
         const match = dirs.find((d) => slugify(d.title) === slug);
         if (match) {
@@ -87,7 +88,8 @@ export default function RoleDetailPage() {
       fetch("/api/results")
         .then((r) => r.json())
         .then((data) => {
-          const dirs: Direction[] = data?.result?.profile?.suggestedDirections ?? [];
+          const sd = data?.result?.profile?.suggestedDirections;
+          const dirs: Direction[] = Array.isArray(sd) ? sd : [];
           setAllDirections(dirs);
           const match = dirs.find((d) => slugify(d.title) === slug);
           if (match) setDirection(match);

@@ -312,8 +312,10 @@ export default function RolesPage() {
 
   // ── Derived data ──────────────────────────────────────────────────────────
   const profile = analysisResult?.profile;
-  const directions = profile?.suggestedDirections || [];
-  const keywords = profile?.searchKeywords || [];
+  // Guard against malformed stored analyses where these were saved as a string
+  // (older schema) — calling .map on a non-array crashed the whole page.
+  const directions = Array.isArray(profile?.suggestedDirections) ? profile.suggestedDirections : [];
+  const keywords = Array.isArray(profile?.searchKeywords) ? profile.searchKeywords : [];
 
   const directionTagline = directions.length
     ? directions.map((d) => d.title).join(" · ")
