@@ -119,36 +119,51 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-20)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-20, Session 37)
 
-**We are in Phase 3b. Session 37 begins next.**
+**We are in Phase 3b. Session 38 is next. It is a BUG FIX + TESTING session.**
 
-**Session 36 COMPLETE ✓ (2026-06-20):**
-- ✓ Product name: **Meridian** — locked
-- ✓ Advisor identity resolved: "Arlo" retired — no face, no character name
-- ✓ Advisor panel header: "Meridian"
-- ✓ Visual language: astronomical photography as abstract texture (not illustration)
-- ✓ Key image references identified: moon surface B&W (extreme close-up) + nebula amber/rust
-- ✓ Homepage structure: Perplexity Computer layout (hero → feature grid → CTA), Meridian execution
-- ✓ University licensing confirmed as Phase 4 B2B path (careers offices, 24/7 direction support)
+**⚠️ THE PRODUCT IS CURRENTLY BROKEN. Fix this before anything else.**
 
-**Standing instructions (Sessions 35–36):**
-- Run audit agent at start of every session before Lexi tests anything
-- Batch working: agree full list upfront → build autonomously → push once → Lexi tests
-- Design session before build session — never mix them
+### Critical bugs found by Lexi (Session 37, 2026-06-20)
 
-**Session 37 — COMPLETE ✓ (2026-06-20):**
-- Homepage redesign explored (homepage-v3.html saved as draft — NOT locked)
-- Decision: homepage redesign shelved. Current homepage (v2) is good enough for first users.
-- Focus shifted to getting users, not refining the marketing site.
-- Astronomical images saved: img-moon.jpg + img-nebula.jpg in mockups/ for future use.
+**CRITICAL — product does not function:**
+1. Roles, Applications, and Profile pages return "this page couldn't load" — core product inaccessible
+2. Dashboard shows "DIRECTIONS WORTH EXPLORING / Your directions will appear here once you've shared your background" even after a completed analysis — real data not reaching the dashboard
+3. Onboarding bridge shows "I've matched you with 2015 directions" — reading a date field as a count. Data flow from analysis → onboarding bridge is broken.
 
-**Session priority order (revised 2026-06-20):**
-1. Session 38: Direction refinement feature
-2. Session 39: CV tailoring + cover letter
-→ Arlo → Meridian rebrand: deferred. First users are close contacts — Arlo is fine. Fix before first university pitch (Phase 4).
-→ Homepage redesign: deferred. Revisit after first users and feedback.
-→ Launch gate review after Session 39
+**IMPORTANT — product works but is wrong:**
+4. Onboarding bridge title is hardcoded placeholder: "You think in systems, but you're drawn to people problems." — not from real analysis
+5. Input page and Arlo intro text are not personalised — still generic placeholder
+6. "Update my CV" in Profile takes user through the entire input page flow — should just allow CV replacement
+7. Arlo text on input page is generic, not tailored to the user
+
+**Root cause to investigate:** The data flow from `/api/analyse` → sessionStorage → onboarding bridge → dashboard is clearly broken for at least some users/flows. Returning users especially affected. The "2015 directions" bug suggests the code is reading `result.created_at` or similar instead of `result.suggestedDirections.length`.
+
+### Automated bug detection — standing problem
+The audit agent catches code issues but cannot catch UI bugs without running the product. **Session 38 must include writing Playwright end-to-end tests** covering every critical flow, so bugs surface automatically before Lexi has to find them manually. This was in the roadmap since Phase 2 and was never done. Do it in Session 38.
+
+### Session 37 decisions (2026-06-20)
+- Homepage redesign: **shelved**. Draft saved at `.design/career-intelligence-redesign/mockups/homepage-v3.html`. Not locked. Revisit after real user feedback.
+- Arlo face + name: **stays as-is** for now. First users are close contacts. Arlo → Meridian rebrand deferred to before first university pitch (Phase 4).
+- Astronomical images: saved as `img-moon.jpg` + `img-nebula.jpg` in mockups/ for future use.
+- Mentorship feel: **real problem identified**. Product reads as "dashboard + chatbot", not "mentorship platform". Arlo should initiate, not wait. Fix is in Session 39.
+
+### Revised session priority order
+1. **Session 38:** Fix all critical + important bugs above. Write Playwright tests for every flow.
+2. **Session 39:** Arlo initiates on page load (small change, big feel shift) + direction refinement feature
+3. **Session 40:** CV tailoring basic + cover letter basic
+4. **Then:** Share with 3–5 close contacts. Get real feedback.
+→ Arlo → Meridian rebrand: deferred to Phase 4 (before first university pitch)
+→ Homepage redesign: deferred until after first users + feedback
+→ Full Phase 3c: build after first user feedback, not before
+
+### What "good enough to share with close contacts" looks like
+- Core flow works end to end: input → loading → onboarding bridge (real data) → dashboard (real directions) → roles (real jobs)
+- Direction refinement works (Arlo responds when user says a direction doesn't fit)
+- Arlo initiates when you open a page — doesn't wait to be asked
+- CV tailoring basic (Arlo tailors your CV to a specific role)
+- Cover letter basic (Arlo writes it, user approves)
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` is active before touching anything
