@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:prod": "NEXT_PUBLIC_ENABLE_CRASH_TEST=1 playwright test --config=playwright.prod.config.ts",
+    "test:e2e:live": "playwright test --config=playwright.live.config.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
