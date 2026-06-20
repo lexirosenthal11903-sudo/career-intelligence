@@ -137,17 +137,17 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - Batch working: agree full list upfront → build autonomously → push once → Lexi tests
 - Design session before build session — never mix them
 
-**Next action (Session 37 — DESIGN session):**
-1. Finalise astronomical imagery references with Lexi
-2. Design new Meridian homepage (Perplexity structure, Meridian brand, astronomical texture)
-3. Design advisor panel — no face, "Meridian" header, cream panel
-4. Lock all designs → Session 38 builds them
+**Session 37 — COMPLETE ✓ (2026-06-20):**
+- Homepage redesign explored (homepage-v3.html saved as draft — NOT locked)
+- Decision: homepage redesign shelved. Current homepage (v2) is good enough for first users.
+- Focus shifted to getting users, not refining the marketing site.
+- Astronomical images saved: img-moon.jpg + img-nebula.jpg in mockups/ for future use.
 
-**Session priority order (next 4 sessions):**
-1. Session 37: Meridian homepage + advisor panel design (design only)
-2. Session 38: Build rebrand — replace all Arlo/Career Intelligence references, build new homepage
-3. Session 39: Direction refinement feature
-4. Session 40: CV tailoring + cover letter
+**Session priority order (revised 2026-06-20):**
+1. Session 38: Engineering — Arlo → Meridian fix (remove SVG, update all panel headers + text references)
+2. Session 39: Direction refinement feature
+3. Session 40: CV tailoring + cover letter
+→ Homepage redesign: deferred. Revisit after first real users and feedback.
 → Launch gate review after Session 40
 
 **At the start of every session:**

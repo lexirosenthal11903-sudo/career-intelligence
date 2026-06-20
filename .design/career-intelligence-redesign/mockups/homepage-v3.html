@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Meridian — Homepage v3 (Session 37)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #F7F6F3;
+    --surface:      #FFFFFF;
+    --cream:        #F5F3EE;
+    --cream-2:      #EDEBE5;
+    --ink:          #1A1610;
+    --ink-2:        #48402C;
+    --ink-3:        #837B6D;
+    --ink-4:        #BDB7AC;
+    --ink-5:        #E6E3DC;
+    --deep:         #211A11;
+    --deep-2:       #2E2417;
+    --on-deep:      #EDE8DF;
+    --on-deep-2:    #A99E88;
+    --on-deep-3:    #6E6353;
+    --accent:       #B05E16;
+    --accent-lt:    #C56E20;
+    --accent-soft:  rgba(176,94,22,.10);
+    --accent-on-dark: #D4803A;
+    --line:         rgba(0,0,0,.07);
+    --f: 'Instrument Sans', system-ui, sans-serif;
+    --ease: cubic-bezier(.25,.1,.25,1);
+    --sh-card: 0 2px 16px rgba(0,0,0,.06);
+    --sh-frame: 0 40px 100px rgba(26,22,16,.22), 0 14px 40px rgba(26,22,16,.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--f); -webkit-font-smoothing: antialiased; line-height: 1.6; }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(247,246,243,.94);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--ink-5);
+  }
+  .nav-in {
+    max-width: 1160px; margin: 0 auto;
+    height: 62px; padding: 0 40px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-wordmark { font-weight: 700; font-size: 15px; letter-spacing: -.02em; color: var(--ink); }
+  .nav-right { display: flex; align-items: center; gap: 24px; }
+  .nav-login { font-size: 14px; font-weight: 500; color: var(--ink-3); text-decoration: none; cursor: pointer; transition: color .15s; }
+  .nav-login:hover { color: var(--ink); }
+  .nav-cta {
+    font-size: 14px; font-weight: 600;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 9px; padding: 9px 20px;
+    cursor: pointer; transition: background .15s var(--ease), transform .15s var(--ease);
+  }
+  .nav-cta:hover { background: var(--accent-lt); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero-section {
+    max-width: 1160px; margin: 0 auto;
+    padding: 80px 40px 96px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+  }
+
+  .hero-left {}
+  .hero-tag { display: none; }
+  .hero-h1 {
+    font-size: clamp(36px, 4.2vw, 58px);
+    font-weight: 700; line-height: 1.05; letter-spacing: -.035em;
+    color: var(--ink); margin-bottom: 20px;
+  }
+  .hero-sub {
+    font-size: 18px; line-height: 1.65;
+    color: var(--ink-2); max-width: 400px; margin-bottom: 36px;
+  }
+  .hero-actions { display: flex; align-items: center; gap: 16px; }
+  .cta-primary {
+    font-size: 16px; font-weight: 600;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 11px; padding: 15px 30px;
+    cursor: pointer; transition: background .15s var(--ease), transform .15s var(--ease);
+  }
+  .cta-primary:hover { background: var(--accent-lt); transform: translateY(-2px); }
+  .hero-note { font-size: 13px; color: var(--ink-4); }
+
+  /* ── HERO RIGHT — PRODUCT FRAME ── */
+  .hero-right { position: relative; }
+  .hero-frame {
+    position: relative;
+    background: var(--deep);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--sh-frame);
+    aspect-ratio: 4/3;
+  }
+  .hero-frame-bg {
+    position: absolute; inset: 0;
+    background-image: url('img-moon.jpg');
+    background-size: cover; background-position: center;
+    filter: blur(3px) brightness(.35);
+    transform: scale(1.05);
+  }
+  .hero-frame-glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(60% 60% at 50% 50%, rgba(176,94,22,.28) 0%, transparent 70%);
+  }
+  .hero-frame-content {
+    position: relative; z-index: 1;
+    padding: 24px; height: 100%;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  /* Mini UI inside frame */
+  .mini-header {
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: rgba(237,232,223,.5); padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .mini-label {
+    font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent-on-dark); margin-bottom: 8px;
+  }
+  .mini-direction-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .mini-dir-title {
+    font-size: 13px; font-weight: 600; color: var(--on-deep);
+    margin-bottom: 6px;
+  }
+  .mini-dir-body {
+    font-size: 11px; line-height: 1.55; color: var(--on-deep-2);
+  }
+  .mini-roles { display: flex; flex-direction: column; gap: 6px; }
+  .mini-role {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 8px; padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .mini-role-name { font-size: 11px; font-weight: 500; color: var(--on-deep); }
+  .mini-fit {
+    font-size: 9px; font-weight: 600; letter-spacing: .04em;
+    color: var(--accent-on-dark);
+    background: rgba(176,94,22,.18);
+    border-radius: 4px; padding: 2px 7px;
+  }
+  .mini-fit.good { color: var(--on-deep-2); background: rgba(255,255,255,.07); }
+  .mini-chat {
+    margin-top: auto;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 9px; padding: 10px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .mini-chat-text { font-size: 11px; color: rgba(237,232,223,.35); }
+  .mini-chat-btn {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); display: flex; align-items: center; justify-content: center;
+    flex: none;
+  }
+  .mini-chat-btn svg { width: 10px; height: 10px; }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    max-width: 1160px; margin: 0 auto;
+    border: none; border-top: 1px solid var(--ink-5);
+  }
+
+  /* ── 3-CARD SECTION ── */
+  .pipeline-section {
+    padding: 96px 40px;
+    background: var(--bg);
+  }
+  .section-center { max-width: 1160px; margin: 0 auto; }
+  .section-heading {
+    font-size: clamp(26px, 2.8vw, 36px);
+    font-weight: 700; letter-spacing: -.03em;
+    color: var(--ink); text-align: center; margin-bottom: 48px;
+  }
+  .pipeline-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    margin-bottom: 40px;
+  }
+  .pipeline-card {
+    background: var(--surface);
+    border: 1px solid var(--ink-5);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: var(--sh-card);
+    transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .pipeline-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.10); }
+  /* Pipeline card visuals — mini UI */
+  .pipeline-card-visual {
+    padding: 22px 22px 0;
+    background: var(--deep);
+    height: 210px;
+    position: relative; overflow: hidden;
+  }
+  .pipeline-card-visual.cream { background: var(--cream); }
+  .pipeline-card-visual-glow {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
+    background: linear-gradient(to bottom, transparent, #211A11);
+    pointer-events: none;
+  }
+  .pipeline-card-visual.cream .pipeline-card-visual-glow {
+    background: linear-gradient(to bottom, transparent, #F5F3EE);
+  }
+
+  /* Card 1 — directions */
+  .mini-dir-label {
+    font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--on-deep-3); margin-bottom: 10px;
+  }
+  .mini-dir-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 7px; padding: 9px 12px; margin-bottom: 6px;
+    font-size: 12px; font-weight: 500; color: var(--on-deep);
+  }
+  .mini-dir-pill.active {
+    background: rgba(176,94,22,.18);
+    border-color: rgba(176,94,22,.30);
+    color: var(--accent-on-dark);
+  }
+  .mini-dir-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--on-deep-3); flex: none;
+  }
+  .mini-dir-dot.active { background: var(--accent-on-dark); }
+
+  /* Card 2 — roles */
+  .mini-roles-label {
+    font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--on-deep-3); margin-bottom: 10px;
+  }
+  .mini-role-row {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 7px; padding: 9px 12px; margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .mini-role-info { display: flex; flex-direction: column; }
+  .mini-role-title { font-size: 11px; font-weight: 600; color: var(--on-deep); margin-bottom: 2px; }
+  .mini-role-co { font-size: 10px; color: var(--on-deep-3); }
+  .mini-fit-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: .03em;
+    padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+  }
+  .mini-fit-badge.strong { background: rgba(176,94,22,.20); color: var(--accent-on-dark); }
+  .mini-fit-badge.good { background: rgba(255,255,255,.08); color: var(--on-deep-2); }
+
+  /* Card 3 — advisor */
+  .mini-advisor-header {
+    font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 12px;
+  }
+  .mini-bubble {
+    border-radius: 10px; padding: 9px 12px; margin-bottom: 7px;
+    font-size: 11px; line-height: 1.5;
+  }
+  .mini-bubble.user {
+    background: var(--accent-soft);
+    color: var(--accent); margin-left: 24px;
+    border-bottom-right-radius: 3px;
+  }
+  .mini-bubble.advisor {
+    background: var(--surface);
+    color: var(--ink-2);
+    border: 1px solid var(--ink-5);
+    margin-right: 24px;
+    border-bottom-left-radius: 3px;
+  }
+  .pipeline-card-body { padding: 20px 22px 22px; }
+  .pipeline-card-title {
+    font-size: 15px; font-weight: 700; letter-spacing: -.02em;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .pipeline-card-desc { font-size: 13.5px; line-height: 1.6; color: var(--ink-3); }
+
+  .section-cta-wrap { text-align: center; }
+  .cta-outlined {
+    font-size: 15px; font-weight: 600;
+    background: transparent; color: var(--ink);
+    border: 1.5px solid var(--ink-5);
+    border-radius: 10px; padding: 13px 28px;
+    cursor: pointer; transition: border-color .15s, color .15s, transform .15s;
+  }
+  .cta-outlined:hover { border-color: var(--ink-3); color: var(--ink); transform: translateY(-1px); }
+
+  /* ── 6-CARD FEATURE GRID ── */
+  .features-section {
+    padding: 96px 40px;
+    background: var(--surface);
+    border-top: 1px solid var(--ink-5);
+    border-bottom: 1px solid var(--ink-5);
+  }
+  .features-header { text-align: center; margin-bottom: 12px; }
+  .features-sub {
+    font-size: 16px; color: var(--ink-3);
+    text-align: center; margin-bottom: 56px;
+    max-width: 520px; margin-left: auto; margin-right: auto; margin-top: 12px;
+  }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+    background: var(--ink-5);
+    border: 1px solid var(--ink-5);
+    border-radius: 16px; overflow: hidden;
+  }
+  .feature-card {
+    background: var(--surface);
+    padding: 28px 28px 30px;
+    transition: background .15s;
+  }
+  .feature-card:hover { background: var(--cream); }
+  .feature-icon {
+    width: 36px; height: 36px;
+    background: var(--accent-soft);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .feature-icon svg { width: 18px; height: 18px; }
+  .feature-title {
+    font-size: 14px; font-weight: 700; letter-spacing: -.01em;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .feature-desc { font-size: 13px; line-height: 1.6; color: var(--ink-3); }
+
+  /* ── CLOSING CTA ── */
+  .cta-section {
+    position: relative; overflow: hidden;
+    background: var(--deep);
+    padding: 120px 40px;
+    text-align: center;
+  }
+  .cta-bg {
+    position: absolute; inset: 0;
+    background-image: url('img-nebula.jpg');
+    background-size: cover; background-position: center;
+    filter: brightness(.28) saturate(1.4);
+  }
+  .cta-glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(60% 50% at 50% 50%, rgba(176,94,22,.22) 0%, transparent 70%);
+  }
+  .cta-content { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
+  .cta-heading {
+    font-size: clamp(30px, 3.4vw, 46px);
+    font-weight: 700; letter-spacing: -.035em; line-height: 1.1;
+    color: var(--on-deep); margin-bottom: 16px;
+  }
+  .cta-body {
+    font-size: 16px; color: var(--on-deep-2); margin-bottom: 40px; line-height: 1.65;
+  }
+  .cta-btn {
+    font-size: 16px; font-weight: 600;
+    background: var(--accent-on-dark); color: #fff;
+    border: none; border-radius: 11px; padding: 16px 36px;
+    cursor: pointer; transition: opacity .15s, transform .15s;
+  }
+  .cta-btn:hover { opacity: .88; transform: translateY(-2px); }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--deep-2);
+    padding: 40px;
+    border-top: 1px solid rgba(255,255,255,.05);
+  }
+  .footer-in {
+    max-width: 1160px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-wordmark { font-size: 14px; font-weight: 700; color: var(--on-deep-2); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--on-deep-3); text-decoration: none; transition: color .15s; }
+  .footer-links a:hover { color: var(--on-deep-2); }
+  .footer-copy { font-size: 12px; color: var(--on-deep-3); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-in">
+    <span class="nav-wordmark">Meridian</span>
+    <div class="nav-right">
+      <a class="nav-login">Log in</a>
+      <button class="nav-cta">Sign up</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="background: var(--bg);">
+  <div class="hero-section">
+
+    <!-- Left -->
+    <div class="hero-left">
+      <span class="hero-tag">Career intelligence</span>
+      <h1 class="hero-h1">You don't need to have it figured out.</h1>
+      <p class="hero-sub">Share your background. Meridian finds the shape of where you're headed — and stays with you as you get there.</p>
+      <div class="hero-actions">
+        <button class="cta-primary">Get started</button>
+        <span class="hero-note">Free to try · No CV required</span>
+      </div>
+    </div>
+
+    <!-- Right — product frame -->
+    <div class="hero-right">
+      <div class="hero-frame">
+        <div class="hero-frame-bg"></div>
+        <div class="hero-frame-glow"></div>
+        <div class="hero-frame-content">
+          <div class="mini-header">Meridian</div>
+
+          <div class="mini-label">Directions worth exploring</div>
+          <div class="mini-direction-card">
+            <div class="mini-dir-title">Product &amp; Strategy</div>
+            <div class="mini-dir-body">Your background in research and your instinct to simplify complex problems makes product work a natural fit.</div>
+          </div>
+
+          <div class="mini-label" style="margin-top:4px;">Roles that fit</div>
+          <div class="mini-roles">
+            <div class="mini-role">
+              <span class="mini-role-name">Junior Product Manager · Monzo</span>
+              <span class="mini-fit">Strong fit</span>
+            </div>
+            <div class="mini-role">
+              <span class="mini-role-name">Strategy Analyst · Bain &amp; Co</span>
+              <span class="mini-fit good">Good fit</span>
+            </div>
+          </div>
+
+          <div class="mini-chat">
+            <span class="mini-chat-text">Ask Meridian anything…</span>
+            <div class="mini-chat-btn">
+              <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 1L9 5L5 9M1 5H9" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 3-CARD SECTION -->
+<section class="pipeline-section">
+  <div class="section-center">
+    <h2 class="section-heading">From background to direction</h2>
+    <div class="pipeline-grid">
+
+      <!-- Card 1 — directions -->
+      <div class="pipeline-card">
+        <div class="pipeline-card-visual">
+          <div class="mini-dir-label">Directions worth exploring</div>
+          <div class="mini-dir-pill active">
+            <span class="mini-dir-dot active"></span>Product &amp; Strategy
+          </div>
+          <div class="mini-dir-pill">
+            <span class="mini-dir-dot"></span>Research &amp; Policy
+          </div>
+          <div class="mini-dir-pill">
+            <span class="mini-dir-dot"></span>Creative &amp; Communications
+          </div>
+          <div class="pipeline-card-visual-glow"></div>
+        </div>
+        <div class="pipeline-card-body">
+          <div class="pipeline-card-title">Understand yourself first</div>
+          <div class="pipeline-card-desc">We look at your background and surface directions worth exploring. No target role needed — we start from who you are.</div>
+        </div>
+      </div>
+
+      <!-- Card 2 — roles -->
+      <div class="pipeline-card">
+        <div class="pipeline-card-visual">
+          <div class="mini-roles-label">Roles that fit</div>
+          <div class="mini-role-row">
+            <div class="mini-role-info">
+              <div class="mini-role-title">Junior Product Manager</div>
+              <div class="mini-role-co">Monzo · London</div>
+            </div>
+            <span class="mini-fit-badge strong">Strong fit</span>
+          </div>
+          <div class="mini-role-row">
+            <div class="mini-role-info">
+              <div class="mini-role-title">Strategy Analyst</div>
+              <div class="mini-role-co">Bain &amp; Co · London</div>
+            </div>
+            <span class="mini-fit-badge good">Good fit</span>
+          </div>
+          <div class="mini-role-row">
+            <div class="mini-role-info">
+              <div class="mini-role-title">UX Researcher</div>
+              <div class="mini-role-co">IDEO · Remote</div>
+            </div>
+            <span class="mini-fit-badge good">Good fit</span>
+          </div>
+          <div class="pipeline-card-visual-glow"></div>
+        </div>
+        <div class="pipeline-card-body">
+          <div class="pipeline-card-title">Find roles that actually fit</div>
+          <div class="pipeline-card-desc">Live listings matched to your direction, not to keywords. We're honest about fit — and honest about where you might need to grow.</div>
+        </div>
+      </div>
+
+      <!-- Card 3 — advisor -->
+      <div class="pipeline-card">
+        <div class="pipeline-card-visual cream">
+          <div class="mini-advisor-header">Meridian</div>
+          <div class="mini-bubble user">Should I apply to the Monzo role?</div>
+          <div class="mini-bubble advisor">This is a strong match. Your research background maps well to their product process — I'd lead with that.</div>
+          <div class="pipeline-card-visual-glow"></div>
+        </div>
+        <div class="pipeline-card-body">
+          <div class="pipeline-card-title">Something worth coming back to</div>
+          <div class="pipeline-card-desc">New roles as they appear, your next real step. A daily companion — not a notification machine.</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="section-cta-wrap">
+      <button class="cta-outlined">Get started</button>
+    </div>
+  </div>
+</section>
+
+<!-- 6-CARD FEATURE GRID -->
+<section class="features-section">
+  <div class="section-center">
+    <div class="features-header">
+      <h2 class="section-heading" style="margin-bottom:0;">What makes Meridian different</h2>
+    </div>
+    <p class="features-sub">Every other platform assumes you know what you want. We don't. That's the whole product.</p>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 1L1 6l8 5 8-5-8-5z"/><path d="M1 12l8 5 8-5"/>
+          </svg>
+        </div>
+        <div class="feature-title">Start without a plan</div>
+        <div class="feature-desc">You don't need a target role. Share your background and we'll find the shape of what fits.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="9" r="7"/><path d="M9 5v4l3 2"/>
+          </svg>
+        </div>
+        <div class="feature-title">Directions, not decisions</div>
+        <div class="feature-desc">Three paths worth exploring, not one verdict. You stay in control of where this goes.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9a6 6 0 1012 0"/><path d="M9 3v6l3 3"/>
+          </svg>
+        </div>
+        <div class="feature-title">An advisor, not an algorithm</div>
+        <div class="feature-desc">Meridian asks questions, remembers what you've shared, and builds on it every session.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 8h6M6 11h4"/>
+          </svg>
+        </div>
+        <div class="feature-title">Roles matched to you</div>
+        <div class="feature-desc">Not to a keyword. To who you actually are and where you're genuinely headed.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 2l2 4h5l-4 3 1.5 5L9 11.5 4.5 14 6 9 2 6h5z"/>
+          </svg>
+        </div>
+        <div class="feature-title">Honest about fit</div>
+        <div class="feature-desc">We tell you why a role fits and where it doesn't. No inflated scores, no false hope.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 1v4M9 13v4M1 9h4M13 9h4"/><circle cx="9" cy="9" r="3"/>
+          </svg>
+        </div>
+        <div class="feature-title">Something worth doing every day</div>
+        <div class="feature-desc">New roles as they appear, your next real step. Not notifications — actual value.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section class="cta-section">
+  <div class="cta-bg"></div>
+  <div class="cta-glow"></div>
+  <div class="cta-content">
+    <h2 class="cta-heading">Find where you're going.</h2>
+    <p class="cta-body">You don't need to have it figured out. Meridian does the work of finding the shape — you just need to start.</p>
+    <button class="cta-btn">Get started</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-in">
+    <span class="footer-wordmark">Meridian</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
+    </div>
+    <span class="footer-copy">© 2026 Meridian</span>
+  </div>
+</footer>
+
+</body>
+</html>
