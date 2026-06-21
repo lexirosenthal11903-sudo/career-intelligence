@@ -1,37 +1,74 @@
-/* Design tokens — source: .design/career-intelligence-redesign/SESSION_DECISIONS.md */
+/* =============================================================================
+   Design tokens — SINGLE SOURCE OF TRUTH for the visual rebuild.
+   Locked warm-amber palette from the canonical mockups (Session 42, 2026-06-21):
+     .design/career-intelligence-redesign/mockups/ci-split.html
+     .design/career-intelligence-redesign/mockups/ci-split-first.html
+   Rule (CLAUDE.md): every visual value is a token. Never introduce a stray hex —
+   add a token here first. Legacy names below are aliases that resolve to these
+   canonical values and are removed as components migrate onto the new shell.
+   ========================================================================== */
 :root {
-  --bg: #F7F6F3;
-  --surface: #FFFFFF;
-  --cream: #F5F3EE;
-  --cream-2: #EDEBE5;
-  --ink: #1A1610;
-  --ink-2: #48402C;
-  --ink-3: #837B6D;
-  --ink-4: #BDB7AC;
-  --ink-5: #E6E3DC;
+  /* ---- Surfaces ---- */
+  --bg: #F7F6F3;          /* app background (paper) */
+  --surface: #FFFFFF;     /* cards, chat bubbles, nav */
+  --panel: #F5F3EE;       /* advisor/side panel, subtle fills, hover */
+  --panel-2: #EFEDE7;     /* deeper fill — user avatar, num chips, good-fit badge */
+
+  /* ---- Ink (text) ---- */
+  --ink: #1A1610;         /* primary text, headings */
+  --ink-2: #5A5040;       /* body / secondary text */
+  --ink-3: #9E9080;       /* muted — meta, placeholders, inactive icons */
+  --ink-4: #BDB7AC;       /* finer muted step (legacy steps) */
+  --ink-5: #E6E3DC;       /* finest muted step (legacy steps) */
+
+  /* ---- Lines ---- */
+  --line: #E8E4DC;        /* default warm hairline border */
+  --line-2: #F0ECE4;      /* softer internal divider (card sub-rows) */
+
+  /* ---- Accent (amber — primary/lead/active ONLY) ---- */
+  --accent: #B05E16;
+  --accent-2: #8F4F10;    /* darker amber — gradients, hover on accent */
+  --accent-soft: rgba(176, 94, 22, 0.10);  /* tints: active nav, pills, badges */
+  --accent-lt: #C56E20;   /* lighter amber step (legacy) */
+
+  /* ---- Espresso (bottom-only / on-dark) ---- */
   --deep: #211A11;
   --deep-2: #2E2417;
   --on-deep: #EDE8DF;
   --on-deep-2: #A99E88;
   --on-deep-3: #6E6353;
-  --accent: #B05E16;
-  --accent-lt: #C56E20;
-  --accent-dark: #8F4F10;
   --accent-on-dark: #D4803A;
-  --accent-soft: rgba(176, 94, 22, 0.08);
-  --green: #3E9B6B;
+
+  /* ---- Functional state (not theme colours) ---- */
+  --green: #3E9B6B;       /* success / match — functional only, never a theme */
   --green-soft: rgba(62, 155, 107, 0.1);
-  --danger: #C0392B;
+  --danger: #C0392B;      /* urgent / deadline */
   --danger-dark: #A93226;
-  --line: rgba(0, 0, 0, 0.07);
-  --sh-shot: 0 40px 90px rgba(26, 22, 16, 0.18), 0 14px 34px rgba(26, 22, 16, 0.10);
+
+  /* ---- Type ---- */
+  --sans: var(--f, 'Instrument Sans', system-ui, sans-serif);
+  --mono: var(--fm, 'DM Mono', ui-monospace, monospace);
+
+  /* ---- Elevation ---- */
+  --sh: 0 1px 2px rgba(26, 22, 16, 0.04), 0 8px 22px -12px rgba(26, 22, 16, 0.14);
   --sh-card: 0 2px 16px rgba(0, 0, 0, 0.06);
+  --sh-shot: 0 40px 90px rgba(26, 22, 16, 0.18), 0 14px 34px rgba(26, 22, 16, 0.10);
+
+  /* ---- Motion ---- */
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* ---- Z-index scale ---- */
   --z-nav: 10;
   --z-sidebar: 20;
   --z-modal: 100;
   --z-auth: 200;
   --z-toast: 300;
+
+  /* ---- Legacy aliases — resolve to canonical tokens above.
+          Remove each as its consumers migrate onto the new shell. ---- */
+  --cream: var(--panel);
+  --cream-2: var(--panel-2);
+  --accent-dark: var(--accent-2);
 }
 
 *, *::before, *::after {
@@ -47,6 +84,16 @@ html {
 body {
   background: var(--bg);
   color: var(--ink);
+  font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
   line-height: 1.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
