@@ -44,8 +44,29 @@ const scoreTool = {
   },
 };
 
+// The analysis pipeline has occasionally serialised array fields as strings,
+// which crashed `.map` here ("map is not a function", Sentry S41). Coerce on the
+// way in so a malformed profile can never take down scoring.
+function asArray<T>(v: unknown): T[] {
+  if (Array.isArray(v)) return v as T[];
+  if (typeof v === 'string') {
+    try {
+      const p = JSON.parse(v);
+      if (Array.isArray(p)) return p as T[];
+    } catch {
+      /* prose — drop */
+    }
+  }
+  return [];
+}
+
 export async function POST(request: Request) {
-  const { jobs, profile } = await request.json();
+  const { jobs, profile: rawProfile } = await request.json();
+  const profile = { ...(rawProfile || {}) };
+  profile.suggestedDirections = asArray(profile.suggestedDirections);
+  profile.topRoleTitles = asArray(profile.topRoleTitles);
+  profile.extractedSkills = asArray(profile.extractedSkills);
+  profile.extractedSectors = asArray(profile.extractedSectors);
 
   if (!jobs?.length) {
     return NextResponse.json({ jobs: [] });

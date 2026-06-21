@@ -239,7 +239,7 @@ export default function ProfilePage() {
                   <div className={s.directionCardRule} />
                   <div className={s.directionRolesLabel}>Based on your background</div>
                   <div className={s.rolesWrap}>
-                    {analysisResult.profile.suggestedDirections.map((d) => (
+                    {(Array.isArray(analysisResult.profile.suggestedDirections) ? analysisResult.profile.suggestedDirections : []).map((d) => (
                       <a
                         key={d.title}
                         href={`/dashboard/roles/${slugify(d.title)}`}
