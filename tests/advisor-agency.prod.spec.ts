@@ -19,12 +19,21 @@ import { seedAuthCookies, adminClient, getTestUserId } from './helpers/seedAuth'
 let cookies: Cookie[];
 let userId: string;
 
+// /api/chat runs the Upstash rate-limiter and Anthropic call first; both need
+// creds that live only in the deployed (Vercel) env, not local .env.local.
+// Opt in with E2E_LIVE_DEPS=1 against a credentialed/deployed server.
+const LIVE_DEPS = process.env.E2E_LIVE_DEPS === '1';
+const SKIP_REASON =
+  'Needs Upstash + Anthropic creds in the server env — set E2E_LIVE_DEPS=1 against a credentialed/deployed server.';
+
 test.beforeAll(async () => {
+  if (!LIVE_DEPS) return;
   cookies = await seedAuthCookies();
   userId = await getTestUserId();
 });
 
 test('Arlo initiates — opens the conversation unprompted', async ({ browser }) => {
+  test.skip(!LIVE_DEPS, SKIP_REASON);
   const context = await browser.newContext();
   await context.addCookies(cookies);
 
@@ -42,6 +51,7 @@ test('Arlo initiates — opens the conversation unprompted', async ({ browser })
 });
 
 test('Arlo remembers — a durable fact persists to the profile', async ({ browser }) => {
+  test.skip(!LIVE_DEPS, SKIP_REASON);
   const admin = adminClient();
   // Start from a clean memory so the assertion can't pass on a stale note.
   await admin
