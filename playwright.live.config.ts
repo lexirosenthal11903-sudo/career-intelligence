@@ -8,8 +8,11 @@ import { defineConfig, devices } from '@playwright/test';
  * behind the branch). This config hits the real deployed URL — no local server.
  *
  * Run with `npm run test:e2e:live`. Override the target with DEPLOY_URL=...
+ *
+ * Default target is the stable Production URL (production branch = `staging`,
+ * set up Session 40). The old `-staging` alias is dead.
  */
-const BASE = process.env.DEPLOY_URL || 'https://career-intelligence-staging.vercel.app';
+const BASE = process.env.DEPLOY_URL || 'https://career-intelligence-xi.vercel.app';
 
 export default defineConfig({
   testDir: './tests',

@@ -93,12 +93,23 @@ the spine plus a few things done excellently; the breadth returns fast because i
 something load-bearing.
 
 ### Step 0 — The engineering floor _(nothing real is built on sand)_
-- [ ] Put all 5 tables under version-controlled migrations; confirm RLS is on every table.
-- [ ] Install Playwright; write E2E tests for the core flows (new user, returning user, each tab).
-- [ ] Add Sentry (errors) + Vercel Analytics (funnel). We can finally see what's happening.
-- [ ] Move app state off `sessionStorage` onto the server as the source of truth.
-- [ ] Set up enforcement hooks (see Part 5) so tests + branch checks run automatically.
+- [x] Put all 5 tables under version-controlled migrations; confirm RLS is on every table.
+      _(S40: migrations for profiles/results/saved_jobs added in `supabase-migrations/`;
+      `verify_rls.sql` + README. ⬜ Lexi to run them in Supabase SQL Editor + run verify_rls.sql.)_
+- [x] Install Playwright; write E2E tests for the core flows. _(Done S38–39: `test:e2e`,
+      `test:e2e:prod`, `test:e2e:live`.)_
+- [x] Add Sentry (errors) + Vercel Analytics (funnel). _(S40: wired, dormant until a Sentry
+      DSN is set. ⬜ Lexi to create a Sentry project + add `NEXT_PUBLIC_SENTRY_DSN` to activate.)_
+- [x] Move app state off `sessionStorage` onto the server as the source of truth.
+      _(S40: `src/lib/analysisResult.ts` — server-first, all 7 read sites converted.)_
+- [x] Set up enforcement hooks (see Part 5). _(S40: `.claude/settings.json` — SessionStart
+      branch check + pre-commit e2e gate. Live next session / after `/hooks` reload.)_
+- [x] **Fix deployment:** one stable auto-updating URL. _(S40: production branch → `staging`;
+      stable URL `career-intelligence-xi.vercel.app`. Fixed the first build failure —
+      `NEXT_PUBLIC_SUPABASE_URL` was missing from the Production env; added it.)_
 **Done when:** Lexi can't open a broken build, because a broken build can't pass the gate.
+**Step 0 status:** built + verified locally; **Lexi's two remaining clicks** = run migrations
+in Supabase, and (optional) add the Sentry DSN.
 
 ### Step 1 — The spine _(the real, shareable v1)_
 - [ ] **Advisor memory:** an evolving model of the user, not a one-shot snapshot.

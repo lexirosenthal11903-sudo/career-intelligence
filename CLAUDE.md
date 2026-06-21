@@ -119,13 +119,21 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-20, Session 38)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-21, Session 40)
 
-**⚠️ `REBUILD.md` (repo root) is now the single source of truth.** Session 38 reset the plan: we are doing a **spine-first rebuild**, not more features on a broken base. Read `REBUILD.md` + `.session-handoff.md` before anything else — they supersede the phase/bug detail below until the docs are consolidated (REBUILD.md Part 4).
+**⚠️ `REBUILD.md` (repo root) is the single source of truth.** Spine-first rebuild — not more
+features on a broken base. Read `REBUILD.md` + `.session-handoff.md` before anything else.
 
-**Where we are:** Step 0 (engineering floor) started — Playwright harness is in (`npm run test:e2e`, 7 green). Next: reproduce the conditional production crash, then finish the floor. Model: **Opus** for the debugging/architecture.
+**Where we are (end of Session 40):** **Step 0 (engineering floor) is DONE.** Migrations + RLS, GDPR
+fix, Sentry + Analytics, server-first state (the S39 crash class is eliminated), enforcement hooks, and
+the deployment fix. **Stable URL: `career-intelligence-xi.vercel.app`** (production branch = `staging`;
+every push updates it, login persists). All gates green (smoke 15/15, prod 20/20, live 8/8).
+**Next: Step 1 (the spine)** — advisor memory + agency, jobs that are right, kill the smiley face.
+Model: **Opus**. Two Lexi clicks still close Step 0: run the migrations in Supabase, and (optional) add
+a Sentry DSN — see `.session-handoff.md`.
 
-**⚠️ THE PRODUCT IS STILL BROKEN for some flows. The floor + spine fix this. The bug detail below remains accurate but is now tracked in `REBUILD.md`.**
+**The crash is fixed and the floor is solid. The bug list below is largely addressed by the floor; the
+remaining items (personalisation, CV-update path) are Step 1 product work, tracked in `REBUILD.md`.**
 
 ### Critical bugs found by Lexi (Session 37, 2026-06-20)
 
