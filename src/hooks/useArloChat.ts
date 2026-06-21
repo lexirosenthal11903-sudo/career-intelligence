@@ -3,7 +3,12 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type ChatMsg = { role: "arlo" | "user" | "divider"; text: string; action?: "sign-in" };
+export type ChatMsg = {
+  role: "arlo" | "user" | "divider";
+  text: string;
+  action?: "sign-in";
+  actions?: string[]; // visible echo of real changes Arlo just made this turn
+};
 type ApiMsg = { role: "user" | "assistant"; content: string };
 
 const SIGN_IN_PROMPT =
@@ -29,6 +34,45 @@ export function useArloChat({
   // Attach to a <div> at the end of the messages list; auto-scrolls on new messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Arlo initiates: open the conversation with something specific instead of
+  // waiting to be asked. One API call, only when there's no prior conversation.
+  const initiate = useCallback(async () => {
+    if (!userId) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initiate: true }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const text =
+        (data.content as Array<{ type: string; text?: string }>)
+          ?.filter((b) => b.type === "text")
+          .map((b) => b.text ?? "")
+          .join("") || "";
+      if (!text) return;
+      setAllMsgs((prev) => [...prev, { role: "arlo", text }]);
+      // Persist the opener so it isn't regenerated on the next load.
+      const opener: ApiMsg = { role: "assistant", content: text };
+      apiHistoryRef.current = [...apiHistoryRef.current, opener];
+      if (supabase) {
+        supabase
+          .from("conversations")
+          .upsert(
+            { user_id: userId, page, messages: apiHistoryRef.current, updated_at: new Date().toISOString() },
+            { onConflict: "user_id,page" }
+          )
+          .then(() => {});
+      }
+    } catch {
+      // initiating is best-effort — silence beats a visible error on page open
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase, userId, page]);
+
   // Load persisted conversation from Supabase on mount
   useEffect(() => {
     if (!supabase || !userId || loadedRef.current) return;
@@ -52,9 +96,12 @@ export function useArloChat({
             })),
             { role: "divider" as const, text: "New session" },
           ]);
+        } else {
+          // No history on this page yet — Arlo opens the conversation.
+          initiate();
         }
       });
-  }, [supabase, userId, page]);
+  }, [supabase, userId, page, initiate]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -95,8 +142,9 @@ export function useArloChat({
             ?.filter((b) => b.type === "text")
             .map((b) => b.text ?? "")
             .join("") || ERROR_MSG;
+        const actions = Array.isArray(data.meridianActions) ? (data.meridianActions as string[]) : undefined;
 
-        setAllMsgs((prev) => [...prev, { role: "arlo", text: arloText }]);
+        setAllMsgs((prev) => [...prev, { role: "arlo", text: arloText, actions }]);
 
         const newArloMsg: ApiMsg = { role: "assistant", content: arloText };
         const updatedHistory = [...apiHistoryRef.current, newArloMsg];

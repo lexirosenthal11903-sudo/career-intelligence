@@ -10,7 +10,15 @@ function applyInline(text: string): React.ReactNode[] {
   });
 }
 
-export function ArloMessage({ text, action }: { text: string; action?: "sign-in" }) {
+export function ArloMessage({
+  text,
+  action,
+  actions,
+}: {
+  text: string;
+  action?: "sign-in";
+  actions?: string[];
+}) {
   const lines = text.split("\n");
   const elements: React.ReactNode[] = [];
   let listItems: React.ReactNode[] = [];
@@ -42,6 +50,27 @@ export function ArloMessage({ text, action }: { text: string; action?: "sign-in"
   return (
     <>
       {elements}
+      {/* Visible echo of real changes Arlo just made — "done" is felt, not buried. */}
+      {actions && actions.length > 0 && (
+        <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+          {actions.map((a, i) => (
+            <span
+              key={i}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "12px",
+                color: "var(--green, #3E9B6B)",
+                fontFamily: "var(--f)",
+              }}
+            >
+              <span aria-hidden>✓</span>
+              {a}
+            </span>
+          ))}
+        </div>
+      )}
       {action === "sign-in" && (
         <a
           href="/?signup=required"

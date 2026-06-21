@@ -49,7 +49,7 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
       // Every dashboard page renders the sidebar brand link when it renders at
       // all — its absence means the page crashed before paint.
       await expect(
-        page.getByRole('link', { name: 'Career Intelligence' }).first()
+        page.getByRole('link', { name: 'Meridian' }).first()
       ).toBeVisible({ timeout: 15_000 });
       expect(
         errors,

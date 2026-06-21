@@ -23,8 +23,17 @@ function formatSalary(job: AdzunaJob): string {
   return 'Not listed';
 }
 
+// Senior-role terms we exclude from the search for entry-level candidates, so
+// listings come back at the right seniority instead of being re-ranked down
+// after the fact (Adzuna `what_exclude` filters at source).
+const SENIOR_EXCLUDE = 'senior director head principal lead manager vp executive chief';
+
+function isJuniorSeniority(seniority?: string): boolean {
+  return /graduate|junior|entry.?level|early.?career|intern|assistant|trainee/i.test(seniority || '');
+}
+
 export async function POST(request: Request) {
-  const { keywords, location, salaryMin, salaryMax } = await request.json();
+  const { keywords, location, salaryMin, salaryMax, seniority } = await request.json();
 
   if (!Array.isArray(keywords) || keywords.length === 0) {
     return NextResponse.json(
@@ -40,17 +49,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Adzuna credentials not configured' }, { status: 500 });
   }
 
-  const searchLocation = location || 'london';
+  // Don't force London. An empty `where` searches all of Great Britain — the
+  // London default was a real "wrong location" complaint for non-London users.
+  const searchLocation = (typeof location === 'string' ? location : '').trim();
+  const excludeSenior = isJuniorSeniority(seniority);
 
   const fetchKeyword = async (keyword: string) => {
     const params = new URLSearchParams({
       app_id: appId,
       app_key: apiKey,
       what: keyword,
-      where: searchLocation,
       results_per_page: '5',
       max_days_old: '30',
     });
+    if (searchLocation) params.set('where', searchLocation);
+    if (excludeSenior) params.set('what_exclude', SENIOR_EXCLUDE);
     if (salaryMin) params.set('salary_min', String(salaryMin));
     if (salaryMax) params.set('salary_max', String(salaryMax));
 

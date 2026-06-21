@@ -14,7 +14,7 @@ import type { Cookie } from '@playwright/test';
  * way @supabase/ssr does (base64url, `base64-` prefix, chunked > 3180 chars).
  */
 
-function loadEnv(): Record<string, string> {
+export function loadEnv(): Record<string, string> {
   const raw = readFileSync(resolve(process.cwd(), '.env.local'), 'utf8');
   const env: Record<string, string> = {};
   for (const line of raw.split('\n')) {
@@ -97,4 +97,25 @@ export async function seedAuthCookies(): Promise<Cookie[]> {
     secure: false,
     sameSite: 'Lax' as const,
   }));
+}
+
+/** The seeded test user's email — used to look up its id for DB assertions. */
+export const TEST_USER_EMAIL = 'e2e-test@meridian.test';
+
+/** A service-role Supabase client for asserting on DB state from tests. */
+export function adminClient() {
+  const env = loadEnv();
+  return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+/** Resolve the seeded test user's auth id (it must already exist via seedAuthCookies). */
+export async function getTestUserId(): Promise<string> {
+  const admin = adminClient();
+  const { data, error } = await admin.auth.admin.listUsers();
+  if (error) throw new Error(`listUsers failed: ${error.message}`);
+  const user = data.users.find((u) => u.email === TEST_USER_EMAIL);
+  if (!user) throw new Error(`Test user ${TEST_USER_EMAIL} not found — run seedAuthCookies first`);
+  return user.id;
 }

@@ -12,7 +12,7 @@ Run. Run them in filename order.
 
 | Table                | Key                  | RLS | Migration |
 |----------------------|----------------------|-----|-----------|
-| `profiles`           | `id` (PK = auth uid) | ✓   | `20260612_profiles.sql` |
+| `profiles`           | `id` (PK = auth uid), `data` jsonb | ✓ | `20260612_profiles.sql` |
 | `results`            | `id` (PK), `user_id` | ✓   | `20260612_results.sql` |
 | `conversations`      | `(user_id, page)`    | ✓   | `20260613_conversations.sql` |
 | `saved_jobs`         | `user_id`, `job_id` (unique) | ✓ | `20260614_saved_jobs.sql` |
@@ -22,13 +22,12 @@ Every table references `auth.users(id) ON DELETE CASCADE`, so deleting an auth u
 cascades to all of their rows. `/api/delete-account` *also* deletes each table
 explicitly (belt-and-braces) — see `verify_rls.sql` note on GDPR.
 
-> **Doc-vs-code-vs-DB note (Session 40):** the LIVE DB is the source of truth and it
-> settled this. `profiles` really is keyed by `id` (= auth uid) and only has
-> `id, email, created_at` — **no `user_id`, no `data` column.** But `/api/profile`
-> (and parts of `/api/chat`) query `user_id` + `data`, so the profile feature is
-> **broken in production**. Step 1 must reconcile this: either add `data jsonb` to
-> `profiles` and key the code on `id`, or migrate the table to a `user_id`/`data`
-> shape. Until then, RLS on `profiles` is keyed on `id`.
+> **⚠️ RE-RUN `20260612_profiles.sql` (Session 41).** Resolved the doc-vs-code-vs-DB
+> drift: kept the live `id` key and **added the `data jsonb` + `updated_at` columns**
+> the code needs (via `ADD COLUMN IF NOT EXISTS` — safe, no data loss). The code now
+> keys on `id`. **This must be run in the SQL Editor before the profile feature and
+> advisor memory work in production** — the live table still lacks `data`. The
+> `profile-roundtrip.prod.spec.ts` test goes green once it's applied.
 
 ## Verifying RLS
 

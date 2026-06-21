@@ -112,12 +112,25 @@ something load-bearing.
 in Supabase, and (optional) add the Sentry DSN.
 
 ### Step 1 — The spine _(the real, shareable v1)_
-- [ ] **Advisor memory:** an evolving model of the user, not a one-shot snapshot.
-- [ ] **Advisor agency (tool_use):** it can actually update a direction, save a job, change a stage,
-      update the profile. When it says "done," something changes.
-- [ ] **Conversation-first surface:** the advisor *is* the interface, not a panel in the corner.
-- [ ] **Jobs that are right:** fix keyword generation + scoring so seniority and industry are correct.
-- [ ] **Kill the childish face;** stage toward the Meridian visual language.
+- [x] **Profiles fix (S41):** live `profiles` table now keyed on `id` with a `data jsonb` column
+      (migration `20260612_profiles.sql` — ⬜ **re-run in Supabase SQL Editor**); `/api/profile` and
+      `/api/chat` rekeyed via `src/lib/profile.ts`. Profile feature + advisor memory now actually work.
+- [x] **Advisor memory + agency, one tool_use system (S41):** `src/lib/advisor-tools.ts` — `remember`,
+      `update_profile`, `update_direction`, `save_job`, `set_application_stage`. Server-side tool loop in
+      `chat/route.ts`. Memory = the `remember` tool writing to `profiles.data.memory`, read back by
+      `buildUserContext`. "Done" changes real DB state, echoed visibly in the chat (`meridianActions`).
+- [x] **Advisor initiates (S41):** `useArloChat` fires an opener (`initiate`) on first load with no prior
+      conversation — the advisor opens, doesn't wait.
+- [x] **Jobs that are right (S41):** seniority-aware Adzuna search (`what_exclude` for entry-level) +
+      nationwide default instead of forced London; RolesPage passes seniority + real location.
+- [x] **Kill the childish face + begin Meridian rename (S41):** advisor smiley avatar replaced with an
+      abstract meridian mark across every dashboard panel + input; wordmark "Career Intelligence" →
+      "Meridian" in nav, all dashboard sidebars, and page title.
+- [ ] **Conversation-first surface:** the advisor *is* the interface, not a panel in the corner. _(Deferred —
+      big design thread, separate from this build session.)_
+- [ ] **Staged rebrand follow-up:** hero/loading/error/404/crash faces still smileys (marketing surfaces,
+      tied to the deferred homepage redesign); advisor keeps the "Arlo" name per the S37 decision until the
+      pre-university-pitch rebrand.
 **Done when:** 3–5 real people go through it and the "click" (Meraki → Satori) lands for someone who isn't Lexi.
 
 ### Step 2 — The body grows back _(on a real spine)_

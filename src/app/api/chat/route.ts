@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { callClaude } from '@/lib/anthropic';
 import { getAuthedUser } from '@/lib/supabase/server';
 import { checkChatRateLimit } from '@/lib/ratelimit';
+import { getProfile } from '@/lib/profile';
+import { ADVISOR_TOOLS, executeAdvisorTool } from '@/lib/advisor-tools';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const maxDuration = 60;
@@ -32,7 +34,9 @@ WHAT YOU NEVER DO
 - No urgency, pressure, or countdown language.
 - Never tell someone to "apply to as many as you can" — you believe in better applications, not more. Intention over desperation.
 - Never re-ask something you already know from the context below — that breaks trust.
-- Never claim to update the interface or take actions you cannot take: don't say "I'm crossing that off", "I've updated your profile", "I've removed that direction", "I've added that to your list". You are a conversational mentor — you can advise, acknowledge, and remember, but you cannot change what is shown on screen. If someone says they're not interested in something, acknowledge it and note it for context — never imply you've changed the UI.
+
+WHAT YOU CAN DO (you have real tools — use them, don't just talk about them)
+You can change this person's world, not just advise on it. You have tools to: remember a durable fact about them, update their profile (values, deal-breakers, aspiration, salary), record how they feel about a direction (reject / prefer / refine), save a specific role for them, and move an application to a new stage. Use them silently as a natural part of the conversation — the moment you learn something durable, remember it; when they reject a direction, record it; when they want a role, save it. Don't ask permission for these small acts of bookkeeping; just do them and mention it plainly in your own voice ("I've set that direction aside" — because you actually have). Never claim a change you didn't make, and never narrate the mechanics ("calling the tool"). The point of the tools is that when you say something is done, it is done.
 
 HOW YOU BEHAVE
 - When they're overthinking or spiralling: stop adding information, redirect to one concrete action. "Stop thinking. Do one thing."
@@ -44,6 +48,9 @@ HOW YOU BEHAVE
 
 THE TEST FOR EVERY REPLY
 Could a trusted mentor who had just read this person's CV say this out loud? If it reads like a form, a script, or a system — rewrite it.
+
+OPENING THE CONVERSATION
+You initiate — you don't wait to be asked. When you're opening a conversation (the person hasn't said anything yet), don't greet generically. Look at what you know about them below and open with something specific and earned: pick up a thread from where you left off, react to a direction, or ask the one question that moves them forward. One or two sentences. If you genuinely know nothing about them yet, warmly invite them to share their background — but never a hollow "How can I help you today?".
 
 If something goes wrong on your end, own it in your own voice: "Something went wrong on my end — say that again?" Never show a system error.`;
 
@@ -92,18 +99,16 @@ async function buildUserContext(
   }
 
   try {
-    const { data: profileRow } = await supabase
-      .from('profiles')
-      .select('data')
-      .eq('user_id', userId)
-      .maybeSingle();
-    const p = profileRow?.data as Record<string, unknown> | undefined;
-    if (p) {
-      if (Array.isArray(p.values) && p.values.length)
-        parts.push(`What they value: ${(p.values as string[]).join(', ')}`);
-      if (Array.isArray(p.dealBreakers) && p.dealBreakers.length)
-        parts.push(`Their deal-breakers: ${(p.dealBreakers as string[]).join(', ')}`);
-      if (p.aspiration) parts.push(`Their 2-year aspiration: ${p.aspiration}`);
+    const p = await getProfile(supabase, userId);
+    if (Array.isArray(p.values) && p.values.length)
+      parts.push(`What they value: ${p.values.join(', ')}`);
+    if (Array.isArray(p.dealBreakers) && p.dealBreakers.length)
+      parts.push(`Their deal-breakers: ${p.dealBreakers.join(', ')}`);
+    if (p.aspiration) parts.push(`Their 2-year aspiration: ${p.aspiration}`);
+    // Evolving memory — things I've learned from our conversations over time.
+    if (Array.isArray(p.memory) && p.memory.length) {
+      const notes = p.memory.map((m) => `- ${m.note}`).join('\n');
+      parts.push(`What I've learned about them over time:\n${notes}`);
     }
   } catch {
     // no profile yet — fine
@@ -134,6 +139,14 @@ async function buildUserContext(
   return `\n\nWHAT YOU KNOW ABOUT THIS PERSON (never re-ask these — reference them naturally):\n${parts.join('\n')}`;
 }
 
+// A turn we send onward. User/assistant content may be a plain string or, during
+// the tool loop, an array of content blocks (tool_use / tool_result).
+type ApiMessage = { role: 'user' | 'assistant'; content: string | unknown[] };
+
+// The advisor decides its own trajectory across at most a few tool rounds. This
+// bounds cost and prevents a runaway loop if the model keeps calling tools.
+const MAX_TOOL_ROUNDS = 5;
+
 export async function POST(request: Request) {
   const { user, supabase } = await getAuthedUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
@@ -141,49 +154,109 @@ export async function POST(request: Request) {
   const rateLimitResponse = await checkChatRateLimit(user.id);
   if (rateLimitResponse) return rateLimitResponse;
 
-  let body: { messages?: unknown };
+  let body: { messages?: unknown; initiate?: unknown };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const rawMessages = body.messages;
-  if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
-    return NextResponse.json({ error: 'A message is required.' }, { status: 400 });
-  }
+  const isInitiate = body.initiate === true;
 
-  // Sanitise to the only shape we send onward — the client never controls model,
-  // system prompt, or token budget. Keep the last 20 turns to bound cost.
-  const messages: ChatMessage[] = rawMessages
-    .filter(
-      (m): m is ChatMessage =>
-        !!m &&
-        typeof m === 'object' &&
-        (m.role === 'user' || m.role === 'assistant') &&
-        typeof m.content === 'string' &&
-        m.content.trim().length > 0
-    )
-    .slice(-20);
-
-  if (!messages.length) {
-    return NextResponse.json({ error: 'A valid message is required.' }, { status: 400 });
+  let messages: ApiMessage[];
+  if (isInitiate) {
+    // Advisor opens the conversation — no user turn yet. The system prompt's
+    // OPENING guidance + the user's context produce a specific, earned opener.
+    messages = [
+      {
+        role: 'user',
+        content:
+          '[The person just opened this page and has not spoken yet. Open the conversation now, following your opening guidance. Speak directly to them.]',
+      },
+    ];
+  } else {
+    const rawMessages = body.messages;
+    if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
+      return NextResponse.json({ error: 'A message is required.' }, { status: 400 });
+    }
+    // Sanitise to the only shape we send onward — the client never controls model,
+    // system prompt, tools, or token budget. Keep the last 20 turns to bound cost.
+    messages = rawMessages
+      .filter(
+        (m): m is ChatMessage =>
+          !!m &&
+          typeof m === 'object' &&
+          (m.role === 'user' || m.role === 'assistant') &&
+          typeof m.content === 'string' &&
+          m.content.trim().length > 0
+      )
+      .slice(-20);
+    if (!messages.length) {
+      return NextResponse.json({ error: 'A valid message is required.' }, { status: 400 });
+    }
   }
 
   const userContext = await buildUserContext(supabase, user.id);
+  const system = ARLO_SYSTEM_PROMPT + userContext;
+
+  // Manual agentic loop: call Claude, run any tools it requests, feed the results
+  // back, repeat until it stops calling tools. `meridianActions` carries a short
+  // echo of every real change so the UI can show "done" happening.
+  const meridianActions: string[] = [];
 
   try {
-    const response = await callClaude(
-      {
+    for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+      const response = await callClaude({
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
-        system: ARLO_SYSTEM_PROMPT + userContext,
+        system,
         messages,
+        tools: ADVISOR_TOOLS,
+      });
+      const data = await response.json();
+      if (!response.ok) return NextResponse.json(data, { status: response.status });
+
+      if (data.stop_reason !== 'tool_use') {
+        data.meridianActions = meridianActions;
+        return NextResponse.json(data, { status: 200 });
+      }
+
+      // Preserve the assistant's full content (it carries the tool_use blocks),
+      // then answer every tool_use with one user message of tool_results.
+      const content = Array.isArray(data.content) ? data.content : [];
+      messages.push({ role: 'assistant', content });
+
+      const toolResults: unknown[] = [];
+      for (const block of content) {
+        if (block?.type !== 'tool_use') continue;
+        const outcome = await executeAdvisorTool(
+          supabase,
+          user.id,
+          block.name,
+          (block.input as Record<string, unknown>) ?? {}
+        );
+        if (outcome.action) meridianActions.push(outcome.action);
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: block.id,
+          content: outcome.content,
+          ...(outcome.isError ? { is_error: true } : {}),
+        });
+      }
+      messages.push({ role: 'user', content: toolResults });
+    }
+
+    // Exhausted the round budget while still calling tools — return a graceful
+    // close in Arlo's own voice rather than an error or an empty turn.
+    return NextResponse.json(
+      {
+        content: [
+          { type: 'text', text: "I've done what you asked — what would you like to look at next?" },
+        ],
+        meridianActions,
       },
-      { beta: 'web-search-2025-03-05' }
+      { status: 200 }
     );
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });

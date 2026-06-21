@@ -19,7 +19,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Career Intelligence",
+  title: "Meridian",
   description: "Work out what you want — then get it.",
 };
 
