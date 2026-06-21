@@ -11,7 +11,8 @@ export async function DELETE() {
   // FK cascade on auth.users would cover these, but we erase explicitly so GDPR
   // deletion never depends on the cascade being correctly configured in prod.
   await Promise.all([
-    admin.from('profiles').delete().eq('user_id', user.id),
+    // profiles is keyed by `id` (= the auth user id), not user_id.
+    admin.from('profiles').delete().eq('id', user.id),
     admin.from('results').delete().eq('user_id', user.id),
     admin.from('saved_jobs').delete().eq('user_id', user.id),
     admin.from('saved_applications').delete().eq('user_id', user.id),

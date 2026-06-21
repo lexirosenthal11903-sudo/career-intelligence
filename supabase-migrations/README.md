@@ -12,19 +12,23 @@ Run. Run them in filename order.
 
 | Table                | Key                  | RLS | Migration |
 |----------------------|----------------------|-----|-----------|
-| `profiles`           | `user_id` (PK)       | ✓   | `20260612_profiles.sql` |
+| `profiles`           | `id` (PK = auth uid) | ✓   | `20260612_profiles.sql` |
 | `results`            | `id` (PK), `user_id` | ✓   | `20260612_results.sql` |
 | `conversations`      | `(user_id, page)`    | ✓   | `20260613_conversations.sql` |
-| `saved_jobs`         | `(user_id, job_id)`  | ✓   | `20260614_saved_jobs.sql` |
+| `saved_jobs`         | `user_id`, `job_id` (unique) | ✓ | `20260614_saved_jobs.sql` |
 | `saved_applications` | `id` (PK), `user_id` | ✓   | `20260615_saved_applications.sql` |
 
 Every table references `auth.users(id) ON DELETE CASCADE`, so deleting an auth user
 cascades to all of their rows. `/api/delete-account` *also* deletes each table
 explicitly (belt-and-braces) — see `verify_rls.sql` note on GDPR.
 
-> **Doc-vs-code note (Session 40):** an earlier handoff claimed `profiles` was keyed by
-> `id` with no `user_id` column. That is wrong — every query in `/api/profile` and
-> `/api/chat` uses `user_id`, and the table's PK is `user_id`. Code is the source of truth.
+> **Doc-vs-code-vs-DB note (Session 40):** the LIVE DB is the source of truth and it
+> settled this. `profiles` really is keyed by `id` (= auth uid) and only has
+> `id, email, created_at` — **no `user_id`, no `data` column.** But `/api/profile`
+> (and parts of `/api/chat`) query `user_id` + `data`, so the profile feature is
+> **broken in production**. Step 1 must reconcile this: either add `data jsonb` to
+> `profiles` and key the code on `id`, or migrate the table to a `user_id`/`data`
+> shape. Until then, RLS on `profiles` is keyed on `id`.
 
 ## Verifying RLS
 
