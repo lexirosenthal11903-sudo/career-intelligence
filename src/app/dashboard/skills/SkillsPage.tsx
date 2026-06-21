@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import s from "./skills.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadAnalysisResult } from "@/lib/analysisResult";
 import { useArloChat } from "@/hooks/useArloChat";
 import { ArloMessage } from "@/components/ArloMessage";
 
@@ -131,19 +132,8 @@ export default function SkillsPage() {
 
     async function loadAnalysis() {
       try {
-        const raw = sessionStorage.getItem("analysis-result");
-        let result: AnalysisResult | null = null;
-
-        if (raw) {
-          result = JSON.parse(raw);
-        } else {
-          // Fallback: returning user whose sessionStorage was cleared
-          const res = await fetch("/api/results");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.result) result = data.result;
-          }
-        }
+        // Server-first via the shared helper; sessionStorage is only a fallback.
+        const result = await loadAnalysisResult<AnalysisResult>();
 
         if (result) {
           setAnalysis(result);

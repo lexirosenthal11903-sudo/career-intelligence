@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import CookieBanner from "@/components/CookieBanner";
 
 const instrumentSans = Instrument_Sans({
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body style={{ fontFamily: "var(--f, system-ui, sans-serif)" }}>
         {children}
         <CookieBanner />
+        <Analytics />
       </body>
     </html>
   );

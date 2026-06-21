@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import CrashFallback from "@/components/CrashFallback";
 
 /**
@@ -13,7 +14,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   const router = useRouter();
 
   useEffect(() => {
-    // TODO(Step 0 — observability): forward to Sentry once wired.
+    Sentry.captureException(error);
     console.error("Route error boundary caught:", error);
   }, [error]);
 

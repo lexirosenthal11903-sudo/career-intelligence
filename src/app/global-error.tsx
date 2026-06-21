@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 import CrashFallback from "@/components/CrashFallback";
 
 /**
@@ -11,7 +12,7 @@ import CrashFallback from "@/components/CrashFallback";
  */
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    // TODO(Step 0 — observability): forward to Sentry once wired.
+    Sentry.captureException(error);
     console.error("Global error boundary caught:", error);
   }, [error]);
 

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "b=$(git branch --show-current 2>/dev/null); if [ \"$b\" = \"staging\" ]; then msg=\"Branch: staging \\u2713 \\u2014 work happens here.\"; else msg=\"\\u26a0\\ufe0f Branch is '$b' NOT staging. All work must be on staging \\u2014 switch before touching files.\"; fi; printf '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"%s\"}}' \"$msg\"",
+            "statusMessage": "Checking git branch"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit *)",
+            "command": "if npm run test:e2e --silent > /tmp/meridian-e2e.log 2>&1; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\"}}'; else printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"e2e smoke tests FAILED \\u2014 a broken build cannot be committed. Fix the failures (see /tmp/meridian-e2e.log) and retry.\"}}'; fi",
+            "timeout": 240,
+            "statusMessage": "Running e2e smoke before commit"
+          }
+        ]
+      }
+    ]
+  }
+}

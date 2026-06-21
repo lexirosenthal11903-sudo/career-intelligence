@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import s from "./onboarding-bridge.module.css";
 import AuthModal from "@/components/AuthModal";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadAnalysisResult } from "@/lib/analysisResult";
 import { ArloMessage } from "@/components/ArloMessage";
 
 const arloFace = (
@@ -59,13 +60,11 @@ export default function OnboardingBridgePage() {
   const msgsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem('analysis-result');
-      if (stored) setAnalysisResult(JSON.parse(stored));
-    } catch {
-      // ignore — fallback content will show
-    }
-    setResultMounted(true);
+    // Server-first via the shared helper; for an unauthenticated user mid-onboarding
+    // the server returns nothing and this falls back to the sessionStorage bridge.
+    loadAnalysisResult<AnalysisResult>()
+      .then((result) => { if (result) setAnalysisResult(result); })
+      .finally(() => setResultMounted(true));
   }, []);
 
   useEffect(() => {

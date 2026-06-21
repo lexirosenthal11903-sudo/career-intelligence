@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import s from "./roles.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadAnalysisResult } from "@/lib/analysisResult";
 import { useArloChat } from "@/hooks/useArloChat";
 import { ArloMessage } from "@/components/ArloMessage";
 
@@ -143,28 +144,10 @@ export default function RolesPage() {
   useEffect(() => {
     (async () => {
       setResultLoading(true);
-      try {
-        // Fast path: sessionStorage (fresh from analysis flow)
-        const stored = sessionStorage.getItem("analysis-result");
-        if (stored) {
-          setAnalysisResult(JSON.parse(stored));
-          setResultLoading(false);
-          return;
-        }
-      } catch {
-        // sessionStorage unavailable
-      }
-
-      // Fallback: Supabase (returning user)
-      try {
-        const res = await fetch("/api/results");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.result) setAnalysisResult(data.result);
-        }
-      } catch {
-        // Fetch failed — no result available
-      }
+      // Server-first via the shared helper; sessionStorage is only a fallback
+      // for the pre-auth onboarding flow.
+      const result = await loadAnalysisResult<AnalysisResult>();
+      if (result) setAnalysisResult(result);
       setResultLoading(false);
     })();
   }, []);

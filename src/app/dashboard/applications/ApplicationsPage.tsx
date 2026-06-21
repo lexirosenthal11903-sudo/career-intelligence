@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import s from "./applications.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadAnalysisResult } from "@/lib/analysisResult";
 import { useArloChat } from "@/hooks/useArloChat";
 import { ArloMessage } from "@/components/ArloMessage";
 
@@ -97,18 +98,15 @@ export default function ApplicationsPage() {
       }
     });
 
-    try {
-      const raw = sessionStorage.getItem("analysis-result");
-      if (raw) {
-        const result = JSON.parse(raw);
-        // Guard: older analyses stored suggestedDirections as a string; calling
-        // .map on a non-array crashed the page.
-        const raw_dirs = result?.profile?.suggestedDirections;
-        const dirs = Array.isArray(raw_dirs) ? raw_dirs : [];
-        setAllDirections(dirs);
-        setDirectionTitle(dirs[0]?.title ?? null);
-      }
-    } catch { /* ignore */ }
+    // Server-first via the shared helper; sessionStorage is only a fallback.
+    loadAnalysisResult<{ profile?: { suggestedDirections?: unknown } }>().then((result) => {
+      // Guard: older analyses stored suggestedDirections as a string; calling
+      // .map on a non-array crashed the page.
+      const raw_dirs = result?.profile?.suggestedDirections;
+      const dirs = (Array.isArray(raw_dirs) ? raw_dirs : []) as Array<{ title: string }>;
+      setAllDirections(dirs);
+      setDirectionTitle(dirs[0]?.title ?? null);
+    });
 
     loadApplications();
   }, [supabase]);

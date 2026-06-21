@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import s from "./profile.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadAnalysisResult } from "@/lib/analysisResult";
 import { useArloChat } from "@/hooks/useArloChat";
 import { ArloMessage } from "@/components/ArloMessage";
 
@@ -82,32 +83,16 @@ export default function ProfilePage() {
   const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load analysis result
-    try {
-      const stored = sessionStorage.getItem("analysis-result");
-      if (stored) {
-        setAnalysisResult(JSON.parse(stored));
-      }
-    } catch { /* ignore */ }
+    // Server-first via the shared helper; sessionStorage is only a fallback.
+    loadAnalysisResult<AnalysisResult>().then((result) => {
+      if (result) setAnalysisResult(result);
+    });
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user?.email) setUserEmail(user.email);
       if (user) {
         setUserId(user.id);
         setUserName(user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null);
-
-        // Fallback: load analysis from Supabase if not in sessionStorage
-        if (!sessionStorage.getItem("analysis-result")) {
-          fetch("/api/results")
-            .then((r) => r.json())
-            .then((data) => {
-              if (data?.result) {
-                setAnalysisResult(data.result);
-                try { sessionStorage.setItem("analysis-result", JSON.stringify(data.result)); } catch { /* ignore */ }
-              }
-            })
-            .catch(() => {});
-        }
 
         // Load active application count
         fetch("/api/applications")

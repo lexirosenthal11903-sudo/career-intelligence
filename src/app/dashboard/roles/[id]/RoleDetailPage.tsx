@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import s from "./role-detail.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadAnalysisResult } from "@/lib/analysisResult";
 import { useArloChat } from "@/hooks/useArloChat";
 import { ArloMessage } from "@/components/ArloMessage";
 
@@ -66,39 +67,16 @@ export default function RoleDetailPage() {
       }
     });
 
-    // Load direction from sessionStorage
-    let found = false;
-    try {
-      const stored = sessionStorage.getItem("analysis-result");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const sd = parsed?.profile?.suggestedDirections;
+    // Server-first via the shared helper; sessionStorage is only a fallback.
+    loadAnalysisResult<{ profile?: { suggestedDirections?: unknown } }>()
+      .then((result) => {
+        const sd = result?.profile?.suggestedDirections;
         const dirs: Direction[] = Array.isArray(sd) ? sd : [];
         setAllDirections(dirs);
         const match = dirs.find((d) => slugify(d.title) === slug);
-        if (match) {
-          setDirection(match);
-          found = true;
-        }
-      }
-    } catch { /* ignore */ }
-
-    // Fallback: /api/results
-    if (!found) {
-      fetch("/api/results")
-        .then((r) => r.json())
-        .then((data) => {
-          const sd = data?.result?.profile?.suggestedDirections;
-          const dirs: Direction[] = Array.isArray(sd) ? sd : [];
-          setAllDirections(dirs);
-          const match = dirs.find((d) => slugify(d.title) === slug);
-          if (match) setDirection(match);
-        })
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+        if (match) setDirection(match);
+      })
+      .finally(() => setLoading(false));
   }, [supabase, slug]);
 
   function toggleArlo() {

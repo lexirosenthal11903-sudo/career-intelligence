@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import s from "./dashboard.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { loadAnalysisResult } from "@/lib/analysisResult";
 import { useArloChat } from "@/hooks/useArloChat";
 import { ArloMessage } from "@/components/ArloMessage";
 
@@ -72,69 +73,39 @@ export default function DashboardHome() {
       }
     }
 
-    // Try sessionStorage first (fastest, works for fresh analyses)
-    let hasSession = false;
-    try {
-      const sessionResult = sessionStorage.getItem("analysis-result");
-      if (sessionResult) {
-        applyResult(JSON.parse(sessionResult));
-        hasSession = true;
-        setDirectionsLoaded(true);
-      }
-    } catch {
-      // malformed — fall through to Supabase
-    }
+    (async () => {
+      // Server-first via the shared helper; sessionStorage is only a fallback.
+      const result = await loadAnalysisResult<Record<string, unknown>>();
+      if (result) applyResult(result);
+      setDirectionsLoaded(true);
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        const id = user.id;
-        const name = user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null;
-        setUserId(id);
-        setUserName(name);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return; // no session — the CTA to start shows
 
-        if (hasSession) {
-          const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
-          if (!seen) setHomeState("new-roles");
+      const id = user.id;
+      setUserId(id);
+      setUserName(user.user_metadata?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? null);
 
-          // Persist to Supabase if not already saved
-          fetch("/api/results")
-            .then((r) => r.json())
-            .then((data) => {
-              if (!data?.result) {
-                const sessionResult = sessionStorage.getItem("analysis-result");
-                if (sessionResult) {
-                  fetch("/api/save-result", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ data: JSON.parse(sessionResult) }),
-                  }).catch(() => {});
-                }
-              }
-            })
-            .catch(() => {});
-        } else {
-          // Returning user with no sessionStorage — load from Supabase
-          fetch("/api/results")
-            .then((r) => r.json())
-            .then((data) => {
-              if (data?.result) {
-                applyResult(data.result);
-                // Cache in sessionStorage for this session
-                try {
-                  sessionStorage.setItem("analysis-result", JSON.stringify(data.result));
-                } catch { /* ignore */ }
-                const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
-                if (!seen) setHomeState("new-roles");
-              }
-              setDirectionsLoaded(true);
-            })
-            .catch(() => { setDirectionsLoaded(true); });
+      if (result) {
+        const seen = localStorage.getItem(`ci-new-roles-seen-${id}`);
+        if (!seen) setHomeState("new-roles");
+
+        // Persist a fresh, not-yet-saved analysis (the helper read it from the
+        // sessionStorage bridge because the server didn't have it yet).
+        try {
+          const data = await fetch("/api/results").then((r) => r.json());
+          if (!data?.result) {
+            fetch("/api/save-result", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ data: result }),
+            }).catch(() => {});
+          }
+        } catch {
+          /* save best-effort */
         }
-      } else {
-        // No session at all — show the CTA to start
-        setDirectionsLoaded(true);
       }
-    });
+    })();
   }, [supabase]);
 
   useEffect(() => {
