@@ -326,12 +326,17 @@ function FirstSession({
   const endRef = useRef<HTMLDivElement>(null);
   const revealRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    // Honour prefers-reduced-motion — smooth scrolling is JS here, so the global
+    // CSS reduced-motion rule can't reach it; jump instantly instead.
+    const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth";
     if (phase === "analysing" || phase === "error") {
-      endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      endRef.current?.scrollIntoView({ behavior, block: "end" });
     } else if (phase === "revealed") {
       requestAnimationFrame(() =>
         requestAnimationFrame(() =>
-          revealRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+          revealRef.current?.scrollIntoView({ behavior, block: "start" })
         )
       );
     }
@@ -507,6 +512,7 @@ function LiveComposer({
           <PlusIcon />
         </button>
         <input
+          aria-label="Message Career Intelligence"
           placeholder="Tell me what you're thinking…"
           value={draft}
           onChange={(e) => onChange(e.target.value)}
@@ -610,6 +616,7 @@ function FirstComposer({
           <PlusIcon />
         </button>
         <input
+          aria-label="Tell Career Intelligence where you're at, or attach your CV"
           placeholder={
             extracting
               ? "Reading your CV…"

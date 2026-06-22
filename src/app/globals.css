@@ -17,7 +17,7 @@
   /* ---- Ink (text) ---- */
   --ink: #1A1610;         /* primary text, headings */
   --ink-2: #5A5040;       /* body / secondary text */
-  --ink-3: #9E9080;       /* muted — meta, placeholders, inactive icons */
+  --ink-3: #80725C;       /* muted — meta, placeholders, inactive icons (AA: 4.7:1 on white) */
   --ink-4: #BDB7AC;       /* finer muted step (legacy steps) */
   --ink-5: #E6E3DC;       /* finest muted step (legacy steps) */
 
@@ -26,9 +26,9 @@
   --line-2: #F0ECE4;      /* softer internal divider (card sub-rows) */
 
   /* ---- Accent (amber — primary/lead/active ONLY) ---- */
-  --accent: #B05E16;
+  --accent: #A85610;      /* amber — AA: 4.6:1 as small text on amber-soft, 5.25:1 white-on-amber */
   --accent-2: #8F4F10;    /* darker amber — gradients, hover on accent */
-  --accent-soft: rgba(176, 94, 22, 0.10);  /* tints: active nav, pills, badges */
+  --accent-soft: rgba(168, 86, 16, 0.10);  /* tints: active nav, pills, badges */
   --accent-lt: #C56E20;   /* lighter amber step (legacy) */
 
   /* ---- User avatar gradient (initials chip) ---- */

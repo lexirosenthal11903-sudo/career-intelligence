@@ -35,13 +35,15 @@ const TAB = {
 
 export default function SidePanel({
   view,
+  data,
   onClose,
 }: {
   view: PanelView;
+  data: ReturnType<typeof usePanelJobs>;
   onClose: () => void;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const { profile, hasResult, jobs, jobsLoading, jobsError, retry } = usePanelJobs();
+  const { profile, hasResult, jobs, jobsLoading, jobsError, retry } = data;
 
   const [userId, setUserId] = useState<string | null>(null);
   const [selected, setSelected] = useState<PanelJob | null>(null);
@@ -144,6 +146,8 @@ export default function SidePanel({
       ]);
     } catch { /* surfaced via state; advisor owns errors in chat */ }
     finally { setSaving((prev) => { const n = new Set(prev); n.delete(id); return n; }); }
+    // Let the left-nav "Recent" pick this up without a reload (progressive disclosure).
+    window.dispatchEvent(new CustomEvent("ci:roles-changed"));
     askAdvisor(`I'm interested in the ${job.title} role at ${job.company}.`);
   }
 
@@ -159,6 +163,7 @@ export default function SidePanel({
     } catch { /* ignore */ }
     finally { setSaving((prev) => { const n = new Set(prev); n.delete(id); return n; }); }
     setSelected(null);
+    window.dispatchEvent(new CustomEvent("ci:roles-changed"));
     askAdvisor(`I'll pass on the ${job.title} role at ${job.company}.`);
   }
 }

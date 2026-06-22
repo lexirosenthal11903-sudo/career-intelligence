@@ -95,6 +95,18 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     expect(errors, `Uncaught errors on first-session click: ${errors.join(' | ')}`).toHaveLength(0);
   });
 
+  // Progressive disclosure (Step F): on the first session a surface earns its place —
+  // Roles is flagged "new" (just unlocked), Documents is locked (disabled), and the
+  // nav note stands in for the count/Recent that only a returning user has earned.
+  test('first session nav shows progressive-disclosure states', async ({ page }) => {
+    await page.goto('/workspace?view=first');
+    const roles = page.getByRole('button', { name: /Roles/ });
+    await expect(roles).toBeVisible({ timeout: 15_000 });
+    await expect(roles.getByText('new')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Documents/ })).toBeDisabled();
+    await expect(page.getByText('more of this fills in as we talk')).toBeVisible();
+  });
+
   for (const route of DASHBOARD_ROUTES) {
     test(`dashboard tab "${route.name}" (${route.path}) loads`, async ({ page }) => {
       const errors = trackErrors(page);

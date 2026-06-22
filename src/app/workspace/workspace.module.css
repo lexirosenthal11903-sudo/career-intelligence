@@ -96,7 +96,7 @@
 }
 .recent {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 9px;
   padding: 7px 10px;
   font-size: 13px;
@@ -110,9 +110,12 @@
   font-family: inherit;
 }
 .recent:hover { background: var(--panel); }
-.recent .st { color: var(--accent); font-size: 12px; }
-.recent b { font-weight: 600; }
-.recent span { color: var(--ink-3); }
+.recent .st { color: var(--accent); font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+/* Real company + role names don't fit the 224px nav on one line — stack them,
+   each truncating, so the rhythm stays clean whatever the data is. */
+.recent .rtext { display: flex; flex-direction: column; min-width: 0; line-height: 1.32; }
+.recent .rtext b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent .rtext span { color: var(--ink-3); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sp { flex: 1; }
 .navnote {
   font-size: 11.5px;
@@ -166,7 +169,12 @@
   position: relative;
   background: var(--line-2);
   transition: background 0.14s var(--ease);
-  outline: none;
+}
+/* Keyboard focus on the resize handle (it's operable with arrow keys). */
+.divider:focus-visible::before { background: var(--accent); }
+.divider:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 .divider::before {
   content: "";
@@ -327,13 +335,21 @@
 .rlist li b { color: var(--ink); font-weight: 600; }
 .rlist li:last-child { margin-bottom: 0; }
 
-/* reveal card — the click (same surface as recap; restraint) */
+/* reveal card — the click (same surface as recap; restraint).
+   The Satori moment earns a single, quiet entrance — a soft rise + settle, no slop,
+   no per-element stagger. The global reduced-motion rule (globals.css) collapses the
+   duration to ~0, so reduced-motion users get the card instantly at its resting state. */
 .reveal {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: var(--sh);
   overflow: hidden;
+  animation: revealIn 0.55s var(--ease) both;
+}
+@keyframes revealIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .revealH {
   display: flex;
@@ -535,6 +551,12 @@
   border-radius: 14px;
   padding: 7px 7px 7px 8px;
   box-shadow: var(--sh);
+  transition: border-color 0.14s var(--ease), box-shadow 0.14s var(--ease);
+}
+/* The input has no border of its own — focus shows on the whole bar. */
+.cbar:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--sh), 0 0 0 3px var(--accent-soft);
 }
 .cplus {
   width: 34px;
@@ -862,4 +884,32 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--green);
+}
+
+/* ===== KEYBOARD FOCUS (WCAG 2.4.7) =====
+   Nothing in the shell had a visible focus state. One consistent amber ring across
+   every interactive element, tokenised, offset so it never clips the content. */
+.nitem:focus-visible,
+.recent:focus-visible,
+.chip:focus-visible,
+.job:focus-visible,
+.jrev:focus-visible,
+.csend:focus-visible,
+.cplus:focus-visible,
+.reopen:focus-visible,
+.retry:focus-visible,
+.rdBack:focus-visible,
+.rdInterestedBtn:focus-visible,
+.rdPassBtn:focus-visible,
+.rdListing:focus-visible,
+.panelRetry:focus-visible,
+.stab .x:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* Tight controls read better with the ring hugging the radius. */
+.csend:focus-visible,
+.cplus:focus-visible,
+.stab .x:focus-visible {
+  outline-offset: 1px;
 }

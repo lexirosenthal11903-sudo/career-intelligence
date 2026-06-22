@@ -175,9 +175,15 @@ export function useArloChat({
     [isLoading, supabase, userId, page]
   );
 
-  // Auto-scroll when messages change or loading state changes
+  // Auto-scroll when messages change or loading state changes. Honour
+  // prefers-reduced-motion — JS smooth scroll isn't covered by the CSS rule.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const behavior: ScrollBehavior =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth";
+    messagesEndRef.current?.scrollIntoView({ behavior, block: "nearest" });
   }, [allMsgs, isLoading]);
 
   // Split at divider: messages before it are "previous session", after are current
