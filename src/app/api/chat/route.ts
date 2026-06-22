@@ -133,7 +133,7 @@ async function buildUserContext(
         .map((j) => (j.job_data as { title?: string; company?: string }))
         .map((j) => (j?.title ? `${j.title}${j.company ? ` at ${j.company}` : ''}` : null))
         .filter(Boolean);
-      if (titles.length) parts.push(`Roles they've saved: ${titles.join('; ')}`);
+      if (titles.length) parts.push(`Roles they've saved to their applications (this list updates the instant they save one — some may have been saved seconds ago, in this very conversation): ${titles.join('; ')}. If they tell you they're interested in one of these, they are confirming it to you right now — engage with that fresh decision and help them with it; never tell them they've "already done that".`);
     }
   } catch {
     // no saved jobs — fine

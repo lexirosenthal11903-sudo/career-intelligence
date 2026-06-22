@@ -23,6 +23,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { cacheAnalysisResult } from "@/lib/analysisResult";
+import { stashCv, flushPendingCv } from "@/lib/cv";
 
 export type FirstPhase = "arrival" | "extracting" | "analysing" | "revealed" | "error";
 
@@ -70,6 +71,7 @@ export function useFirstSession() {
   const [slow, setSlow] = useState(false);
 
   const cvTextRef = useRef("");
+  const cvFileNameRef = useRef<string>("");
   const abortRef = useRef<AbortController | null>(null);
   const slowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,6 +80,7 @@ export function useFirstSession() {
   const extractCv = useCallback(async (file: File) => {
     setPhase("extracting");
     setCvFileName(file.name);
+    cvFileNameRef.current = file.name;
     try {
       const fd = new FormData();
       fd.append("file", file);
@@ -147,6 +150,14 @@ export function useFirstSession() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ data: event.result }),
               }).catch(() => undefined);
+
+              // The uploaded CV's home is the Profile. Stash it, then try to persist
+              // now — if the user hasn't signed up yet it stays stashed and is flushed
+              // when they land authed on the workspace (mirrors save-result).
+              if (cvTextRef.current) {
+                stashCv(cvFileNameRef.current || "Your CV", cvTextRef.current);
+                flushPendingCv();
+              }
 
               setResult({
                 summary: event.result.profile?.summary ?? "",

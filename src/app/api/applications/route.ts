@@ -7,7 +7,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('saved_applications')
-    .select('id, job_id, job_data, stage, created_at')
+    .select('id, job_id, job_data, stage, notes, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
@@ -37,17 +37,25 @@ export async function PATCH(request: Request) {
   const { user, supabase } = await getAuthedUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
-  const { jobId, stage } = await request.json();
-  if (!jobId || !stage) return NextResponse.json({ error: 'jobId and stage required' }, { status: 400 });
-
-  const VALID_STAGES = ['preparing', 'applied', 'interview', 'offer', 'archive'];
-  if (!VALID_STAGES.includes(stage)) {
-    return NextResponse.json({ error: 'Invalid stage' }, { status: 400 });
+  const { jobId, stage, notes } = await request.json();
+  if (!jobId) return NextResponse.json({ error: 'jobId required' }, { status: 400 });
+  if (stage === undefined && notes === undefined) {
+    return NextResponse.json({ error: 'stage or notes required' }, { status: 400 });
   }
+
+  const update: { stage?: string; notes?: string } = {};
+  if (stage !== undefined) {
+    const VALID_STAGES = ['preparing', 'applied', 'interview', 'offer', 'archive'];
+    if (!VALID_STAGES.includes(stage)) {
+      return NextResponse.json({ error: 'Invalid stage' }, { status: 400 });
+    }
+    update.stage = stage;
+  }
+  if (notes !== undefined) update.notes = String(notes);
 
   const { error } = await supabase
     .from('saved_applications')
-    .update({ stage })
+    .update(update)
     .eq('user_id', user.id)
     .eq('job_id', jobId);
 

@@ -21,6 +21,42 @@ real data layer, error visibility) were both skipped. Everything else is a sympt
 
 ---
 
+## ▶ CURRENT BUILD QUEUE — Session 41+ (graduated from parking-lot 2026-06-22, Lexi signed off)
+
+_After the first live test. Step 1 spine items above are largely done; these are the post-live-test
+fixes + the job-stability architecture. Build order, all on `staging`:_
+
+1. **Job persistence + daily-new-roles** _(Opus — architecture)._ Persist each user's matched jobs in a
+   new `matched_jobs` table keyed by a keyword-hash. Server-read on load (stable across logins); refresh
+   the set ONLY when direction/keywords change (`analysis-changed`). On top of the stable set, a
+   **real per-day detection** pass surfaces 1–2 genuinely new listings not already seen (24h gate),
+   **plus** an on-demand "show me more roles" the user can trigger. New-user initial set capped to ~5–8
+   strong roles (not ~22). Needs a new Supabase migration (Lexi runs it).
+2. **"Already interested" bug.** Confirmed root cause: `handleInterested` (`SidePanel.tsx`) awaits the
+   save-job write *before* `askAdvisor`, so `buildUserContext` (`chat/route.ts`) already sees the job
+   saved → advisor says "you've already done that." Fix on the handoff message + a just-now signal.
+3. **Saved-job detail page** (J&J reference: breadcrumb, job card, "show details", activity log,
+   "write a note", interview-prep nudge). Fixes the dead saved-job click + nav Recent → opens the role.
+4. **CV upload saves to Profile** (source identity). Tailored CVs/cover letters → Documents later.
+5. **Advisor honest-matching pass** _(raised by Lexi live-testing 2026-06-22; see memory
+   `feedback-honest-matching`)._ The "clearest fit" direction-card label is removed (it asserted an
+   unearned verdict). Still to do, as a focused pass: tighten `analyse`/`chat` prompts so the advisor
+   (a) never manufactures fit by cherry-picking the CV, (b) orders/labels directions by genuine
+   groundedness not by what the user wishes for, (c) for relationship/trust-driven fields (family
+   office, luxury, hospitality) weights network + interpersonal + trust-building as much as
+   courses/reading, and (d) keeps listings accurate. **Recruiter filtering:** strip recruitment-agency
+   listings from `jobs`/`reed` results (Lexi wants them out; prompt already bans agencies from company
+   suggestions but live listings don't filter). Honesty is the product's differentiator — high-stakes,
+   worth doing carefully (consider `/grill-me` on what "honest realism" means first).
+
+**Locked product decisions (confirmed 2026-06-22):**
+- Jobs are **stable** for returning users — never reshuffle on login; only change on direction/keyword change.
+- **Daily-new-roles:** real per-day detection of genuinely new listings + on-demand "show more".
+- **New-user role cap:** ~5–8 strong roles initially.
+- **CV homes:** uploaded CV → Profile; tailored CVs / cover letters → Documents.
+
+---
+
 ## PART 1 — Honest current state
 
 ### What genuinely works

@@ -119,21 +119,23 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-21, Session 40)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-22, Session 41)
 
-**⚠️ `REBUILD.md` (repo root) is the single source of truth.** Spine-first rebuild — not more
-features on a broken base. Read `REBUILD.md` + `.session-handoff.md` before anything else.
+**⚠️ `REBUILD.md` (repo root) is the single source of truth.** Read it (esp. the top
+"▶ CURRENT BUILD QUEUE" block) before anything else. `ROADMAP.md` is a superseded historical archive —
+do not plan from it.
 
-**Where we are (end of Session 40):** **Step 0 (engineering floor) is DONE.** Migrations + RLS, GDPR
-fix, Sentry + Analytics, server-first state (the S39 crash class is eliminated), enforcement hooks, and
-the deployment fix. **Stable URL: `career-intelligence-xi.vercel.app`** (production branch = `staging`;
-every push updates it, login persists). All gates green (smoke 15/15, prod 20/20, live 8/8).
-**Next: Step 1 (the spine)** — advisor memory + agency, jobs that are right, kill the smiley face.
-Model: **Opus**. Two Lexi clicks still close Step 0: run the migrations in Supabase, and (optional) add
-a Sentry DSN — see `.session-handoff.md`.
+**Where we are (after the first live test, 2026-06-22):** Step 0 floor + most of Step 1 spine are done
+(advisor memory + agency, jobs-that-are-right, recap card is real, company logos, routing flipped so
+`/workspace` IS the product). Lexi did the first real click-through and logged feedback. **Stable URL:
+`career-intelligence-xi.vercel.app`** (production branch = `staging`; every push updates it).
 
-**The crash is fixed and the floor is solid. The bug list below is largely addressed by the floor; the
-remaining items (personalisation, CV-update path) are Step 1 product work, tracked in `REBUILD.md`.**
+**Current build queue (REBUILD.md top block, Lexi signed off 2026-06-22):** (1) job persistence +
+daily-new-roles [Opus]; (2) "already interested" bug; (3) saved-job detail page; (4) CV upload → Profile.
+
+**Pending Lexi clicks (product not fully working until done):** run `20260622_recaps.sql` in Supabase;
+add the new `matched_jobs` migration from this session; add Logo.dev env vars in Vercel. See
+`.session-handoff.md`.
 
 ### Critical bugs found by Lexi (Session 37, 2026-06-20)
 

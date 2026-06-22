@@ -12,13 +12,14 @@
    the SAME source. The first session deliberately renders its own lightweight tree
    (no jobs fetch, no nav progress) — the analysis is still streaming in the chat. */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import s from "./workspace.module.css";
 import LeftNav from "./LeftNav";
 import ChatPane from "./ChatPane";
 import SidePanel, { type PanelView } from "./SidePanel";
 import { usePanelJobs } from "./usePanelJobs";
+import { flushPendingCv } from "@/lib/cv";
 
 type Variant = "first" | "returning";
 
@@ -46,10 +47,16 @@ function ReturningWorkspace() {
   // open on demand; "Today" closes the panel again.
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelView, setPanelView] = useState<PanelView>("roles");
+  // The specific saved role opened from the nav's "Recent" (saved-job detail view).
+  const [savedJobId, setSavedJobId] = useState<string | null>(null);
   const split = panelOpen;
 
   // Shared jobs data — fetched once here so the nav count and the panel agree.
   const panelJobs = usePanelJobs();
+
+  // A CV uploaded before signup is stashed; once the user lands here authed, persist
+  // it to their Profile (the CV's home). No-op if there's nothing stashed.
+  useEffect(() => { flushPendingCv(); }, []);
 
   // The nav "Roles" count = the roles that survive the same score filter the list
   // uses (low-scoring/senior results are dropped). Real progress, not a hard-coded 8.
@@ -60,7 +67,15 @@ function ReturningWorkspace() {
 
   // Nav drives what the panel shows; selecting a surface also opens the panel.
   function openSurface(view: PanelView) {
+    setSavedJobId(null);
     setPanelView(view);
+    setPanelOpen(true);
+  }
+
+  // Opening a saved role from "Recent" → the saved-job detail view.
+  function openSaved(id: string) {
+    setSavedJobId(id);
+    setPanelView("saved");
     setPanelOpen(true);
   }
 
@@ -71,6 +86,7 @@ function ReturningWorkspace() {
         activeView={split ? panelView : null}
         onNavigate={openSurface}
         onToday={() => setPanelOpen(false)}
+        onOpenSaved={openSaved}
         rolesCount={panelJobs.jobsLoading ? undefined : rolesCount}
       />
 
@@ -84,7 +100,7 @@ function ReturningWorkspace() {
             <Separator className={s.divider} />
             {/* side: closable + resizable — hard pixel min-width */}
             <Panel id="side" defaultSize="48%" minSize="340px" className={s.pane}>
-              <SidePanel view={panelView} data={panelJobs} onClose={() => setPanelOpen(false)} />
+              <SidePanel view={panelView} savedJobId={savedJobId} data={panelJobs} onClose={() => setPanelOpen(false)} onOpenRoles={() => openSurface("roles")} />
             </Panel>
           </Group>
         ) : (

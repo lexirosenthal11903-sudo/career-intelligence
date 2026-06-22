@@ -25,6 +25,11 @@ export interface ProfileData {
   workStyle?: { preference?: string; teamSize?: string; companyStage?: string };
   memory?: MemoryNote[];
   profileCompleteness?: number;
+  // The user's CV on file — its source identity lives in Profile (decided 2026-06-22).
+  // Tailored CVs / cover letters go to Documents later.
+  cvFileName?: string;
+  cvText?: string;
+  cvUpdatedAt?: string;
   [key: string]: unknown;
 }
 

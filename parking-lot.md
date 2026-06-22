@@ -1,5 +1,49 @@
 # Parking Lot
 
+## 🅿️ DEDICATED SESSION — Mentorship market + credibility + business model (Lexi, 2026-06-22)
+
+_Lexi started this in the Claude consumer app and wants to continue it here (Claude Code has more
+product context). **Do not build anything** — this is a strategy/research + documentation session.
+Run it on its own. Lexi will signal when "the time is right."_
+
+**What Lexi wants from the session (her words, distilled):**
+1. **Market research — is there a real gap for mentorship in the UK?** Factual, current, verifiable
+   sources (not "mentorship is important" filler). Who do UK university students + recent graduates +
+   20-somethings actually turn to for direction today? What support resources/people exist, and where
+   are the gaps. The research must validate the *specific* gap Meridian claims, not the generic one.
+2. **Credibility / verification of AI advice** — the mentor is an AI (Arlo/Meridian). How do we PROVE
+   the advice is reliable, aligns with (or beats) what a real mentor would say, and that employers can
+   trust the data? Options to develop: human-mentor validation/endorsement, grounding on credible
+   career frameworks, third-party audit — or a combination.
+3. **Business model — brainstorm ALL options** so Lexi can see the full space: individual subscription,
+   universities licensing, employers paying for talent pipeline, mentors-as-tool, grant/charity,
+   government funding, freemium. Then narrow. Tension to hold: "equal opportunity for everyone" vs
+   "someone has to pay." (Reconcile with existing strategy: B2C self-discovery → uni partnerships
+   Phase 4 → employer network Phase 5 — already in ROADMAP strategic context.)
+4. **Go-to-market / credible-mentor outreach** — who to reach out to and when: university careers
+   coaches/directors, mentors Lexi knows, people online. Mentor interviews → get credible mentors to
+   vouch (is this a credibility play, a marketing play, or do real mentors USE the platform with their
+   own mentees? — that's a different product, scope it).
+5. **Data + scouting question** — can verified progress data be shared with companies to scout high
+   performers, and how is that data made credible (and GDPR-safe)?
+6. **Differentiation** — many of these platforms are vibe-coded. What sets Meridian apart and makes it
+   THE platform that gets people a foot in the door AND maintains motivation + shows real progress.
+
+**Product framing already agreed in the consumer chat (carry in):** It IS Career Intelligence/Meridian
+(not a separate idea). Core = CV + (vague or specific) direction in → advisor suggests directions to
+explore, how to explore them, live relevant jobs, how to apply successfully, and ongoing
+motivation/momentum. The differentiator is the *mentoring layer* + serving people who DON'T have a
+strong profile or clear direction (the cohort most tools ignore). UK-based, all roles, target =
+university students / graduates / 20-somethings starting out (broaden later).
+
+**How to run it:** strategy + research, document-as-we-go (Lexi explicitly does NOT want a surprise
+document dropped at the end — co-create it). Likely outputs: a market/gap research doc with real
+sources, a credibility framework, and a business-model option map. Suggest skills `/brainstorming`
+(+ `/grill-me`) and WebSearch for sourcing. Pairs with the **Jack & Jill teardown** session (also
+parked) — competitor context feeds the differentiation question.
+
+---
+
 ## Session 2026-06-22 — FIRST LIVE TEST feedback (Lexi clicked through /workspace)
 
 **Bugs — fixed this pass:** opens on Roles not Today + Today tab unclickable (only "close panel"

@@ -24,12 +24,14 @@ export default function LeftNav({
   activeView,
   onNavigate,
   onToday,
+  onOpenSaved,
   rolesCount,
 }: {
   variant: Variant;
-  activeView?: PanelView | null;
+  activeView?: PanelView | "saved" | null;
   onNavigate?: (view: PanelView) => void;
   onToday?: () => void;
+  onOpenSaved?: (id: string) => void;
   rolesCount?: number;
 }) {
   const first = variant === "first";
@@ -95,7 +97,7 @@ export default function LeftNav({
               key={r.id}
               className={s.recent}
               type="button"
-              onClick={() => onNavigate?.("roles")}
+              onClick={() => onOpenSaved?.(r.id)}
             >
               <span className={s.st}>★</span>
               <span className={s.rtext}>
