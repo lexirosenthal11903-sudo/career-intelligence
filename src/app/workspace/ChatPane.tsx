@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useArloChat } from "@/hooks/useArloChat";
 import { useFirstSession } from "@/hooks/useFirstSession";
+import { useRecap } from "./useRecap";
 import { ArloMessage } from "@/components/ArloMessage";
 import s from "./workspace.module.css";
 import {
@@ -196,53 +197,84 @@ function ReturningSession({
   chat: ReturnType<typeof useArloChat>;
   userInitial: string;
 }) {
+  // Real, per-user recap (VOICE-IN-UI §3). While it generates we hold the space with
+  // a skeleton so the conversation doesn't jump; if there's no analysis yet, nothing
+  // shows — the conversation just starts. No more hardcoded example copy.
+  const { recap, loading } = useRecap();
+  const showRecap = loading || !!recap;
+
   return (
     <>
-      <div className={s.stamp}>Yesterday</div>
+      {showRecap && <div className={s.stamp}>Earlier</div>}
 
-      {/* recap stays static (Step C) — generated server-side in a later step */}
-      <div className={s.recap}>
-        <div className={s.recapH}>
-          <span className={s.ic}>
-            <CheckIcon />
-          </span>
-          <b>Where we got to</b>
-          <span className={s.pill}>Direction forming</span>
-        </div>
-        <div className={s.recapB}>
-          <p>
-            Good talk yesterday, Ellie. You came in unsure a psychology degree led anywhere without a
-            PhD — and by the end, <b>it clearly does.</b> Here&rsquo;s what I took away:
-          </p>
-          <div className={s.rlabel}>What&rsquo;s becoming clear</div>
-          <ul className={s.rlist}>
-            <li>
-              The part of your degree you lit up about — <b>why people make the choices they do</b> —
-              is a whole field of work, not a dead end.
-            </li>
-            <li>
-              You&rsquo;d rather <b>understand people and design for them</b> than sit in pure
-              analysis.
-            </li>
-            <li>London-based; drawn to charities and research orgs over big corporates.</li>
-          </ul>
-          <div className={s.rlabel}>What I&rsquo;m doing next</div>
-          <ul className={s.rlist}>
-            <li>
-              Searching <b>behavioural &amp; UX research</b> roles, entry-level, ranked by fit.
-            </li>
-            <li>
-              New matches land in <b>Roles</b> — I&rsquo;ll flag the strong ones here.
-            </li>
-          </ul>
-        </div>
-      </div>
+      {loading && !recap && <RecapSkeleton />}
+      {recap && <RecapCard recap={recap} />}
 
-      <div className={s.stamp}>Today</div>
+      {showRecap && <div className={s.stamp}>Today</div>}
 
       {/* live conversation — wired to /api/chat (Step C) */}
       <LiveThread chat={chat} userInitial={userInitial} />
     </>
+  );
+}
+
+/* ---- the real "Where we got to" recap (generated per user) ---- */
+function RecapCard({ recap }: { recap: ReturnType<typeof useRecap>["recap"] }) {
+  if (!recap) return null;
+  return (
+    <div className={s.recap}>
+      <div className={s.recapH}>
+        <span className={s.ic}>
+          <CheckIcon />
+        </span>
+        <b>Where we got to</b>
+        <span className={s.pill}>Direction forming</span>
+      </div>
+      <div className={s.recapB}>
+        <p>{recap.greeting}</p>
+        {recap.becomingClear.length > 0 && (
+          <>
+            <div className={s.rlabel}>What&rsquo;s becoming clear</div>
+            <ul className={s.rlist}>
+              {recap.becomingClear.map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+            </ul>
+          </>
+        )}
+        {recap.doingNext.length > 0 && (
+          <>
+            <div className={s.rlabel}>What I&rsquo;m doing next</div>
+            <ul className={s.rlist}>
+              {recap.doingNext.map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---- recap loading placeholder — holds the layout while it generates ---- */
+function RecapSkeleton() {
+  return (
+    <div className={s.recap}>
+      <div className={s.recapH}>
+        <span className={s.ic}>
+          <CheckIcon />
+        </span>
+        <b>Where we got to</b>
+      </div>
+      <div className={s.recapB}>
+        <div className={s.skeleton} style={{ height: 16, width: "92%", marginBottom: 8 }} />
+        <div className={s.skeleton} style={{ height: 16, width: "78%", marginBottom: 18 }} />
+        <div className={s.skeleton} style={{ height: 12, width: "40%", marginBottom: 10 }} />
+        <div className={s.skeleton} style={{ height: 14, width: "88%", marginBottom: 7 }} />
+        <div className={s.skeleton} style={{ height: 14, width: "70%" }} />
+      </div>
+    </div>
   );
 }
 

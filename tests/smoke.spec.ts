@@ -107,6 +107,29 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     await expect(page.getByText('more of this fills in as we talk')).toBeVisible();
   });
 
+  // Returning recap (pre-share blocker): the "Where we got to" card renders the
+  // real per-user recap from /api/recap (no more hardcoded example copy). The card
+  // is client-rendered from the API response, so mocking /api/recap covers the wiring.
+  test('returning recap card renders real per-user content', async ({ page }) => {
+    await page.route('**/api/recap', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          recap: {
+            greeting: 'Good to pick this back up — your direction is coming into focus.',
+            becomingClear: ['You lean toward understanding people, not pure analysis.'],
+            doingNext: ['Searching entry-level research roles, ranked by fit.'],
+          },
+        }),
+      })
+    );
+    await page.goto('/workspace');
+    await expect(page.getByText('Where we got to')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('your direction is coming into focus')).toBeVisible();
+    await expect(page.getByText('What’s becoming clear')).toBeVisible();
+  });
+
   for (const route of DASHBOARD_ROUTES) {
     test(`dashboard tab "${route.name}" (${route.path}) loads`, async ({ page }) => {
       const errors = trackErrors(page);
