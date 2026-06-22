@@ -1,5 +1,16 @@
-/* Chat pane — never closable. Renders the returning recap+messages or the first-session "click".
-   All advisor copy is verbatim from VOICE-IN-UI.md — do not edit wording here. */
+"use client";
+
+/* Chat pane — never closable. Renders the returning recap+live conversation or the
+   first-session "click".
+   Step C (this session): the returning conversation is wired to /api/chat via the
+   existing useArloChat hook (message list + composer are live; advisor responds and
+   the thread persists to the `conversations` table). The recap card stays static, and
+   the first-session "click" stays static — its streaming is Step E.
+   All static advisor copy is verbatim from VOICE-IN-UI.md — do not edit wording here. */
+import { useEffect, useMemo, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useArloChat } from "@/hooks/useArloChat";
+import { ArloMessage } from "@/components/ArloMessage";
 import s from "./workspace.module.css";
 import {
   RadiantAvatar,
@@ -24,6 +35,43 @@ export default function ChatPane({
 }) {
   const first = variant === "first";
 
+  // Who's here — drives the user bubble avatar and gates the live conversation.
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userInitial, setUserInitial] = useState("E");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      setUserId(user.id);
+      const name = user.user_metadata?.full_name ?? user.email ?? "";
+      if (name) setUserInitial(name[0]!.toUpperCase());
+    });
+  }, [supabase]);
+
+  // The live conversation. The hook initiates on first load (advisor opens),
+  // loads any persisted thread, and handles send → respond → persist. We keep the
+  // first-session view dormant (userId null) — its streaming arrives in Step E.
+  const chat = useArloChat({
+    page: "workspace",
+    supabase,
+    userId: first ? null : userId,
+  });
+
+  const [draft, setDraft] = useState("");
+
+  function send() {
+    const text = draft.trim();
+    if (!text || chat.isLoading) return;
+    setDraft("");
+    chat.sendMessage(text);
+  }
+
+  function sendChip(label: string) {
+    if (chat.isLoading) return;
+    chat.sendMessage(label);
+  }
+
   return (
     <section className={s.chat}>
       <div className={s.ctop}>
@@ -43,21 +91,45 @@ export default function ChatPane({
 
       <div className={s.stream}>
         <div className={s.col}>
-          {first ? <FirstSession /> : <ReturningSession />}
+          {first ? (
+            <FirstSession />
+          ) : (
+            <ReturningSession
+              chat={chat}
+              userInitial={userInitial}
+            />
+          )}
         </div>
       </div>
 
-      <Composer variant={variant} />
+      {first ? (
+        <StaticComposer />
+      ) : (
+        <LiveComposer
+          draft={draft}
+          onChange={setDraft}
+          onSend={send}
+          onChip={sendChip}
+          disabled={chat.isLoading}
+        />
+      )}
     </section>
   );
 }
 
-/* ---- returning: "Where we got to" recap + the morning's two messages ---- */
-function ReturningSession() {
+/* ---- returning: static "Where we got to" recap, then the live conversation ---- */
+function ReturningSession({
+  chat,
+  userInitial,
+}: {
+  chat: ReturnType<typeof useArloChat>;
+  userInitial: string;
+}) {
   return (
     <>
       <div className={s.stamp}>Yesterday</div>
 
+      {/* recap stays static (Step C) — generated server-side in a later step */}
       <div className={s.recap}>
         <div className={s.recapH}>
           <span className={s.ic}>
@@ -97,26 +169,74 @@ function ReturningSession() {
 
       <div className={s.stamp}>Today</div>
 
-      <div className={s.msg}>
-        <div className={s.av}>
-          <RadiantAvatar />
-        </div>
-        <div className={s.bub}>
-          Two new roles came in overnight. The <em>Behavioural Researcher at Nesta</em> is almost
-          exactly your dissertation question — it&rsquo;s top of your Roles on the right. Want to open
-          it together?
-        </div>
-      </div>
-
-      <div className={`${s.msg} ${s.me}`}>
-        <div className={s.av}>E</div>
-        <div className={s.bub}>Yes — that one actually makes me sit up.</div>
-      </div>
+      {/* live conversation — wired to /api/chat (Step C) */}
+      <LiveThread chat={chat} userInitial={userInitial} />
     </>
   );
 }
 
-/* ---- first session: arrival → share + CV → wait → the click → bridge ---- */
+/* ---- live message thread (advisor + user bubbles + thinking indicator) ---- */
+function LiveThread({
+  chat,
+  userInitial,
+}: {
+  chat: ReturnType<typeof useArloChat>;
+  userInitial: string;
+}) {
+  const { extraMsgs, isLoading, messagesEndRef } = chat;
+  return (
+    <>
+      {extraMsgs.map((m, i) => {
+        if (m.role === "divider") {
+          return (
+            <div key={i} className={s.stamp}>
+              New session
+            </div>
+          );
+        }
+        if (m.role === "user") {
+          return (
+            <div key={i} className={`${s.msg} ${s.me}`}>
+              <div className={s.av}>{userInitial}</div>
+              <div className={s.bub}>{m.text}</div>
+            </div>
+          );
+        }
+        return (
+          <div key={i} className={s.msg}>
+            <div className={s.av}>
+              <RadiantAvatar />
+            </div>
+            <div className={s.bub}>
+              <ArloMessage text={m.text} action={m.action} actions={m.actions} />
+            </div>
+          </div>
+        );
+      })}
+
+      {isLoading && (
+        <div className={s.msg}>
+          <div className={s.av}>
+            <RadiantAvatar />
+          </div>
+          <div className={s.bub}>
+            <span className={s.wait}>
+              <span className={s.dots}>
+                <i />
+                <i />
+                <i />
+              </span>
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div ref={messagesEndRef} />
+    </>
+  );
+}
+
+/* ---- first session: arrival → share + CV → wait → the click → bridge (static; Step E) ---- */
 function FirstSession() {
   return (
     <>
@@ -219,26 +339,78 @@ function FirstSession() {
   );
 }
 
-/* ---- composer: chips + input bar. Chips differ per variant. ---- */
-function Composer({ variant }: { variant: Variant }) {
-  const first = variant === "first";
+/* ---- live composer (returning): chips + input bar wired to the conversation ---- */
+function LiveComposer({
+  draft,
+  onChange,
+  onSend,
+  onChip,
+  disabled,
+}: {
+  draft: string;
+  onChange: (v: string) => void;
+  onSend: () => void;
+  onChip: (label: string) => void;
+  disabled: boolean;
+}) {
+  const chips = [
+    "Open the Nesta role",
+    "Refine my direction",
+    "Help with my CV",
+    "Salary for these roles",
+  ];
   return (
     <div className={s.composer}>
       <div className={s.chips}>
-        {first ? (
-          <>
-            <span className={`${s.chip} ${s.lead}`}>Show me the first few roles</span>
-            <span className={s.chip}>Tell me about behavioural research</span>
-            <span className={s.chip}>Why these three?</span>
-          </>
-        ) : (
-          <>
-            <span className={s.chip}>Open the Nesta role</span>
-            <span className={s.chip}>Refine my direction</span>
-            <span className={s.chip}>Help with my CV</span>
-            <span className={s.chip}>Salary for these roles</span>
-          </>
-        )}
+        {chips.map((c) => (
+          <button
+            key={c}
+            type="button"
+            className={s.chip}
+            onClick={() => onChip(c)}
+            disabled={disabled}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+      <div className={s.cbar}>
+        <button className={s.cplus} type="button" aria-label="Attach a file">
+          <PlusIcon />
+        </button>
+        <input
+          placeholder="Tell me what you're thinking…"
+          value={draft}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              onSend();
+            }
+          }}
+        />
+        <button
+          className={s.csend}
+          type="button"
+          aria-label="Send"
+          onClick={onSend}
+          disabled={disabled}
+        >
+          <SendIcon />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ---- static composer (first session): not wired — streaming is Step E ---- */
+function StaticComposer() {
+  return (
+    <div className={s.composer}>
+      <div className={s.chips}>
+        <span className={`${s.chip} ${s.lead}`}>Show me the first few roles</span>
+        <span className={s.chip}>Tell me about behavioural research</span>
+        <span className={s.chip}>Why these three?</span>
       </div>
       <div className={s.cbar}>
         <button className={s.cplus} type="button" aria-label="Attach a file">
