@@ -31,6 +31,10 @@
   --accent-soft: rgba(176, 94, 22, 0.10);  /* tints: active nav, pills, badges */
   --accent-lt: #C56E20;   /* lighter amber step (legacy) */
 
+  /* ---- User avatar gradient (initials chip) ---- */
+  --avatar-1: #C98A4E;
+  --avatar-2: #7A4A22;
+
   /* ---- Espresso (bottom-only / on-dark) ---- */
   --deep: #211A11;
   --deep-2: #2E2417;
