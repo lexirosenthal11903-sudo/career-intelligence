@@ -518,11 +518,12 @@ function LiveComposer({
   onChip: (label: string) => void;
   disabled: boolean;
 }) {
+  // Generic next-step prompts — no fabricated company/role names.
   const chips = [
-    "Open the Nesta role",
+    "What should I focus on today?",
+    "Show me roles that fit",
     "Refine my direction",
     "Help with my CV",
-    "Salary for these roles",
   ];
   return (
     <div className={s.composer}>
@@ -609,6 +610,16 @@ function FirstComposer({
 
   return (
     <div className={s.composer}>
+      {/* Confirm an attached CV before the user sends — otherwise the upload looks
+          like nothing happened (the file chip otherwise only shows after sending). */}
+      {composing && cvFileName && (
+        <div className={s.chips}>
+          <span className={s.cvchip}>
+            <FileIcon /> {extracting ? `Reading ${cvFileName}…` : `${cvFileName} attached`}
+          </span>
+        </div>
+      )}
+
       {revealed && (
         <div className={s.chips}>
           <button

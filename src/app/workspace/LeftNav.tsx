@@ -23,11 +23,13 @@ export default function LeftNav({
   variant,
   activeView,
   onNavigate,
+  onToday,
   rolesCount,
 }: {
   variant: Variant;
   activeView?: PanelView | null;
   onNavigate?: (view: PanelView) => void;
+  onToday?: () => void;
   rolesCount?: number;
 }) {
   const first = variant === "first";
@@ -51,7 +53,11 @@ export default function LeftNav({
         </div>
       </div>
 
-      <button className={`${s.nitem} ${activeView == null ? s.on : ""}`} type="button">
+      <button
+        className={`${s.nitem} ${activeView == null ? s.on : ""}`}
+        type="button"
+        onClick={onToday}
+      >
         <TodayIcon /> Today
       </button>
 
@@ -85,7 +91,12 @@ export default function LeftNav({
         <>
           <div className={s.nsec}>Recent</div>
           {recent.map((r) => (
-            <button key={r.id} className={s.recent} type="button">
+            <button
+              key={r.id}
+              className={s.recent}
+              type="button"
+              onClick={() => onNavigate?.("roles")}
+            >
               <span className={s.st}>★</span>
               <span className={s.rtext}>
                 <b>{r.company}</b>

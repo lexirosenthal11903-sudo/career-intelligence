@@ -42,7 +42,9 @@ function FirstWorkspace() {
 
 /* ---- returning — split workspace; owns the shared jobs data once ---- */
 function ReturningWorkspace() {
-  const [panelOpen, setPanelOpen] = useState(true);
+  // Open on Today — the conversation, full width. Surfaces (Roles/Direction/Documents)
+  // open on demand; "Today" closes the panel again.
+  const [panelOpen, setPanelOpen] = useState(false);
   const [panelView, setPanelView] = useState<PanelView>("roles");
   const split = panelOpen;
 
@@ -68,6 +70,7 @@ function ReturningWorkspace() {
         variant="returning"
         activeView={split ? panelView : null}
         onNavigate={openSurface}
+        onToday={() => setPanelOpen(false)}
         rolesCount={panelJobs.jobsLoading ? undefined : rolesCount}
       />
 

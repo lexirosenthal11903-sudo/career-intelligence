@@ -534,6 +534,20 @@
   font-family: inherit;
 }
 .chip:hover { border-color: var(--accent); color: var(--accent); }
+/* attached-CV confirmation in the first-session composer (non-interactive) */
+.cvchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 99px;
+  padding: 7px 13px;
+}
+.cvchip svg { width: 14px; height: 14px; }
 .chip.lead {
   color: var(--accent);
   border-color: var(--accent);

@@ -264,7 +264,7 @@ function JobRow({ job, strong, onReview }: { job: PanelJob; strong: boolean; onR
         <div className={s.jc}>{meta}</div>
         <span className={`${s.jfit} ${strong ? "" : s.good}`}>{strong ? "Strong fit" : "Good fit"}</span>
       </div>
-      <span className={s.jrev}>Review <ChevronIcon /></span>
+      <span className={s.jrev}>View <ChevronIcon /></span>
     </button>
   );
 }
