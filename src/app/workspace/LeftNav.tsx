@@ -10,9 +10,19 @@ import {
 } from "./icons";
 
 type Variant = "first" | "returning";
+type PanelView = "roles" | "direction" | "documents";
 
-export default function LeftNav({ variant }: { variant: Variant }) {
+export default function LeftNav({
+  variant,
+  activeView,
+  onNavigate,
+}: {
+  variant: Variant;
+  activeView?: PanelView | null;
+  onNavigate?: (view: PanelView) => void;
+}) {
   const first = variant === "first";
+  const cls = (view: PanelView) => `${s.nitem} ${activeView === view ? s.on : ""}`;
 
   return (
     <nav className={s.nav}>
@@ -27,20 +37,25 @@ export default function LeftNav({ variant }: { variant: Variant }) {
         </div>
       </div>
 
-      <button className={`${s.nitem} ${s.on}`} type="button">
+      <button className={`${s.nitem} ${activeView == null ? s.on : ""}`} type="button">
         <TodayIcon /> Today
       </button>
 
-      <button className={s.nitem} type="button">
+      <button className={cls("roles")} type="button" onClick={() => onNavigate?.("roles")}>
         <RolesIcon /> Roles
         {first ? <span className={s.new}>new</span> : <span className={s.ct}>8</span>}
       </button>
 
-      <button className={s.nitem} type="button">
+      <button className={cls("direction")} type="button" onClick={() => onNavigate?.("direction")}>
         <DirectionIcon /> Your direction
       </button>
 
-      <button className={`${s.nitem} ${first ? s.locked : ""}`} type="button" disabled={first}>
+      <button
+        className={`${s.nitem} ${first ? s.locked : ""} ${activeView === "documents" ? s.on : ""}`}
+        type="button"
+        disabled={first}
+        onClick={() => onNavigate?.("documents")}
+      >
         <DocumentsIcon /> Documents
       </button>
 

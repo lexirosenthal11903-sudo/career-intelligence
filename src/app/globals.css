@@ -35,6 +35,14 @@
   --avatar-1: #C98A4E;
   --avatar-2: #7A4A22;
 
+  /* ---- Company logo tiles (decorative initials, deterministic by name) ---- */
+  --logo-1: #2E5E46;      /* moss */
+  --logo-2: #3A4DA8;      /* indigo */
+  --logo-3: #8A3B3B;      /* clay */
+  --logo-4: #5B5BA0;      /* slate violet */
+  --logo-5: #B0681E;      /* amber-brown */
+  --logo-6: #4A6670;      /* teal-grey */
+
   /* ---- Espresso (bottom-only / on-dark) ---- */
   --deep: #211A11;
   --deep-2: #2E2417;

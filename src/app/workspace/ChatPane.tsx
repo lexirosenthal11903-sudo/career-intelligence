@@ -60,6 +60,18 @@ export default function ChatPane({
 
   const [draft, setDraft] = useState("");
 
+  // The side panel hands prompts to the conversation (Interested/Pass, reach-out,
+  // outreach draft) via a window event — the panel displays, the advisor speaks.
+  useEffect(() => {
+    if (first) return;
+    function onAsk(e: Event) {
+      const prompt = (e as CustomEvent<string>).detail;
+      if (prompt && !chat.isLoading) chat.sendMessage(prompt);
+    }
+    window.addEventListener("ci:ask-advisor", onAsk);
+    return () => window.removeEventListener("ci:ask-advisor", onAsk);
+  }, [first, chat]);
+
   function send() {
     const text = draft.trim();
     if (!text || chat.isLoading) return;

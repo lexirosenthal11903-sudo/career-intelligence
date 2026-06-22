@@ -42,6 +42,20 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     expect(errors, `Uncaught errors on /input: ${errors.join(' | ')}`).toHaveLength(0);
   });
 
+  // Workspace shell (visual rebuild, Track 2). Both variants must render the left
+  // nav brand without an uncaught error — the panel surfaces wire to live APIs.
+  for (const { path, name } of [
+    { path: '/workspace', name: 'returning split' },
+    { path: '/workspace?view=first', name: 'first session' },
+  ]) {
+    test(`workspace (${name}) renders`, async ({ page }) => {
+      const errors = trackErrors(page);
+      await page.goto(path);
+      await expect(page.getByText('Career Intelligence').first()).toBeVisible({ timeout: 15_000 });
+      expect(errors, `Uncaught errors on ${path}: ${errors.join(' | ')}`).toHaveLength(0);
+    });
+  }
+
   for (const route of DASHBOARD_ROUTES) {
     test(`dashboard tab "${route.name}" (${route.path}) loads`, async ({ page }) => {
       const errors = trackErrors(page);
