@@ -47,7 +47,7 @@ export default function HomePage() {
               Arlo maps your direction, finds the roles that actually fit, and walks every step of the search with you — one clear action at a time.
             </p>
             <div className={`${s.heroActions} reveal`}>
-              <a href="/input" className={s.ctaLg}>Start with who you are →</a>
+              <a href="/workspace?view=first" className={s.ctaLg}>Start with who you are →</a>
               <span className={s.heroReassure}>Takes about a minute · No CV required</span>
             </div>
           </section>
@@ -325,7 +325,7 @@ export default function HomePage() {
         <section className={`${s.closing} reveal`}>
           <h2 className={s.closingH2}>Your career deserves more than a job board.</h2>
           <p className={s.closingP}>Start with one minute. Tell Arlo who you are.</p>
-          <a href="/input" className={s.ctaLg}>Start with who you are →</a>
+          <a href="/workspace?view=first" className={s.ctaLg}>Start with who you are →</a>
           <span className={s.closingReassure}>Takes about a minute · No CV required</span>
         </section>
       </div>

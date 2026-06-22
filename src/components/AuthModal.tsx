@@ -121,9 +121,9 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
       const createdAt = new Date(user.created_at).getTime();
       const lastSignIn = new Date(user.last_sign_in_at ?? user.created_at).getTime();
       const isNewUser = lastSignIn - createdAt < 10000;
-      router.push(isNewUser ? "/input" : "/dashboard");
+      router.push(isNewUser ? "/workspace?view=first" : "/workspace");
     } else {
-      router.push("/dashboard");
+      router.push("/workspace");
     }
   }
 
