@@ -211,7 +211,7 @@ _Goal: Wire the existing backend to the new frontend. A user can go through the 
 - [ ] **Right to deletion** — the delete button in Profile navigates away but does not actually delete Supabase data. Wire the actual deletion call.
 - [ ] **Sentry error tracking** — zero visibility into production errors right now. Sentry free tier, ~20 minutes to install. Without it, silent failures will go unnoticed.
 - [ ] **Vercel Analytics** — already in the stack, cookie-free, GDPR-safe, zero-config. Must be enabled before first user lands. Minimum metrics to watch: analysis completion rate + 7-day return rate.
-- [ ] **Upstash env vars in Vercel** — `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` must be added to Vercel Production env to activate rate limiting.
+- [ ] **Upstash env vars in Vercel — CONFIRMED NOT SET (2026-06-22).** `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` are **empty in both Production AND Preview** (verified via `vercel env pull`). The code is wired but the rate limiter fails open when unconfigured, so **rate limiting is currently OFF in deployment** for both `/api/analyse` (10/IP/day) and `/api/chat` (100/user/day) — the app has no abuse protection on the paid Anthropic calls. Create a real Upstash Redis DB and add valid creds to Vercel Production + Preview before any real user signs up. (The old local token was dead `WRONGPASS`; local `.env.local` now blanked to match prod so local chat works.)
 
 **Phase 3a complete ✓ (2026-06-13) → launch review** — Lexi's decision: launch now or continue to Phase 3b first.
 
