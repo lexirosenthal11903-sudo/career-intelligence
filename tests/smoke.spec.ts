@@ -56,6 +56,45 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     });
   }
 
+  // First-session "click" (Step E): sending the first message streams /api/analyse
+  // into the conversation and reveals the direction inline. We mock the SSE so the
+  // flow runs offline (no Anthropic), proving the consumer + reveal wiring.
+  test('first session streams the analysis and reveals the direction inline', async ({ page }) => {
+    const errors = trackErrors(page);
+
+    const result = {
+      profile: {
+        summary: "You came in unsure your psychology degree led anywhere — it clearly does.",
+        suggestedDirections: [
+          { title: 'Behavioural research', why: 'Your dissertation instinct, made into a job.' },
+          { title: 'UX research', why: 'The same curiosity, pointed at products.' },
+          { title: 'Service design', why: 'Designing what people move through.' },
+        ],
+      },
+    };
+
+    await page.route('**/api/analyse', async (route) => {
+      await route.fulfill({
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
+        body: `data: ${JSON.stringify({ event: 'complete', result })}\n\n`,
+      });
+    });
+    await page.route('**/api/save-result', (route) => route.fulfill({ status: 200, body: '{}' }));
+
+    await page.goto('/workspace?view=first');
+    const input = page.getByPlaceholder("Tell me what you're thinking…");
+    await expect(input).toBeVisible({ timeout: 15_000 });
+    await input.fill('Just finished a psychology degree and I feel a bit lost.');
+    await input.press('Enter');
+
+    // The reveal card + its first direction land from the (mocked) stream.
+    await expect(page.getByText('where I see this going')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Behavioural research', { exact: true })).toBeVisible();
+    await expect(page.getByText('The clearest fit.')).toBeVisible();
+    expect(errors, `Uncaught errors on first-session click: ${errors.join(' | ')}`).toHaveLength(0);
+  });
+
   for (const route of DASHBOARD_ROUTES) {
     test(`dashboard tab "${route.name}" (${route.path}) loads`, async ({ page }) => {
       const errors = trackErrors(page);

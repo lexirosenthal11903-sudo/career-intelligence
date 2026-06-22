@@ -2,14 +2,19 @@
 
 /* Chat pane — never closable. Renders the returning recap+live conversation or the
    first-session "click".
-   Step C (this session): the returning conversation is wired to /api/chat via the
-   existing useArloChat hook (message list + composer are live; advisor responds and
-   the thread persists to the `conversations` table). The recap card stays static, and
-   the first-session "click" stays static — its streaming is Step E.
-   All static advisor copy is verbatim from VOICE-IN-UI.md — do not edit wording here. */
-import { useEffect, useMemo, useState } from "react";
+   Step C: the returning conversation is wired to /api/chat via the existing
+   useArloChat hook (message list + composer are live; advisor responds and the thread
+   persists to the `conversations` table).
+   Step E (this session): the first session is now LIVE — arrival → the user shares
+   (+ optional CV) → /api/analyse streams inline (killing the old loading screen) →
+   the "click" reveal is built from the real analysis (useFirstSession). The wait line,
+   reveal structural copy, and bridge line are verbatim from VOICE-IN-UI.md — only the
+   summary + direction content is generated. Do not edit advisor wording here. */
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useArloChat } from "@/hooks/useArloChat";
+import { useFirstSession } from "@/hooks/useFirstSession";
 import { ArloMessage } from "@/components/ArloMessage";
 import s from "./workspace.module.css";
 import {
@@ -21,6 +26,11 @@ import {
   RolesIcon,
   FileIcon,
 } from "./icons";
+
+// Post-click continuation: a follow-up typed/clicked at the end of the first
+// session is stashed here, then picked up once by the returning conversation
+// (the one real /api/chat thread). Keeps intent from being lost on the handoff.
+const PENDING_KEY = "pending-advisor-message";
 
 type Variant = "first" | "returning";
 
@@ -34,6 +44,7 @@ export default function ChatPane({
   onReopen?: () => void;
 }) {
   const first = variant === "first";
+  const router = useRouter();
 
   // Who's here — drives the user bubble avatar and gates the live conversation.
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -58,6 +69,10 @@ export default function ChatPane({
     userId: first ? null : userId,
   });
 
+  // First-session streaming state machine (Step E). Inert until the user sends
+  // their first message; replaces the old loading screen + onboarding bridge.
+  const fs = useFirstSession();
+
   const [draft, setDraft] = useState("");
 
   // The side panel hands prompts to the conversation (Interested/Pass, reach-out,
@@ -72,6 +87,23 @@ export default function ChatPane({
     return () => window.removeEventListener("ci:ask-advisor", onAsk);
   }, [first, chat]);
 
+  // Pick up a follow-up carried over from the end of the first session, once.
+  const seedSentRef = useRef(false);
+  useEffect(() => {
+    if (first || seedSentRef.current) return;
+    let pending: string | null = null;
+    try {
+      pending = sessionStorage.getItem(PENDING_KEY);
+      if (pending) sessionStorage.removeItem(PENDING_KEY);
+    } catch {
+      /* sessionStorage unavailable */
+    }
+    if (pending) {
+      seedSentRef.current = true;
+      chat.sendMessage(pending);
+    }
+  }, [first, chat]);
+
   function send() {
     const text = draft.trim();
     if (!text || chat.isLoading) return;
@@ -82,6 +114,27 @@ export default function ChatPane({
   function sendChip(label: string) {
     if (chat.isLoading) return;
     chat.sendMessage(label);
+  }
+
+  // First session: kick off the stream from the user's first message.
+  function startFirst() {
+    const text = draft.trim();
+    if (!text && !fs.hasCv()) return;
+    setDraft("");
+    fs.start(text);
+  }
+
+  // Post-click: continue into the real workspace conversation (lead chip = roles;
+  // any follow-up is stashed so the returning thread picks it up).
+  function continueToWorkspace(seed?: string) {
+    if (seed) {
+      try {
+        sessionStorage.setItem(PENDING_KEY, seed);
+      } catch {
+        /* best-effort */
+      }
+    }
+    router.push("/workspace");
   }
 
   return (
@@ -104,7 +157,7 @@ export default function ChatPane({
       <div className={s.stream}>
         <div className={s.col}>
           {first ? (
-            <FirstSession />
+            <FirstSession fs={fs} userInitial={userInitial} />
           ) : (
             <ReturningSession
               chat={chat}
@@ -115,7 +168,13 @@ export default function ChatPane({
       </div>
 
       {first ? (
-        <StaticComposer />
+        <FirstComposer
+          fs={fs}
+          draft={draft}
+          onChange={setDraft}
+          onStart={startFirst}
+          onContinue={continueToWorkspace}
+        />
       ) : (
         <LiveComposer
           draft={draft}
@@ -248,13 +307,41 @@ function LiveThread({
   );
 }
 
-/* ---- first session: arrival → share + CV → wait → the click → bridge (static; Step E) ---- */
-function FirstSession() {
+/* ---- first session: arrival → share + CV → wait → the click → bridge (LIVE; Step E) ----
+   The opener, wait line, reveal header/pill/label/lead-tag, and bridge line are verbatim
+   from VOICE-IN-UI.md §1–§2. Only the summary + directions are generated (from /api/analyse). */
+function FirstSession({
+  fs,
+  userInitial,
+}: {
+  fs: ReturnType<typeof useFirstSession>;
+  userInitial: string;
+}) {
+  const { phase, userMessage, cvFileName, result, slow } = fs;
+  const started = phase !== "arrival" && phase !== "extracting";
+
+  // Scroll to follow the conversation. While analysing, land on the wait bubble.
+  // On the reveal, frame the card's TOP — the "click" header is the moment; we never
+  // scroll past it to the bottom. (Two rAFs so the card has laid out before we scroll.)
+  const endRef = useRef<HTMLDivElement>(null);
+  const revealRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (phase === "analysing" || phase === "error") {
+      endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    } else if (phase === "revealed") {
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() =>
+          revealRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+        )
+      );
+    }
+  }, [phase, result]);
+
   return (
     <>
       <div className={s.stamp}>Today</div>
 
-      {/* opener */}
+      {/* opener (locked §1) */}
       <div className={s.msg}>
         <div className={s.av}>
           <RadiantAvatar />
@@ -266,88 +353,117 @@ function FirstSession() {
         </div>
       </div>
 
-      {/* user shares + CV */}
-      <div className={`${s.msg} ${s.me}`}>
-        <div className={s.av}>E</div>
-        <div className={s.bub}>
-          Just finished a psychology degree and honestly I&rsquo;m a bit lost. Feels like it
-          doesn&rsquo;t lead anywhere unless I do a PhD, which I don&rsquo;t want.
-          <span className={s.fileatt}>
-            <FileIcon /> Ellie_Hartley_CV.pdf
-          </span>
+      {/* user shares + CV — shown once the analysis has been kicked off */}
+      {started && (
+        <div className={`${s.msg} ${s.me}`}>
+          <div className={s.av}>{userInitial}</div>
+          <div className={s.bub}>
+            {userMessage}
+            {cvFileName && (
+              <span className={s.fileatt}>
+                <FileIcon /> {cvFileName}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* the wait (replaces the loading screen) */}
-      <div className={s.msg}>
-        <div className={s.av}>
-          <RadiantAvatar />
-        </div>
-        <div className={s.bub}>
-          <span className={s.wait}>
-            Give me a minute with this — I want to read it properly, not skim it.
-            <span className={s.dots}>
-              <i />
-              <i />
-              <i />
+      {/* the wait (locked §1; replaces the loading screen) */}
+      {phase === "analysing" && (
+        <div className={s.msg}>
+          <div className={s.av}>
+            <RadiantAvatar />
+          </div>
+          <div className={s.bub}>
+            <span className={s.wait}>
+              {slow
+                ? "Still working — this one's taking a bit longer than usual."
+                : "Give me a minute with this — I want to read it properly, not skim it."}
+              <span className={s.dots}>
+                <i />
+                <i />
+                <i />
+              </span>
             </span>
-          </span>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* THE CLICK */}
-      <div className={s.reveal}>
-        <div className={s.revealH}>
-          <span className={s.ic}>
-            <RadiantReveal />
-          </span>
-          <b>Here&rsquo;s where I see this going</b>
-          <span className={s.pill}>Worth exploring</span>
+      {/* THE CLICK — built from the real analysis */}
+      {phase === "revealed" && result && (
+        <div ref={revealRef}>
+          <RevealCard result={result} />
         </div>
-        <div className={s.revealB}>
-          <p>
-            I&rsquo;ve read all of it, Ellie. The part you lit up about —{" "}
-            <em>why people make the choices they do</em> — isn&rsquo;t a footnote in your degree.
-            It&rsquo;s a whole field of work. And <b>you don&rsquo;t need the PhD to be in it.</b>
-          </p>
-          <div className={s.rlabel}>Three directions worth exploring</div>
-          <ul className={s.dirs}>
-            <li className={`${s.dir} ${s.lead}`}>
-              <span className={s.num}>1</span>
-              <span className={s.dt}>
-                <b>Behavioural research</b> — your dissertation instinct, made into a job:
-                understanding why people do what they do. <span className={s.leadTag}>The clearest fit.</span>
-              </span>
-            </li>
-            <li className={s.dir}>
-              <span className={s.num}>2</span>
-              <span className={s.dt}>
-                <b>UX research</b> — the same curiosity, pointed at how people use products and
-                services.
-              </span>
-            </li>
-            <li className={s.dir}>
-              <span className={s.num}>3</span>
-              <span className={s.dt}>
-                <b>Service &amp; policy design</b> — designing the things people actually move through,
-                for charities and public bodies.
-              </span>
-            </li>
-          </ul>
-        </div>
-      </div>
+      )}
 
-      {/* the bridge to roles */}
-      <div className={s.msg}>
-        <div className={s.av}>
-          <RadiantAvatar />
+      {/* the bridge to roles (locked §2) */}
+      {phase === "revealed" && result && (
+        <div className={s.msg}>
+          <div className={s.av}>
+            <RadiantAvatar />
+          </div>
+          <div className={s.bub}>
+            The first one is where I&rsquo;d start. I&rsquo;ve already found a handful of real roles
+            that fit — want to look at the first few together?
+          </div>
         </div>
-        <div className={s.bub}>
-          The first one is where I&rsquo;d start. I&rsquo;ve already found a handful of real roles that
-          fit — want to look at the first few together?
+      )}
+
+      {/* error — the advisor owns it (locked error voice), with a retry */}
+      {phase === "error" && (
+        <div className={s.msg}>
+          <div className={s.av}>
+            <RadiantAvatar />
+          </div>
+          <div className={s.bub}>
+            Something went wrong on my end. It&rsquo;s not your CV — it&rsquo;s me.{" "}
+            <button type="button" className={s.retry} onClick={fs.retry}>
+              Want to try again?
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      <div ref={endRef} />
     </>
+  );
+}
+
+/* ---- the reveal / "the click" card (real data + locked structural copy) ---- */
+function RevealCard({ result }: { result: ReturnType<typeof useFirstSession>["result"] }) {
+  if (!result) return null;
+  const { summary, directions } = result;
+  const label = directions.length === 3 ? "Three directions worth exploring" : "Directions worth exploring";
+  return (
+    <div className={s.reveal}>
+      <div className={s.revealH}>
+        <span className={s.ic}>
+          <RadiantReveal />
+        </span>
+        <b>Here&rsquo;s where I see this going</b>
+        <span className={s.pill}>Worth exploring</span>
+      </div>
+      <div className={s.revealB}>
+        {summary && <p>{summary}</p>}
+        {directions.length > 0 && (
+          <>
+            <div className={s.rlabel}>{label}</div>
+            <ul className={s.dirs}>
+              {directions.map((d, i) => (
+                <li key={i} className={i === 0 ? `${s.dir} ${s.lead}` : s.dir}>
+                  <span className={s.num}>{i + 1}</span>
+                  <span className={s.dt}>
+                    <b>{d.title}</b>
+                    {d.why ? <> — {d.why}</> : null}
+                    {i === 0 && <span className={s.leadTag}> The clearest fit.</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -415,23 +531,126 @@ function LiveComposer({
   );
 }
 
-/* ---- static composer (first session): not wired — streaming is Step E ---- */
-function StaticComposer() {
+/* ---- first-session composer (LIVE; Step E) — phase-aware ----
+   arrival/extracting → compose the first message + attach a CV (kicks off the stream).
+   analysing/error    → inert (the wait/error own the turn; retry lives in the bubble).
+   revealed           → the locked next-step chips + a live input that continue into the
+                        real workspace conversation. */
+function FirstComposer({
+  fs,
+  draft,
+  onChange,
+  onStart,
+  onContinue,
+}: {
+  fs: ReturnType<typeof useFirstSession>;
+  draft: string;
+  onChange: (v: string) => void;
+  onStart: () => void;
+  onContinue: (seed?: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { phase, cvFileName, result } = fs;
+  const revealed = phase === "revealed";
+  const composing = phase === "arrival" || phase === "extracting";
+  const extracting = phase === "extracting";
+
+  // Post-click chips: lead = roles (locked); the rest reflect the real lead direction.
+  const leadTitle = result?.directions[0]?.title;
+
+  function onInputKey(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== "Enter" || e.shiftKey) return;
+    e.preventDefault();
+    if (revealed) {
+      const text = draft.trim();
+      if (text) onContinue(text);
+    } else if (composing) {
+      onStart();
+    }
+  }
+
   return (
     <div className={s.composer}>
-      <div className={s.chips}>
-        <span className={`${s.chip} ${s.lead}`}>Show me the first few roles</span>
-        <span className={s.chip}>Tell me about behavioural research</span>
-        <span className={s.chip}>Why these three?</span>
-      </div>
+      {revealed && (
+        <div className={s.chips}>
+          <button
+            type="button"
+            className={`${s.chip} ${s.lead}`}
+            onClick={() => onContinue()}
+          >
+            Show me the first few roles
+          </button>
+          {leadTitle && (
+            <button
+              type="button"
+              className={s.chip}
+              onClick={() => onContinue(`Tell me about ${leadTitle}`)}
+            >
+              Tell me about {leadTitle}
+            </button>
+          )}
+          <button
+            type="button"
+            className={s.chip}
+            onClick={() => onContinue("Why these three?")}
+          >
+            Why these three?
+          </button>
+        </div>
+      )}
+
       <div className={s.cbar}>
-        <button className={s.cplus} type="button" aria-label="Attach a file">
+        <button
+          className={s.cplus}
+          type="button"
+          aria-label="Attach your CV"
+          onClick={() => fileRef.current?.click()}
+          disabled={!composing || extracting}
+        >
           <PlusIcon />
         </button>
-        <input placeholder="Tell me what you're thinking…" />
-        <button className={s.csend} type="button" aria-label="Send">
+        <input
+          placeholder={
+            extracting
+              ? "Reading your CV…"
+              : revealed
+                ? "Tell me what you're thinking…"
+                : cvFileName
+                  ? "Add anything else, or just send…"
+                  : "Tell me what you're thinking…"
+          }
+          value={draft}
+          disabled={extracting}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={onInputKey}
+        />
+        <button
+          className={s.csend}
+          type="button"
+          aria-label="Send"
+          disabled={extracting || phase === "analysing"}
+          onClick={() => {
+            if (revealed) {
+              const text = draft.trim();
+              if (text) onContinue(text);
+            } else {
+              onStart();
+            }
+          }}
+        >
           <SendIcon />
         </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".pdf,.doc,.docx"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) fs.extractCv(f);
+            e.target.value = "";
+          }}
+        />
       </div>
     </div>
   );
