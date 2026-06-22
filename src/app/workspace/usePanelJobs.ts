@@ -116,6 +116,14 @@ export function usePanelJobs() {
 
   // Server-first load of the analysis result, then fetch jobs. All setState runs
   // after an await, so it never fires synchronously inside the effect body.
+  const load = useCallback(async () => {
+    const result = await loadAnalysisResult<AnalysisResult>();
+    const p = result?.profile ?? null;
+    setProfile(p);
+    setHasResult(!!result);
+    if (p) await fetchJobs(p);
+  }, [fetchJobs]);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -126,8 +134,17 @@ export function usePanelJobs() {
       setHasResult(!!result);
       if (p) await fetchJobs(p);
     })();
-    return () => { cancelled = true; };
-  }, [fetchJobs]);
+
+    // The advisor can revise directions/keywords mid-conversation; when it does it
+    // emits `ci:analysis-changed` (after busting the jobs cache). Re-read the analysis
+    // and re-fetch jobs so the Direction tab, Roles list and nav count update live.
+    function onAnalysisChanged() { load(); }
+    window.addEventListener("ci:analysis-changed", onAnalysisChanged);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("ci:analysis-changed", onAnalysisChanged);
+    };
+  }, [fetchJobs, load]);
 
   const retry = useCallback(() => { if (profile) fetchJobs(profile); }, [profile, fetchJobs]);
 

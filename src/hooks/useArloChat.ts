@@ -144,6 +144,16 @@ export function useArloChat({
             .join("") || ERROR_MSG;
         const actions = Array.isArray(data.meridianActions) ? (data.meridianActions as string[]) : undefined;
 
+        // Some advisor changes alter the canonical analysis (directions/roles). Bust
+        // the stale jobs cache and tell the workspace surfaces to re-read, so the
+        // Direction tab, Roles list and nav count update live — the advisor only ever
+        // says "done" because it really is.
+        const signals = Array.isArray(data.meridianSignals) ? (data.meridianSignals as string[]) : [];
+        if (signals.includes("analysis-changed") && typeof window !== "undefined") {
+          try { sessionStorage.removeItem("cached-jobs"); } catch { /* ignore */ }
+          window.dispatchEvent(new CustomEvent("ci:analysis-changed"));
+        }
+
         setAllMsgs((prev) => [...prev, { role: "arlo", text: arloText, actions }]);
 
         const newArloMsg: ApiMsg = { role: "assistant", content: arloText };

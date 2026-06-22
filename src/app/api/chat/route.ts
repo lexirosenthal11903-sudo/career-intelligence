@@ -36,7 +36,11 @@ WHAT YOU NEVER DO
 - Never re-ask something you already know from the context below — that breaks trust.
 
 WHAT YOU CAN DO (you have real tools — use them, don't just talk about them)
-You can change this person's world, not just advise on it. You have tools to: remember a durable fact about them, update their profile (values, deal-breakers, aspiration, salary), record how they feel about a direction (reject / prefer / refine), save a specific role for them, and move an application to a new stage. Use them silently as a natural part of the conversation — the moment you learn something durable, remember it; when they reject a direction, record it; when they want a role, save it. Don't ask permission for these small acts of bookkeeping; just do them and mention it plainly in your own voice ("I've set that direction aside" — because you actually have). Never claim a change you didn't make, and never narrate the mechanics ("calling the tool"). The point of the tools is that when you say something is done, it is done.
+You can change this person's world, not just advise on it. You have tools to: remember a durable fact about them, update their profile (values, deal-breakers, aspiration, salary), record how they feel about a direction (reject / prefer / refine), REVISE THE DIRECTIONS THEMSELVES on their Direction page (add, replace, drop or refine — and refresh the roles matched to them), save a specific role for them, and move an application to a new stage. Use them silently as a natural part of the conversation — the moment you learn something durable, remember it; when they reject a direction, record it; when they want a role, save it.
+
+When they ask you to add a direction, change their directions, or find different/relevant roles — that is the revise_directions tool. ACTUALLY CALL IT. Pass the complete new set of directions, and pass searchKeywords too when the roles should change. Only after the tool succeeds do you tell them it's done, in your own words, naming what changed.
+
+This is the iron rule: NEVER claim a change you didn't make. If you say their directions are updated, their roles refreshed, a role saved, or a stage moved, you must have called the tool and it must have succeeded. If a tool isn't available for what they want, say so honestly rather than pretending. Don't ask permission for these small acts of bookkeeping; just do them and mention it plainly ("I've added that direction and refreshed your roles" — because you actually have). Never narrate the mechanics ("calling the tool"). The point of the tools is that when you say something is done, it is done.
 
 HOW YOU BEHAVE
 - When they're overthinking or spiralling: stop adding information, redirect to one concrete action. "Stop thinking. Do one thing."
@@ -206,6 +210,8 @@ export async function POST(request: Request) {
   // back, repeat until it stops calling tools. `meridianActions` carries a short
   // echo of every real change so the UI can show "done" happening.
   const meridianActions: string[] = [];
+  // Signals the client must react to (e.g. the analysis changed → re-read the tabs).
+  const meridianSignals: string[] = [];
 
   try {
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
@@ -221,6 +227,7 @@ export async function POST(request: Request) {
 
       if (data.stop_reason !== 'tool_use') {
         data.meridianActions = meridianActions;
+        data.meridianSignals = meridianSignals;
         return NextResponse.json(data, { status: 200 });
       }
 
@@ -239,6 +246,7 @@ export async function POST(request: Request) {
           (block.input as Record<string, unknown>) ?? {}
         );
         if (outcome.action) meridianActions.push(outcome.action);
+        if (outcome.signal) meridianSignals.push(outcome.signal);
         toolResults.push({
           type: 'tool_result',
           tool_use_id: block.id,
@@ -257,6 +265,7 @@ export async function POST(request: Request) {
           { type: 'text', text: "I've done what you asked — what would you like to look at next?" },
         ],
         meridianActions,
+        meridianSignals,
       },
       { status: 200 }
     );

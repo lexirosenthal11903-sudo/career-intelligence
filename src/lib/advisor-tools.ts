@@ -89,12 +89,41 @@ export const ADVISOR_TOOLS = [
       required: ['jobTitle', 'stage'],
     },
   },
+  {
+    name: 'revise_directions',
+    description:
+      "Revise the directions this person sees on their Direction page — and that shape the roles matched to them. Call this when they ask to add, replace, drop, or refine directions, or when the conversation clearly establishes a better direction for them. Provide the COMPLETE updated set (not just the change): 2 to 4 directions, each a short title plus one sentence on why it fits THEM, grounded in what you actually know about them. This writes to their real Direction page and (when you pass searchKeywords) refreshes their matched roles — so only call it when you mean it. After it succeeds, tell them plainly in your own voice what you changed.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        directions: {
+          type: 'array',
+          description: 'The complete new set of directions (2-4), most fitting first.',
+          items: {
+            type: 'object',
+            properties: {
+              title: { type: 'string', description: 'Short direction title, e.g. "Behavioural research".' },
+              why: { type: 'string', description: 'One sentence on why it fits this person specifically.' },
+            },
+            required: ['title'],
+          },
+        },
+        searchKeywords: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Optional: 1-3 word search terms to refresh the roles matched to the new directions. Pass when the directions change enough that the jobs should change too.',
+        },
+      },
+      required: ['directions'],
+    },
+  },
 ] as const;
 
 export interface ToolOutcome {
   content: string; // returned to Claude as the tool_result
   isError?: boolean;
   action?: string; // short, user-facing echo line ("✓ …") — null when nothing changed
+  signal?: string; // a client signal for changes the UI must react to (e.g. 'analysis-changed')
 }
 
 function slug(s: string): string {
@@ -201,6 +230,52 @@ export async function executeAdvisorTool(
         if (error) return { content: `Couldn't update the stage: ${error.message}`, isError: true };
         const title = (match.job_data as { title?: string })?.title ?? 'that application';
         return { content: `Moved "${title}" to ${stage}.`, action: `Moved "${title}" → ${stage}` };
+      }
+
+      case 'revise_directions': {
+        const rawDirs = Array.isArray(input.directions) ? (input.directions as unknown[]) : [];
+        const directions = rawDirs
+          .map((d) => {
+            const o = (d ?? {}) as Record<string, unknown>;
+            return { title: String(o.title ?? '').trim(), why: String(o.why ?? '').trim() };
+          })
+          .filter((d) => d.title)
+          .slice(0, 4);
+        if (directions.length === 0)
+          return { content: 'Need at least one direction with a title.', isError: true };
+
+        // The analysis is append-only ("latest row wins"), so revising = inserting a
+        // fresh results row with the updated directions. Every reader (Direction tab,
+        // Roles, the advisor's own context) takes the newest, so the change is real.
+        const { data: row, error: readErr } = await supabase
+          .from('results')
+          .select('data')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (readErr) return { content: `Couldn't read the analysis: ${readErr.message}`, isError: true };
+        if (!row?.data)
+          return { content: "There's no analysis for this person yet, so there's nothing to revise.", isError: true };
+
+        const data = { ...(row.data as Record<string, unknown>) };
+        const profile = { ...((data.profile as Record<string, unknown>) ?? {}) };
+        profile.suggestedDirections = directions;
+        const keywords = Array.isArray(input.searchKeywords)
+          ? (input.searchKeywords as unknown[]).map((k) => String(k).trim()).filter(Boolean).slice(0, 6)
+          : [];
+        if (keywords.length) profile.searchKeywords = keywords;
+        data.profile = profile;
+
+        const { error: writeErr } = await supabase.from('results').insert({ user_id: userId, data });
+        if (writeErr) return { content: `Couldn't save the directions: ${writeErr.message}`, isError: true };
+
+        const titles = directions.map((d) => d.title).join(', ');
+        return {
+          content: `Directions updated to: ${titles}.${keywords.length ? ' Job search refreshed.' : ''}`,
+          action: keywords.length ? 'Updated your directions and refreshed your roles' : 'Updated your directions',
+          signal: 'analysis-changed',
+        };
       }
 
       default:
