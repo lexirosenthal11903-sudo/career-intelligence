@@ -1,5 +1,15 @@
 # Parking Lot
 
+## 🅿️ To discuss later (raised 2026-06-22, during the audit-planning conversation)
+
+- **Niche-industry users.** The concept of a user looking at a more niche / unusual industry — how the
+  product serves them well (matching, directions, advice) when the field is small or non-standard. Lexi
+  wants to discuss this properly at a later date. Just a note for now — don't build.
+- **"What makes a good mentor" research report.** A research report from credible online sources on what
+  truly makes a good mentor, so we (a) understand it deeply and (b) make the product credible by being
+  able to quote the sources we built it on. Pairs with the parked mentorship-strategy session below and
+  feeds ADVISOR_PERSONA. Park for later; do as part of / alongside the mentorship strategy session.
+
 ## 🅿️ DEDICATED SESSION — Mentorship market + credibility + business model (Lexi, 2026-06-22)
 
 _Lexi started this in the Claude consumer app and wants to continue it here (Claude Code has more
