@@ -19,7 +19,7 @@
           {
             "type": "command",
             "if": "Bash(git commit *)",
-            "command": "if npm run test:e2e --silent > /tmp/meridian-e2e.log 2>&1; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\"}}'; else printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"e2e smoke tests FAILED \\u2014 a broken build cannot be committed. Fix the failures (see /tmp/meridian-e2e.log) and retry.\"}}'; fi",
+            "command": "cmd=$(cat | jq -r '.tool_input.command // \"\"'); case \"$cmd\" in *\"git commit\"*) if npm run test:e2e --silent > /tmp/meridian-e2e.log 2>&1; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\"}}'; else printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"e2e smoke tests FAILED \\u2014 a broken build cannot be committed. Fix the failures (see /tmp/meridian-e2e.log) and retry.\"}}'; fi ;; *) : ;; esac",
             "timeout": 240,
             "statusMessage": "Running e2e smoke before commit"
           }
