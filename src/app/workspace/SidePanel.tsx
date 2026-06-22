@@ -10,6 +10,7 @@ import s from "./workspace.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
 import { RolesIcon, DirectionIcon, DocumentsIcon, CloseIcon, HintIcon, ChevronIcon } from "./icons";
+import CompanyLogo from "./CompanyLogo";
 
 export type PanelView = "roles" | "direction" | "documents";
 
@@ -249,9 +250,12 @@ function JobRow({ job, strong, onReview }: { job: PanelJob; strong: boolean; onR
   const meta = [job.company, job.location, job.salary].filter(Boolean).join(" · ");
   return (
     <button className={s.job} type="button" onClick={() => onReview(job)}>
-      <div className={s.jlogo} style={{ background: logoColour(job.company || job.title || "?") }}>
-        {initial}
-      </div>
+      <CompanyLogo
+        company={job.company || job.title || "?"}
+        fallbackColor={logoColour(job.company || job.title || "?")}
+        initial={initial}
+        className={s.jlogo}
+      />
       <div className={s.jmid}>
         <div className={s.jt}>
           {strong && <span className={s.dot} />}
@@ -288,7 +292,12 @@ function RoleDetail({
       </button>
 
       <div className={s.rdHead}>
-        <div className={s.rdLogo} style={{ background: logoColour(job.company || job.title || "?") }}>{initial}</div>
+        <CompanyLogo
+          company={job.company || job.title || "?"}
+          fallbackColor={logoColour(job.company || job.title || "?")}
+          initial={initial}
+          className={s.rdLogo}
+        />
         <div>
           <h3 className={s.rdTitle}>{job.title}</h3>
           <div className={s.rdMeta}>{meta}</div>
