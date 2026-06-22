@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS recaps (
 
 ALTER TABLE recaps ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users manage own recaps" ON recaps;
 CREATE POLICY "Users manage own recaps"
   ON recaps FOR ALL
   USING (auth.uid() = user_id)
