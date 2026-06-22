@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthedUser } from '@/lib/supabase/server';
+import { isRecruiter } from '@/lib/recruiters';
 
 // Reed API — stronger than Adzuna for charity, social sector, healthcare, public sector.
 // Auth: HTTP Basic with API key as username, empty password.
@@ -109,9 +110,10 @@ export async function POST(request: Request) {
 
     const seen = new Set<string>();
     const unique = allJobs.filter((j) => {
-      const job = j as { id: string };
+      const job = j as { id: string; company?: string };
       if (seen.has(job.id)) return false;
       seen.add(job.id);
+      if (isRecruiter(job.company)) return false; // recruiters out (decided 2026-06-22)
       return true;
     });
 

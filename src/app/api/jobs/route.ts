@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isRecruiter } from '@/lib/recruiters';
 
 interface AdzunaJob {
   id: string;
@@ -102,6 +103,7 @@ export async function POST(request: Request) {
     const unique = allJobs.filter((j) => {
       if (seen.has(j.id)) return false;
       seen.add(j.id);
+      if (isRecruiter(j.company)) return false; // recruiters out (decided 2026-06-22)
       return true;
     });
 
@@ -117,6 +119,7 @@ export async function POST(request: Request) {
       const fallbackJobs = fallbackResults.flat().filter((j) => {
         if (seen.has(j.id)) return false;
         seen.add(j.id);
+        if (isRecruiter(j.company)) return false;
         return true;
       });
       unique.push(...fallbackJobs);
