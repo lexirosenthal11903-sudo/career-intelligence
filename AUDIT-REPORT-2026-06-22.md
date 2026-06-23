@@ -63,10 +63,9 @@ Tag key: **[W]** = also in the walkthrough · **[NEW]** = found by this audit ·
 8.  **[W][fixed] Dead "Profile" nav + nav dead in first session.** `LeftNav` Profile button has no `onClick`.
     Fix: honest state — disabled with a "coming soon"-style affordance until the Profile view is built, so it
     doesn't read as broken. (Profile view itself is feature work.)
-9.  **[W] Branding split: app says "Career Intelligence", landing says "Meridian".** The locked name is
-    Meridian but the in-app rebrand was deferred. The landing jumped ahead, creating the inconsistency. **Needs
-    Lexi's call** (align app→Meridian now, or revert landing→Career Intelligence until the rebrand). Flagged,
-    not silently changed.
+9.  **[RESOLVED 2026-06-23] Branding split.** "Meridian" was **dropped**. The product speaks as
+    "Career Intelligence" everywhere (working name; final TBD at the identity session). No split remains —
+    do not reintroduce "Meridian".
 10. **[W] Can't click a direction to learn more.** No direction-detail view (what it is / rewards / salary /
     ask-prompts). _Feature-level._
 11. **[W] Saved roles lack per-role actions** (interview prep / CV tailoring / outreach) that live listings

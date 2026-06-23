@@ -36,7 +36,7 @@ _Full context: `INSIGHTS.md` — read before any complex session._
 
 ## The Product
 
-**Meridian** is a career intelligence platform for graduates and early-career individuals who don't know what they're looking for. Not a job board. Not an AI tool.
+**Career Intelligence** (working name — the final name is TBD; "Meridian" was dropped) is a career intelligence platform for graduates and early-career individuals who don't know what they're looking for. Not a job board. Not an AI tool.
 
 **The user:** Someone at a genuine crossroads — anxious, uncertain, without a clear direction. They need to understand themselves before they can search at all. Emotional context is anxiety. Every design and copy decision must address this.
 
@@ -61,7 +61,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Design Status
 
-**⚠️ Arlo → Meridian override (Session 36, 2026-06-20):** All references to "Arlo" in locked screens are superseded. The advisor has no face, no character name. Advisor panel header = "Meridian". Visual language = astronomical photography as abstract texture. Homepage redesign locked to Perplexity structure. Rebrand design session (37) must complete before any build touches advisor UI.
+**⚠️ Advisor name dropped (Session 36, 2026-06-20; "Meridian" later dropped too):** All references to "Arlo" in locked screens are superseded. The advisor has no face, no character name. Advisor panel header currently = "Career Intelligence" (the product's working name; final name TBD). Visual language = astronomical photography as abstract texture. Homepage redesign locked to Perplexity structure. The product's final name + advisor identity are deferred to a dedicated identity/branding session.
 
 **Phase 0 — Design. In progress. Do not start engineering until all screens are locked.**
 
@@ -87,7 +87,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - Sidebar: white. Direction card: cream. Amber ONLY on: primary button, user chat bubbles, active nav.
 - Left-border colour accents on cards = BANNED. Amber/yellow featured card = BANNED.
 - Espresso brown ONLY at the bottom (closing CTA + footer as one block). Never mid-page.
-- Advisor panel = cream (#F5F3EE). Advisor present on every screen — it is half the product. Panel header: "Meridian". No face, no character name.
+- Advisor panel = cream (#F5F3EE). Advisor present on every screen — it is half the product. Panel header: "Career Intelligence" (working name; final TBD). No face, no character name.
 - Full token table: `SESSION_DECISIONS.md`
 
 ## Design Build Discipline — non-negotiable
@@ -160,7 +160,7 @@ The audit agent catches code issues but cannot catch UI bugs without running the
 
 ### Session 37 decisions (2026-06-20)
 - Homepage redesign: **shelved**. Draft saved at `.design/career-intelligence-redesign/mockups/homepage-v3.html`. Not locked. Revisit after real user feedback.
-- Arlo face + name: **stays as-is** for now. First users are close contacts. Arlo → Meridian rebrand deferred to before first university pitch (Phase 4).
+- Arlo face + name: **dropped** (advisor has no character name; speaks as "Career Intelligence"). Product's final name + advisor identity deferred to a dedicated identity session before the first university pitch (Phase 4). "Meridian" was dropped.
 - Astronomical images: saved as `img-moon.jpg` + `img-nebula.jpg` in mockups/ for future use.
 - Mentorship feel: **real problem identified**. Product reads as "dashboard + chatbot", not "mentorship platform". Arlo should initiate, not wait. Fix is in Session 39.
 
@@ -169,7 +169,7 @@ The audit agent catches code issues but cannot catch UI bugs without running the
 2. **Session 39:** Arlo initiates on page load (small change, big feel shift) + direction refinement feature
 3. **Session 40:** CV tailoring basic + cover letter basic
 4. **Then:** Share with 3–5 close contacts. Get real feedback.
-→ Arlo → Meridian rebrand: deferred to Phase 4 (before first university pitch)
+→ Final name + advisor identity: deferred to identity session (before Phase 4). "Meridian" dropped; speaks as "Career Intelligence" for now
 → Homepage redesign: deferred until after first users + feedback
 → Full Phase 3c: build after first user feedback, not before
 
@@ -340,7 +340,7 @@ _Applies from the first line of Stage 1 engineering._
 
 ## Permanent Product Decisions
 
-- Platform name: **Meridian** — locked Session 36, 2026-06-20. All "Career Intelligence" references in product/copy replace with Meridian.
+- Platform name: **not locked.** "Meridian" (Session 36) was **dropped**. The product speaks as **"Career Intelligence"** for now; the final name is deferred to the identity/branding session (Phase 4). Do not reintroduce "Meridian".
 - Mobile: deferred. Desktop first. Do not raise mobile unless Lexi raises it.
 - GDPR: solicitor's opinion on contact discovery outstanding. Flag proactively.
 - Merge to main: only on explicit instruction from Lexi, after staging is verified.

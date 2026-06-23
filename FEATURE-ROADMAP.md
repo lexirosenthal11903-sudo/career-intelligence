@@ -81,7 +81,7 @@ Make the facts real so the product is credible, not guessing. Plan: [GROUNDED-KN
 
 - **Strategy/research:** Mentorship market + business model + credibility (the big one) · Jack & Jill teardown ·
   niche-industry users. _Detail in [parking-lot.md](parking-lot.md)._
-- **Design:** Advisor identity / visual register (+ possible Meridian rename) · homepage redesign.
+- **Design:** Advisor identity / visual register + the product's final name (currently speaks as "Career Intelligence"; "Meridian" was dropped) · homepage redesign.
 
 ## Pre-launch non-negotiables (Lexi's, not build-session work)
 

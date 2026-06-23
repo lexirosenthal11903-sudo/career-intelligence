@@ -12,7 +12,7 @@
 | **3. Grounded knowledge layer** | Niche-industry coverage · "what makes a good mentor" research · credibility/verification of AI advice |
 | **4. B2B (universities first)** | LinkedIn OAuth import · application-tracker export · offer evaluation · progress-data-for-employers (GDPR-safe) |
 | **Strategy/research sessions** (run when you signal — not builds) | **Mentorship market + business model + credibility** (the big one) · Jack & Jill teardown · niche-industry-users discussion |
-| **Design sessions** (deferred) | Advisor identity / visual register (+ Meridian rename) · homepage redesign |
+| **Design sessions** (deferred) | Advisor identity / visual register + the product's final name ("Meridian" dropped; speaks as "Career Intelligence" for now) · homepage redesign |
 | **✅ Already done** | advisor actually changes directions/roles · jobs stable per login + daily-new · fewer jobs shown · CV→Profile · "already interested" bug · seniority ceiling · discovery conversation |
 
 ---
@@ -37,8 +37,8 @@ Run it on its own. Lexi will signal when "the time is right."_
 1. **Market research — is there a real gap for mentorship in the UK?** Factual, current, verifiable
    sources (not "mentorship is important" filler). Who do UK university students + recent graduates +
    20-somethings actually turn to for direction today? What support resources/people exist, and where
-   are the gaps. The research must validate the *specific* gap Meridian claims, not the generic one.
-2. **Credibility / verification of AI advice** — the mentor is an AI (Arlo/Meridian). How do we PROVE
+   are the gaps. The research must validate the *specific* gap the product claims, not the generic one.
+2. **Credibility / verification of AI advice** — the mentor is an AI (the advisor). How do we PROVE
    the advice is reliable, aligns with (or beats) what a real mentor would say, and that employers can
    trust the data? Options to develop: human-mentor validation/endorsement, grounding on credible
    career frameworks, third-party audit — or a combination.
@@ -53,10 +53,10 @@ Run it on its own. Lexi will signal when "the time is right."_
    own mentees? — that's a different product, scope it).
 5. **Data + scouting question** — can verified progress data be shared with companies to scout high
    performers, and how is that data made credible (and GDPR-safe)?
-6. **Differentiation** — many of these platforms are vibe-coded. What sets Meridian apart and makes it
+6. **Differentiation** — many of these platforms are vibe-coded. What sets the product apart and makes it
    THE platform that gets people a foot in the door AND maintains motivation + shows real progress.
 
-**Product framing already agreed in the consumer chat (carry in):** It IS Career Intelligence/Meridian
+**Product framing already agreed in the consumer chat (carry in):** It IS Career Intelligence
 (not a separate idea). Core = CV + (vague or specific) direction in → advisor suggests directions to
 explore, how to explore them, live relevant jobs, how to apply successfully, and ongoing
 motivation/momentum. The differentiator is the *mentoring layer* + serving people who DON'T have a

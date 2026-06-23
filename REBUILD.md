@@ -1,4 +1,8 @@
-# Meridian — State of the Product & Rebuild Plan
+# Career Intelligence — State of the Product & Rebuild Plan
+
+> **Name note (2026-06-23):** "Meridian" was **dropped**. The product speaks as "Career Intelligence"
+> (working name; final TBD at the identity session). Older "Meridian rename" items below are abandoned —
+> read them as historical only.
 
 _Created 2026-06-20 (Session 38). Author: Claude (technical co-founder), reviewed with Lexi._
 _This document is the new single source of truth. Where it conflicts with ROADMAP.md, CLAUDE.md,
