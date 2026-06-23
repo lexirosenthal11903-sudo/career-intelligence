@@ -27,7 +27,10 @@ function formatSalary(job: AdzunaJob): string {
 // Senior-role terms we exclude from the search for entry-level candidates, so
 // listings come back at the right seniority instead of being re-ranked down
 // after the fact (Adzuna `what_exclude` filters at source).
-const SENIOR_EXCLUDE = 'senior director head principal lead manager vp executive chief';
+// Unambiguous senior terms only. "manager"/"lead" were excluded here too, which
+// suppressed legitimate entry roles (Account Manager, Lead Generation Exec) at the
+// source — a big reason results felt irrelevant for junior profiles.
+const SENIOR_EXCLUDE = 'senior director head principal vp executive chief';
 
 function isJuniorSeniority(seniority?: string): boolean {
   // Career-changers entering a NEW field are entry-level *for that field*, even

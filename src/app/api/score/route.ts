@@ -118,7 +118,9 @@ ${jobsToScore
 
     const scores = toolInput.scores as JobScore[];
 
-    const SENIOR_PATTERN = /\b(manager|senior|director|head of|vp|vice president|principal|lead)\b/i;
+    // Unambiguous senior markers only — bare "manager"/"lead" wrongly caught entry
+    // roles (Account Manager, Lead Generation Exec) and tanked their relevance.
+    const SENIOR_PATTERN = /\b(senior|director|head of|vp|vice president|principal|chief|managing director)\b/i;
     const isJuniorProfile =
       // Career-changers entering a new field count as junior for listing seniority
       // (audit #13) — kept consistent with the jobs route's source-level exclusion.

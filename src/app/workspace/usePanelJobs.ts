@@ -258,7 +258,10 @@ export function usePanelJobs() {
   const isJunior = /graduate|junior|entry.?level|early.?career|intern|assistant|trainee|career.?chang|pivot|transition/i.test(
     profile?.seniorityLevel || ""
   );
-  const SENIOR_TITLE = /\b(senior|director|head of|vp|vice president|principal|lead|chief|manager)\b/i;
+  // Only UNAMBIGUOUS senior markers — bare "manager"/"lead" match plenty of
+  // entry roles (Account Manager, Community Manager, Lead Generation Exec) and
+  // were wrongly nuking relevant listings, leaving only weak matches.
+  const SENIOR_TITLE = /\b(senior|director|head of|vice president|vp|principal|chief|managing director|global head)\b/i;
   const visibleJobs = jobs.filter((j) => {
     if (j.relevanceScore != null && j.relevanceScore < 4) return false;
     if (isJunior && SENIOR_TITLE.test(j.title || "")) return false;

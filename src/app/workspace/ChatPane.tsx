@@ -54,6 +54,16 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     });
   }, [supabase]);
 
+  // Live day + time for the header (was hardcoded "Tue · 9:14"). Computed after
+  // mount to avoid a hydration mismatch.
+  const [stamp, setStamp] = useState("");
+  useEffect(() => {
+    const now = new Date();
+    const day = now.toLocaleDateString("en-GB", { weekday: "short" });
+    const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    setStamp(`${first ? "Today" : day} · ${time}`);
+  }, [first]);
+
   // The live conversation. The hook initiates on first load (advisor opens),
   // loads any persisted thread, and handles send → respond → persist. We keep the
   // first-session view dormant (userId null) — its streaming arrives in Step E.
@@ -136,8 +146,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
       <div className={s.ctop}>
         <span className={s.pres} />
         <span className={s.t}>Career Intelligence</span>
-        <span className={s.s}>· here with you</span>
-        <span className={s.day}>{first ? "Today · 9:06" : "Tue · 9:14"}</span>
+        <span className={s.day}>{stamp}</span>
       </div>
 
       <div className={s.stream}>
