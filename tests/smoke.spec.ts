@@ -73,6 +73,15 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
       },
     };
 
+    // Discovery (the advisor asks before it tells): one question, then "ready".
+    let intakeTurns = 0;
+    await page.route('**/api/intake', async (route) => {
+      intakeTurns += 1;
+      const body = intakeTurns === 1
+        ? { ready: false, question: 'Where are you hoping to work?' }
+        : { ready: true };
+      await route.fulfill({ status: 200, body: JSON.stringify(body) });
+    });
     await page.route('**/api/analyse', async (route) => {
       await route.fulfill({
         status: 200,
@@ -87,6 +96,13 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     await expect(input).toBeVisible({ timeout: 15_000 });
     await input.fill('Just finished a psychology degree and I feel a bit lost.');
     await input.press('Enter');
+
+    // The advisor asks a discovery question before analysing.
+    await expect(page.getByText('Where are you hoping to work?')).toBeVisible({ timeout: 15_000 });
+    const answer = page.getByPlaceholder('Type your answer…');
+    await expect(answer).toBeVisible({ timeout: 10_000 });
+    await answer.fill('London, ideally.');
+    await answer.press('Enter');
 
     // The reveal card + its first direction land from the (mocked) stream.
     await expect(page.getByText('where I see this going')).toBeVisible({ timeout: 15_000 });

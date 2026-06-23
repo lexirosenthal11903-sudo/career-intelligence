@@ -25,7 +25,19 @@ import { useCallback, useRef, useState } from "react";
 import { cacheAnalysisResult } from "@/lib/analysisResult";
 import { stashCv, flushPendingCv } from "@/lib/cv";
 
-export type FirstPhase = "arrival" | "extracting" | "analysing" | "revealed" | "error";
+export type FirstPhase =
+  | "arrival"
+  | "extracting"
+  | "discovery" // the advisor is asking discovery questions (asks before it tells)
+  | "thinking" // waiting on the next intake question
+  | "analysing"
+  | "revealed"
+  | "error";
+
+export interface DiscoveryTurn {
+  role: "arlo" | "user";
+  text: string;
+}
 
 export interface RevealDirection {
   title: string;
@@ -69,11 +81,17 @@ export function useFirstSession() {
   const [cvFileName, setCvFileName] = useState<string | null>(null);
   const [result, setResult] = useState<RevealResult | null>(null);
   const [slow, setSlow] = useState(false);
+  // The discovery conversation shown in the UI (advisor questions + user answers).
+  const [discovery, setDiscovery] = useState<DiscoveryTurn[]>([]);
 
   const cvTextRef = useRef("");
   const cvFileNameRef = useRef<string>("");
+  const userMessageRef = useRef("");
   const abortRef = useRef<AbortController | null>(null);
   const slowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Full intake transcript sent to /api/intake (and later to /api/analyse as context).
+  const intakeRef = useRef<{ role: "user" | "assistant"; content: string }[]>([]);
+  const questionsAskedRef = useRef(0);
 
   // Read a dropped/selected CV. Best-effort: a failed extract still lets the
   // user type their background, so we keep the filename chip and move on.
@@ -102,11 +120,22 @@ export function useFirstSession() {
     if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
     slowTimerRef.current = setTimeout(() => setSlow(true), SLOW_MS);
 
+    // Everything the user told us in discovery becomes context for the analysis,
+    // so the read reflects what they actually said — not an assumption.
+    const discoveryContext = intakeRef.current
+      .slice(1) // first turn is the opening share, already passed as `direction`
+      .map((m) => (m.role === "assistant" ? `You asked: ${m.content}` : `They answered: ${m.content}`))
+      .join("\n");
+
     try {
       const res = await fetch("/api/analyse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cvText: cvTextRef.current, direction: message }),
+        body: JSON.stringify({
+          cvText: cvTextRef.current,
+          direction: message,
+          extra: discoveryContext || undefined,
+        }),
         signal: controller.signal,
       });
 
@@ -180,23 +209,73 @@ export function useFirstSession() {
     }
   }, []);
 
-  // Kick off analysis from the user's first message (+ any attached CV).
+  // Move from discovery into the real analysis (the user's opening share = direction).
+  const beginAnalysis = useCallback(() => {
+    setPhase("analysing");
+    runStream(userMessageRef.current);
+  }, [runStream]);
+
+  // One round-trip with the intake advisor: ask the next question, or — when it has
+  // enough — fall through to analysis. Fails open (any error → just analyse).
+  const runIntake = useCallback(async () => {
+    setPhase("thinking");
+    try {
+      const res = await fetch("/api/intake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cvText: cvTextRef.current,
+          messages: intakeRef.current,
+          questionsAsked: questionsAskedRef.current,
+        }),
+      });
+      const data = res.ok ? await res.json() : { ready: true };
+      if (data.ready || !data.question) {
+        beginAnalysis();
+        return;
+      }
+      const q: string = data.acknowledgement ? `${data.acknowledgement} ${data.question}` : data.question;
+      intakeRef.current = [...intakeRef.current, { role: "assistant", content: q }];
+      questionsAskedRef.current += 1;
+      setDiscovery((prev) => [...prev, { role: "arlo", text: q }]);
+      setPhase("discovery");
+    } catch {
+      beginAnalysis();
+    }
+  }, [beginAnalysis]);
+
+  // Kick off the first session from the user's opening share (+ any attached CV).
+  // We no longer jump straight to analysis — the advisor asks first.
   const start = useCallback(
     (message: string) => {
       const text = message.trim();
       // Allow a CV-only start ("or drop your CV in") — need text OR extracted CV.
       if (!text && !cvTextRef.current) return;
       setUserMessage(text);
-      setPhase("analysing");
-      runStream(text);
+      userMessageRef.current = text;
+      intakeRef.current = [{ role: "user", content: text || "(shared a CV)" }];
+      questionsAskedRef.current = 0;
+      runIntake();
     },
-    [runStream]
+    [runIntake]
+  );
+
+  // The user answers a discovery question → record it and get the next turn.
+  const answer = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      intakeRef.current = [...intakeRef.current, { role: "user", content: trimmed }];
+      setDiscovery((prev) => [...prev, { role: "user", text: trimmed }]);
+      runIntake();
+    },
+    [runIntake]
   );
 
   const retry = useCallback(() => {
     setPhase("analysing");
-    runStream(userMessage);
-  }, [runStream, userMessage]);
+    runStream(userMessageRef.current);
+  }, [runStream]);
 
   return {
     phase,
@@ -204,9 +283,11 @@ export function useFirstSession() {
     cvFileName,
     result,
     slow,
+    discovery,
     hasCv: () => cvTextRef.current.length > 0,
     extractCv,
     start,
+    answer,
     retry,
   };
 }

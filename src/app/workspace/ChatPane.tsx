@@ -120,12 +120,20 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     chat.sendMessage(label);
   }
 
-  // First session: kick off the stream from the user's first message.
+  // First session: kick off discovery from the user's first message.
   function startFirst() {
     const text = draft.trim();
     if (!text && !fs.hasCv()) return;
     setDraft("");
     fs.start(text);
+  }
+
+  // First session: answer a discovery question.
+  function answerFirst() {
+    const text = draft.trim();
+    if (!text) return;
+    setDraft("");
+    fs.answer(text);
   }
 
   // Post-click: continue into the real workspace conversation (lead chip = roles;
@@ -168,6 +176,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
           draft={draft}
           onChange={setDraft}
           onStart={startFirst}
+          onAnswer={answerFirst}
           onContinue={continueToWorkspace}
         />
       ) : (
@@ -342,7 +351,7 @@ function FirstSession({
   fs: ReturnType<typeof useFirstSession>;
   userInitial: string;
 }) {
-  const { phase, userMessage, cvFileName, result, slow } = fs;
+  const { phase, userMessage, cvFileName, result, slow, discovery } = fs;
   const started = phase !== "arrival" && phase !== "extracting";
 
   // Scroll to follow the conversation. While analysing, land on the wait bubble.
@@ -356,7 +365,7 @@ function FirstSession({
     const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
       ? "auto"
       : "smooth";
-    if (phase === "analysing" || phase === "error") {
+    if (phase === "analysing" || phase === "error" || phase === "discovery" || phase === "thinking") {
       endRef.current?.scrollIntoView({ behavior, block: "end" });
     } else if (phase === "revealed") {
       requestAnimationFrame(() =>
@@ -365,7 +374,7 @@ function FirstSession({
         )
       );
     }
-  }, [phase, result]);
+  }, [phase, result, discovery]);
 
   return (
     <>
@@ -394,6 +403,41 @@ function FirstSession({
                 <FileIcon /> {cvFileName}
               </span>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* discovery — the advisor asks before it tells (questions + the user's answers) */}
+      {discovery.map((turn, i) =>
+        turn.role === "arlo" ? (
+          <div className={s.msg} key={i}>
+            <div className={s.av}>
+              <RadiantAvatar />
+            </div>
+            <div className={s.bub}>{turn.text}</div>
+          </div>
+        ) : (
+          <div className={`${s.msg} ${s.me}`} key={i}>
+            <div className={s.av}>{userInitial}</div>
+            <div className={s.bub}>{turn.text}</div>
+          </div>
+        )
+      )}
+
+      {/* the advisor is composing its next question */}
+      {phase === "thinking" && (
+        <div className={s.msg}>
+          <div className={s.av}>
+            <RadiantAvatar />
+          </div>
+          <div className={s.bub}>
+            <span className={s.wait}>
+              <span className={s.dots}>
+                <i />
+                <i />
+                <i />
+              </span>
+            </span>
           </div>
         </div>
       )}
@@ -571,12 +615,14 @@ function FirstComposer({
   draft,
   onChange,
   onStart,
+  onAnswer,
   onContinue,
 }: {
   fs: ReturnType<typeof useFirstSession>;
   draft: string;
   onChange: (v: string) => void;
   onStart: () => void;
+  onAnswer: () => void;
   onContinue: (seed?: string) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -584,6 +630,8 @@ function FirstComposer({
   const revealed = phase === "revealed";
   const composing = phase === "arrival" || phase === "extracting";
   const extracting = phase === "extracting";
+  const discovering = phase === "discovery"; // answering a discovery question
+  const busy = phase === "thinking" || phase === "analysing"; // advisor's turn — input inert
 
   // Post-click chips: lead = roles (locked); the rest reflect the real lead direction.
   const leadTitle = result?.directions[0]?.title;
@@ -594,6 +642,8 @@ function FirstComposer({
     if (revealed) {
       const text = draft.trim();
       if (text) onContinue(text);
+    } else if (discovering) {
+      onAnswer();
     } else if (composing) {
       onStart();
     }
@@ -654,14 +704,18 @@ function FirstComposer({
           placeholder={
             extracting
               ? "Reading your CV…"
-              : revealed
-                ? "Tell me what you're thinking…"
-                : cvFileName
-                  ? "Add anything else, or just send…"
-                  : "Tell me what you're thinking…"
+              : busy
+                ? "One moment…"
+                : discovering
+                  ? "Type your answer…"
+                  : revealed
+                    ? "Tell me what you're thinking…"
+                    : cvFileName
+                      ? "Add anything else, or just send…"
+                      : "Tell me what you're thinking…"
           }
           value={draft}
-          disabled={extracting}
+          disabled={extracting || busy}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={onInputKey}
         />
@@ -669,11 +723,13 @@ function FirstComposer({
           className={s.csend}
           type="button"
           aria-label="Send"
-          disabled={extracting || phase === "analysing"}
+          disabled={extracting || busy}
           onClick={() => {
             if (revealed) {
               const text = draft.trim();
               if (text) onContinue(text);
+            } else if (discovering) {
+              onAnswer();
             } else {
               onStart();
             }
