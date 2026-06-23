@@ -543,6 +543,42 @@
   font-family: inherit;
 }
 .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Account actions (Profile) */
+.acctActions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.dangerChip {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--danger);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 99px;
+  padding: 7px 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.14s var(--ease);
+}
+.dangerChip:hover { border-color: var(--danger); }
+.dangerBox {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  background: rgba(192, 57, 43, 0.05);
+}
+.dangerBtn {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--danger);
+  border: none;
+  border-radius: 99px;
+  padding: 7px 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dangerBtn:hover { background: var(--danger-dark); }
+.dangerBtn:disabled { opacity: 0.6; cursor: default; }
 /* attached-CV confirmation in the first-session composer (non-interactive) */
 .cvchip {
   display: inline-flex;

@@ -55,13 +55,18 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   }, [supabase]);
 
   // Live day + time for the header (was hardcoded "Tue · 9:14"). Computed after
-  // mount to avoid a hydration mismatch.
+  // mount to avoid a hydration mismatch, and ticks every 30s so it isn't frozen.
   const [stamp, setStamp] = useState("");
   useEffect(() => {
-    const now = new Date();
-    const day = now.toLocaleDateString("en-GB", { weekday: "short" });
-    const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-    setStamp(`${first ? "Today" : day} · ${time}`);
+    const tick = () => {
+      const now = new Date();
+      const day = now.toLocaleDateString("en-GB", { weekday: "short" });
+      const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+      setStamp(`${first ? "Today" : day} · ${time}`);
+    };
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
   }, [first]);
 
   // The live conversation. The hook initiates on first load (advisor opens),

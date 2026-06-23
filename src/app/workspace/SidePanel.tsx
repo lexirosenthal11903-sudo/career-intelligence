@@ -284,7 +284,7 @@ function RolesList({
 
 function JobRow({ job, strong, onReview }: { job: PanelJob; strong: boolean; onReview: (j: PanelJob) => void }) {
   const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
-  const meta = [job.company, job.location, job.salary].filter(Boolean).join(" · ");
+  const meta = [job.company, job.location, job.salary].filter((x) => x && x !== "Not listed").join(" · ");
   return (
     <button className={s.job} type="button" onClick={() => onReview(job)}>
       <CompanyLogo
@@ -321,7 +321,7 @@ function RoleDetail({
 }) {
   const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
   const strong = (job.relevanceScore ?? 0) >= 7;
-  const meta = [job.company, job.location, job.salary].filter(Boolean).join(" · ");
+  const meta = [job.company, job.location, job.salary].filter((x) => x && x !== "Not listed").join(" · ");
 
   return (
     <div className={s.sideB}>
@@ -513,7 +513,7 @@ function SavedJobDetail({ jobId, onOpenRoles }: { jobId: string | null; onOpenRo
   const job = app.job_data;
   const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
   const strong = (job.relevanceScore ?? 0) >= 7;
-  const meta = [job.company, job.location, job.salary].filter(Boolean).join(" · ");
+  const meta = [job.company, job.location, job.salary].filter((x) => x && x !== "Not listed").join(" · ");
 
   return (
     <div className={s.sideB}>
@@ -647,6 +647,9 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
   const [account, setAccount] = useState<{ name: string; email: string } | null>(null);
   const [p, setP] = useState<StructuredProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -673,6 +676,21 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
   async function signOut() {
     await supabase.auth.signOut();
     window.location.href = "/";
+  }
+
+  async function deleteAccount() {
+    setDeleting(true);
+    setDeleteError(false);
+    try {
+      const res = await fetch("/api/delete-account", { method: "DELETE" });
+      if (res.ok) {
+        await supabase.auth.signOut().catch(() => {});
+        window.location.href = "/";
+        return;
+      }
+    } catch { /* fall through to error */ }
+    setDeleting(false);
+    setDeleteError(true);
   }
 
   const summary = analysisProfile?.summary;
@@ -762,7 +780,36 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
               <div className={s.rdLabel}>Account</div>
               {account.name && <p className={s.rdText}>{account.name}</p>}
               {account.email && <p className={s.rdText}>{account.email}</p>}
-              <button className={s.chip} type="button" onClick={signOut}>Sign out</button>
+              <div className={s.acctActions}>
+                <button className={s.chip} type="button" onClick={signOut}>Sign out</button>
+                {!confirmingDelete && (
+                  <button className={s.dangerChip} type="button" onClick={() => setConfirmingDelete(true)}>
+                    Delete account
+                  </button>
+                )}
+              </div>
+
+              {confirmingDelete && (
+                <div className={s.dangerBox}>
+                  <p className={s.rdText}>
+                    This permanently deletes your account and everything I&rsquo;ve learned about you — your
+                    analysis, saved roles, notes and our conversation. It can&rsquo;t be undone.
+                  </p>
+                  {deleteError && (
+                    <p className={s.rdText} style={{ color: "var(--danger)" }}>
+                      That didn&rsquo;t go through. Try again in a moment.
+                    </p>
+                  )}
+                  <div className={s.acctActions}>
+                    <button className={s.dangerBtn} type="button" onClick={deleteAccount} disabled={deleting}>
+                      {deleting ? "Deleting…" : "Yes, delete everything"}
+                    </button>
+                    <button className={s.chip} type="button" onClick={() => setConfirmingDelete(false)} disabled={deleting}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}

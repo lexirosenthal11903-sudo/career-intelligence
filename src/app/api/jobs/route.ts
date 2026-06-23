@@ -22,7 +22,9 @@ function formatSalary(job: AdzunaJob): string {
     return lo === hi ? `£${lo}k` : `£${lo}k–£${hi}k`;
   }
   if (job.salary_min) return `From £${Math.round(job.salary_min / 1000)}k`;
-  return 'Not listed';
+  // Empty (not "Not listed") so the meta line simply omits salary rather than
+  // showing a confusing "Not listed" under the role title.
+  return '';
 }
 
 // Senior-role terms we exclude from the search for entry-level candidates, so
