@@ -86,6 +86,9 @@ async function buildUserContext(
   userId: string
 ): Promise<string> {
   const parts: string[] = [];
+  // Things worth knowing that we don't have yet — so the advisor can fill them in
+  // casually, in conversation, rather than a second cold intake (Lexi, 2026-06-23).
+  const missing: string[] = [];
 
   try {
     const { data: resultRow } = await supabase
@@ -119,9 +122,15 @@ async function buildUserContext(
     const p = await getProfile(supabase, userId);
     if (Array.isArray(p.values) && p.values.length)
       parts.push(`What they value: ${p.values.join(', ')}`);
+    else missing.push('what actually matters to them in the work');
     if (Array.isArray(p.dealBreakers) && p.dealBreakers.length)
       parts.push(`Their deal-breakers: ${p.dealBreakers.join(', ')}`);
+    else missing.push("what they wouldn't accept (their deal-breakers)");
     if (p.aspiration) parts.push(`Their 2-year aspiration: ${p.aspiration}`);
+    else missing.push('where they want to be in a couple of years');
+    const ws = p.workStyle;
+    if (!(ws?.preference || ws?.teamSize || ws?.companyStage))
+      missing.push('how they like to work (team size, company stage, pace)');
     // Evolving memory — things I've learned from our conversations over time.
     if (Array.isArray(p.memory) && p.memory.length) {
       const notes = p.memory.map((m) => `- ${m.note}`).join('\n');
@@ -153,7 +162,16 @@ async function buildUserContext(
     return '\n\nYou are just getting to know this person — you do not have their CV analysis yet. Be welcoming and orient them toward sharing their background.';
   }
 
-  return `\n\nWHAT YOU KNOW ABOUT THIS PERSON (never re-ask these — reference them naturally):\n${parts.join('\n')}`;
+  let context = `\n\nWHAT YOU KNOW ABOUT THIS PERSON (never re-ask these — reference them naturally):\n${parts.join('\n')}`;
+
+  // You already know them — so don't re-interrogate. But where there are gaps, fill
+  // them in casually, the way a mentor would: one small question when the moment
+  // earns it, framed as helping you help them — never a form, never a checklist.
+  if (missing.length) {
+    context += `\n\nWHAT YOU DON'T YET KNOW: ${missing.join('; ')}. You've already met this person, so this is NOT a fresh intake — never fire these as a list or a quiz. When the conversation makes it natural, you may gently ask about ONE of these, framed as getting to know them better so you can help more precisely ("mind if I ask — …? it changes which roles I'd put in front of you"). One at a time, at most. Don't open every message with a question, and if they'd rather not say, drop it instantly and move on. When they do tell you, capture it with update_profile so you never ask twice.`;
+  }
+
+  return context;
 }
 
 // A turn we send onward. User/assistant content may be a plain string or, during
