@@ -9,10 +9,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import s from "./workspace.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
-import { RolesIcon, DirectionIcon, DocumentsIcon, CloseIcon, HintIcon, ChevronIcon } from "./icons";
+import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, HintIcon, ChevronIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
 
-export type PanelView = "roles" | "direction" | "documents" | "saved";
+export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile";
 
 const LOGO_TOKENS = ["--logo-1", "--logo-2", "--logo-3", "--logo-4", "--logo-5", "--logo-6"];
 
@@ -33,6 +33,7 @@ const TAB = {
   direction: { icon: DirectionIcon, label: "Your direction", title: "Your direction" },
   documents: { icon: DocumentsIcon, label: "Documents", title: "Documents" },
   saved: { icon: RolesIcon, label: "Saved role", title: "Saved role" },
+  profile: { icon: ProfileIcon, label: "Your profile", title: "Your profile" },
 } as const;
 
 export default function SidePanel({
@@ -134,6 +135,7 @@ export default function SidePanel({
       {view === "direction" && <DirectionView profile={profile} hasResult={hasResult} />}
       {view === "documents" && <DocumentsView />}
       {view === "saved" && <SavedJobDetail jobId={savedJobId ?? null} onOpenRoles={onOpenRoles} />}
+      {view === "profile" && <ProfileView analysisProfile={profile} />}
     </aside>
   );
 
@@ -624,6 +626,145 @@ function DirectionView({ profile, hasResult }: { profile: AnalysisProfile | null
           <div className={s.panelEmpty}>
             <p>This fills in as we talk. I don&rsquo;t know enough yet — tell me about yourself, or drop your CV in, and I&rsquo;ll show you what I see.</p>
           </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ===== Profile view — the "what I know about you" mirror =================== */
+interface StructuredProfile {
+  values?: string[];
+  dealBreakers?: string[];
+  aspiration?: string;
+  memory?: Array<{ note: string; at: string }>;
+  cvFileName?: string;
+  cvUpdatedAt?: string;
+}
+
+function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | null }) {
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const [account, setAccount] = useState<{ name: string; email: string } | null>(null);
+  const [p, setP] = useState<StructuredProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [{ data: { user } }, res] = await Promise.all([
+        supabase.auth.getUser(),
+        fetch("/api/profile").catch(() => null),
+      ]);
+      if (cancelled) return;
+      if (user) {
+        setAccount({
+          name: (user.user_metadata?.full_name as string) || "",
+          email: user.email || "",
+        });
+      }
+      if (res && res.ok) {
+        try { const d = await res.json(); if (!cancelled) setP(d.profile ?? {}); } catch { /* ignore */ }
+      }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [supabase]);
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
+
+  const summary = analysisProfile?.summary;
+  const seniority = analysisProfile?.seniorityLevel;
+  const values = p?.values ?? [];
+  const dealBreakers = p?.dealBreakers ?? [];
+  const memory = p?.memory ?? [];
+  const knowsSomething = !!summary || !!seniority || values.length > 0 || dealBreakers.length > 0 || !!p?.aspiration;
+
+  return (
+    <>
+      <div className={s.sideH}>
+        <div className={s.ti}><h3>Your profile</h3></div>
+        <div className={s.sub}>What I know about you — it grows as we talk</div>
+      </div>
+      <div className={s.sideB}>
+        {loading ? (
+          [0, 1, 2].map((i) => <div key={i} className={`${s.job} ${s.skeleton}`} style={{ height: "54px" }} />)
+        ) : !account ? (
+          <div className={s.panelEmpty}>
+            <p>Sign in and your profile — everything I learn about you — lives here.</p>
+          </div>
+        ) : (
+          <>
+            {/* What I know */}
+            {knowsSomething ? (
+              <>
+                {summary && (
+                  <div className={s.rdSection}>
+                    <div className={s.rdLabel}>How I see you</div>
+                    <p className={s.rdReason}>{summary}</p>
+                  </div>
+                )}
+                {seniority && (
+                  <div className={s.rdSection}>
+                    <div className={s.rdLabel}>Where you&rsquo;re at</div>
+                    <p className={s.rdText}>{seniority}</p>
+                  </div>
+                )}
+                {p?.aspiration && (
+                  <div className={s.rdSection}>
+                    <div className={s.rdLabel}>What you&rsquo;re aiming for</div>
+                    <p className={s.rdText}>{p.aspiration}</p>
+                  </div>
+                )}
+                {values.length > 0 && (
+                  <div className={s.rdSection}>
+                    <div className={s.rdLabel}>What matters to you</div>
+                    <div className={s.rdSkills}>{values.map((v) => <span key={v} className={s.rdSkill}>{v}</span>)}</div>
+                  </div>
+                )}
+                {dealBreakers.length > 0 && (
+                  <div className={s.rdSection}>
+                    <div className={s.rdLabel}>Your deal-breakers</div>
+                    <div className={s.rdSkills}>{dealBreakers.map((v) => <span key={v} className={s.rdSkill}>{v}</span>)}</div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className={s.panelEmpty}>
+                <p>I&rsquo;m still getting to know you. As we talk, what I learn about you — what you want, what matters, what to avoid — fills in here.</p>
+              </div>
+            )}
+
+            {/* What I've picked up over time (advisor memory) */}
+            {memory.length > 0 && (
+              <div className={s.rdSection}>
+                <div className={s.rdLabel}>What I&rsquo;ve picked up</div>
+                <ul className={s.rlist}>
+                  {memory.slice(-8).reverse().map((m, i) => <li key={i}>{m.note}</li>)}
+                </ul>
+              </div>
+            )}
+
+            {/* CV on file */}
+            <div className={s.rdSection}>
+              <div className={s.rdLabel}>CV on file</div>
+              {p?.cvFileName ? (
+                <p className={s.rdText}>{p.cvFileName}{p.cvUpdatedAt ? ` · added ${relativeTime(p.cvUpdatedAt)}` : ""}</p>
+              ) : (
+                <p className={s.rdText}>No CV yet. Drop one into the conversation and I&rsquo;ll keep it here. (Tailored CVs will live in Documents.)</p>
+              )}
+            </div>
+
+            {/* Account */}
+            <div className={s.rdSection}>
+              <div className={s.rdLabel}>Account</div>
+              {account.name && <p className={s.rdText}>{account.name}</p>}
+              {account.email && <p className={s.rdText}>{account.email}</p>}
+              <button className={s.chip} type="button" onClick={signOut}>Sign out</button>
+            </div>
+          </>
         )}
       </div>
     </>

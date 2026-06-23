@@ -17,7 +17,7 @@ import {
 } from "./icons";
 
 type Variant = "first" | "returning";
-type PanelView = "roles" | "direction" | "documents";
+type PanelView = "roles" | "direction" | "documents" | "profile";
 
 export default function LeftNav({
   variant,
@@ -85,9 +85,12 @@ export default function LeftNav({
         <DocumentsIcon /> Documents
       </button>
 
-      {/* Profile view isn't built yet — show it as clearly locked rather than a
-          dead button that does nothing when clicked (audit #8). */}
-      <button className={`${s.nitem} ${s.locked}`} type="button" disabled title="Coming soon">
+      <button
+        className={`${s.nitem} ${first ? s.locked : ""} ${activeView === "profile" ? s.on : ""}`}
+        type="button"
+        disabled={first}
+        onClick={() => onNavigate?.("profile")}
+      >
         <ProfileIcon /> Profile
       </button>
 
@@ -118,13 +121,13 @@ export default function LeftNav({
       )}
 
       {!first && user && (
-        <div className={s.user}>
+        <button className={s.user} type="button" onClick={() => onNavigate?.("profile")} title="Your profile">
           <div className={s.uav}>{initial}</div>
           <div>
             <div className={s.uname}>{name}</div>
             {email && <div className={s.umail}>{email}</div>}
           </div>
-        </div>
+        </button>
       )}
     </nav>
   );

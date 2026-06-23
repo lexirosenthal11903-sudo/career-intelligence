@@ -128,9 +128,18 @@
   align-items: center;
   gap: 10px;
   padding: 9px 8px;
+  border: none; /* button reset */
   border-top: 1px solid var(--line);
   margin-top: 8px;
+  width: 100%;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  border-radius: 0;
 }
+.user:hover { background: var(--hover, rgba(0,0,0,0.03)); }
 .uav {
   width: 32px;
   height: 32px;
