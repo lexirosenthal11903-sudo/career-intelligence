@@ -274,3 +274,41 @@ _Captured mid-session so nothing's lost. Recommendations are Claude's co-founder
   against the gamification line first.**
 - **Tech debt: lint cleanup (36 pre-existing `react-hooks/set-state-in-effect` errors).** Not blocking, predates
   this work. **Rec: roadmap — a small dedicated cleanup pass between features, not mid-feature.**
+
+---
+
+## 🅿️ Session structure + mentorship grounding (Lexi brain-dump, 2026-06-24)
+
+_Raised while thinking out loud at the start of the candidate-loop session. These reshape Step 1 and
+sharpen the parked mentorship-research session. Decision taken: research dive = NEXT session; it grounds
+the session-structure rebuild; candidate-strength loop waits until Step 1 is genuinely done._
+
+- **The mentor should OPEN a session, not wait.** Once it has read the user's profile, the advisor should
+  offer a discussion of *how this works, what it can do for them, and the trajectory of how it supports
+  them* — before anything else. Currently it reads as "dashboard + chatbot", not a mentor running a session.
+  → Step 1, "advisor reacting + feeling present". This is the heart of that item.
+- **Design the first-session arc explicitly.** For someone who arrives not knowing what they want, the
+  natural order is: how this works → what it'll help you achieve → explore your suggested direction + how you
+  *feel* about it → THEN, later, roles. **Roles must NOT be the first thing surfaced.** Lexi is drawn to the
+  roles view every time and the recommendations are still bad, so leading with them undersells the product.
+  → Step 1 rebuild (after the research). De-emphasising roles in the UI lives here too — NOT a quick build-
+  session change; it's structural and the research should ground it.
+- **NEXT SESSION = the credible-mentorship deep-dive (Lexi: "really important, it will guide the future
+  build").** Extends the already-parked "what makes a good mentor" research: a proper dive into credible
+  sources on *how real mentors lead sessions, how they speak to people, what they help guide people with —
+  everything under the mentoring umbrella* — so we can extract it and know how to apply it, instead of
+  guessing (which is what we're doing now). Feeds ADVISOR_PERSONA + the session-structure rebuild. Pair with
+  the parked mentorship market/credibility/business-model session if scope allows; otherwise run the
+  "how mentors run sessions" extraction first since it's what unblocks the build.
+- **Roles matching quality + sourcing — review in a few sessions (Lexi: "sick of it").** A dedicated look at
+  how other companies match roles to users and where they pull jobs from. NOT now — deliberately deferred a
+  few sessions. Ties to the recommendations-still-bad symptom above.
+
+### Profile concerns checked this session (2026-06-24) — findings
+- **CV on file** — NOT a bug. `cvUpdatedAt` is the real extraction timestamp (cv.ts), persisted to profile;
+  "added X ago" is accurate and persists across sessions by design. Optional: show absolute date for clarity.
+- **Delete account** — exists in code (workspace SidePanel ProfileView), renders only when signed in. If it
+  was missing *while signed in*, real bug — needs a screenshot to repro before fixing (don't guess).
+- **"What I know grows as we talk"** — honest/real: advisor has wired `update_profile`/`remember` tools
+  through a working tool loop; profile mirror reads them back. Caveat: depends on the model calling the tools
+  — confirm with a quick live test.
