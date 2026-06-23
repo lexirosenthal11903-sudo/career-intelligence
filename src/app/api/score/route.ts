@@ -84,7 +84,9 @@ export async function POST(request: Request) {
       })),
     });
 
-  const systemPrompt = `You are a career intelligence platform scoring job matches. Score on industry fit and transferable skills — not just whether the job title exactly matches. Be careful about cross-domain keyword collisions: a keyword like "acquisitions" used in a media context means content licensing/rights, not HR talent acquisition — score the latter as 1-2 if the candidate has no HR background. Similarly "coordinator" in media is different from admin coordination in unrelated industries. CRITICAL: "Production Operative", "Production Worker", "Production Operator", or any factory/manufacturing/food production role MUST score 1-2 for candidates from creative, media, television, film, or entertainment backgrounds — even if their keywords include "production". Media production and manufacturing production are entirely different domains with no meaningful skill transfer. Always score from the candidate's actual industry and skill context. Give at least 5 to any role in the same industry or where transferable skills clearly apply. Write relevanceReason in second person, never "the candidate". Be specific — cite what in their background applies, not just that it does. Be honest but generous where skills genuinely transfer.`;
+  const systemPrompt = `You are a career intelligence platform scoring job matches. Score on industry fit and transferable skills — not just whether the job title exactly matches. Be careful about cross-domain keyword collisions: a keyword like "acquisitions" used in a media context means content licensing/rights, not HR talent acquisition — score the latter as 1-2 if the candidate has no HR background. Similarly "coordinator" in media is different from admin coordination in unrelated industries. CRITICAL: "Production Operative", "Production Worker", "Production Operator", or any factory/manufacturing/food production role MUST score 1-2 for candidates from creative, media, television, film, or entertainment backgrounds — even if their keywords include "production". Media production and manufacturing production are entirely different domains with no meaningful skill transfer. Always score from the candidate's actual industry and skill context. Give at least 5 to any role in the same industry or where transferable skills clearly apply — UNLESS the seniority ceiling below applies. Write relevanceReason in second person, never "the candidate". Be specific — cite what in their background applies, not just that it does. Be honest but generous where skills genuinely transfer.
+
+SENIORITY IS A HARD CEILING THAT OVERRIDES EVERYTHING ELSE — including the "give at least 5" rule. Judge it from the DESCRIPTION, not just the title. Many roles read as junior in the title but require years of experience the candidate doesn't have (e.g. a family-office "Associate" or "Analyst" that expects 5+ years, manages people, or owns a function). If the job's description implies more seniority, experience, or scope than this candidate has — years required beyond theirs, "lead/manage a team", "extensive/proven experience", ownership of a department, professional qualifications they lack (CFA, ACA, chartered) — you MUST score it 1-2, no matter how well the industry or skills otherwise fit. Say plainly in the reason that it sits above their current level. A graduate or early-career candidate must NEVER be scored 3 or higher on a role that expects established professionals. When in doubt about whether they clear the experience bar, score it low — surfacing an out-of-reach role erodes their trust more than missing one does.`;
 
   const userPrompt = `Score these jobs against this candidate profile.
 
@@ -143,7 +145,11 @@ ${jobsToScore
       const inDirection = directions.some((d) =>
         jobTitle.includes(d.title.toLowerCase().split(' ')[0])
       );
-      if ((inSector || inDirection) && relevanceScore < 5) relevanceScore = 5;
+      // Lift borderline in-sector/in-direction roles — but NOT a deliberate low
+      // score. The model scores a role 1-2 when it sits above the person's level
+      // (seniority ceiling); flooring that back to 5 is exactly the bug where a
+      // senior "Family Office Associate" kept resurfacing. Only lift 3-4.
+      if ((inSector || inDirection) && relevanceScore >= 3 && relevanceScore < 5) relevanceScore = 5;
       if (isJuniorProfile && SENIOR_PATTERN.test(job.title || '')) {
         relevanceScore = Math.min(relevanceScore, 2);
         relevanceReason = "This role requires seniority beyond your current experience — it's been deprioritised.";

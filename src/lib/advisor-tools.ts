@@ -111,7 +111,7 @@ export const ADVISOR_TOOLS = [
         searchKeywords: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Optional: 1-3 word search terms to refresh the roles matched to the new directions. Pass when the directions change enough that the jobs should change too.',
+          description: 'Optional: 1-3 word search terms to refresh the roles matched to the new directions. Pass when the directions change enough that the jobs should change too. CRITICAL: these MUST match the person\'s seniority. For a graduate / entry-level / early-career / career-changing person, role-title terms must be entry-level — prefix with "junior", "graduate", "assistant", "trainee" or "associate" (e.g. "junior analyst", "graduate coordinator"). Never pass a bare senior or seniorityless role title that would pull in roles above their level, even for senior-skewing fields like family office or private wealth.',
         },
       },
       required: ['directions'],
