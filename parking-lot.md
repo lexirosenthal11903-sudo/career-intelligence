@@ -236,3 +236,41 @@ Their loading screen step-by-step with icons is more visually informative than m
 
 **Arlo identity and visual register — dedicated session needed**
 Lexi flagged that Arlo currently reads as childish/cute, which undercuts the trust register the product needs. This is a fundamental question about Arlo's execution (and possibly concept): no face/illustration, name potentially needs to change, visual presence should come from quality of words not a drawn character. Principle agreed: concept (named advisor) is likely right, execution is wrong. Do not make further Arlo changes until a dedicated session resolves: new name candidate(s), visual register, how advisor presence is conveyed without a character illustration. This session should happen before any significant new UI build that involves Arlo.
+
+---
+
+## Session 43 — 2026-06-23 (Lexi review of the live product)
+
+_Captured mid-session so nothing's lost. Recommendations are Claude's co-founder read; nothing built yet._
+
+- **Discovery: probe thin / vague input** _(→ Step 1, feel alive — closest to current work)._ Carry over a
+  behaviour the OLD build had: when there's no CV, or the direction/answers are vague, the advisor asks the
+  normal discovery questions (requirements, location…) AND a few extra *substance* prompts — e.g. university
+  modules, work experience, projects — to draw out enough to give a genuinely useful, directed read. The
+  current `/api/intake` caps at 3 generic questions and doesn't dig when the input is thin. **Rec: build —
+  small, on-theme, high value.** Make the intake prompt detect thin input and ask for substance, still casual,
+  still capped so it never becomes a quiz.
+- **Profile: directly editable vs mentor-driven** _(the meta-question)._ **Rec: BOTH, mentor-primary.** The
+  Profile (the "mirror") should let the user directly edit concrete facts (CV, email, preferences,
+  deal-breakers) — people WILL want to correct things and won't know to tell the mentor. The mentor can also
+  change everything in conversation (already does via `update_profile`); they share one store so they stay in
+  sync. Principle: never trap a fact behind "only the mentor can change this."
+- **Profile: replace the CV on file** _(→ Step 2 area / account)._ Already half-decided (CV's home = Profile,
+  2026-06-22). Must be a simple file replace — NOT the whole input flow again (that was critical bug #6).
+  **Rec: build with the profile-edit pass.**
+- **Profile: change registered email** _(→ account)._ Standard hygiene. Supabase `updateUser({email})` triggers
+  a re-confirmation flow (real work). **Rec: yes, low priority — batch with delete-account + other account
+  settings, not urgent for first close-contact users.**
+- **View previous chats** _(→ Step 1/2)._ Real gap. Partial support already exists (per-page "New session"
+  divider + show-previous toggle in `useArloChat`), and the recap card is the light version. **Rec: yes — a
+  simple history view; give it a home in the account menu (below).**
+- **Bottom-left name/email → opens Profile.** Lexi's instinct it's "not right" — agreed. Convention is an
+  *account menu*, not a jump straight to Profile. **Rec: make it a small menu — Profile · Previous chats ·
+  (Settings/Email) · Sign out.** This also gives "previous chats" and sign-out a home. Small, good consolidation.
+- **Progression tracking — user-facing.** ⚠️ Brushes the locked **no-gamification** rule (no streaks/points/
+  badges). **Rec: yes IF framed as meaningful momentum, never metrics** — "how far you've come": direction
+  clarifying, CVs tailored, roles engaged, foot-in-door actions taken. On-strategy (mission says "show real
+  progress"; B2B thesis wants verified progress data). **Park as a real Step-2-area feature; design carefully
+  against the gamification line first.**
+- **Tech debt: lint cleanup (36 pre-existing `react-hooks/set-state-in-effect` errors).** Not blocking, predates
+  this work. **Rec: roadmap — a small dedicated cleanup pass between features, not mid-feature.**

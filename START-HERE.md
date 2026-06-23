@@ -13,6 +13,9 @@ door** — instead of firing off hundreds and hearing nothing back. Full why: **
 - Recently fixed: honest matching, seniority (no roles above your level), the advisor turning an
   over-reach into a realistic pathway, job relevance, the discovery conversation, auth, the recap card.
 
+> **Every feature, feature by feature, in build order:** [FEATURE-ROADMAP.md](FEATURE-ROADMAP.md) — the
+> single list. The four steps below are the shape; that doc is the detail.
+
 ## What's next (the agreed order — nothing else needs deciding now)
 1. **Make it feel alive** — finish the new-user flow: discovery's done; next is the advisor *reacting* to
    what you do and *feeling present*. (Also here: a light "start fresh, keep the memory".)
@@ -40,6 +43,7 @@ _Every parked idea is mapped to one of the above — see the table at the top of
 Everything else below is working detail **I maintain** — you don't need to track it:
 | Doc | What it's for |
 |---|---|
+| FEATURE-ROADMAP.md | **Every planned feature, in build order** — the single list |
 | AUDIT-REPORT-2026-06-22.md | The current prioritised fix/feature backlog |
 | WALKTHROUGH-FEEDBACK-2026-06-22.md | Your raw click-through notes (source for the backlog) |
 | GROUNDED-KNOWLEDGE-PLAN.md | The future "make the facts real" project |
