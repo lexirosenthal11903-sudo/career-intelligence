@@ -119,11 +119,14 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 - **Before any merge discussion:** run `/deploy-check`. Always.
 - GitHub token was exposed in a session — needs rotation. Lexi deferred.
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-22, Session 41)
+## ⚠️ START HERE — Session Continuity (updated 2026-06-23)
 
-**⚠️ `REBUILD.md` (repo root) is the single source of truth.** Read it (esp. the top
-"▶ CURRENT BUILD QUEUE" block) before anything else. `ROADMAP.md` is a superseded historical archive —
-do not plan from it.
+**Orientation order:** `START-HERE.md` (human-facing where-are-we / what's-next) → `MISSION.md` (the why,
+north star) → `REBUILD.md` (technical build state). **`ROADMAP.md`, `PLAYBOOK.md`, and the old audit
+reports are now in `archive/` — superseded, ignore.** Current backlog: `AUDIT-REPORT-2026-06-22.md`.
+
+**⚠️ `REBUILD.md` (repo root) is the technical source of truth for what's built.** Read its top
+"▶ CURRENT BUILD QUEUE" block. (`ROADMAP.md` is archived — do not plan from it.)
 
 **Where we are (after the first live test, 2026-06-22):** Step 0 floor + most of Step 1 spine are done
 (advisor memory + agency, jobs-that-are-right, recap card is real, company logos, routing flipped so

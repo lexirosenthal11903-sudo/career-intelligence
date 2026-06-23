@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh B — Quiet Daylight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --oat:#F2ECE1; --oat-2:#E9E1D2; --card:#FFFDF9;
+    --ink:#2A2620; --ink-2:#6B6358; --ink-3:#A89D8C; --line:#E6DECF;
+    --sage:#5E7A63; --sage-deep:#4C6651; --sage-soft:rgba(94,122,99,.12);
+    --clay:#C0714F;
+    --sans:'Hanken Grotesk',system-ui,sans-serif; --serif:'Fraunces',Georgia,serif;
+    --r:22px;
+    --sh:0 1px 2px rgba(42,38,32,.03),0 10px 30px -12px rgba(42,38,32,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--oat);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;position:relative}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(80% 50% at 50% -8%,rgba(94,122,99,.10),transparent 55%),
+               radial-gradient(60% 40% at 85% 8%,rgba(192,113,79,.07),transparent 60%)}
+
+  .top{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:24px 36px}
+  .mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,var(--sage),var(--sage-deep));display:grid;place-items:center;color:#fff;box-shadow:0 4px 12px rgba(76,102,81,.28)}
+  .mark svg{width:18px;height:18px}
+  .brand{font-weight:700;font-size:15.5px;letter-spacing:-.01em}
+  .top .me{margin-left:auto;width:34px;height:34px;border-radius:50%;background:var(--oat-2);display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--ink-2)}
+
+  .wrap{max-width:660px;margin:0 auto;padding:30px 36px 200px}
+  .hello{font-family:var(--serif);font-size:30px;line-height:1.3;letter-spacing:-.01em;color:var(--ink);font-weight:400;margin-bottom:6px}
+  .hello em{font-style:italic;color:var(--sage-deep)}
+  .hello-sub{font-size:14.5px;color:var(--ink-3);margin-bottom:34px}
+
+  .turn{display:flex;gap:14px;margin-bottom:22px;opacity:0;transform:translateY(10px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  .turn:nth-child(3){animation-delay:.1s}.turn:nth-child(4){animation-delay:.55s}.turn:nth-child(5){animation-delay:1s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .pfp{width:34px;height:34px;border-radius:11px;flex-shrink:0;display:grid;place-items:center;margin-top:2px}
+  .pfp.luc{background:linear-gradient(145deg,var(--sage),var(--sage-deep));color:#fff}
+  .pfp.luc svg{width:17px;height:17px}
+  .said{flex:1;min-width:0}
+  .nm{font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--ink-3);margin:0 0 7px 2px}
+  .bubble{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:17px 21px;box-shadow:var(--sh);font-size:16px;line-height:1.62;color:var(--ink)}
+  .bubble em{font-style:normal;color:var(--sage-deep);font-weight:600}
+
+  /* user turn — right aligned soft sage */
+  .turn.me{flex-direction:row-reverse}
+  .turn.me .pfp{background:var(--oat-2);color:var(--ink-2);font-size:13px;font-weight:600}
+  .turn.me .nm{text-align:right;margin-right:2px}
+  .turn.me .bubble{background:var(--sage-soft);border-color:transparent;color:var(--ink)}
+
+  /* surfaced role — soft warm card */
+  .role{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-top:2px}
+  .role-top{padding:17px 20px 15px;display:flex;align-items:flex-start;gap:13px}
+  .role-logo{width:42px;height:42px;border-radius:12px;background:var(--oat);display:grid;place-items:center;font-weight:700;color:var(--ink-2);font-size:15px;flex-shrink:0}
+  .role-name{font-weight:700;font-size:16px;letter-spacing:-.01em}
+  .role-org{font-size:13px;color:var(--ink-3);margin-top:2px}
+  .fit{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--sage-deep);background:var(--sage-soft);padding:5px 11px;border-radius:99px;white-space:nowrap}
+  .fit::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sage)}
+  .role-body{padding:0 20px 16px;font-size:14px;line-height:1.58;color:var(--ink-2)}
+  .role-act{padding:0 20px 18px;display:flex;gap:10px}
+  .btn{font:inherit;font-size:13.5px;font-weight:600;border-radius:13px;padding:10px 16px;cursor:pointer;border:1px solid transparent;transition:.16s}
+  .btn-sage{background:var(--sage);color:#fff;box-shadow:0 3px 10px rgba(76,102,81,.25)}
+  .btn-sage:hover{background:var(--sage-deep);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink-2)}
+  .btn-ghost:hover{background:var(--oat)}
+
+  .composer{position:fixed;left:0;right:0;bottom:0;padding:46px 36px 28px;background:linear-gradient(180deg,rgba(242,236,225,0),var(--oat) 44%)}
+  .composer-in{max-width:660px;margin:0 auto;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 7px 7px 22px;box-shadow:var(--sh)}
+  .composer-in input{flex:1;border:0;background:transparent;font:inherit;font-size:15.5px;color:var(--ink);outline:none;padding:11px 0}
+  .composer-in input::placeholder{color:var(--ink-3)}
+  .send{width:42px;height:42px;border-radius:50%;background:var(--sage);border:0;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 10px rgba(76,102,81,.3);transition:.16s}
+  .send:hover{background:var(--sage-deep);transform:translateY(-1px)}.send svg{width:18px;height:18px}
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></div>
+    <span class="brand">Lucian</span>
+    <span class="me">E</span>
+  </header>
+
+  <main class="wrap">
+    <div class="hello">Morning, Ellie. <em>Good to see you.</em></div>
+    <div class="hello-sub">Tuesday · I've got one thing I think is worth a look.</div>
+
+    <div class="turn">
+      <div class="pfp luc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div>
+      <div class="said">
+        <p class="nm">Lucian</p>
+        <div class="bubble">I went back through what you wrote about your dissertation — <em>the part on why people put off decisions they care about</em>. One role came up this week that sits right on top of it.</div>
+      </div>
+    </div>
+
+    <div class="turn">
+      <div class="pfp luc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div>
+      <div class="said">
+        <div class="role">
+          <div class="role-top">
+            <div class="role-logo">N</div>
+            <div><div class="role-name">Behavioural Researcher</div><div class="role-org">Nesta · London / hybrid</div></div>
+            <span class="fit">Strong fit</span>
+          </div>
+          <div class="role-body">Runs small studies on how people make real choices, then turns what they find into things that change behaviour. Almost exactly the question you were already chasing.</div>
+          <div class="role-act">
+            <button class="btn btn-sage">Read it with me</button>
+            <button class="btn btn-ghost">Not quite — here's why</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="turn me">
+      <div class="pfp">E</div>
+      <div class="said">
+        <p class="nm">Ellie</p>
+        <div class="bubble">The Nesta one makes me sit up. I didn't think "researcher" was open to me without a PhD, though.</div>
+      </div>
+    </div>
+  </main>
+
+  <div class="composer">
+    <div class="composer-in">
+      <input type="text" placeholder="Tell Lucian what you're thinking…">
+      <button class="send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+    </div>
+  </div>
+</body>
+</html>

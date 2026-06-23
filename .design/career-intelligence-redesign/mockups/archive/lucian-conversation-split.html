@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucian — Conversation + Split</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F6F3; --surface:#FFFFFF; --panel:#F5F3EE; --panel-2:#EDEBE5;
+    --deep:#1C160E; --deep-2:#241C12;
+    --ink:#1A1610; --ink-2:#5A5040; --ink-3:#9E9080; --ink-on-dark:#EDE6DA; --ink-on-dark-2:#B6A78F;
+    --accent:#B05E16; --accent-on-dark:#E0913F; --accent-soft:rgba(176,94,22,.10);
+    --green:#3E9B6B; --green-soft:rgba(62,155,107,.12);
+    --line:#E6E3DC;
+    --r:16px;
+    --shadow-card:0 1px 2px rgba(26,22,16,.04), 0 8px 24px rgba(26,22,16,.06);
+    --shadow-float:0 2px 8px rgba(26,22,16,.08), 0 16px 40px rgba(26,22,16,.14);
+    --shadow-panel:-30px 0 80px rgba(26,22,16,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:'Instrument Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+  .app{display:flex;height:100vh}
+
+  /* ===== NAV RAIL (shared identity) ===== */
+  .rail{position:relative;width:74px;flex-shrink:0;background:var(--deep);display:flex;flex-direction:column;align-items:center;padding:22px 0 18px;gap:4px;overflow:hidden}
+  .rail::before{content:"";position:absolute;inset:0;background:url('img-nebula.jpg') center 20%/cover no-repeat;opacity:.30;mix-blend-mode:screen}
+  .rail::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,22,14,.2),rgba(28,22,14,.55) 45%,var(--deep))}
+  .rail>*{position:relative;z-index:1}
+  .mark{width:38px;height:38px;border-radius:11px;background:radial-gradient(120% 120% at 30% 25%,rgba(224,145,63,.95),#9A4F12 70%);display:grid;place-items:center;color:#fff;margin-bottom:22px;box-shadow:0 4px 14px rgba(224,145,63,.4),inset 0 1px 0 rgba(255,255,255,.35)}
+  .mark svg{width:21px;height:21px}
+  .nav-i{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--ink-on-dark-2);cursor:pointer;transition:.18s;position:relative}
+  .nav-i svg{width:20px;height:20px;stroke-width:1.6}
+  .nav-i:hover{background:rgba(255,255,255,.07);color:var(--ink-on-dark)}
+  .nav-i.active{background:rgba(224,145,63,.16);color:var(--accent-on-dark)}
+  .nav-i.active::before{content:"";position:absolute;left:-18px;top:50%;transform:translateY(-50%);width:3px;height:20px;border-radius:0 3px 3px 0;background:var(--accent-on-dark)}
+  .rail .spacer{flex:1}
+  .avatar{width:36px;height:36px;border-radius:50%;margin-top:6px;background:linear-gradient(140deg,#C98A4E,#7A4A22);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.3);cursor:pointer}
+
+  /* ===== CONVERSATION (the only persistent surface) ===== */
+  .convo{position:relative;flex:1;min-width:0;display:flex;flex-direction:column}
+  .convo-head{padding:20px 0 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);background:rgba(247,246,243,.8);backdrop-filter:blur(8px);padding-left:max(40px,calc((100% - 720px)/2));padding-right:max(40px,calc((100% - 720px)/2))}
+  .presence{width:9px;height:9px;border-radius:50%;background:var(--accent);animation:pulse 3.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(176,94,22,.4)}70%{box-shadow:0 0 0 9px rgba(176,94,22,0)}100%{box-shadow:0 0 0 0 rgba(176,94,22,0)}}
+  .convo-head .name{font-weight:600;font-size:15px;letter-spacing:-.01em}
+  .convo-head .sub{font-size:13px;color:var(--ink-3);margin-left:2px}
+  .convo-head .day{margin-left:auto;font-family:'DM Mono',monospace;font-size:12px;color:var(--ink-3)}
+
+  .stream{flex:1;overflow-y:auto;padding:42px 0 150px;display:flex;flex-direction:column;gap:24px;align-items:center}
+  .stream::-webkit-scrollbar{width:8px}.stream::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  .col{width:100%;max-width:720px;padding:0 40px;display:flex;flex-direction:column;gap:24px}
+
+  .msg{max-width:600px;opacity:0;transform:translateY(8px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  .msg:nth-child(1){animation-delay:.05s}.msg:nth-child(2){animation-delay:.5s}.msg:nth-child(3){animation-delay:1s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .from-lucian .bubble{background:var(--surface);border:1px solid var(--line);border-radius:5px 18px 18px 18px;padding:17px 21px;box-shadow:var(--shadow-card);font-size:16px;line-height:1.62;color:var(--ink)}
+  .from-lucian .bubble em{font-style:normal;color:var(--accent);font-weight:500}
+  .from-user{align-self:flex-end;max-width:460px}
+  .who{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px 3px}
+  .from-user .bubble{background:var(--accent);color:#fff;border-radius:18px 5px 18px 18px;padding:14px 19px;font-size:15px;line-height:1.55;box-shadow:0 6px 18px rgba(176,94,22,.22)}
+
+  /* the "open it together" chip Lucian drops inline before the panel rises */
+  .open-pill{display:inline-flex;align-items:center;gap:11px;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 13px 11px 15px;box-shadow:var(--shadow-card);cursor:pointer;transition:.18s;max-width:600px}
+  .open-pill:hover{transform:translateY(-1px);box-shadow:var(--shadow-float)}
+  .op-ic{width:34px;height:34px;border-radius:9px;background:var(--panel);display:grid;place-items:center;font-weight:700;color:var(--ink-2);font-size:13px}
+  .op-t{font-size:14.5px;font-weight:600}.op-s{font-size:12.5px;color:var(--ink-3);margin-top:1px}
+  .op-go{margin-left:6px;color:var(--accent);display:grid;place-items:center}.op-go svg{width:18px;height:18px}
+
+  .composer-wrap{position:absolute;left:0;right:0;bottom:0;padding:18px 0 26px;background:linear-gradient(180deg,rgba(247,246,243,0),var(--bg) 38%);display:flex;justify-content:center}
+  .composer{width:100%;max-width:720px;margin:0 40px;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.72);backdrop-filter:blur(18px) saturate(1.3);border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow-float);border-radius:16px;padding:8px 8px 8px 20px}
+  .composer input{flex:1;border:0;background:transparent;font:inherit;font-size:15px;color:var(--ink);outline:none;padding:10px 0}
+  .composer input::placeholder{color:var(--ink-3)}
+  .send{width:40px;height:40px;border-radius:11px;background:var(--accent);border:0;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(176,94,22,.25);transition:.16s}.send:hover{background:#9A4F12;transform:translateY(-1px)}.send svg{width:18px;height:18px}
+
+  /* scrim over convo when panel is open — focus shifts, convo recedes (not gone) */
+  .scrim{position:absolute;inset:0;background:rgba(28,22,14,.10);backdrop-filter:blur(1.5px);z-index:5;opacity:0;animation:fade .5s ease .15s forwards;pointer-events:none}
+  @keyframes fade{to{opacity:1}}
+
+  /* ===== FOCUSED SPLIT PANEL — document-like work ===== */
+  .panel{position:relative;flex-shrink:0;width:498px;background:var(--surface);box-shadow:var(--shadow-panel);display:flex;flex-direction:column;z-index:10;transform:translateX(40px);opacity:0;animation:slidein .6s cubic-bezier(.2,.7,.2,1) .1s forwards}
+  @keyframes slidein{to{transform:none;opacity:1}}
+  /* Lucian strip — "beside" the focused content */
+  .panel-lucian{position:relative;background:var(--deep);color:var(--ink-on-dark);padding:18px 26px 20px;overflow:hidden}
+  .panel-lucian::before{content:"";position:absolute;inset:0;background:url('img-nebula.jpg') center 30%/cover no-repeat;opacity:.26;mix-blend-mode:screen}
+  .panel-lucian::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,22,14,.45),rgba(28,22,14,.72))}
+  .panel-lucian>*{position:relative;z-index:1}
+  .back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-on-dark-2);cursor:pointer;margin-bottom:14px;transition:.16s}
+  .back:hover{color:var(--ink-on-dark)}.back svg{width:15px;height:15px}
+  .pl-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .pl-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-on-dark);box-shadow:0 0 10px 1px rgba(224,145,63,.6)}
+  .pl-name{font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--ink-on-dark)}
+  .pl-note{font-family:'DM Serif Display',serif;font-size:18px;line-height:1.45;color:#fff;font-style:italic}
+
+  .panel-body{flex:1;overflow-y:auto;padding:24px 26px 26px}
+  .panel-body::-webkit-scrollbar{width:8px}.panel-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  .pb-head{display:flex;align-items:flex-start;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .pb-logo{width:46px;height:46px;border-radius:11px;background:var(--panel);display:grid;place-items:center;font-weight:700;color:var(--ink-2);font-size:17px;flex-shrink:0}
+  .pb-role{font-size:20px;font-weight:700;letter-spacing:-.02em}
+  .pb-org{font-size:13.5px;color:var(--ink-3);margin-top:2px}
+  .fit{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);background:var(--green-soft);padding:5px 11px;border-radius:99px;margin-top:11px}
+  .fit::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .sec{padding:18px 0;border-bottom:1px solid var(--line)}
+  .sec:last-of-type{border-bottom:0}
+  .sec-l{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+  .sec p{font-size:14.5px;line-height:1.62;color:var(--ink-2)}
+  .look{display:flex;gap:12px;margin-bottom:13px}
+  .look:last-child{margin-bottom:0}
+  .look .n{flex-shrink:0;width:23px;height:23px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+  .look .t{font-size:14px;line-height:1.55;color:var(--ink-2)}.look .t b{color:var(--ink);font-weight:600}
+  .salary{font-size:15px;color:var(--ink);font-weight:600}.salary span{font-weight:400;color:var(--ink-3);font-size:13px}
+  .panel-foot{padding:15px 26px;border-top:1px solid var(--line);display:flex;gap:10px;background:var(--surface)}
+  .btn{flex:1;font:inherit;font-size:14px;font-weight:600;border-radius:11px;padding:12px;cursor:pointer;border:1px solid transparent;transition:.16s}
+  .btn-amber{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(176,94,22,.22)}.btn-amber:hover{background:#9A4F12;transform:translateY(-1px)}
+  .btn-ghost{flex:0 0 auto;background:transparent;border-color:var(--line);color:var(--ink-2);padding:12px 18px}.btn-ghost:hover{background:var(--panel)}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.msg,.panel{opacity:1;transform:none}.scrim{opacity:1}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="rail">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></div>
+    <div class="nav-i active" title="Today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+    <div class="nav-i" title="Your threads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+    <div class="nav-i" title="Your path"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg></div>
+    <div class="spacer"></div>
+    <div class="nav-i" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+    <div class="avatar" title="Ellie">E</div>
+  </nav>
+
+  <!-- CONVERSATION -->
+  <main class="convo">
+    <div class="convo-head">
+      <span class="presence"></span><span class="name">Lucian</span><span class="sub">· here with you</span>
+      <span class="day">Tue · 9:14</span>
+    </div>
+
+    <div class="stream">
+      <div class="col">
+        <div class="msg from-lucian"><div class="bubble">Morning, Ellie. I went back through what you wrote about your dissertation — the part on <em>why people put off decisions they care about</em>. One role came up this week that sits right on top of it.</div></div>
+
+        <div class="msg from-user"><div class="who" style="text-align:right">Ellie</div><div class="bubble">Go on then — show me. I didn't think "researcher" was open to me without a PhD.</div></div>
+
+        <div class="msg from-lucian"><div class="bubble">Most of these don't need one. Let's open it up and read it together — I'll point out the two things they'll actually look for.</div></div>
+
+        <div class="open-pill msg">
+          <div class="op-ic">N</div>
+          <div><div class="op-t">Behavioural Researcher · Nesta</div><div class="op-s">Opened beside you →</div></div>
+          <div class="op-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scrim"></div>
+
+    <div class="composer-wrap"><div class="composer">
+      <input type="text" placeholder="Tell Lucian what you're thinking…">
+      <button class="send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+    </div></div>
+  </main>
+
+  <!-- FOCUSED SPLIT PANEL -->
+  <section class="panel">
+    <div class="panel-lucian">
+      <span class="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to talking</span>
+      <div class="pl-row"><span class="pl-dot"></span><span class="pl-name">Lucian</span></div>
+      <div class="pl-note">"Read it with me. I'll show you why I think this one's yours."</div>
+    </div>
+
+    <div class="panel-body">
+      <div class="pb-head">
+        <div class="pb-logo">N</div>
+        <div>
+          <div class="pb-role">Behavioural Researcher</div>
+          <div class="pb-org">Nesta · London / hybrid · permanent</div>
+          <span class="fit">Strong fit</span>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-l">What it actually is</div>
+        <p>You'd run small studies on how people make real choices — money, health, work — then turn what you find into things that nudge better decisions. Less lab, more living rooms and service queues.</p>
+      </div>
+
+      <div class="sec">
+        <div class="sec-l">What they'll look for</div>
+        <div class="look"><div class="n">1</div><div class="t"><b>A question you chased to the end.</b> Your dissertation is exactly this. Lead with it.</div></div>
+        <div class="look"><div class="n">2</div><div class="t"><b>Honesty about messy findings.</b> They want someone who says "the data didn't agree with me" — you already do.</div></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-l">Salary</div>
+        <div class="salary">£32,000 – £38,000 <span>· UK · entry-friendly band</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-l">Why I brought this to you</div>
+        <p>It's the first role I've seen that pays for the thing you do without noticing — sitting with a messy human question until it gets clear. That's not a stretch for you. It's a fit.</p>
+      </div>
+    </div>
+
+    <div class="panel-foot">
+      <button class="btn btn-amber">I'm interested — what's next?</button>
+      <button class="btn btn-ghost">Not for me</button>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

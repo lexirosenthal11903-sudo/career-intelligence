@@ -44,7 +44,23 @@ File: `mockups/dashboard-language-board.html`.
 
 ## Screen Decisions
 
-### Screen 1 — Homepage — DIRECTION LOCKED (provisional, pending dashboard) ✓
+### Screen 1 — Homepage — LOCKED ✓ (Session 18, 2026-06-11)
+Current file: `mockups/homepage-v2.html`. Previous file `mockups/homepage.html` superseded.
+
+**Session 18 decisions (override all earlier homepage decisions below):**
+- **Hero background:** flat `--bg` only. No gradient, no warm glow. Clean.
+- **Nav:** wordmark + Log in (text link) + Sign up → (amber button). No section links.
+- **Product shot:** white sidebar, direction card + today section only (greeting, direction card, today action + Draft message / Not today). No Explore cards in shot.
+- **Page structure (3 features, not 2):** Hero → Product shot → Feature 1 (direction) → Feature 2 (roles) → Feature 3 (every day / Arlo) → Quotes → Closing CTA → Footer.
+- **Feature 1:** direction card + Arlo note. Illustration: layered diamond stack (amber top).
+- **Feature 2:** role cards with fit labels — "Strong fit" (amber badge) / "Good fit" (neutral). No numerical scores — they lack credibility. Illustration: isometric cubes (amber focal cube).
+- **Feature 3:** Arlo conversation on cream bg. SQL progress bar inside bubble. Label: "SQL · Monzo APM level →" with tick mark only (no "target" text label). Illustration: rising iso-bars.
+- **Quotes:** "Built from conversations like these." 3 fragments. Below all feature sections. Source: `research/problem-interviews-series-1.md`.
+- **Closing CTA:** "Your career deserves more than a job board." + "Start with who you are →".
+- **Footer:** flat espresso. Wordmark + blurb + Privacy/Terms/Contact + copyright.
+- **Copywriting:** all copy is working placeholder. Final copy in Phase 5 copywriting session.
+
+Earlier homepage decisions (v6/v7/v8) are superseded by the above:
 Current file: `mockups/homepage.html` (organised 2026-06-07; was compare-08).
 - **Hero gradient (settled):** SOLID dashboard card (no dissolve/mask). Warm-orange glow is BACKGROUND ONLY — starts ~middle of the dashboard, blooms down + to the edges, NEVER touches the top. Cream base → warm-orange glow (the role-swap of Linear's black→white glow). `radial-gradient(135% 27% at 50% 96%, rgba(197,110,32,.26)…)` over `--bg`.
 - Nav links = scroll-to-section (anchors). "No idea where to start?" badge → input flow.

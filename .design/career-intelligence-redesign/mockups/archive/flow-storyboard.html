@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucian — Full Flow Storyboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --oat:#F2ECE1; --oat-2:#E9E1D2; --card:#FFFDF9; --field:#FFFFFF;
+    --ink:#2A2620; --ink-2:#6B6358; --ink-3:#A89D8C; --line:#E6DECF;
+    --sage:#5E7A63; --sage-deep:#4C6651; --sage-soft:rgba(94,122,99,.12);
+    --clay:#C0714F; --green:#5E7A63;
+    --sans:'Hanken Grotesk',system-ui,sans-serif; --serif:'Fraunces',Georgia,serif; --mono:'DM Mono',monospace;
+    --r:22px; --sh:0 1px 2px rgba(42,38,32,.03),0 12px 32px -14px rgba(42,38,32,.18);
+    --sh-lg:0 2px 8px rgba(42,38,32,.05),0 30px 60px -24px rgba(42,38,32,.30);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:#EDE7DC;color:var(--ink);-webkit-font-smoothing:antialiased}
+
+  .board{max-width:1180px;margin:0 auto;padding:56px 40px 90px}
+  .board-title{font-family:var(--serif);font-size:30px;letter-spacing:-.01em;margin-bottom:6px}
+  .board-sub{font-size:15px;color:var(--ink-2);max-width:640px;margin-bottom:48px}
+
+  .step{margin-bottom:56px}
+  .step-label{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+  .step-num{font-family:var(--mono);font-size:13px;color:var(--sage-deep);font-weight:500}
+  .step-name{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .step-note{font-size:13.5px;color:var(--ink-3)}
+
+  /* browser frame */
+  .frame{border-radius:18px;overflow:hidden;box-shadow:var(--sh-lg);border:1px solid rgba(0,0,0,.05);background:var(--oat)}
+  .chrome{height:38px;background:#E4DCCD;display:flex;align-items:center;gap:7px;padding:0 15px;border-bottom:1px solid var(--line)}
+  .dot{width:11px;height:11px;border-radius:50%}.dot.r{background:#E0A8A0}.dot.y{background:#E6CE96}.dot.g{background:#A9C2A4}
+  .url{margin-left:14px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);background:#EFE8DA;padding:3px 12px;border-radius:6px}
+  .screen{position:relative;height:560px;overflow:hidden}
+
+  /* shared atoms */
+  .mark{width:32px;height:32px;border-radius:10px;background:linear-gradient(145deg,var(--sage),var(--sage-deep));display:grid;place-items:center;color:#fff;box-shadow:0 4px 12px rgba(76,102,81,.28);flex-shrink:0}
+  .mark svg{width:17px;height:17px}
+  .brand{font-weight:700;font-size:15px;letter-spacing:-.01em}
+  .btn{font:inherit;font-weight:600;border-radius:13px;cursor:pointer;border:1px solid transparent;transition:.16s;font-size:14px;padding:11px 18px}
+  .btn-sage{background:var(--sage);color:#fff;box-shadow:0 3px 10px rgba(76,102,81,.25)}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink-2)}
+  .fit{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--sage-deep);background:var(--sage-soft);padding:4px 10px;border-radius:99px;white-space:nowrap}
+  .fit::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sage)}
+  .pfp{width:30px;height:30px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(145deg,var(--sage),var(--sage-deep));color:#fff}
+  .pfp svg{width:15px;height:15px}
+  .bubble{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 17px;box-shadow:var(--sh);font-size:14.5px;line-height:1.6;color:var(--ink)}
+  .bubble em{font-style:normal;color:var(--sage-deep);font-weight:600}
+
+  /* ===== 1 HOMEPAGE ===== */
+  .home{height:100%;display:flex;flex-direction:column;background:
+    radial-gradient(70% 50% at 50% 0%,rgba(94,122,99,.10),transparent 55%),
+    radial-gradient(50% 40% at 88% 10%,rgba(192,113,79,.06),transparent 60%),var(--oat)}
+  .nav{display:flex;align-items:center;gap:11px;padding:20px 34px}
+  .nav .sp{flex:1}
+  .nav .lnk{font-size:14px;color:var(--ink-2);font-weight:500}
+  .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 40px}
+  .hero .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage-deep);margin-bottom:20px}
+  .hero h1{font-family:var(--serif);font-size:46px;line-height:1.1;letter-spacing:-.02em;max-width:660px;font-weight:400}
+  .hero h1 em{font-style:italic;color:var(--sage-deep)}
+  .hero p{font-size:17px;color:var(--ink-2);max-width:470px;margin:20px 0 30px;line-height:1.55}
+  .hero .cta{display:flex;gap:12px}
+  .hero .btn-sage{padding:13px 24px;font-size:15px}
+  .beats{display:flex;gap:30px;padding:22px 0 30px;justify-content:center;border-top:1px solid var(--line);margin:0 34px}
+  .beat{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:8px}
+  .beat b{color:var(--ink-2);font-weight:600}
+  .beat svg{width:15px;height:15px;color:var(--sage)}
+
+  /* ===== generic conversation column ===== */
+  .conv{height:100%;display:flex;flex-direction:column;background:var(--oat)}
+  .conv-top{display:flex;align-items:center;gap:10px;padding:15px 24px;border-bottom:1px solid var(--line);background:rgba(242,236,225,.7);backdrop-filter:blur(8px)}
+  .presence{width:8px;height:8px;border-radius:50%;background:var(--sage)}
+  .conv-top .nm{font-weight:600;font-size:14px}.conv-top .su{font-size:12.5px;color:var(--ink-3)}
+  .conv-top .day{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+  .flow{flex:1;overflow:hidden;padding:26px 24px;display:flex;flex-direction:column;gap:16px}
+  .turn{display:flex;gap:11px;max-width:600px}
+  .turn.me{flex-direction:row-reverse;align-self:flex-end}
+  .turn.me .pfp{background:var(--oat-2);color:var(--ink-2);font-size:12px;font-weight:600}
+  .turn.me .bubble{background:var(--sage-soft);border-color:transparent}
+  .composer{margin:0 24px 20px;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 6px 6px 20px;box-shadow:var(--sh)}
+  .composer span{flex:1;font-size:14.5px;color:var(--ink-3)}
+  .composer .up{font-size:12.5px;color:var(--ink-3);display:flex;align-items:center;gap:6px;margin-right:6px}.composer .up svg{width:15px;height:15px}
+  .composer .send{width:38px;height:38px;border-radius:50%;background:var(--sage);display:grid;place-items:center;color:#fff;flex-shrink:0}.composer .send svg{width:16px;height:16px}
+
+  /* upload chip in input screen */
+  .upload{align-self:flex-start;display:flex;align-items:center;gap:11px;background:var(--card);border:1px dashed var(--ink-3);border-radius:16px;padding:14px 18px;max-width:340px}
+  .upload .ic{width:34px;height:34px;border-radius:10px;background:var(--sage-soft);display:grid;place-items:center;color:var(--sage-deep)}.upload .ic svg{width:17px;height:17px}
+  .upload .t{font-size:13.5px;font-weight:600}.upload .s{font-size:12px;color:var(--ink-3);margin-top:1px}
+
+  /* ===== 3 LOADING ===== */
+  .load{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:
+    radial-gradient(60% 50% at 50% 40%,rgba(94,122,99,.10),transparent 60%),var(--oat);text-align:center}
+  .load .mark{width:46px;height:46px;border-radius:14px}
+  .load .mark svg{width:24px;height:24px}
+  .load h2{font-family:var(--serif);font-style:italic;font-size:26px;color:var(--ink);font-weight:400}
+  .load .ph{font-size:14px;color:var(--ink-3)}
+  .load .bar{width:200px;height:4px;border-radius:99px;background:var(--oat-2);overflow:hidden}
+  .load .bar i{display:block;width:62%;height:100%;background:var(--sage);border-radius:99px}
+
+  /* ===== 4 REVEAL ===== */
+  .reveal{height:100%;overflow:hidden;background:
+    radial-gradient(60% 40% at 50% 0%,rgba(94,122,99,.10),transparent 55%),var(--oat);padding:34px 40px;display:flex;flex-direction:column;align-items:center}
+  .reveal .byline{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+  .reveal .byline .d{width:7px;height:7px;border-radius:50%;background:var(--sage)}
+  .reveal .byline .w{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  .reveal h2{font-family:var(--serif);font-size:25px;line-height:1.4;text-align:center;max-width:560px;font-weight:400}
+  .reveal h2 em{font-style:italic;color:var(--sage-deep)}
+  .dircard{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:24px 26px;width:520px}
+  .dircard .k{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--sage-deep);margin-bottom:9px}
+  .dircard .t{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.01em}
+  .dircard .b{font-size:14px;line-height:1.6;color:var(--ink-2);margin-top:10px}
+  .dircard .roles{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px}
+  .rrow{display:flex;align-items:center;gap:11px}
+  .rrow .lg{width:30px;height:30px;border-radius:8px;background:var(--oat);display:grid;place-items:center;font-weight:700;font-size:12px;color:var(--ink-2)}
+  .rrow .rn{font-size:13.5px;font-weight:600}.rrow .ro{font-size:12px;color:var(--ink-3)}
+  .rrow .fit{margin-left:auto}
+  .reveal .cta{margin-top:24px}
+
+  /* role card inline (daily home) */
+  .rolecard{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);overflow:hidden;max-width:420px}
+  .rc-top{padding:14px 17px 12px;display:flex;align-items:flex-start;gap:11px}
+  .rc-lg{width:36px;height:36px;border-radius:10px;background:var(--oat);display:grid;place-items:center;font-weight:700;color:var(--ink-2);font-size:13px;flex-shrink:0}
+  .rc-n{font-weight:700;font-size:14.5px}.rc-o{font-size:12.5px;color:var(--ink-3);margin-top:1px}
+  .rc-b{padding:0 17px 13px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+  .rc-a{padding:0 17px 15px;display:flex;gap:8px}
+  .rc-a .btn{font-size:12.5px;padding:8px 13px;border-radius:10px}
+
+  /* persistent "your roles" pill on daily home */
+  .summon{position:absolute;right:22px;top:64px;display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:8px 15px;box-shadow:var(--sh);font-size:13px;font-weight:600;color:var(--ink-2)}
+  .summon b{color:var(--sage-deep)}
+  .summon svg{width:15px;height:15px;color:var(--sage)}
+
+  /* ===== 6 ALL ROLES SURFACE ===== */
+  .roles-screen{height:100%;display:flex;background:var(--oat)}
+  .rs-dim{flex:1;background:var(--oat);opacity:.5;filter:blur(1px)}
+  .rs-panel{width:560px;background:var(--card);box-shadow:-30px 0 80px rgba(42,38,32,.18);display:flex;flex-direction:column;border-left:1px solid var(--line)}
+  .rs-head{padding:18px 24px 16px;border-bottom:1px solid var(--line)}
+  .rs-back{font-size:13px;color:var(--ink-3);display:inline-flex;align-items:center;gap:7px;margin-bottom:13px}.rs-back svg{width:15px;height:15px}
+  .rs-title{font-family:var(--serif);font-size:21px;font-weight:500}
+  .rs-sub{font-size:13px;color:var(--ink-3);margin-top:3px}
+  .rs-list{flex:1;overflow:hidden;padding:8px 14px}
+  .jrow{display:flex;align-items:center;gap:13px;padding:14px 12px;border-radius:14px;transition:.14s}
+  .jrow:hover{background:var(--oat)}
+  .jrow+.jrow{border-top:1px solid var(--line)}
+  .jrow .lg{width:40px;height:40px;border-radius:11px;background:var(--oat);display:grid;place-items:center;font-weight:700;color:var(--ink-2);font-size:14px;flex-shrink:0}
+  .jrow .mid{flex:1;min-width:0}
+  .jrow .jn{font-size:14.5px;font-weight:600}
+  .jrow .jo{font-size:12.5px;color:var(--ink-3);margin-top:1px}
+  .jrow .jmeta{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .jrow .sal{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+  .jrow .arr{color:var(--ink-3)}.jrow .arr svg{width:17px;height:17px}
+</style>
+</head>
+<body>
+<div class="board">
+  <div class="board-title">How someone actually uses Lucian</div>
+  <div class="board-sub">The whole journey, start to finish. The five tabs are gone — it's one conversation that <em>brings things out</em> when they matter, plus a roles list you can pull up any time. Warm skin is a working layer; judge the flow and the UI.</div>
+
+  <!-- 1 HOMEPAGE -->
+  <div class="step">
+    <div class="step-label"><span class="step-num">01</span><span class="step-name">Homepage</span><span class="step-note">what a visitor lands on — one promise, one button</span></div>
+    <div class="frame"><div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">meridian.com</span></div>
+      <div class="screen"><div class="home">
+        <div class="nav"><div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></div><span class="brand">Lucian</span><span class="sp"></span><span class="lnk">Log in</span><button class="btn btn-sage" style="padding:9px 16px">Start</button></div>
+        <div class="hero">
+          <div class="eyebrow">For when you don't know what's next</div>
+          <h1>A mentor who helps you figure out <em>what you're for.</em></h1>
+          <p>Tell Lucian where you're at. He'll help you see a direction — then find the real roles that fit it.</p>
+          <div class="cta"><button class="btn btn-sage">Start with Lucian</button><button class="btn btn-ghost">See how it works</button></div>
+        </div>
+        <div class="beats">
+          <span class="beat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><b>Understand yourself</b></span>
+          <span class="beat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M14 5l7 7-7 7"/></svg><b>See a direction</b></span>
+          <span class="beat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><b>Find roles that fit</b></span>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 2 INPUT -->
+  <div class="step">
+    <div class="step-label"><span class="step-num">02</span><span class="step-name">Sharing your background</span><span class="step-note">a conversation, not a form — talk, or drop your CV</span></div>
+    <div class="frame"><div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">meridian.com/start</span></div>
+      <div class="screen"><div class="conv">
+        <div class="conv-top"><span class="presence"></span><span class="nm">Lucian</span><span class="su">· let's start</span></div>
+        <div class="flow">
+          <div class="turn"><div class="pfp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div><div class="bubble">No CV polishing, no right answers. Just tell me where you're at — what you've studied or done, and what's been on your mind about work lately. <em>You can drop your CV too, if it's easier.</em></div></div>
+          <div class="upload"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div><div class="t">Drop your CV</div><div class="s">PDF or Word · optional</div></div></div>
+          <div class="turn me"><div class="pfp">E</div><div class="bubble">I just finished a psychology degree. I liked the research side but I've got no idea what that actually makes me… employable for.</div></div>
+        </div>
+        <div class="composer"><span>Tell Lucian where you're at…</span><span class="up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span><div class="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 3 LOADING -->
+  <div class="step">
+    <div class="step-label"><span class="step-num">03</span><span class="step-name">Lucian reads it</span><span class="step-note">a short, calm wait — not a spinner</span></div>
+    <div class="frame"><div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">meridian.com/start</span></div>
+      <div class="screen"><div class="load">
+        <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></div>
+        <h2>Reading what you shared…</h2>
+        <div class="ph">Looking for the thread that runs through it</div>
+        <div class="bar"><i></i></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 4 REVEAL -->
+  <div class="step">
+    <div class="step-label"><span class="step-num">04</span><span class="step-name">The reveal</span><span class="step-note">where he sees it going — the click — with real roles inside</span></div>
+    <div class="frame"><div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">meridian.com/home</span></div>
+      <div class="screen"><div class="reveal">
+        <div class="byline"><span class="d"></span><span class="w">Lucian</span></div>
+        <h2>I've been looking at what you shared — <em>here's where I see this going.</em></h2>
+        <div class="dircard">
+          <div class="k">A direction worth exploring</div>
+          <div class="t">Understanding people, then designing for them</div>
+          <div class="b">The research instinct you liked isn't a dead end without a PhD — it's the core of a whole field of work. Here's where it points:</div>
+          <div class="roles">
+            <div class="rrow"><span class="lg">N</span><span><div class="rn">Behavioural Researcher</div><div class="ro">Nesta</div></span><span class="fit">Strong fit</span></div>
+            <div class="rrow"><span class="lg">C</span><span><div class="rn">UX Researcher (Junior)</div><div class="ro">Citizens Advice</div></span><span class="fit">Strong fit</span></div>
+            <div class="rrow"><span class="lg">T</span><span><div class="rn">Insight Assistant</div><div class="ro">The King's Fund</div></span><span class="fit">Good fit</span></div>
+          </div>
+        </div>
+        <button class="btn btn-sage cta">Look at these with me →</button>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 5 DAILY HOME -->
+  <div class="step">
+    <div class="step-label"><span class="step-num">05</span><span class="step-name">Daily home</span><span class="step-note">the product — one conversation; Lucian surfaces roles inline; "your roles" always one tap away</span></div>
+    <div class="frame"><div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">meridian.com/home</span></div>
+      <div class="screen"><div class="conv" style="position:relative">
+        <div class="conv-top"><span class="presence"></span><span class="nm">Lucian</span><span class="su">· here with you</span><span class="day">Tue · 9:14</span></div>
+        <div class="summon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Your roles <b>· 8</b></div>
+        <div class="flow">
+          <div class="turn"><div class="pfp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div><div class="bubble">Morning, Ellie. Two new roles came in overnight that match where we landed. This one stood out — <em>it's almost exactly your dissertation question.</em></div></div>
+          <div class="turn"><div class="pfp" style="opacity:0;pointer-events:none"></div>
+            <div class="rolecard">
+              <div class="rc-top"><div class="rc-lg">N</div><div style="flex:1"><div class="rc-n">Behavioural Researcher</div><div class="rc-o">Nesta · London / hybrid</div></div><span class="fit">Strong fit</span></div>
+              <div class="rc-b">Runs small studies on how people make real choices, then turns what they find into things that change behaviour.</div>
+              <div class="rc-a"><button class="btn btn-sage">Read it with me</button><button class="btn btn-ghost">Not quite</button></div>
+            </div>
+          </div>
+          <div class="turn me"><div class="pfp">E</div><div class="bubble">Okay, that one actually makes me sit up.</div></div>
+        </div>
+        <div class="composer"><span>Tell Lucian what you're thinking…</span><div class="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 6 ALL ROLES -->
+  <div class="step">
+    <div class="step-label"><span class="step-num">06</span><span class="step-name">"Your roles" — the jobs list</span><span class="step-note">the piece you couldn't see: tap "Your roles" and the full live list slides in. Browse, then drop back to talking.</span></div>
+    <div class="frame"><div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">meridian.com/home · roles</span></div>
+      <div class="screen"><div class="roles-screen">
+        <div class="rs-dim"></div>
+        <div class="rs-panel">
+          <div class="rs-head">
+            <span class="rs-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to talking</span>
+            <div class="rs-title">Roles Lucian's found for you</div>
+            <div class="rs-sub">8 live matches · ranked by fit · refreshed this morning</div>
+          </div>
+          <div class="rs-list">
+            <div class="jrow"><div class="lg">N</div><div class="mid"><div class="jn">Behavioural Researcher</div><div class="jo">Nesta · London / hybrid</div><div class="jmeta"><span class="fit">Strong fit</span><span class="sal">£32–38k</span></div></div><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+            <div class="jrow"><div class="lg">C</div><div class="mid"><div class="jn">UX Researcher (Junior)</div><div class="jo">Citizens Advice · remote</div><div class="jmeta"><span class="fit">Strong fit</span><span class="sal">£29–34k</span></div></div><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+            <div class="jrow"><div class="lg">K</div><div class="mid"><div class="jn">Insight Assistant</div><div class="jo">The King's Fund · London</div><div class="jmeta"><span class="fit">Good fit</span><span class="sal">£27–30k</span></div></div><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+            <div class="jrow"><div class="lg">M</div><div class="mid"><div class="jn">Research Assistant, People &amp; Behaviour</div><div class="jo">MoreThanNow · hybrid</div><div class="jmeta"><span class="fit">Good fit</span><span class="sal">£26–31k</span></div></div><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+            <div class="jrow"><div class="lg">B</div><div class="mid"><div class="jn">Service Designer (Entry)</div><div class="jo">Brave Bison · Manchester</div><div class="jmeta"><span class="fit">Good fit</span><span class="sal">£28–33k</span></div></div><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

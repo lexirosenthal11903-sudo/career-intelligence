@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh A — The Letter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF8F3; --paper-2:#F3EFE6; --card:#FFFFFF;
+    --ink:#211D18; --ink-2:#544C40; --ink-3:#938878; --line:#E7E1D5;
+    --accent:#3B4A63; --accent-soft:#EEF1F5; --gold:#A9744A;
+    --serif:'Newsreader',Georgia,serif; --sans:'Hanken Grotesk',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 70% at 50% -10%,rgba(59,74,99,.05),transparent 60%)}
+
+  /* slim top bar */
+  .top{max-width:1080px;margin:0 auto;display:flex;align-items:center;padding:26px 40px;gap:13px}
+  .mark{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff}
+  .mark svg{width:17px;height:17px}
+  .brand{font-weight:700;font-size:15px;letter-spacing:.02em}
+  .top .meta{margin-left:auto;font-size:12.5px;color:var(--ink-3);letter-spacing:.02em}
+  .top .me{width:30px;height:30px;border-radius:50%;background:var(--paper-2);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:18px}
+
+  /* the page reads like correspondence */
+  .sheet{max-width:680px;margin:0 auto;padding:40px 40px 200px}
+  .greeting{font-family:var(--serif);font-size:15px;color:var(--ink-3);font-style:italic;margin-bottom:30px;letter-spacing:.01em}
+  .byline{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+  .byline .dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+  .byline .who{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+
+  /* Lucian speaks as typeset prose, not a chat bubble */
+  .letter{font-family:var(--serif);font-size:25px;line-height:1.5;letter-spacing:-.005em;color:var(--ink);font-weight:400;max-width:600px}
+  .letter .lead{font-style:italic;color:var(--accent)}
+  .letter p+p{margin-top:18px}
+
+  /* a surfaced role — set like a clipping, not a UI card */
+  .clip{margin:34px 0;padding:22px 26px;background:var(--card);border:1px solid var(--line);border-radius:4px;box-shadow:0 1px 0 var(--line),0 14px 30px -18px rgba(33,29,24,.25);position:relative}
+  .clip::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:2px;background:var(--gold);border-radius:2px}
+  .clip-k{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+  .clip-role{font-family:var(--serif);font-size:21px;font-weight:500;letter-spacing:-.01em}
+  .clip-org{font-size:13.5px;color:var(--ink-3);margin-top:2px}
+  .clip-fit{display:inline-block;margin-top:12px;font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:99px}
+  .clip-body{font-size:14.5px;line-height:1.6;color:var(--ink-2);margin-top:14px;max-width:430px}
+  .clip-actions{margin-top:18px;display:flex;align-items:center;gap:20px}
+  .link-go{font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .link-go svg{width:15px;height:15px}
+  .link-mut{font-size:14px;color:var(--ink-3);cursor:pointer}
+  .link-mut:hover{color:var(--ink-2)}
+
+  /* your reply — a quiet margin note */
+  .reply{margin:30px 0 0;padding-left:18px;border-left:2px solid var(--line)}
+  .reply .who{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+  .reply p{font-size:16px;line-height:1.6;color:var(--ink-2)}
+
+  /* composer — an editorial underline, not a chunky bar */
+  .write{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(250,248,243,0),var(--paper) 42%);padding:50px 40px 30px}
+  .write-in{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:16px;border-bottom:1.5px solid var(--ink);padding:6px 2px 12px}
+  .write-in input{flex:1;border:0;background:transparent;font-family:var(--serif);font-size:19px;color:var(--ink);outline:none}
+  .write-in input::placeholder{color:var(--ink-3);font-style:italic}
+  .write-in .send{font-size:13.5px;font-weight:700;letter-spacing:.04em;color:var(--accent);cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .write-in .send svg{width:16px;height:16px}
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></div>
+    <span class="brand">Lucian</span>
+    <span class="meta">Tuesday morning</span>
+    <span class="me">E</span>
+  </header>
+
+  <main class="sheet">
+    <div class="greeting">Tuesday, a little after nine.</div>
+
+    <div class="byline"><span class="dot"></span><span class="who">Lucian</span></div>
+    <div class="letter">
+      <p>Morning, Ellie. I went back through what you wrote about your dissertation — <span class="lead">the part on why people put off decisions they care about.</span></p>
+      <p>One role came up this week that sits right on top of it.</p>
+    </div>
+
+    <article class="clip">
+      <div class="clip-k">A role worth your attention</div>
+      <div class="clip-role">Behavioural Researcher</div>
+      <div class="clip-org">Nesta · London / hybrid · permanent</div>
+      <div class="clip-fit">Strong fit</div>
+      <p class="clip-body">You'd run small studies on how people make real choices, then turn what you find into things that change behaviour. Almost exactly the question you were already chasing.</p>
+      <div class="clip-actions">
+        <span class="link-go">Read it with me <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        <span class="link-mut">Not quite — here's why</span>
+      </div>
+    </article>
+
+    <div class="reply">
+      <div class="who">Ellie</div>
+      <p>The Nesta one makes me sit up. I didn't think "researcher" was open to me without a PhD, though.</p>
+    </div>
+  </main>
+
+  <div class="write">
+    <div class="write-in">
+      <input type="text" placeholder="Write back to Lucian…">
+      <span class="send">Send <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </div>
+  </div>
+</body>
+</html>

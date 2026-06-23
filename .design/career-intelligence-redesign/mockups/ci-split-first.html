@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Intelligence — first session (the click)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F6F3; --surface:#FFFFFF; --panel:#F5F3EE; --panel-2:#EFEDE7;
+    --ink:#1A1610; --ink-2:#5A5040; --ink-3:#9E9080; --line:#E8E4DC; --line-2:#F0ECE4;
+    --accent:#B05E16; --accent-2:#8F4F10; --accent-soft:rgba(176,94,22,.10);
+    --deep:#211A11;
+    --sans:'Instrument Sans',system-ui,sans-serif; --mono:'DM Mono',monospace;
+    --sh:0 1px 2px rgba(26,22,16,.04),0 8px 22px -12px rgba(26,22,16,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden;font-size:14px}
+  .app{display:grid;grid-template-columns:224px 1fr;height:100vh}
+
+  /* ===== LEFT NAV ===== */
+  .nav{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:#fff;flex-shrink:0}
+  .logo svg{width:16px;height:16px}
+  .brand .bn{font-weight:700;font-size:14px;letter-spacing:-.01em;line-height:1.12}
+  .nitem{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:9px;color:var(--ink-2);font-weight:500;font-size:13.5px;cursor:pointer;transition:.14s;margin-bottom:1px}
+  .nitem svg{width:18px;height:18px;stroke-width:1.7;color:var(--ink-3)}
+  .nitem:hover{background:var(--panel)}
+  .nitem.on{background:var(--accent-soft);color:var(--accent);font-weight:600}.nitem.on svg{color:var(--accent)}
+  .nitem.locked{opacity:.42;cursor:default}
+  .nitem .new{margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+  .nav .sp{flex:1}
+  .navnote{font-size:11.5px;line-height:1.5;color:var(--ink-3);padding:10px 10px}
+  .user{display:flex;align-items:center;gap:10px;padding:9px 8px;border-top:1px solid var(--line);margin-top:8px}
+  .uav{width:32px;height:32px;border-radius:50%;background:linear-gradient(140deg,#C98A4E,#7A4A22);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:600}
+  .uname{font-size:13px;font-weight:600;line-height:1.2}.umail{font-size:11px;color:var(--ink-3)}
+
+  /* ===== WORKSPACE (first session = conversation full-width) ===== */
+  .work{display:flex;min-width:0;position:relative}
+  .pane{display:flex;flex-direction:column;min-width:0;height:100vh}
+  .chat{flex:1 1 100%;min-width:380px;background:var(--bg);position:relative}
+
+  .ctop{display:flex;align-items:center;gap:10px;padding:14px 30px;border-bottom:1px solid var(--line);background:rgba(247,246,243,.85);backdrop-filter:blur(8px)}
+  .pres{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .ctop .t{font-weight:600;font-size:14px}.ctop .s{font-size:12.5px;color:var(--ink-3)}
+  .ctop .day{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+  .stream{height:calc(100vh - 53px);overflow-y:auto;padding:30px 30px 150px}
+  .stream::-webkit-scrollbar{width:8px}.stream::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  .col{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+  .stamp{align-self:center;font-size:11.5px;color:var(--ink-3);font-weight:500}
+
+  .msg{display:flex;gap:11px;max-width:660px}
+  .msg .av{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent),var(--accent-2));color:#fff;margin-top:1px}.msg .av svg{width:14px;height:14px}
+  .bub{background:var(--surface);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:14px 18px;font-size:15px;line-height:1.62;box-shadow:var(--sh)}
+  .bub em{font-style:normal;color:var(--accent);font-weight:600}
+  .bub .wait{display:flex;align-items:center;gap:9px;color:var(--ink-3);font-size:14.5px}
+  .bub .dots{display:inline-flex;gap:3px;align-items:center}
+  .bub .dots i{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.5}
+  .msg.me{flex-direction:row-reverse;align-self:flex-end;max-width:480px}
+  .msg.me .av{background:var(--panel-2);color:var(--ink-2);font-size:11px;font-weight:600}
+  .msg.me .bub{background:var(--accent);color:#fff;border-radius:14px 4px 14px 14px;border-color:transparent;flex:none;max-width:420px;display:block}
+  .fileatt{display:flex;width:fit-content;align-items:center;gap:8px;margin-top:11px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.30);border-radius:9px;padding:7px 11px;font-size:12.5px;font-weight:500}
+  .fileatt svg{width:14px;height:14px}
+
+  /* the reveal card — same surface as the recap (restraint; no featured-card colour) */
+  .reveal{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);overflow:hidden}
+  .reveal-h{display:flex;align-items:center;gap:10px;padding:15px 20px;border-bottom:1px solid var(--line-2)}
+  .reveal-h .ic{width:24px;height:24px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent)}.reveal-h .ic svg{width:14px;height:14px}
+  .reveal-h b{font-size:14px;font-weight:700;letter-spacing:-.01em}
+  .reveal-h .pill{margin-left:auto;font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:99px}
+  .reveal-b{padding:18px 20px 20px}
+  .reveal-b p{font-size:15px;line-height:1.64;color:var(--ink-2);margin-bottom:16px}
+  .reveal-b p b{color:var(--ink);font-weight:600}
+  .reveal-b p em{font-style:normal;color:var(--accent);font-weight:600}
+  .rlabel{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 13px}
+  .dirs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  .dir{display:flex;gap:12px;align-items:flex-start}
+  .dir .num{width:22px;height:22px;border-radius:7px;flex-shrink:0;background:var(--panel-2);color:var(--ink-2);font-size:11px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+  .dir.lead .num{background:var(--accent);color:#fff}
+  .dir .dt{font-size:14.5px;line-height:1.55;color:var(--ink-2)}
+  .dir .dt b{color:var(--ink);font-weight:600}
+  .dir .dt .lead-tag{color:var(--accent);font-weight:600}
+
+  .composer{position:absolute;left:0;right:0;bottom:0;padding:14px 30px 22px;background:linear-gradient(180deg,rgba(247,246,243,0),var(--bg) 40%);display:flex;flex-direction:column;align-items:center;gap:11px}
+  .chips{width:100%;max-width:760px;display:flex;gap:8px;flex-wrap:wrap}
+  .chip{font-size:12.5px;font-weight:500;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:7px 13px;cursor:pointer;transition:.14s}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip.lead{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+  .cbar{width:100%;max-width:760px;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:7px 7px 7px 8px;box-shadow:var(--sh)}
+  .cplus{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--ink-3);cursor:pointer}.cplus svg{width:18px;height:18px}
+  .cbar input{flex:1;border:0;background:transparent;font:inherit;font-size:14.5px;outline:none;color:var(--ink)}
+  .cbar input::placeholder{color:var(--ink-3)}
+  .csend{width:36px;height:36px;border-radius:9px;background:var(--accent);border:0;color:#fff;display:grid;place-items:center;cursor:pointer}.csend svg{width:16px;height:16px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- LEFT NAV (new user — surfaces earn their place; Roles just unlocked at the click) -->
+  <nav class="nav">
+    <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></div><div class="bn">Career<br>Intelligence</div></div>
+    <div class="nitem on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Today</div>
+    <div class="nitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Roles <span class="new">new</span></div>
+    <div class="nitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg> Your direction</div>
+    <div class="nitem locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Documents</div>
+    <div class="nitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg> Profile</div>
+    <div class="sp"></div>
+    <div class="navnote">We've only just met — more of this fills in as we talk.</div>
+    <div class="user"><div class="uav">E</div><div><div class="uname">Ellie Hartley</div><div class="umail">ellie.hartley@gmail.com</div></div></div>
+  </nav>
+
+  <!-- WORKSPACE — first session: the conversation fills the page (no onboarding, no loading screen) -->
+  <div class="work" style="flex:1">
+    <section class="pane chat" id="chat">
+      <div class="ctop"><span class="pres"></span><span class="t">Career Intelligence</span><span class="s">· here with you</span>
+        <span class="day">Today · 9:06</span>
+      </div>
+      <div class="stream"><div class="col">
+        <div class="stamp">Today</div>
+
+        <!-- opener -->
+        <div class="msg"><div class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div><div class="bub">I'm here to help you work out what you actually want — and then go and get it. No forms, no quiz. Tell me where you're at, or drop your CV in, and we'll start from there.</div></div>
+
+        <!-- user shares -->
+        <div class="msg me"><div class="av">E</div><div class="bub">Just finished a psychology degree and honestly I'm a bit lost. Feels like it doesn't lead anywhere unless I do a PhD, which I don't want.<span class="fileatt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Ellie_Hartley_CV.pdf</span></div></div>
+
+        <!-- the wait (replaces the loading screen) -->
+        <div class="msg"><div class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div><div class="bub"><span class="wait">Give me a minute with this — I want to read it properly, not skim it. <span class="dots"><i></i><i></i><i></i></span></span></div></div>
+
+        <!-- THE CLICK -->
+        <div class="reveal">
+          <div class="reveal-h"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="3.4"/></svg></span><b>Here's where I see this going</b><span class="pill">Worth exploring</span></div>
+          <div class="reveal-b">
+            <p>I've read all of it, Ellie. The part you lit up about — <em>why people make the choices they do</em> — isn't a footnote in your degree. It's a whole field of work. And <b>you don't need the PhD to be in it.</b></p>
+            <div class="rlabel">Three directions worth exploring</div>
+            <ul class="dirs">
+              <li class="dir lead"><span class="num">1</span><span class="dt"><b>Behavioural research</b> — your dissertation instinct, made into a job: understanding why people do what they do. <span class="lead-tag">The clearest fit.</span></span></li>
+              <li class="dir"><span class="num">2</span><span class="dt"><b>UX research</b> — the same curiosity, pointed at how people use products and services.</span></li>
+              <li class="dir"><span class="num">3</span><span class="dt"><b>Service &amp; policy design</b> — designing the things people actually move through, for charities and public bodies.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- the bridge to roles -->
+        <div class="msg"><div class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div><div class="bub">The first one is where I'd start. I've already found a handful of real roles that fit — want to look at the first few together?</div></div>
+
+      </div></div>
+      <div class="composer">
+        <div class="chips"><span class="chip lead">Show me the first few roles</span><span class="chip">Tell me about behavioural research</span><span class="chip">Why these three?</span></div>
+        <div class="cbar"><span class="cplus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><input placeholder="Tell me what you're thinking…"><button class="csend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button></div>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

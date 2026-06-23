@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Intelligence — split workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F6F3; --surface:#FFFFFF; --panel:#F5F3EE; --panel-2:#EFEDE7;
+    --ink:#1A1610; --ink-2:#5A5040; --ink-3:#9E9080; --line:#E8E4DC; --line-2:#F0ECE4;
+    --accent:#B05E16; --accent-2:#8F4F10; --accent-soft:rgba(176,94,22,.10);
+    --deep:#211A11;
+    --sans:'Instrument Sans',system-ui,sans-serif; --mono:'DM Mono',monospace;
+    --sh:0 1px 2px rgba(26,22,16,.04),0 8px 22px -12px rgba(26,22,16,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden;font-size:14px}
+  .app{display:grid;grid-template-columns:224px 1fr;height:100vh}
+
+  /* ===== LEFT NAV ===== */
+  .nav{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:#fff;flex-shrink:0}
+  .logo svg{width:16px;height:16px}
+  .brand .bn{font-weight:700;font-size:14px;letter-spacing:-.01em;line-height:1.12}
+  .nitem{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:9px;color:var(--ink-2);font-weight:500;font-size:13.5px;cursor:pointer;transition:.14s;margin-bottom:1px}
+  .nitem svg{width:18px;height:18px;stroke-width:1.7;color:var(--ink-3)}
+  .nitem:hover{background:var(--panel)}
+  .nitem.on{background:var(--accent-soft);color:var(--accent);font-weight:600}.nitem.on svg{color:var(--accent)}
+  .nitem .ct{margin-left:auto;font-size:11px;font-weight:600;color:#fff;background:var(--accent);border-radius:99px;padding:1px 7px}
+  .nsec{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:18px 10px 8px}
+  .recent{display:flex;align-items:center;gap:9px;padding:7px 10px;font-size:13px;color:var(--ink-2);cursor:pointer;border-radius:8px}
+  .recent:hover{background:var(--panel)}.recent .st{color:var(--accent);font-size:12px}.recent b{font-weight:600}.recent span{color:var(--ink-3)}
+  .nav .sp{flex:1}
+  .user{display:flex;align-items:center;gap:10px;padding:9px 8px;border-top:1px solid var(--line);margin-top:8px}
+  .uav{width:32px;height:32px;border-radius:50%;background:linear-gradient(140deg,#C98A4E,#7A4A22);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:600}
+  .uname{font-size:13px;font-weight:600;line-height:1.2}.umail{font-size:11px;color:var(--ink-3)}
+
+  /* ===== SPLIT WORKSPACE ===== */
+  .work{display:flex;min-width:0;position:relative}
+  .pane{display:flex;flex-direction:column;min-width:0;height:100vh}
+  .chat{flex:1 1 50%;min-width:380px;background:var(--bg);position:relative}
+  .divider{flex:0 0 7px;cursor:col-resize;position:relative;background:var(--line-2);transition:background .14s}
+  .divider::before{content:"";position:absolute;inset:0 2px;border-radius:99px;background:var(--line)}
+  .divider:hover::before,.divider.drag::before{background:var(--accent)}
+  .divider::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:30px;border-radius:99px;background:#fff;opacity:.7}
+  .side{flex:1 1 50%;min-width:340px;background:var(--surface);border-left:1px solid var(--line)}
+  .app.closed .divider{display:none}
+  .app.closed .side{display:none}
+  .app.closed .chat{flex:1 1 100%!important}
+  .app.closed .col,.app.closed .chips,.app.closed .cbar{max-width:1000px}
+
+  /* chat header */
+  .ctop{display:flex;align-items:center;gap:10px;padding:14px 30px;border-bottom:1px solid var(--line);background:rgba(247,246,243,.85);backdrop-filter:blur(8px)}
+  .pres{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .ctop .t{font-weight:600;font-size:14px}.ctop .s{font-size:12.5px;color:var(--ink-3)}
+  .ctop .reopen{margin-left:auto;display:none;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:0;border-radius:8px;padding:7px 12px;cursor:pointer}
+  .app.closed .ctop .reopen{display:inline-flex}
+  .ctop .reopen svg{width:14px;height:14px}
+  .ctop .day{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+  .app.closed .ctop .day{display:none}
+
+  .stream{height:calc(100vh - 53px);overflow-y:auto;padding:26px 30px 140px}
+  .stream::-webkit-scrollbar{width:8px}.stream::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  .col{width:100%;max-width:740px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+  .stamp{align-self:center;font-size:11.5px;color:var(--ink-3);font-weight:500}
+
+  .recap{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);overflow:hidden}
+  .recap-h{display:flex;align-items:center;gap:9px;padding:14px 20px;border-bottom:1px solid var(--line-2)}
+  .recap-h .ic{width:22px;height:22px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent)}.recap-h .ic svg{width:13px;height:13px}
+  .recap-h b{font-size:13.5px;font-weight:700}
+  .recap-h .pill{margin-left:auto;font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:99px}
+  .recap-b{padding:17px 20px}
+  .recap-b p{font-size:14.5px;line-height:1.62;color:var(--ink-2);margin-bottom:15px}.recap-b p b{color:var(--ink);font-weight:600}
+  .rlabel{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 0 9px}
+  .rlist{list-style:none;margin:0 0 16px;padding:0}
+  .rlist li{display:flex;gap:10px;font-size:14px;line-height:1.55;color:var(--ink-2);margin-bottom:9px}
+  .rlist li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:8px;flex-shrink:0}
+  .rlist li b{color:var(--ink);font-weight:600}
+
+  .msg{display:flex;gap:11px;max-width:640px}
+  .msg .av{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent),var(--accent-2));color:#fff;margin-top:1px}.msg .av svg{width:14px;height:14px}
+  .bub{background:var(--surface);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:14px 18px;font-size:15px;line-height:1.6;box-shadow:var(--sh)}
+  .bub em{font-style:normal;color:var(--accent);font-weight:600}
+  .msg.me{flex-direction:row-reverse;align-self:flex-end;max-width:460px}
+  .msg.me .av{background:var(--panel-2);color:var(--ink-2);font-size:11px;font-weight:600}
+  .msg.me .bub{background:var(--accent);color:#fff;border-radius:14px 4px 14px 14px;border-color:transparent;flex:none;max-width:380px}
+
+  .composer{position:absolute;left:0;right:0;bottom:0;padding:14px 30px 22px;background:linear-gradient(180deg,rgba(247,246,243,0),var(--bg) 40%);display:flex;flex-direction:column;align-items:center;gap:11px}
+  .chips{width:100%;max-width:740px;display:flex;gap:8px;flex-wrap:wrap}
+  .chip{font-size:12.5px;font-weight:500;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:7px 13px;cursor:pointer;transition:.14s}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .cbar{width:100%;max-width:740px;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:7px 7px 7px 8px;box-shadow:var(--sh)}
+  .cplus{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--ink-3);cursor:pointer}.cplus svg{width:18px;height:18px}
+  .cbar input{flex:1;border:0;background:transparent;font:inherit;font-size:14.5px;outline:none;color:var(--ink)}
+  .cbar input::placeholder{color:var(--ink-3)}
+  .csend{width:36px;height:36px;border-radius:9px;background:var(--accent);border:0;color:#fff;display:grid;place-items:center;cursor:pointer}.csend svg{width:16px;height:16px}
+
+  /* ===== SIDE PANEL (closable tab) ===== */
+  .side-tabs{display:flex;align-items:center;gap:2px;padding:9px 12px 0;border-bottom:1px solid var(--line);background:var(--panel)}
+  .stab{display:flex;align-items:center;gap:9px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:9px 9px 0 0;position:relative;top:1px}
+  .stab .x{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;color:var(--ink-3);cursor:pointer;margin-left:4px}
+  .stab .x:hover{background:var(--panel-2);color:var(--ink)}.stab .x svg{width:12px;height:12px}
+  .side-h{padding:16px 22px 14px;border-bottom:1px solid var(--line)}
+  .side-h .ti{display:flex;align-items:center;gap:8px}
+  .side-h h3{font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+  .side-h .n{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:99px}
+  .side-h .sub{font-size:12.5px;color:var(--ink-3);margin-top:4px}
+  .side-h .hint{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--ink-3);background:var(--panel);border-radius:9px;padding:9px 12px}
+  .side-h .hint svg{width:14px;height:14px;color:var(--accent);flex-shrink:0}
+  .side-b{flex:1;overflow-y:auto;padding:6px 14px 20px;height:calc(100vh - 53px)}
+  .side-b::-webkit-scrollbar{width:8px}.side-b::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  .grp{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:14px 10px 7px}
+  .job{display:flex;align-items:center;gap:13px;padding:13px 12px;border-radius:11px;cursor:pointer;transition:.14s}
+  .job:hover{background:var(--panel)}
+  .jlogo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;flex-shrink:0}
+  .jmid{flex:1;min-width:0}
+  .jt{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}.jt .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+  .jc{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+  .jfit{margin-top:7px;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:99px}
+  .jfit.good{color:var(--ink-3);background:var(--panel-2)}
+  .jrev{flex-shrink:0;font-size:12.5px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.14s}
+  .jrev:hover{border-color:var(--accent);color:var(--accent)}.jrev svg{width:13px;height:13px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- LEFT NAV -->
+  <nav class="nav">
+    <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></div><div class="bn">Career<br>Intelligence</div></div>
+    <div class="nitem on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Today</div>
+    <div class="nitem" onclick="openSide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Roles <span class="ct">8</span></div>
+    <div class="nitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg> Your direction</div>
+    <div class="nitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Documents</div>
+    <div class="nitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg> Profile</div>
+    <div class="nsec">Recent</div>
+    <div class="recent"><span class="st">★</span><b>Nesta</b><span>· Behavioural Researcher</span></div>
+    <div class="recent"><span class="st">★</span><b>Citizens Advice</b><span>· UX Researcher</span></div>
+    <div class="sp"></div>
+    <div class="user"><div class="uav">E</div><div><div class="uname">Ellie Hartley</div><div class="umail">ellie.hartley@gmail.com</div></div></div>
+  </nav>
+
+  <!-- SPLIT WORKSPACE -->
+  <div class="work" style="flex:1">
+    <!-- CHAT (never closes) -->
+    <section class="pane chat" id="chat">
+      <div class="ctop"><span class="pres"></span><span class="t">Career Intelligence</span><span class="s">· here with you</span>
+        <span class="day">Tue · 9:14</span>
+        <button class="reopen" onclick="openSide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Roles</button>
+      </div>
+      <div class="stream"><div class="col">
+        <div class="stamp">Yesterday</div>
+        <div class="recap">
+          <div class="recap-h"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><b>Where we got to</b><span class="pill">Direction forming</span></div>
+          <div class="recap-b">
+            <p>Good talk yesterday, Ellie. You came in unsure a psychology degree led anywhere without a PhD — and by the end, <b>it clearly does.</b> Here's what I took away:</p>
+            <div class="rlabel">What's becoming clear</div>
+            <ul class="rlist">
+              <li>The part of your degree you lit up about — <b>why people make the choices they do</b> — is a whole field of work, not a dead end.</li>
+              <li>You'd rather <b>understand people and design for them</b> than sit in pure analysis.</li>
+              <li>London-based; drawn to charities and research orgs over big corporates.</li>
+            </ul>
+            <div class="rlabel">What I'm doing next</div>
+            <ul class="rlist">
+              <li>Searching <b>behavioural &amp; UX research</b> roles, entry-level, ranked by fit.</li>
+              <li>New matches land in <b>Roles</b> — I'll flag the strong ones here.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="stamp">Today</div>
+        <div class="msg"><div class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></div><div class="bub">Two new roles came in overnight. The <em>Behavioural Researcher at Nesta</em> is almost exactly your dissertation question — it's top of your Roles on the right. Want to open it together?</div></div>
+        <div class="msg me"><div class="av">E</div><div class="bub">Yes — that one actually makes me sit up.</div></div>
+      </div></div>
+      <div class="composer">
+        <div class="chips"><span class="chip">Open the Nesta role</span><span class="chip">Refine my direction</span><span class="chip">Help with my CV</span><span class="chip">Salary for these roles</span></div>
+        <div class="cbar"><span class="cplus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><input placeholder="Tell me what you're thinking…"><button class="csend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button></div>
+      </div>
+    </section>
+
+    <!-- DRAGGABLE DIVIDER -->
+    <div class="divider" id="divider" title="Drag to resize"></div>
+
+    <!-- SIDE PANEL (closable) -->
+    <aside class="pane side" id="side">
+      <div class="side-tabs"><div class="stab"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Roles for you <span class="x" onclick="closeSide()" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></div></div>
+      <div class="side-h">
+        <div class="ti"><h3>Roles for you</h3><span class="n">8 live</span></div>
+        <div class="sub">Ranked by fit · refreshed this morning</div>
+        <div class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg> Don't scroll endlessly — just tell me what to change.</div>
+      </div>
+      <div class="side-b">
+        <div class="grp">Strong fit</div>
+        <div class="job"><div class="jlogo" style="background:#2E5E46">N</div><div class="jmid"><div class="jt"><span class="dot"></span>Behavioural Researcher</div><div class="jc">Nesta · London / hybrid · £32–38k</div><span class="jfit">Strong fit</span></div><button class="jrev">Review <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+        <div class="job"><div class="jlogo" style="background:#3A4DA8">C</div><div class="jmid"><div class="jt"><span class="dot"></span>UX Researcher (Junior)</div><div class="jc">Citizens Advice · Remote · £29–34k</div><span class="jfit">Strong fit</span></div><button class="jrev">Review <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+        <div class="grp">Good fit</div>
+        <div class="job"><div class="jlogo" style="background:#8A3B3B">K</div><div class="jmid"><div class="jt">Insight Assistant</div><div class="jc">The King's Fund · London · £27–30k</div><span class="jfit good">Good fit</span></div><button class="jrev">Review <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+        <div class="job"><div class="jlogo" style="background:#5B5BA0">M</div><div class="jmid"><div class="jt">Research Assistant, People &amp; Behaviour</div><div class="jc">MoreThanNow · Hybrid · £26–31k</div><span class="jfit good">Good fit</span></div><button class="jrev">Review <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+        <div class="job"><div class="jlogo" style="background:#B0681E">B</div><div class="jmid"><div class="jt">Service Designer (Entry)</div><div class="jc">Brave Bison · Manchester · £28–33k</div><span class="jfit good">Good fit</span></div><button class="jrev">Review <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const app=document.getElementById('app');
+  const chat=document.getElementById('chat');
+  const side=document.getElementById('side');
+  const divider=document.getElementById('divider');
+  const work=document.querySelector('.work');
+
+  // close / open the side panel — chat always stays
+  function closeSide(){app.classList.add('closed');chat.style.flex='';side.style.flex='';}
+  function openSide(){app.classList.remove('closed');}
+
+  // draggable resize
+  let dragging=false;
+  divider.addEventListener('mousedown',e=>{dragging=true;divider.classList.add('drag');document.body.style.cursor='col-resize';e.preventDefault();});
+  window.addEventListener('mousemove',e=>{
+    if(!dragging)return;
+    const rect=work.getBoundingClientRect();
+    let chatW=e.clientX-rect.left;
+    const chatMin=380, sideMin=340, gap=7;
+    chatW=Math.max(chatMin,Math.min(chatW,rect.width-sideMin-gap));
+    chat.style.flex='0 0 '+chatW+'px';
+    side.style.flex='1 1 auto';
+  });
+  window.addEventListener('mouseup',()=>{dragging=false;divider.classList.remove('drag');document.body.style.cursor='';});
+  if(location.hash==='#closed')closeSide();
+</script>
+</body>
+</html>
