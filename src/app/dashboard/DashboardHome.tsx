@@ -148,7 +148,7 @@ export default function DashboardHome() {
 
       {/* ── SIDEBAR ── */}
       <nav className={s.sidebar}>
-        <a href="/" className={s.brand}>Meridian</a>
+        <a href="/" className={s.brand}>Career Intelligence</a>
 
         <a href="/dashboard" className={`${s.navItem} ${s.active}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

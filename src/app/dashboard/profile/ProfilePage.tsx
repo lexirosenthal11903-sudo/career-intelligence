@@ -159,7 +159,7 @@ export default function ProfilePage() {
 
       {/* ── SIDEBAR ── */}
       <nav className={s.sidebar}>
-        <a href="/" className={s.brand}>Meridian</a>
+        <a href="/" className={s.brand}>Career Intelligence</a>
 
         <a href="/dashboard" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

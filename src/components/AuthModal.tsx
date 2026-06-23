@@ -14,7 +14,15 @@ const googleIcon = (
   </svg>
 );
 
-type AuthView = "signup" | "signin" | "otp" | "otp-error" | "otp-expired" | "send-error";
+type AuthView =
+  | "signup"
+  | "signin"
+  | "otp"
+  | "otp-error"
+  | "otp-expired"
+  | "send-error"
+  | "account-exists" // tried to sign up with an email that already has an account
+  | "no-account"; // tried to sign in with an email that has no account
 
 interface Props {
   isOpen: boolean;
@@ -32,6 +40,9 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
   const [otpValue, setOtpValue] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Distinguishes a rate-limit ("you asked for a code recently") from a real failure,
+  // so the send-error copy is calm and specific rather than a scary "something went wrong".
+  const [rateLimited, setRateLimited] = useState(false);
   const otpRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -44,6 +55,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
       setOtpValue("");
       setCodeSent(false);
       setLoading(false);
+      setRateLimited(false);
     }
   }, [isOpen, initialView]);
 
@@ -81,17 +93,72 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
     });
   }
 
+  // Mild email-enumeration check (see /api/auth/check-email). On any lookup failure
+  // we return false so a flaky check never blocks a legitimate signup.
+  async function emailHasAccount(addr: string): Promise<boolean> {
+    try {
+      const res = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: addr }),
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data?.exists === true;
+    } catch {
+      return false;
+    }
+  }
+
+  function isRateLimit(message?: string): boolean {
+    return /rate|after \d+ second|request this after|too many|seconds?\b/i.test(message ?? "");
+  }
+  function isNoAccount(message?: string): boolean {
+    return /signups? not allowed|user not found|no user|not found/i.test(message ?? "");
+  }
+
+  function handleSendError(message?: string) {
+    setRateLimited(isRateLimit(message));
+    setView("send-error");
+  }
+
   async function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || loading) return;
+    const addr = email.trim();
+    if (!addr || loading) return;
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim() });
-    setLoading(false);
-    if (error) {
-      setView("send-error");
-      return;
+    try {
+      if (view === "signup") {
+        // Don't create a duplicate — point an existing account to log in instead.
+        if (await emailHasAccount(addr)) {
+          setView("account-exists");
+          return;
+        }
+        const { error } = await supabase.auth.signInWithOtp({
+          email: addr,
+          options: { shouldCreateUser: true },
+        });
+        if (error) return handleSendError(error.message);
+        setView("otp");
+      } else {
+        // Sign in — must be an existing account; shouldCreateUser:false makes
+        // Supabase error for unknown emails so we can say "no account found".
+        const { error } = await supabase.auth.signInWithOtp({
+          email: addr,
+          options: { shouldCreateUser: false },
+        });
+        if (error) {
+          if (isNoAccount(error.message)) {
+            setView("no-account");
+            return;
+          }
+          return handleSendError(error.message);
+        }
+        setView("otp");
+      }
+    } finally {
+      setLoading(false);
     }
-    setView("otp");
   }
 
   async function handleVerify(e: React.FormEvent) {
@@ -138,6 +205,8 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
 
   const isOtpView = view === "otp" || view === "otp-error" || view === "otp-expired";
   const isSendError = view === "send-error";
+  const isCrossPrompt = view === "account-exists" || view === "no-account";
+  const isEmailEntry = !isOtpView && !isSendError && !isCrossPrompt;
 
   return (
     <div className={s.backdrop} onClick={onClose} role="dialog" aria-modal="true">
@@ -146,7 +215,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
         <div className={s.wordmark}>Career Intelligence</div>
 
         {/* ── Email entry states ── */}
-        {!isOtpView && !isSendError && (
+        {isEmailEntry && (
           <>
             <h2 className={s.heading}>
               {view === "signup" ? "Save your results." : "Sign in."}
@@ -184,6 +253,19 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
               </button>
             </form>
 
+            {/* Standard cross-link between the two entry points. */}
+            <p className={s.switchPrompt}>
+              {view === "signup" ? (
+                <>Already have an account?{" "}
+                  <button type="button" className={s.switchLink} onClick={() => setView("signin")}>Log in</button>
+                </>
+              ) : (
+                <>New here?{" "}
+                  <button type="button" className={s.switchLink} onClick={() => setView("signup")}>Create an account</button>
+                </>
+              )}
+            </p>
+
             {view === "signup" && (
               <button className={s.linkSecondary} onClick={onContinueWithoutSaving ?? onClose}>
                 <span>Continue without saving</span>
@@ -192,12 +274,44 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
           </>
         )}
 
-        {/* ── Send error state ── */}
+        {/* ── Already have an account (tried to sign up with an existing email) ── */}
+        {view === "account-exists" && (
+          <>
+            <h2 className={s.heading}>You already have an account.</h2>
+            <p className={s.sub}>
+              <strong className={s.emailStrong}>{email}</strong> is already registered. Log in and we&apos;ll
+              pick up right where you left off.
+            </p>
+            <button className={s.btnPrimary} onClick={() => setView("signin")}>Log in instead</button>
+          </>
+        )}
+
+        {/* ── No account (tried to sign in with an unknown email) ── */}
+        {view === "no-account" && (
+          <>
+            <h2 className={s.heading}>We couldn&apos;t find that account.</h2>
+            <p className={s.sub}>
+              There&apos;s no account for <strong className={s.emailStrong}>{email}</strong> yet. Create one and
+              your analysis will be saved as you go.
+            </p>
+            <button className={s.btnPrimary} onClick={() => setView("signup")}>Create an account</button>
+          </>
+        )}
+
+        {/* ── Send error state — calm + specific for the common rate-limit case ── */}
         {isSendError && (
           <>
-            <h2 className={s.heading}>Something went wrong.</h2>
+            <h2 className={s.heading}>
+              {rateLimited ? "Just a moment." : "That didn't send."}
+            </h2>
             <p className={s.sub}>
-              We couldn&apos;t send a code to <strong className={s.emailStrong}>{email}</strong>. This sometimes happens if you&apos;ve requested a code very recently — wait a minute and try again.
+              {rateLimited ? (
+                <>You asked for a code very recently. Wait about a minute, then try again — a fresh one will go to{" "}
+                  <strong className={s.emailStrong}>{email}</strong>.</>
+              ) : (
+                <>We couldn&apos;t send a code to <strong className={s.emailStrong}>{email}</strong> just now. Check
+                  the address and try again.</>
+              )}
             </p>
             <button className={s.btnPrimary} onClick={() => setView(initialView)}>Try again</button>
           </>

@@ -120,7 +120,9 @@ ${jobsToScore
 
     const SENIOR_PATTERN = /\b(manager|senior|director|head of|vp|vice president|principal|lead)\b/i;
     const isJuniorProfile =
-      /graduate|junior|entry.?level|early.?career|intern/i.test(profile.seniorityLevel || '') ||
+      // Career-changers entering a new field count as junior for listing seniority
+      // (audit #13) — kept consistent with the jobs route's source-level exclusion.
+      /graduate|junior|entry.?level|early.?career|intern|career.?chang|pivot|transition/i.test(profile.seniorityLevel || '') ||
       /^0[-–]?[12]\b/.test(profile.yearsExperience || '') ||
       /^[01]\s*year/i.test(profile.yearsExperience || '') ||
       /\b[01]\s*[-–]\s*[23]\s*year/i.test(profile.yearsExperience || '');

@@ -22,3 +22,6 @@ node_modules/
 next-env.d.ts
 npm-debug.log*
 *.pem
+
+# Audit run outputs (regenerable)
+tests/audit/results/

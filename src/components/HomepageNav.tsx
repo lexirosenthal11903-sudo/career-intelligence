@@ -25,7 +25,7 @@ export default function HomepageNav() {
     <>
       <div className={s.nav}>
         <div className={s.navIn}>
-          <span className={s.navWordmark}>Meridian</span>
+          <span className={s.navWordmark}>Career Intelligence</span>
           <div className={s.navRight}>
             <button className={s.navLogin} onClick={openSignin}>Log in</button>
             <button className={s.navCta} onClick={openSignup}>Sign up →</button>

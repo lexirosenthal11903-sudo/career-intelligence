@@ -50,7 +50,9 @@ export default function ChatPane({
   // Who's here — drives the user bubble avatar and gates the live conversation.
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [userId, setUserId] = useState<string | null>(null);
-  const [userInitial, setUserInitial] = useState("E");
+  // No placeholder letter — an avatar initial only appears once we actually know
+  // the user's name (the "E" bug: a stray initial shown before/without auth).
+  const [userInitial, setUserInitial] = useState("");
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -478,7 +480,6 @@ function RevealCard({ result }: { result: ReturnType<typeof useFirstSession>["re
           <RadiantReveal />
         </span>
         <b>Here&rsquo;s where I see this going</b>
-        <span className={s.pill}>Worth exploring</span>
       </div>
       <div className={s.revealB}>
         {summary && <p>{summary}</p>}
@@ -492,7 +493,6 @@ function RevealCard({ result }: { result: ReturnType<typeof useFirstSession>["re
                   <span className={s.dt}>
                     <b>{d.title}</b>
                     {d.why ? <> — {d.why}</> : null}
-                    {i === 0 && <span className={s.leadTag}> The clearest fit.</span>}
                   </span>
                 </li>
               ))}

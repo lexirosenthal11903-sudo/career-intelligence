@@ -85,7 +85,9 @@ export default function LeftNav({
         <DocumentsIcon /> Documents
       </button>
 
-      <button className={s.nitem} type="button">
+      {/* Profile view isn't built yet — show it as clearly locked rather than a
+          dead button that does nothing when clicked (audit #8). */}
+      <button className={`${s.nitem} ${s.locked}`} type="button" disabled title="Coming soon">
         <ProfileIcon /> Profile
       </button>
 

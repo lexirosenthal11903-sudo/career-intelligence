@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callClaude, findToolUse } from '@/lib/anthropic';
 import { checkAnalyseRateLimit } from '@/lib/ratelimit';
+import { normalizeAnalysisResult } from '@/lib/profile-normalize';
 
 // Architecture: two parallel Anthropic calls so neither exceeds ~1,200 output tokens.
 // Single calls >1,200 tokens risk Vercel Hobby's 60s timeout on slow API days.
@@ -289,7 +290,7 @@ export async function POST(request: NextRequest) {
       const enrichData = await enrichRes.json();
       const enrichInput = findToolUse(enrichData.content, 'submit_enrichment');
       if (!enrichInput) return NextResponse.json({ error: 'Enrichment tool not called', raw: enrichData.content }, { status: 500 });
-      return NextResponse.json({ profile: { ...p, ...enrichInput } });
+      return NextResponse.json(normalizeAnalysisResult({ profile: { ...p, ...enrichInput } }));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       return NextResponse.json({ error: message }, { status: 500 });
@@ -368,13 +369,16 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
           return;
         }
 
-        // Merge into the same shape as before — downstream code unchanged
-        const result = {
+        // Merge into the same shape as before — downstream code unchanged.
+        // Normalize the profile's array fields here, at the write boundary: Haiku
+        // sometimes returns suggestedDirections (etc.) as a stringified JSON blob,
+        // which otherwise crashes /api/recap and blanks the first-session reveal.
+        const result = normalizeAnalysisResult({
           profile: profileInput,
           skills: detailsInput?.skills ?? { strengths: [], gaps: [], advice: '' },
           companyValues: detailsInput?.companyValues ?? [],
           outreachContext: detailsInput?.outreachContext ?? { tone: '', keyStrengths: [], uniqueAngle: '' },
-        };
+        });
 
         controller.enqueue(sseChunk(encoder, { event: 'complete', result }));
       } catch (err) {

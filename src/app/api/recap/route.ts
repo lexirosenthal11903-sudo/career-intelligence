@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { callClaude } from '@/lib/anthropic';
 import { getAuthedUser } from '@/lib/supabase/server';
+import { normalizeAnalysisResult } from '@/lib/profile-normalize';
 
 export const maxDuration = 30;
 
@@ -132,7 +133,10 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
-  const profile: Profile | undefined = (resultRow?.data as { profile?: Profile } | null)?.profile;
+  // Normalize array fields before use: older rows may have suggestedDirections
+  // persisted as a string (pre-boundary-fix data), which would crash `.filter`.
+  const normalized = resultRow?.data ? normalizeAnalysisResult(resultRow.data as { profile?: Profile }) : null;
+  const profile: Profile | undefined = normalized?.profile;
   if (!profile) return NextResponse.json({ recap: null });
 
   const { data: convRow } = await supabase

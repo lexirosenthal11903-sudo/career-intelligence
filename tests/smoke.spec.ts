@@ -91,7 +91,9 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     // The reveal card + its first direction land from the (mocked) stream.
     await expect(page.getByText('where I see this going')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Behavioural research', { exact: true })).toBeVisible();
-    await expect(page.getByText('The clearest fit.')).toBeVisible();
+    // Honesty: the reveal must NOT crown the lead direction "the clearest fit"
+    // (removed audit #3 — directions are honestly ordered, not flattered).
+    await expect(page.getByText('The clearest fit.')).toHaveCount(0);
     expect(errors, `Uncaught errors on first-session click: ${errors.join(' | ')}`).toHaveLength(0);
   });
 
@@ -137,7 +139,7 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
       // Every dashboard page renders the sidebar brand link when it renders at
       // all — its absence means the page crashed before paint.
       await expect(
-        page.getByRole('link', { name: 'Meridian' }).first()
+        page.getByRole('link', { name: 'Career Intelligence' }).first()
       ).toBeVisible({ timeout: 15_000 });
       expect(
         errors,

@@ -30,7 +30,13 @@ function formatSalary(job: AdzunaJob): string {
 const SENIOR_EXCLUDE = 'senior director head principal lead manager vp executive chief';
 
 function isJuniorSeniority(seniority?: string): boolean {
-  return /graduate|junior|entry.?level|early.?career|intern|assistant|trainee/i.test(seniority || '');
+  // Career-changers entering a NEW field are entry-level *for that field*, even
+  // when their seniority string reads "mid-level career changer" — so the
+  // senior-term exclusion must still apply, or senior listings leak through
+  // (audit #13: a teacher pivoting to UX was shown senior UX roles).
+  return /graduate|junior|entry.?level|early.?career|intern|assistant|trainee|career.?chang|pivot|transition/i.test(
+    seniority || ''
+  );
 }
 
 export async function POST(request: Request) {
