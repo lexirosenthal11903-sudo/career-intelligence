@@ -50,10 +50,38 @@ lookup code on Vercel). Semantic search, if ever needed, uses a **free local** e
 7. **Role→search-category mapping** (the Adzuna category map I hand-rolled) — could be grounded in a real
    ESCO↔ISCO↔Adzuna crosswalk later. Minor.
 
-## Strategy: narrow and deep, not everything at once
-At ~100 users we cannot (and needn't) ground every industry. Depth in a niche out-credibles a generalist.
-**Decision needed from Lexi:** the 3–5 sectors to ground first (the ones first users actually want — the
-niche industries you keep returning to). We build those to "impeccable", expand later.
+## Strategy: broad foundation first, then deepen (revised 2026-06-23)
+Earlier note said "pick 3–5 sectors". Revised after talking to Lexi: the free sources are **full
+downloadable datasets**, so broad coverage is no harder than narrow — we ingest ALL main sectors once,
+then deepen the ones first users actually use. Breadth now, depth where it earns it.
+
+### The main UK career sectors (from the National Careers Service taxonomy = our data source)
+Grouped by relevance to a graduate / early-career audience. Each carries multiple **paths** within it —
+that's the layer below sectors that the grounding data also gives us (entry route → progression).
+
+**Core (most first users):**
+- **Creative & media** — design, content, film/TV/production, publishing, advertising creative, arts/galleries, fashion
+- **Marketing, PR & communications** — brand, digital/social, PR, comms, market research
+- **Business & finance** — accounting, banking, investment/wealth, insurance, financial analysis
+- **Computing, tech & digital** — software, data/analytics, product, UX, cyber, IT
+- **Science & research** — research, lab science, R&D, environmental science
+- **Law & legal** — solicitor/paralegal routes, compliance
+- **Management & consulting** — strategy, operations, management consulting, project management
+
+**Broader (cover in the same pass — data is free):**
+- **Engineering & manufacturing** · **Healthcare** · **Teaching & education** · **Government, policy & public sector** ·
+  **Charity, social impact & NGO** · **Hospitality, travel & events** · **Retail & sales** · **HR & people** ·
+  **Property & built environment** · **Logistics & supply chain** · **Social care** · **Environment & sustainability**
+
+### Paths within sectors
+Each sector isn't one thing — e.g. *Creative & media* splits into editorial, production, design, brand, arts
+administration, each with its own entry route, gateway roles and progression. The grounding data (National
+Careers Service routes + ESCO adjacency) gives us this path layer for free, so "directions within an
+industry" become real and navigable, not invented.
+
+### So the only real decision left
+Not "which sectors" (we do them all) but **which 2–3 to deepen to 'impeccable' first** — driven by who the
+first users actually are. That can wait until there are first users; the broad foundation doesn't.
 
 ## Honesty as a feature
 Even grounded, the advisor flags the edge of what it knows ("this part I'm less sure of for your case")
@@ -71,5 +99,6 @@ against the grounded source data. That's how we measure "impeccable" instead of 
 Sequence after the new-user flow work; revisit cost assumptions before each (all currently £0).
 
 ## Open decisions for Lexi
-- Which 3–5 sectors to ground first?
-- Confirm £0 stays the hard line (it shapes every choice above).
+- Confirmed: cover ALL main sectors in the foundation pass (the data is free + bulk). ✅
+- Later (once there are first users): which 2–3 sectors to deepen to "impeccable" first.
+- Confirmed: £0 stays the hard line — no new paid services beyond the existing Claude/Anthropic API. ✅
