@@ -80,14 +80,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No conversation to work from.' }, { status: 400 });
   }
 
-  // Hard stop: never more than 3 questions — momentum over completeness.
-  if (questionsAsked >= 3) {
+  // Thin input — no CV and very little shared — means a vague picture, and a vague
+  // picture produces a generic, useless read. There we draw out more substance and
+  // allow a couple of extra questions; with a CV we keep momentum over completeness.
+  const hasCv = !!cvText?.trim();
+  const userChars = messages
+    .filter((m) => m.role === 'user')
+    .reduce((n, m) => n + (m.content?.length ?? 0), 0);
+  const thin = !hasCv && userChars < 240;
+
+  // Hard stop: cap questions so it never becomes a quiz — a little higher when thin.
+  const maxQuestions = thin ? 5 : 3;
+  if (questionsAsked >= maxQuestions) {
     return NextResponse.json({ ready: true });
   }
 
-  const cvNote = cvText?.trim()
-    ? `\n\n(They also attached a CV — first part follows so you don't ask what's already there:)\n${cvText.slice(0, 1500)}`
-    : `\n\n(No CV attached — they will describe their background in words.)`;
+  const cvNote = hasCv
+    ? `\n\n(They also attached a CV — first part follows so you don't ask what's already there:)\n${cvText!.slice(0, 1500)}`
+    : `\n\n(No CV attached — they're describing their background in words. If the picture is still vague, prioritise drawing out concrete substance before you finish: what they studied (specific modules, a dissertation or a project they cared about), any work — jobs, internships, volunteering, things they built — and skills they've actually used. The same warm, one-at-a-time way — never a checklist. Here it's right to ask a couple more than usual rather than start a read with too little to go on.)`;
 
   try {
     const res = await callClaude({
