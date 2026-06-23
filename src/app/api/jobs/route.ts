@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isRecruiter } from '@/lib/recruiters';
+import { mapAdzunaCategory } from '@/lib/adzunaCategory';
 
 interface AdzunaJob {
   id: string;
@@ -43,14 +44,26 @@ function isJuniorSeniority(seniority?: string): boolean {
 }
 
 export async function POST(request: Request) {
-  const { keywords, location, salaryMin, salaryMax, seniority } = await request.json();
+  const { keywords, roleTitles, sectors, location, salaryMin, salaryMax, seniority } = await request.json();
 
-  if (!Array.isArray(keywords) || keywords.length === 0) {
+  const titles: string[] = Array.isArray(roleTitles) ? roleTitles.filter((t) => typeof t === 'string' && t.trim()) : [];
+  const kw: string[] = Array.isArray(keywords) ? keywords.filter((k) => typeof k === 'string' && k.trim()) : [];
+
+  if (titles.length === 0 && kw.length === 0) {
     return NextResponse.json(
-      { error: 'At least one search keyword is required.' },
+      { error: 'At least one role title or search keyword is required.' },
       { status: 400 }
     );
   }
+
+  // Constrain the whole search to one Adzuna occupation category when we can
+  // identify it — the biggest lever against off-target results (a design grad
+  // seeing a media lawyer). Null → unconstrained (better than the wrong category).
+  const category = mapAdzunaCategory(
+    Array.isArray(sectors) ? sectors : [],
+    titles,
+    kw
+  );
 
   const appId = process.env.ADZUNA_APP_ID;
   const apiKey = process.env.ADZUNA_API_KEY;
@@ -64,14 +77,19 @@ export async function POST(request: Request) {
   const searchLocation = (typeof location === 'string' ? location : '').trim();
   const excludeSenior = isJuniorSeniority(seniority);
 
-  const fetchKeyword = async (keyword: string) => {
+  // One Adzuna search for a term. `phrase` matches the words together (a role
+  // title like "junior data analyst" stays intact instead of OR-ing the words);
+  // `category` constrains to the occupation taxonomy.
+  const fetchTerm = async (term: string, opts: { phrase?: boolean; noCategory?: boolean } = {}) => {
     const params = new URLSearchParams({
       app_id: appId,
       app_key: apiKey,
-      what: keyword,
-      results_per_page: '5',
+      results_per_page: '8',
       max_days_old: '30',
     });
+    if (opts.phrase) params.set('what_phrase', term);
+    else params.set('what', term);
+    if (category && !opts.noCategory) params.set('category', category);
     if (searchLocation) params.set('where', searchLocation);
     if (excludeSenior) params.set('what_exclude', SENIOR_EXCLUDE);
     if (salaryMin) params.set('salary_min', String(salaryMin));
@@ -95,46 +113,46 @@ export async function POST(request: Request) {
         description: (job.description || '').slice(0, 300),
         applyUrl: job.redirect_url || '',
         workStyle: job.contract_time === 'full_time' ? 'Full-time' : job.contract_time || 'Not listed',
-        keyword,
+        keyword: term,
       }));
     } catch {
       return [];
     }
   };
 
-  try {
-    const results = await Promise.all(
-      (keywords as string[]).slice(0, 8).map(fetchKeyword)
-    );
-    const allJobs = results.flat();
-
-    const seen = new Set<string>();
-    const unique = allJobs.filter((j) => {
+  const dedupe = (jobs: Awaited<ReturnType<typeof fetchTerm>>, seen: Set<string>) =>
+    jobs.filter((j) => {
       if (seen.has(j.id)) return false;
       seen.add(j.id);
       if (isRecruiter(j.company)) return false; // recruiters out (decided 2026-06-22)
       return true;
     });
 
-    // Fallback: if sparse results, try the first word of each keyword — broader match
-    if (unique.length < 5) {
-      const fallbackTerms = [...new Set(
-        (keywords as string[])
-          .map((k: string) => k.split(' ')[0].toLowerCase())
-          .filter((k: string) => k.length > 3)
-      )].slice(0, 4);
+  try {
+    const seen = new Set<string>();
 
-      const fallbackResults = await Promise.all(fallbackTerms.map(fetchKeyword));
-      const fallbackJobs = fallbackResults.flat().filter((j) => {
-        if (seen.has(j.id)) return false;
-        seen.add(j.id);
-        if (isRecruiter(j.company)) return false;
-        return true;
-      });
-      unique.push(...fallbackJobs);
+    // Primary: search the person's REAL role titles as phrases, inside their
+    // category. This is the relevant set — intact titles, not OR'd buzzwords.
+    const titleResults = await Promise.all(
+      titles.slice(0, 5).map((t) => fetchTerm(t, { phrase: true }))
+    );
+    const unique = dedupe(titleResults.flat(), seen);
+
+    // Top-up (only if sparse): the analysis keywords, still constrained to the
+    // category — NOT the old wild first-word search that pulled in noise.
+    if (unique.length < 5 && kw.length) {
+      const kwResults = await Promise.all(kw.slice(0, 6).map((k) => fetchTerm(k)));
+      unique.push(...dedupe(kwResults.flat(), seen));
     }
 
-    return NextResponse.json({ jobs: unique });
+    // Last resort: if the category constraint left us empty, retry the titles
+    // unconstrained so the user never sees a blank list (relevance over nothing).
+    if (unique.length === 0 && category && titles.length) {
+      const broad = await Promise.all(titles.slice(0, 5).map((t) => fetchTerm(t, { phrase: true, noCategory: true })));
+      unique.push(...dedupe(broad.flat(), seen));
+    }
+
+    return NextResponse.json({ jobs: unique, category });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });

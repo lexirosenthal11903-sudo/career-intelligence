@@ -181,7 +181,8 @@ export default function RolesPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           // No location → nationwide (don't force London); seniority filters the search.
-          body: JSON.stringify({ keywords, location: location || "", seniority }),
+          // roleTitles + sectors drive the relevance fix (phrase + category search).
+          body: JSON.stringify({ keywords, roleTitles: result.profile?.topRoleTitles, sectors, location: location || "", seniority }),
         }),
         fetch("/api/reed", {
           method: "POST",

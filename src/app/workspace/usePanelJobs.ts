@@ -83,7 +83,9 @@ export function usePanelJobs() {
       fetch("/api/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keywords, location: location || "", seniority }),
+        // roleTitles drive the primary (phrase) search; sectors pick the Adzuna
+        // category; keywords are only the top-up. This is the relevance fix.
+        body: JSON.stringify({ keywords, roleTitles: p.topRoleTitles, sectors, location: location || "", seniority }),
       }),
       fetch("/api/reed", {
         method: "POST",
