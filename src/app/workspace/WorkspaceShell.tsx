@@ -12,7 +12,7 @@
    the SAME source. The first session deliberately renders its own lightweight tree
    (no jobs fetch, no nav progress) — the analysis is still streaming in the chat. */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import s from "./workspace.module.css";
 import LeftNav from "./LeftNav";
@@ -21,10 +21,47 @@ import SidePanel, { type PanelView } from "./SidePanel";
 import { usePanelJobs } from "./usePanelJobs";
 import { flushPendingCv } from "@/lib/cv";
 
-type Variant = "first" | "returning";
+type Variant = "first" | "returning" | "resolve";
 
 export default function WorkspaceShell({ variant = "returning" }: { variant?: Variant }) {
-  return variant === "first" ? <FirstWorkspace /> : <ReturningWorkspace />;
+  const resolved = useResolvedVariant(variant);
+  return resolved === "first" ? <FirstWorkspace /> : <ReturningWorkspace />;
+}
+
+const NOOP_SUBSCRIBE = () => () => {};
+const cachedAnalysis = () => {
+  try {
+    return sessionStorage.getItem("analysis-result");
+  } catch {
+    return null;
+  }
+};
+
+/* Resolve the "resolve" variant on the client: the server found no saved analysis,
+   but a completed first session may be cached from before the user signed up. If so,
+   they HAVE been read → returning (and we persist it so the server agrees next time).
+   If not, this is a genuine first read → discovery.
+   useSyncExternalStore reads the client-only cache with no hydration mismatch and no
+   setState-in-effect: a true first-timer renders discovery immediately; only the rare
+   just-signed-up case (cache present) reconciles to the workspace. */
+function useResolvedVariant(variant: Variant): "first" | "returning" {
+  const cached = useSyncExternalStore(NOOP_SUBSCRIBE, cachedAnalysis, () => null);
+
+  useEffect(() => {
+    if (variant !== "resolve" || !cached) return;
+    try {
+      fetch("/api/save-result", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: JSON.parse(cached) }),
+      }).catch(() => {});
+    } catch {
+      /* malformed cache — still land them in the workspace */
+    }
+  }, [variant, cached]);
+
+  if (variant !== "resolve") return variant;
+  return cached ? "returning" : "first";
 }
 
 /* ---- first session / the click — chat full-width, surfaces still earning their place ---- */
