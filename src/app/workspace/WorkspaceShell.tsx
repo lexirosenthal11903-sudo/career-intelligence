@@ -90,24 +90,23 @@ function ReturningWorkspace() {
         rolesCount={panelJobs.jobsLoading ? undefined : rolesCount}
       />
 
+      {/* The chat Panel stays mounted whether or not the side panel is open — only
+          the separator + side Panel toggle. Previously opening/closing the panel
+          swapped ChatPane between two trees, remounting it and reloading the recap
+          + conversation on every Today↔Roles toggle (walkthrough D). */}
       <div className={`${s.work} ${!split ? s.closed : ""}`}>
-        {split ? (
-          <Group orientation="horizontal" id="ci-workspace" className={s.panelGroup}>
-            {/* chat: never closable — hard pixel min-width */}
-            <Panel id="chat" defaultSize="52%" minSize="380px" className={s.pane}>
-              <ChatPane variant="returning" />
-            </Panel>
-            <Separator className={s.divider} />
-            {/* side: closable + resizable — hard pixel min-width */}
+        <Group orientation="horizontal" id="ci-workspace" className={s.panelGroup}>
+          {/* chat: never closable — hard pixel min-width */}
+          <Panel id="chat" defaultSize={split ? "52%" : "100%"} minSize="380px" className={s.pane}>
+            <ChatPane variant="returning" />
+          </Panel>
+          {split && <Separator className={s.divider} />}
+          {split && (
             <Panel id="side" defaultSize="48%" minSize="340px" className={s.pane}>
               <SidePanel view={panelView} savedJobId={savedJobId} data={panelJobs} onClose={() => setPanelOpen(false)} onOpenRoles={() => openSurface("roles")} />
             </Panel>
-          </Group>
-        ) : (
-          <div className={s.pane} style={{ flex: "1 1 100%" }}>
-            <ChatPane variant="returning" closed onReopen={() => setPanelOpen(true)} />
-          </div>
-        )}
+          )}
+        </Group>
       </div>
     </div>
   );

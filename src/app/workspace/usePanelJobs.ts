@@ -249,5 +249,21 @@ export function usePanelJobs() {
 
   const retry = useCallback(() => { if (profile) loadPersisted(profile); }, [profile, loadPersisted]);
 
-  return { profile, hasResult, jobs, jobsLoading, jobsError, retry, markSeen };
+  // Only ever surface genuine fits. The scorer deprioritises senior roles (caps
+  // them at 2) but they were still appearing at the bottom of the list — and a
+  // stored set loads verbatim, so a senior role persisted across logins
+  // (walkthrough G). Filter at the display boundary so it's fixed for both fresh
+  // and already-stored data: drop low-relevance results, and for junior/entry/
+  // career-changer profiles drop anything with a senior title outright.
+  const isJunior = /graduate|junior|entry.?level|early.?career|intern|assistant|trainee|career.?chang|pivot|transition/i.test(
+    profile?.seniorityLevel || ""
+  );
+  const SENIOR_TITLE = /\b(senior|director|head of|vp|vice president|principal|lead|chief|manager)\b/i;
+  const visibleJobs = jobs.filter((j) => {
+    if (j.relevanceScore != null && j.relevanceScore < 4) return false;
+    if (isJunior && SENIOR_TITLE.test(j.title || "")) return false;
+    return true;
+  });
+
+  return { profile, hasResult, jobs: visibleJobs, jobsLoading, jobsError, retry, markSeen };
 }

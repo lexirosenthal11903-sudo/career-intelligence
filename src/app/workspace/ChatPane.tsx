@@ -24,7 +24,6 @@ import {
   CheckIcon,
   PlusIcon,
   SendIcon,
-  RolesIcon,
   FileIcon,
 } from "./icons";
 
@@ -35,15 +34,7 @@ const PENDING_KEY = "pending-advisor-message";
 
 type Variant = "first" | "returning";
 
-export default function ChatPane({
-  variant,
-  closed,
-  onReopen,
-}: {
-  variant: Variant;
-  closed?: boolean;
-  onReopen?: () => void;
-}) {
+export default function ChatPane({ variant }: { variant: Variant }) {
   const first = variant === "first";
   const router = useRouter();
 
@@ -146,15 +137,7 @@ export default function ChatPane({
         <span className={s.pres} />
         <span className={s.t}>Career Intelligence</span>
         <span className={s.s}>· here with you</span>
-        {first ? (
-          <span className={s.day}>Today · 9:06</span>
-        ) : closed ? (
-          <button className={s.reopen} type="button" onClick={onReopen}>
-            <RolesIcon /> Roles
-          </button>
-        ) : (
-          <span className={s.day}>Tue · 9:14</span>
-        )}
+        <span className={s.day}>{first ? "Today · 9:06" : "Tue · 9:14"}</span>
       </div>
 
       <div className={s.stream}>
@@ -230,7 +213,6 @@ function RecapCard({ recap }: { recap: ReturnType<typeof useRecap>["recap"] }) {
           <CheckIcon />
         </span>
         <b>Where we got to</b>
-        <span className={s.pill}>Direction forming</span>
       </div>
       <div className={s.recapB}>
         <p>{recap.greeting}</p>
