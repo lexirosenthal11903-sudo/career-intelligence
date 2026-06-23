@@ -1,5 +1,22 @@
 # Parking Lot
 
+> **▶ WHERE EACH IDEA LIVES IN THE PLAN** (map added 2026-06-23 so nothing is orphaned).
+> Every parked idea below now has a home in the [START-HERE.md](START-HERE.md) sequence. Nothing is lost;
+> nothing is "someday-maybe-never". The detailed notes stay below — this is just the index of *when*.
+
+| Plan step | Parked ideas that land here |
+|---|---|
+| **1. Make it feel alive** (new-user flow) | "Start fresh, keep the memory" (light session reset) |
+| **2. Candidate-strength loop** (the heart) | CV tailoring · cover letters · **"why am I not hearing back?" diagnosis** · networking/outreach · interview prep via advisor · mentor-session formats · skills shown *in context* (inside a role/direction) · new-role alerts ("spotted something") · Documents-as-a-folder (after CV/cover-letter exist) |
+| **Ongoing fixes** ([AUDIT-REPORT](AUDIT-REPORT-2026-06-22.md)) | Saved/applications board + remove + per-role actions (Batch B) · direction detail view · click-a-direction→filtered roles / role filter (Batch C) · logo coverage (clean company name) · J&J UI patterns as reference |
+| **3. Grounded knowledge layer** | Niche-industry coverage · "what makes a good mentor" research · credibility/verification of AI advice |
+| **4. B2B (universities first)** | LinkedIn OAuth import · application-tracker export · offer evaluation · progress-data-for-employers (GDPR-safe) |
+| **Strategy/research sessions** (run when you signal — not builds) | **Mentorship market + business model + credibility** (the big one) · Jack & Jill teardown · niche-industry-users discussion |
+| **Design sessions** (deferred) | Advisor identity / visual register (+ Meridian rename) · homepage redesign |
+| **✅ Already done** | advisor actually changes directions/roles · jobs stable per login + daily-new · fewer jobs shown · CV→Profile · "already interested" bug · seniority ceiling · discovery conversation |
+
+---
+
 ## 🅿️ To discuss later (raised 2026-06-22, during the audit-planning conversation)
 
 - **Niche-industry users.** The concept of a user looking at a more niche / unusual industry — how the
