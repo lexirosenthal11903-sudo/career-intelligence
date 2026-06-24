@@ -84,6 +84,9 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
 - ○ **Progression view** — "how far you've come" (direction clarifying, CVs tailored, foot-in-door actions).
   ⚠️ Must stay momentum, **never gamification** (no streaks/points/badges — locked rule).
 - ○ **Tech debt: lint cleanup** — ~36 pre-existing `react-hooks/set-state-in-effect` errors; a small pass.
+  Once done, add the lint gate to CI.
+- ○ **Unit tests in CI** — the `.mjs` unit tests (`profile-normalize`, `adzuna-category`) import `.ts`
+  directly, so they need a TS test runner (vitest) before CI can run them; they run locally for now.
 
 ## Step 3 — Grounded knowledge layer
 
