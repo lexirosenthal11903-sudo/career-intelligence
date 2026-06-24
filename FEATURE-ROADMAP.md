@@ -128,9 +128,11 @@ _Real users mean real CVs = real personal data, so the legal + safety floor is n
 **Legal / data:** ICO registration · privacy policy + terms · working account deletion in Profile ·
 GitHub token rotation (live security risk) · safeguarding/distress-signpost surface + terms line.
 **Config:** REED_API_KEY in Vercel · Logo.dev keys in Vercel · run the recap + matched_jobs SQL migrations.
-**Observability + maturity (the "more professional" items):** activate Sentry (DSN + alert rule — currently
-dormant, no error visibility) · Vercel Analytics + `SENTRY_AUTH_TOKEN` (sourcemaps) · CI pipeline
-(auto-run tests on push) · widen test coverage beyond core flows · a true production env separate from staging.
+**Observability + maturity (the "more professional" items):** Sentry — client DSN IS set in Production
+(client errors captured); still to do: alert/email rules + `SENTRY_AUTH_TOKEN` (sourcemaps) + confirm
+server-side capture (note: 429s/handled responses aren't exceptions, so they never alert) · Vercel
+Analytics · ✓ CI pipeline live (typecheck+build+mock-e2e on push; add lint + unit-via-vitest later) ·
+widen test coverage beyond core flows · a true production env separate from staging.
 **Quality:** the roles matching/sourcing review (recommendations are still weak — deferred, but it's the
 thing users judge hardest, so address before sharing widely). Study **JobCopilot + Jobeefy** for *how they
 source and match* jobs; ground our own job data in Step 3 (National Careers Service / LMI). Detail in parking-lot.
