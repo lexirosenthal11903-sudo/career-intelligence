@@ -126,6 +126,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
       setPendingSend(stash.pending);
       setLive(true);
       clearThread();
+      window.dispatchEvent(new CustomEvent("ci:first-session-live"));
     })();
   }, [first]);
 
@@ -199,6 +200,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
       setSeedThread(thread);
       setPendingSend(pending);
       setLive(true);
+      window.dispatchEvent(new CustomEvent("ci:first-session-live"));
     } else {
       stashThread(thread, pending);
       setAuthOpen(true);
@@ -218,6 +220,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     }
     setLive(true);
     clearThread();
+    window.dispatchEvent(new CustomEvent("ci:first-session-live"));
   }
 
   // "Maybe later" — the conversation can't continue without an account (the live
@@ -791,7 +794,7 @@ function FirstComposer({
     <div className={s.composer}>
       {/* Confirm an attached CV before the user sends — otherwise the upload looks
           like nothing happened (the file chip otherwise only shows after sending). */}
-      {(composing || discovering) && cvFileName && (
+      {composing && cvFileName && (
         <div className={s.chips}>
           <span className={s.cvchip}>
             <FileIcon /> {extracting ? `Reading ${cvFileName}…` : `${cvFileName} attached`}

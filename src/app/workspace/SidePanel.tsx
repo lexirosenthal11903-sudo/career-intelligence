@@ -62,7 +62,8 @@ export default function SidePanel({
   const [tailorResult, setTailorResult] = useState<{
     tailoredCv: string;
     changes: string[];
-    job: PanelJob;
+    jobTitle: string;
+    jobCompany?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -148,7 +149,8 @@ export default function SidePanel({
 
       {tailorResult && (
         <TailorCVModal
-          job={tailorResult.job}
+          jobTitle={tailorResult.jobTitle}
+          jobCompany={tailorResult.jobCompany}
           tailoredCv={tailorResult.tailoredCv}
           changes={tailorResult.changes}
           onClose={() => setTailorResult(null)}
@@ -214,7 +216,7 @@ export default function SidePanel({
         }
         return;
       }
-      setTailorResult({ tailoredCv: data.tailoredCv, changes: data.changes, job });
+      setTailorResult({ tailoredCv: data.tailoredCv, changes: data.changes, jobTitle: job.title, jobCompany: job.company });
     } catch {
       window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
         detail: `I had trouble tailoring my CV for the ${job.title} role. Can you help?`,

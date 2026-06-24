@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { PanelJob } from "@/app/workspace/usePanelJobs";
 import s from "./TailorCVModal.module.css";
 
 interface Props {
-  job: PanelJob;
+  jobTitle: string;
+  jobCompany?: string;
   tailoredCv: string;
   changes: string[];
   onClose: () => void;
 }
 
-export default function TailorCVModal({ job, tailoredCv, changes, onClose }: Props) {
+export default function TailorCVModal({ jobTitle, jobCompany, tailoredCv, changes, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function TailorCVModal({ job, tailoredCv, changes, onClose }: Pro
         <div className={s.header}>
           <div>
             <div className={s.label}>CV tailored for</div>
-            <h2 className={s.title}>{job.title} — {job.company}</h2>
+            <h2 className={s.title}>{jobTitle}{jobCompany ? ` — ${jobCompany}` : ""}</h2>
           </div>
           <div className={s.headerActions}>
             <button className={s.downloadBtn} type="button" onClick={() => window.print()}>

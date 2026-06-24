@@ -11,6 +11,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getProfile, patchProfile, addMemory, type ProfileData } from '@/lib/profile';
+import { callClaude } from '@/lib/anthropic';
 
 // ── Tool schemas sent to Claude ───────────────────────────────────────────────
 // Prescriptive descriptions: state WHEN to call, not just what it does. Recent
@@ -130,6 +131,23 @@ export const ADVISOR_TOOLS = [
       required: ['directions'],
     },
   },
+  {
+    name: 'tailor_cv',
+    description:
+      "Tailor this person's CV for a specific role. Call this when they ask you to help tailor, rewrite, or optimise their CV for a role — whether they give you a full job description or just a role title. You need their CV on file; if it's missing, tell them to add it in their Profile. After the tool runs, present the key changes conversationally and tell them their tailored CV is ready to download.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        roleTitle: { type: 'string', description: 'The job title they want to target.' },
+        company: { type: 'string', description: 'The company, if known.' },
+        jobDescription: {
+          type: 'string',
+          description: "The full job listing or a description of the role. The more detail, the better the tailoring. If they haven't shared one, ask — but if they push back, tailor from the role title alone.",
+        },
+      },
+      required: ['roleTitle'],
+    },
+  },
 ] as const;
 
 export interface ToolOutcome {
@@ -137,6 +155,7 @@ export interface ToolOutcome {
   isError?: boolean;
   action?: string; // short, user-facing echo line ("✓ …") — null when nothing changed
   signal?: string; // a client signal for changes the UI must react to (e.g. 'analysis-changed')
+  data?: unknown;  // structured payload for signals that need to carry data to the client
 }
 
 function slug(s: string): string {
@@ -297,6 +316,80 @@ export async function executeAdvisorTool(
           content: `Directions updated to: ${titles}.${keywords.length ? ' Job search refreshed.' : ''}`,
           action: keywords.length ? 'Updated your directions and refreshed your roles' : 'Updated your directions',
           signal: 'analysis-changed',
+        };
+      }
+
+      case 'tailor_cv': {
+        const roleTitle = String(input.roleTitle ?? '').trim();
+        if (!roleTitle) return { content: 'Need a role title to tailor the CV for.', isError: true };
+        const company = typeof input.company === 'string' ? input.company.trim() : '';
+        const jobDescription = typeof input.jobDescription === 'string' ? input.jobDescription.trim() : '';
+
+        const profile = await getProfile(supabase, userId);
+        if (!profile.cvText) {
+          return {
+            content: "No CV on file. Tell them to upload their CV via their Profile first, then come back to this.",
+            isError: true,
+          };
+        }
+
+        const prompt = [
+          `You are a CV expert. Rewrite the CV below to better target the following role.`,
+          `\nROLE: ${roleTitle}${company ? ` at ${company}` : ''}`,
+          jobDescription ? `\nJOB DESCRIPTION:\n${jobDescription}` : '',
+          `\nORIGINAL CV:\n${profile.cvText}`,
+          `\nRules:`,
+          `- Rewrite to highlight relevant experience and skills for this role`,
+          `- Adjust bullet points to emphasise achievements that match the role`,
+          `- Do NOT invent qualifications, roles, skills or achievements not in the original`,
+          `- List exactly 3 to 4 specific changes you made and why, as concise bullets`,
+          `\nRespond with valid JSON only, in this exact shape:`,
+          `{"tailoredCv":"<the full rewritten CV>","changes":["<change 1>","<change 2>","<change 3>"]}`,
+        ].filter(Boolean).join('\n');
+
+        const res = await callClaude({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 3000,
+          messages: [{ role: 'user', content: prompt }],
+        });
+        const raw = await res.json();
+        const text: string = raw.content?.[0]?.text ?? '';
+
+        let tailoredCv = '';
+        let changes: string[] = [];
+        try {
+          // Strip any markdown fences Claude may wrap around the JSON
+          const jsonStr = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+          const parsed = JSON.parse(jsonStr) as { tailoredCv?: string; changes?: string[] };
+          tailoredCv = parsed.tailoredCv ?? '';
+          changes = Array.isArray(parsed.changes) ? parsed.changes : [];
+        } catch {
+          tailoredCv = text;
+        }
+
+        if (tailoredCv) {
+          await supabase.from('documents').upsert(
+            {
+              user_id: userId,
+              job_id: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
+              type: 'tailored_cv',
+              content: tailoredCv,
+              changes,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id,job_id,type' }
+          );
+        }
+
+        const changesText = changes.length
+          ? changes.map((c) => `• ${c}`).join('\n')
+          : 'CV tailored for this role.';
+
+        return {
+          content: `CV tailored for ${roleTitle}. Changes made:\n${changesText}\nThe tailored CV is ready.`,
+          action: `Tailored CV for ${roleTitle}${company ? ` at ${company}` : ''}`,
+          signal: 'cv-tailored',
+          data: { jobTitle: roleTitle, jobCompany: company || undefined, tailoredCv, changes },
         };
       }
 

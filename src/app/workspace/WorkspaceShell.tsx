@@ -12,7 +12,7 @@
    the SAME source. The first session deliberately renders its own lightweight tree
    (no jobs fetch, no nav progress) — the analysis is still streaming in the chat. */
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import s from "./workspace.module.css";
 import LeftNav from "./LeftNav";
@@ -20,12 +20,23 @@ import ChatPane from "./ChatPane";
 import SidePanel, { type PanelView } from "./SidePanel";
 import { usePanelJobs } from "./usePanelJobs";
 import { flushPendingCv } from "@/lib/cv";
+import TailorCVModal from "@/components/TailorCVModal";
 
 type Variant = "first" | "returning" | "resolve";
 
 export default function WorkspaceShell({ variant = "returning" }: { variant?: Variant }) {
   const resolved = useResolvedVariant(variant);
-  return resolved === "first" ? <FirstWorkspace /> : <ReturningWorkspace />;
+  // Once the first session goes live (user signed in and continues), promote to
+  // returning so the full nav and side panel become accessible.
+  const [firstSessionLive, setFirstSessionLive] = useState(false);
+  const onFirstLive = useCallback(() => setFirstSessionLive(true), []);
+  useEffect(() => {
+    window.addEventListener("ci:first-session-live", onFirstLive);
+    return () => window.removeEventListener("ci:first-session-live", onFirstLive);
+  }, [onFirstLive]);
+
+  const effective = (resolved === "first" && firstSessionLive) ? "returning" : resolved;
+  return effective === "first" ? <FirstWorkspace /> : <ReturningWorkspace />;
 }
 
 const NOOP_SUBSCRIBE = () => () => {};
@@ -88,6 +99,22 @@ function ReturningWorkspace() {
   const [savedJobId, setSavedJobId] = useState<string | null>(null);
   const split = panelOpen;
 
+  // CV tailor results from the chat context (ci:cv-tailored event from useArloChat).
+  const [chatTailorResult, setChatTailorResult] = useState<{
+    jobTitle: string;
+    jobCompany?: string;
+    tailoredCv: string;
+    changes: string[];
+  } | null>(null);
+  useEffect(() => {
+    function onTailor(e: Event) {
+      const detail = (e as CustomEvent).detail as typeof chatTailorResult;
+      if (detail?.jobTitle) setChatTailorResult(detail);
+    }
+    window.addEventListener("ci:cv-tailored", onTailor);
+    return () => window.removeEventListener("ci:cv-tailored", onTailor);
+  }, []);
+
   // Shared jobs data — fetched once here so the nav count and the panel agree.
   const panelJobs = usePanelJobs();
 
@@ -117,34 +144,47 @@ function ReturningWorkspace() {
   }
 
   return (
-    <div className={s.app}>
-      <LeftNav
-        variant="returning"
-        activeView={split ? panelView : null}
-        onNavigate={openSurface}
-        onToday={() => setPanelOpen(false)}
-        onOpenSaved={openSaved}
-        rolesCount={panelJobs.jobsLoading ? undefined : rolesCount}
-      />
+    <>
+      <div className={s.app}>
+        <LeftNav
+          variant="returning"
+          activeView={split ? panelView : null}
+          onNavigate={openSurface}
+          onToday={() => setPanelOpen(false)}
+          onOpenSaved={openSaved}
+          rolesCount={panelJobs.jobsLoading ? undefined : rolesCount}
+        />
 
-      {/* The chat Panel stays mounted whether or not the side panel is open — only
-          the separator + side Panel toggle. Previously opening/closing the panel
-          swapped ChatPane between two trees, remounting it and reloading the recap
-          + conversation on every Today↔Roles toggle (walkthrough D). */}
-      <div className={`${s.work} ${!split ? s.closed : ""}`}>
-        <Group orientation="horizontal" id="ci-workspace" className={s.panelGroup}>
-          {/* chat: never closable — hard pixel min-width */}
-          <Panel id="chat" defaultSize={split ? "52%" : "100%"} minSize="380px" className={s.pane}>
-            <ChatPane variant="returning" />
-          </Panel>
-          {split && <Separator className={s.divider} />}
-          {split && (
-            <Panel id="side" defaultSize="48%" minSize="340px" className={s.pane}>
-              <SidePanel view={panelView} savedJobId={savedJobId} data={panelJobs} onClose={() => setPanelOpen(false)} onOpenRoles={() => openSurface("roles")} />
+        {/* The chat Panel stays mounted whether or not the side panel is open — only
+            the separator + side Panel toggle. Previously opening/closing the panel
+            swapped ChatPane between two trees, remounting it and reloading the recap
+            + conversation on every Today↔Roles toggle (walkthrough D). */}
+        <div className={`${s.work} ${!split ? s.closed : ""}`}>
+          <Group orientation="horizontal" id="ci-workspace" className={s.panelGroup}>
+            {/* chat: never closable — hard pixel min-width */}
+            <Panel id="chat" defaultSize={split ? "52%" : "100%"} minSize="380px" className={s.pane}>
+              <ChatPane variant="returning" />
             </Panel>
-          )}
-        </Group>
+            {split && <Separator className={s.divider} />}
+            {split && (
+              <Panel id="side" defaultSize="48%" minSize="340px" className={s.pane}>
+                <SidePanel view={panelView} savedJobId={savedJobId} data={panelJobs} onClose={() => setPanelOpen(false)} onOpenRoles={() => openSurface("roles")} />
+              </Panel>
+            )}
+          </Group>
+        </div>
       </div>
-    </div>
+
+      {/* CV tailor modal — opened by the advisor via chat (ci:cv-tailored event) */}
+      {chatTailorResult && (
+        <TailorCVModal
+          jobTitle={chatTailorResult.jobTitle}
+          jobCompany={chatTailorResult.jobCompany}
+          tailoredCv={chatTailorResult.tailoredCv}
+          changes={chatTailorResult.changes}
+          onClose={() => setChatTailorResult(null)}
+        />
+      )}
+    </>
   );
 }
