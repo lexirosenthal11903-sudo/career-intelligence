@@ -67,7 +67,6 @@ export default function ChatPane({ variant }: { variant: Variant }) {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUserFrom(user));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
   // Live day + time for the header (was hardcoded "Tue · 9:14"). Computed after
@@ -572,17 +571,25 @@ function FirstSession({
         <PostReveal result={result} clarity={fs.directionClarity} />
       )}
 
-      {/* error — the advisor owns it (locked error voice), with a retry */}
+      {/* error — the advisor owns it. A specific reason (e.g. a daily limit) is
+          shown verbatim with NO retry (it can't help); otherwise the generic line
+          + a retry. */}
       {phase === "error" && (
         <div className={s.msg}>
           <div className={s.av}>
             <RadiantAvatar />
           </div>
           <div className={s.bub}>
-            Something went wrong on my end. It&rsquo;s not your CV — it&rsquo;s me.{" "}
-            <button type="button" className={s.retry} onClick={fs.retry}>
-              Want to try again?
-            </button>
+            {fs.errorMsg ? (
+              fs.errorMsg
+            ) : (
+              <>
+                Something went wrong on my end. It&rsquo;s not your CV — it&rsquo;s me.{" "}
+                <button type="button" className={s.retry} onClick={fs.retry}>
+                  Want to try again?
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -753,12 +760,14 @@ function FirstComposer({
   onContinue: (seed?: string) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const { phase, cvFileName, result } = fs;
+  const { phase, cvFileName, result, extracting } = fs;
   const revealed = phase === "revealed";
-  const composing = phase === "arrival" || phase === "extracting";
-  const extracting = phase === "extracting";
+  const composing = phase === "arrival";
   const discovering = phase === "discovery"; // answering a discovery question
   const busy = phase === "thinking" || phase === "analysing"; // advisor's turn — input inert
+  // A CV can be attached while composing the first message OR mid-discovery (e.g. after
+  // pasting a link that can't be read) — not only at the very start.
+  const canAttach = (composing || discovering) && !extracting;
 
   // Post-click chips reflect the real lead direction. For a DIRECTED user the lead is
   // roles; for anyone unsure the lead carries their FEELING forward (roles are earned
@@ -783,7 +792,7 @@ function FirstComposer({
     <div className={s.composer}>
       {/* Confirm an attached CV before the user sends — otherwise the upload looks
           like nothing happened (the file chip otherwise only shows after sending). */}
-      {composing && cvFileName && (
+      {(composing || discovering) && cvFileName && (
         <div className={s.chips}>
           <span className={s.cvchip}>
             <FileIcon /> {extracting ? `Reading ${cvFileName}…` : `${cvFileName} attached`}
@@ -853,7 +862,7 @@ function FirstComposer({
           type="button"
           aria-label="Attach your CV"
           onClick={() => fileRef.current?.click()}
-          disabled={!composing || extracting}
+          disabled={!canAttach}
         >
           <PlusIcon />
         </button>

@@ -88,8 +88,15 @@ export function useFirstSession() {
   const [cvFileName, setCvFileName] = useState<string | null>(null);
   const [result, setResult] = useState<RevealResult | null>(null);
   const [slow, setSlow] = useState(false);
+  // When the failure has a real, user-meaningful reason (e.g. a 429 daily limit),
+  // we show it verbatim instead of the generic error — and suppress the retry,
+  // which can't help. null = generic "something went wrong" + retry.
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   // The discovery conversation shown in the UI (advisor questions + user answers).
   const [discovery, setDiscovery] = useState<DiscoveryTurn[]>([]);
+  // CV extraction runs independently of `phase` so a CV can be attached at ANY point
+  // in the first session (arrival OR mid-discovery) without resetting the flow.
+  const [extracting, setExtracting] = useState(false);
   // The advisor's read of how clear they are — drives the post-reveal dial (which
   // beats lead, how soon roles are offered). The user's stated certainty (captured
   // in intake) is trusted over the CV's implication. Refined again by the analysis.
@@ -110,7 +117,7 @@ export function useFirstSession() {
   // Read a dropped/selected CV. Best-effort: a failed extract still lets the
   // user type their background, so we keep the filename chip and move on.
   const extractCv = useCallback(async (file: File) => {
-    setPhase("extracting");
+    setExtracting(true);
     setCvFileName(file.name);
     cvFileNameRef.current = file.name;
     try {
@@ -122,7 +129,7 @@ export function useFirstSession() {
     } catch {
       // extraction failed — user can still describe their background
     } finally {
-      setPhase("arrival");
+      setExtracting(false);
     }
   }, []);
 
@@ -131,6 +138,7 @@ export function useFirstSession() {
     abortRef.current = controller;
 
     setSlow(false);
+    setErrorMsg(null);
     if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
     slowTimerRef.current = setTimeout(() => setSlow(true), SLOW_MS);
 
@@ -154,7 +162,18 @@ export function useFirstSession() {
         signal: controller.signal,
       });
 
-      if (!res.ok || !res.body) {
+      if (!res.ok) {
+        // Surface a real reason when the server gives one (e.g. a 429 daily limit).
+        try {
+          const data = await res.json();
+          if (data?.error) setErrorMsg(String(data.error));
+        } catch {
+          /* no JSON body — fall back to the generic error */
+        }
+        setPhase("error");
+        return;
+      }
+      if (!res.body) {
         setPhase("error");
         return;
       }
@@ -252,6 +271,18 @@ export function useFirstSession() {
           questionsAsked: questionsAskedRef.current,
         }),
       });
+      // A rate-limited discovery turn must stop here with the real reason — not
+      // fall through to analysis, which would just hit the limit again.
+      if (res.status === 429) {
+        try {
+          const d = await res.json();
+          if (d?.error) setErrorMsg(String(d.error));
+        } catch {
+          /* generic error */
+        }
+        setPhase("error");
+        return;
+      }
       const data = res.ok ? await res.json() : { ready: true };
       // The user's stated certainty is the signal we trust most — keep the latest.
       if (data.directionClarity) {
@@ -313,6 +344,8 @@ export function useFirstSession() {
     slow,
     discovery,
     directionClarity,
+    extracting,
+    errorMsg,
     hasCv: () => cvTextRef.current.length > 0,
     extractCv,
     start,

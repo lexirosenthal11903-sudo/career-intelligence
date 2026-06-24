@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callClaude, findToolUse } from '@/lib/anthropic';
-import { checkAnalyseRateLimit } from '@/lib/ratelimit';
+import { checkIntakeRateLimit } from '@/lib/ratelimit';
 
 export const maxDuration = 30;
 
@@ -26,7 +26,7 @@ const intakeTool = {
       acknowledgement: {
         type: 'string',
         description:
-          'Optional. One short, warm sentence reflecting back what they just said, in the advisor voice. Omit on the very first turn.',
+          'One short, warm sentence reflecting something SPECIFIC they shared — a real detail from their CV or message (an employer, role, project, study, or their own phrase). Include it on the FIRST turn too whenever there is a CV or real detail to reflect: that is how they know you actually read them. Only omit if there is genuinely nothing concrete yet.',
       },
       question: {
         type: 'string',
@@ -52,13 +52,17 @@ const INTAKE_SYSTEM = `You are a warm, economical career mentor speaking directl
 
 Your job each turn: look at everything they've shared so far, then EITHER ask the single most useful next question, OR decide you have enough and set ready=true.
 
+FIRST, ALWAYS LEAD BY SHOWING YOU READ THEM. On your first turn especially, open the acknowledgement with ONE specific, concrete thing from what they actually shared — a real employer, role, project, study, or a phrase they used. The richer the CV, the more this matters: a senior or detailed CV that gets met with a bare question reads as if you ignored it. Never open with a cold question. Reflect first, then ask.
+
 The things worth knowing (only ask about what's still genuinely unknown):
-- How clear they are on what they're after — this is the one you should make sure you land. If it isn't already obvious from what they've said, ask it plainly and warmly, in their language: "how clear are you on what you're after right now — pretty set, somewhere in the middle, or honestly not sure yet?" Their own answer is what you trust most. "Not sure" is a completely fine, common answer — never make them feel behind for it.
+- How clear they are on what they're after. Make sure you land this during the conversation — but NOT as your cold opening line when you have a CV or real detail to reflect first. Once you've shown you've read them, ask it plainly and warmly, in their language: "how clear are you on what you're after right now — pretty set, somewhere in the middle, or honestly not sure yet?" Their own answer is what you trust most. "Not sure" is a completely fine, common answer — never make them feel behind for it.
 - Where they want to work — a place, remote, or open to anywhere.
 - What matters to them in the work, and anything that would be a dealbreaker.
 - Whether there's a direction they're drawn to, even vaguely — or if they want you to read it from what they've told you.
 
 Each turn, also set directionClarity to your current read of how settled they are (lost / mixed / directed) — weighting what they actually told you about their certainty above what their CV implies.
+
+IF THEY PASTE A LINK (LinkedIn, a portfolio, any URL): you can't open links. Say so warmly and briefly, then give them the easy way through in the SAME breath — they can paste the key details here, or attach their CV with the + button (they can do that right now, at any point). Don't make it feel like a dead end, and don't just pivot to an unrelated question as if the link didn't happen.
 
 Hard rules:
 - ONE question per turn. Never bundle. Never present a list of questions.
@@ -74,7 +78,7 @@ interface IntakeMsg {
 }
 
 export async function POST(request: NextRequest) {
-  const rateLimited = await checkAnalyseRateLimit(request);
+  const rateLimited = await checkIntakeRateLimit(request);
   if (rateLimited) return rateLimited;
 
   let body: { cvText?: string; messages?: IntakeMsg[]; questionsAsked?: number };
