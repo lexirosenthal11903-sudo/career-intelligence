@@ -32,9 +32,15 @@ interface Props {
   redirectTo?: string;
   /** Called when the user explicitly clicks "Continue without saving". */
   onContinueWithoutSaving?: () => void;
+  /**
+   * When set, OTP verification completes IN PLACE — no navigation. Used by the
+   * first session so signing in doesn't tear down the conversation. (Google OAuth
+   * still round-trips via redirectTo; it can't complete without leaving the page.)
+   */
+  onAuthed?: () => void;
 }
 
-export default function AuthModal({ isOpen, onClose, initialView = "signup", redirectTo, onContinueWithoutSaving }: Props) {
+export default function AuthModal({ isOpen, onClose, initialView = "signup", redirectTo, onContinueWithoutSaving, onAuthed }: Props) {
   const [view, setView] = useState<AuthView>(initialView);
   const [email, setEmail] = useState("");
   const [otpValue, setOtpValue] = useState("");
@@ -182,6 +188,12 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
     }
     const { data: { user } } = await supabase.auth.getUser();
     onClose();
+    // In-place completion (first session) — continue the conversation without a
+    // page navigation that would discard it.
+    if (onAuthed) {
+      onAuthed();
+      return;
+    }
     if (redirectTo) {
       router.push(redirectTo);
     } else if (user) {

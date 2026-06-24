@@ -55,6 +55,13 @@ export default function LeftNav({
         </div>
       </div>
 
+      {/* First session: brand only. The surfaces (Roles/Direction/Documents/Profile)
+          haven't been earned yet — they'd just be empty tabs the user can't use. They
+          appear once the user is in the workspace proper. (Lexi, 2026-06-24.) */}
+      {first ? (
+        <div className={s.sp} />
+      ) : (
+      <>
       <button
         className={`${s.nitem} ${activeView == null ? s.on : ""}`}
         type="button"
@@ -116,10 +123,6 @@ export default function LeftNav({
 
       <div className={s.sp} />
 
-      {first && (
-        <div className={s.navnote}>We&rsquo;ve only just met — more of this fills in as we talk.</div>
-      )}
-
       {!first && user && (
         <button className={s.user} type="button" onClick={() => onNavigate?.("profile")} title="Your profile">
           <div className={s.uav}>{initial}</div>
@@ -128,6 +131,8 @@ export default function LeftNav({
             {email && <div className={s.umail}>{email}</div>}
           </div>
         </button>
+      )}
+      </>
       )}
     </nav>
   );

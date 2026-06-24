@@ -14,10 +14,14 @@ export function ArloMessage({
   text,
   action,
   actions,
+  onSignIn,
 }: {
   text: string;
   action?: "sign-in";
   actions?: string[];
+  /** When set, the sign-in CTA opens the in-place modal instead of navigating to
+      the homepage (which used to dump the user onto the landing page). */
+  onSignIn?: () => void;
 }) {
   const lines = text.split("\n");
   const elements: React.ReactNode[] = [];
@@ -71,25 +75,46 @@ export function ArloMessage({
           ))}
         </div>
       )}
-      {action === "sign-in" && (
-        <a
-          href="/?signup=required"
-          style={{
-            display: "inline-block",
-            marginTop: "10px",
-            padding: "7px 16px",
-            background: "var(--accent)",
-            color: "#fff",
-            borderRadius: "8px",
-            fontSize: "13px",
-            fontWeight: 600,
-            textDecoration: "none",
-            fontFamily: "var(--f)",
-          }}
-        >
-          Sign in
-        </a>
-      )}
+      {action === "sign-in" &&
+        (onSignIn ? (
+          <button
+            type="button"
+            onClick={onSignIn}
+            style={{
+              display: "inline-block",
+              marginTop: "10px",
+              padding: "7px 16px",
+              background: "var(--accent)",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              fontFamily: "var(--f)",
+            }}
+          >
+            Sign in
+          </button>
+        ) : (
+          <a
+            href="/?signup=required"
+            style={{
+              display: "inline-block",
+              marginTop: "10px",
+              padding: "7px 16px",
+              background: "var(--accent)",
+              color: "#fff",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              textDecoration: "none",
+              fontFamily: "var(--f)",
+            }}
+          >
+            Sign in
+          </a>
+        ))}
     </>
   );
 }

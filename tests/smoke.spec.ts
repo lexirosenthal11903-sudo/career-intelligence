@@ -113,16 +113,16 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     expect(errors, `Uncaught errors on first-session click: ${errors.join(' | ')}`).toHaveLength(0);
   });
 
-  // Progressive disclosure (Step F): on the first session a surface earns its place —
-  // Roles is flagged "new" (just unlocked), Documents is locked (disabled), and the
-  // nav note stands in for the count/Recent that only a returning user has earned.
-  test('first session nav shows progressive-disclosure states', async ({ page }) => {
+  // First session = brand only (Lexi, 2026-06-24): the nav surfaces haven't been
+  // earned yet, so they don't appear at all — they'd just be empty tabs. They show
+  // up once the user is in the workspace proper.
+  test('first session nav shows brand only (no surfaces yet)', async ({ page }) => {
     await page.goto('/workspace?view=first');
-    const roles = page.getByRole('button', { name: /Roles/ });
-    await expect(roles).toBeVisible({ timeout: 15_000 });
-    await expect(roles.getByText('new')).toBeVisible();
-    await expect(page.getByRole('button', { name: /Documents/ })).toBeDisabled();
-    await expect(page.getByText('more of this fills in as we talk')).toBeVisible();
+    await expect(page.getByText('Career Intelligence').first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: /Roles/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Your direction/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Documents/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Profile/ })).toHaveCount(0);
   });
 
   // Returning recap (pre-share blocker): the "Where we got to" card renders the

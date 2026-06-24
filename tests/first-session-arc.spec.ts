@@ -77,7 +77,7 @@ async function runToReveal(page: Page, clarity: Clarity) {
   await expect(page.getByText('where I see this going')).toBeVisible({ timeout: 15_000 });
 }
 
-const FEELINGS_BEAT = /which of these feels like you, and which doesn’t/;
+const FEELINGS_BEAT = /which of these feels like you, and which doesn't/;
 const ROLES_OFFER = /want to\s+look at the first few together/;
 const ROLES_SOFT = /No rush to look at roles yet/;
 
@@ -99,6 +99,18 @@ test.describe('First-session arc — the advisor runs a session', () => {
     await expect(page.getByRole('button', { name: 'Show me the first few roles' })).toHaveCount(0);
 
     expect(errors, `Uncaught errors (lost): ${errors.join(' | ')}`).toHaveLength(0);
+  });
+
+  test('continuing pre-auth opens sign-in IN PLACE, not the landing page', async ({ page }) => {
+    await runToReveal(page, 'directed');
+
+    // Replying to the reveal as a logged-out user must NOT navigate to the homepage
+    // (the old "/?signup=required" bug). The auth modal opens over the conversation.
+    await page.getByRole('button', { name: 'Show me the first few roles' }).click();
+    await expect(page.getByRole('heading', { name: 'Save your results.' })).toBeVisible({ timeout: 10_000 });
+    // Still on the workspace — the conversation is behind the modal, not gone.
+    expect(new URL(page.url()).pathname).toBe('/workspace');
+    await expect(page.getByText(FEELINGS_BEAT)).toBeVisible();
   });
 
   test('DIRECTED user: feelings beat + roles offered now + roles chip', async ({ page }) => {

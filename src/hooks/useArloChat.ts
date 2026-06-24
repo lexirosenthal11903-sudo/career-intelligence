@@ -21,10 +21,20 @@ export function useArloChat({
   page,
   supabase,
   userId,
+  seedThread,
+  autoSend,
 }: {
   page: string;
   supabase: SupabaseClient | null;
   userId: string | null;
+  // The first-session transcript to continue from. When set, it IS the
+  // conversation (rendered as the thread, persisted, no recap/divider) — the DB
+  // load + the advisor's cold opener are skipped. This is the handoff that stops
+  // the first-session conversation from vanishing at sign-in.
+  seedThread?: ApiMsg[];
+  // A pending user message to send the instant the seeded conversation takes over
+  // (the reply the user gave to the first-session beats).
+  autoSend?: string;
 }) {
   const [allMsgs, setAllMsgs] = useState<ChatMsg[]>([]);
   const [showPrevious, setShowPrevious] = useState(false);
@@ -75,6 +85,9 @@ export function useArloChat({
 
   // Load persisted conversation from Supabase on mount
   useEffect(() => {
+    // A seeded conversation (first-session handoff) takes precedence — never
+    // overwrite it with a DB load or the cold opener.
+    if (seedThread) return;
     if (!supabase || !userId || loadedRef.current) return;
     loadedRef.current = true;
 
@@ -184,6 +197,41 @@ export function useArloChat({
     },
     [isLoading, supabase, userId, page]
   );
+
+  // Seed the conversation from the first session (the handoff). Renders the
+  // transcript as the live thread, persists it (so a later visit shows it as
+  // history), and fires the user's pending reply so the advisor responds in place.
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (!seedThread || seededRef.current) return;
+    seededRef.current = true;
+    loadedRef.current = true;
+    apiHistoryRef.current = seedThread;
+
+    const display = seedThread.map((m) => ({
+      role: (m.role === "assistant" ? "arlo" : "user") as ChatMsg["role"],
+      text: m.content,
+    }));
+
+    // Defer off the synchronous effect body (workspace lint rule: no setState
+    // directly in an effect — after an await is the accepted pattern).
+    (async () => {
+      await Promise.resolve();
+      setAllMsgs(display);
+      // Persistence + a live reply both need an authed user. Unauthed ("continue
+      // without saving") still SEES the conversation; sending prompts a sign-in.
+      if (userId && supabase) {
+        supabase
+          .from("conversations")
+          .upsert(
+            { user_id: userId, page, messages: seedThread, updated_at: new Date().toISOString() },
+            { onConflict: "user_id,page" }
+          )
+          .then(() => {});
+      }
+      if (autoSend && userId) sendMessage(autoSend);
+    })();
+  }, [seedThread, autoSend, userId, supabase, page, sendMessage]);
 
   // Auto-scroll when messages change or loading state changes. Honour
   // prefers-reduced-motion — JS smooth scroll isn't covered by the CSS rule.

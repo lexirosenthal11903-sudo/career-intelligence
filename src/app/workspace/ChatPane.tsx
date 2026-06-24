@@ -11,12 +11,23 @@
    reveal structural copy, and bridge line are verbatim from VOICE-IN-UI.md — only the
    summary + direction content is generated. Do not edit advisor wording here. */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useArloChat } from "@/hooks/useArloChat";
 import { useFirstSession } from "@/hooks/useFirstSession";
 import { useRecap } from "./useRecap";
 import { ArloMessage } from "@/components/ArloMessage";
+import AuthModal from "@/components/AuthModal";
+import {
+  buildThread,
+  stashThread,
+  readThread,
+  clearThread,
+  OPENER,
+  FEELINGS_BEAT,
+  rolesBeat,
+  closeBeat,
+  type ApiMsg,
+} from "@/lib/firstSessionThread";
 import s from "./workspace.module.css";
 import {
   RadiantAvatar,
@@ -27,16 +38,10 @@ import {
   FileIcon,
 } from "./icons";
 
-// Post-click continuation: a follow-up typed/clicked at the end of the first
-// session is stashed here, then picked up once by the returning conversation
-// (the one real /api/chat thread). Keeps intent from being lost on the handoff.
-const PENDING_KEY = "pending-advisor-message";
-
 type Variant = "first" | "returning";
 
 export default function ChatPane({ variant }: { variant: Variant }) {
   const first = variant === "first";
-  const router = useRouter();
 
   // Who's here — drives the user bubble avatar and gates the live conversation.
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -45,13 +50,24 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   // the user's name (the "E" bug: a stray initial shown before/without auth).
   const [userInitial, setUserInitial] = useState("");
 
+  // First-session continuation: once the reveal is done and the user replies, the
+  // conversation goes LIVE in this same view (no navigation, no lost transcript).
+  // `seedThread` carries the first-session conversation into the live chat.
+  const [live, setLive] = useState(false);
+  const [seedThread, setSeedThread] = useState<ApiMsg[] | null>(null);
+  const [pendingSend, setPendingSend] = useState("");
+  const [authOpen, setAuthOpen] = useState(false);
+
+  const setUserFrom = (user: { id: string; user_metadata?: { full_name?: string }; email?: string } | null) => {
+    if (!user) return;
+    setUserId(user.id);
+    const name = user.user_metadata?.full_name ?? user.email ?? "";
+    if (name) setUserInitial(name[0]!.toUpperCase());
+  };
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      setUserId(user.id);
-      const name = user.user_metadata?.full_name ?? user.email ?? "";
-      if (name) setUserInitial(name[0]!.toUpperCase());
-    });
+    supabase.auth.getUser().then(({ data: { user } }) => setUserFrom(user));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
   // Live day + time for the header (was hardcoded "Tue · 9:14"). Computed after
@@ -69,13 +85,16 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     return () => clearInterval(id);
   }, [first]);
 
-  // The live conversation. The hook initiates on first load (advisor opens),
-  // loads any persisted thread, and handles send → respond → persist. We keep the
-  // first-session view dormant (userId null) — its streaming arrives in Step E.
+  // The live conversation. For a returning user it loads/initiates as normal. For
+  // the first session it stays dormant (userId null) until the user goes `live`
+  // after the reveal — then it's SEEDED with the first-session transcript so the
+  // conversation continues seamlessly instead of starting over.
   const chat = useArloChat({
     page: "workspace",
     supabase,
-    userId: first ? null : userId,
+    userId: first ? (live ? userId : null) : userId,
+    seedThread: first && live ? seedThread ?? undefined : undefined,
+    autoSend: first && live ? pendingSend || undefined : undefined,
   });
 
   // First-session streaming state machine (Step E). Inert until the user sends
@@ -83,6 +102,28 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   const fs = useFirstSession();
 
   const [draft, setDraft] = useState("");
+
+  // OAuth round-trip return: Google sign-in leaves the page and comes back to
+  // ?continue=1. The first-session transcript was stashed before leaving — rehydrate
+  // it and continue live, so the conversation survives the trip.
+  const continuedRef = useRef(false);
+  useEffect(() => {
+    if (!first || continuedRef.current) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("continue") !== "1") return;
+    const stash = readThread();
+    if (!stash) return;
+    continuedRef.current = true;
+    // Defer the state sync off the synchronous effect body (the workspace lint rule
+    // forbids setState directly in an effect; after an await is the accepted pattern).
+    (async () => {
+      await Promise.resolve();
+      setSeedThread(stash.messages);
+      setPendingSend(stash.pending);
+      setLive(true);
+      clearThread();
+    })();
+  }, [first]);
 
   // The side panel hands prompts to the conversation (Interested/Pass, reach-out,
   // outreach draft) via a window event — the panel displays, the advisor speaks.
@@ -94,23 +135,6 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     }
     window.addEventListener("ci:ask-advisor", onAsk);
     return () => window.removeEventListener("ci:ask-advisor", onAsk);
-  }, [first, chat]);
-
-  // Pick up a follow-up carried over from the end of the first session, once.
-  const seedSentRef = useRef(false);
-  useEffect(() => {
-    if (first || seedSentRef.current) return;
-    let pending: string | null = null;
-    try {
-      pending = sessionStorage.getItem(PENDING_KEY);
-      if (pending) sessionStorage.removeItem(PENDING_KEY);
-    } catch {
-      /* sessionStorage unavailable */
-    }
-    if (pending) {
-      seedSentRef.current = true;
-      chat.sendMessage(pending);
-    }
   }, [first, chat]);
 
   function send() {
@@ -141,17 +165,66 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     fs.answer(text);
   }
 
-  // Post-click: continue into the real workspace conversation (lead chip = roles;
-  // any follow-up is stashed so the returning thread picks it up).
-  function continueToWorkspace(seed?: string) {
-    if (seed) {
-      try {
-        sessionStorage.setItem(PENDING_KEY, seed);
-      } catch {
-        /* best-effort */
-      }
+  // Build the first-session transcript from what actually happened on screen, so
+  // the live conversation continues from it (and a later visit shows it as history).
+  function buildFirstThread(): ApiMsg[] {
+    const r = fs.result;
+    const intake: { role: "user" | "assistant"; content: string }[] = [
+      { role: "user", content: fs.userMessage || "(shared a CV)" },
+      ...fs.discovery.map((t) => ({
+        role: (t.role === "arlo" ? "assistant" : "user") as "user" | "assistant",
+        content: t.text,
+      })),
+    ];
+    return buildThread({
+      intake,
+      summary: r?.summary ?? "",
+      directions: r?.directions ?? [],
+      nextAction: r?.nextAction ?? "",
+      clarity: fs.directionClarity,
+    });
+  }
+
+  // The user replies to the reveal/beats. If signed in, the conversation goes live
+  // right here. If not, sign-in happens IN PLACE (over the conversation) — the
+  // transcript is stashed so it survives even a Google OAuth round-trip.
+  function beginContinue(seed?: string) {
+    const pending = seed ?? "Show me the first few roles";
+    const thread = buildFirstThread();
+    if (userId) {
+      setSeedThread(thread);
+      setPendingSend(pending);
+      setLive(true);
+    } else {
+      stashThread(thread, pending);
+      setAuthOpen(true);
     }
-    router.push("/workspace");
+  }
+
+  // OTP completed in place — no navigation. Pick up the stashed transcript + reply
+  // and continue the conversation live, now authenticated.
+  async function handleAuthed() {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUserFrom(user);
+    const stash = readThread();
+    setAuthOpen(false);
+    if (stash) {
+      setSeedThread(stash.messages);
+      setPendingSend(stash.pending);
+    }
+    setLive(true);
+    clearThread();
+  }
+
+  // "Continue without saving" — see the conversation, but stay unauthenticated;
+  // sending a message will warmly prompt sign-in (no reply is auto-sent).
+  function handleContinueWithoutSaving() {
+    const stash = readThread();
+    setAuthOpen(false);
+    if (stash) setSeedThread(stash.messages);
+    setPendingSend("");
+    setLive(true);
+    clearThread();
   }
 
   return (
@@ -165,24 +238,27 @@ export default function ChatPane({ variant }: { variant: Variant }) {
       <div className={s.stream}>
         <div className={s.col}>
           {first ? (
-            <FirstSession fs={fs} userInitial={userInitial} />
+            live ? (
+              // The first session has gone live in place — the transcript above is
+              // now the conversation; the advisor responds inline. No navigation.
+              <LiveThread chat={chat} userInitial={userInitial} onSignIn={() => setAuthOpen(true)} />
+            ) : (
+              <FirstSession fs={fs} userInitial={userInitial} />
+            )
           ) : (
-            <ReturningSession
-              chat={chat}
-              userInitial={userInitial}
-            />
+            <ReturningSession chat={chat} userInitial={userInitial} onSignIn={() => setAuthOpen(true)} />
           )}
         </div>
       </div>
 
-      {first ? (
+      {first && !live ? (
         <FirstComposer
           fs={fs}
           draft={draft}
           onChange={setDraft}
           onStart={startFirst}
           onAnswer={answerFirst}
-          onContinue={continueToWorkspace}
+          onContinue={beginContinue}
         />
       ) : (
         <LiveComposer
@@ -193,6 +269,20 @@ export default function ChatPane({ variant }: { variant: Variant }) {
           disabled={chat.isLoading}
         />
       )}
+
+      <AuthModal
+        isOpen={authOpen}
+        initialView="signup"
+        // First session continues in place (OTP) or round-trips back to ?continue=1
+        // (OAuth). A returning logged-out user just reloads the workspace once authed.
+        redirectTo={first ? "/workspace?view=first&continue=1" : "/workspace"}
+        onAuthed={first ? handleAuthed : undefined}
+        onContinueWithoutSaving={first ? handleContinueWithoutSaving : undefined}
+        onClose={() => {
+          setAuthOpen(false);
+          clearThread();
+        }}
+      />
     </section>
   );
 }
@@ -201,9 +291,11 @@ export default function ChatPane({ variant }: { variant: Variant }) {
 function ReturningSession({
   chat,
   userInitial,
+  onSignIn,
 }: {
   chat: ReturnType<typeof useArloChat>;
   userInitial: string;
+  onSignIn?: () => void;
 }) {
   // Real, per-user recap (VOICE-IN-UI §3). While it generates we hold the space with
   // a skeleton so the conversation doesn't jump; if there's no analysis yet, nothing
@@ -221,7 +313,7 @@ function ReturningSession({
       {showRecap && <div className={s.stamp}>Today</div>}
 
       {/* live conversation — wired to /api/chat (Step C) */}
-      <LiveThread chat={chat} userInitial={userInitial} />
+      <LiveThread chat={chat} userInitial={userInitial} onSignIn={onSignIn} />
     </>
   );
 }
@@ -289,9 +381,11 @@ function RecapSkeleton() {
 function LiveThread({
   chat,
   userInitial,
+  onSignIn,
 }: {
   chat: ReturnType<typeof useArloChat>;
   userInitial: string;
+  onSignIn?: () => void;
 }) {
   const { extraMsgs, isLoading, messagesEndRef } = chat;
   return (
@@ -318,7 +412,7 @@ function LiveThread({
               <RadiantAvatar />
             </div>
             <div className={s.bub}>
-              <ArloMessage text={m.text} action={m.action} actions={m.actions} />
+              <ArloMessage text={m.text} action={m.action} actions={m.actions} onSignIn={onSignIn} />
             </div>
           </div>
         );
@@ -390,11 +484,7 @@ function FirstSession({
         <div className={s.av}>
           <RadiantAvatar />
         </div>
-        <div className={s.bub}>
-          I&rsquo;m here to help you work out what you actually want — and then go and get it. We
-          start with the direction that fits you; the right roles come after, once they&rsquo;re worth
-          your time. No forms, no quiz — just tell me where you&rsquo;re at, or drop your CV in.
-        </div>
+        <div className={s.bub}>{OPENER}</div>
       </div>
 
       {/* user shares + CV — shown once the analysis has been kicked off */}
@@ -549,34 +639,17 @@ function PostReveal({
   result: NonNullable<ReturnType<typeof useFirstSession>["result"]>;
   clarity: ReturnType<typeof useFirstSession>["directionClarity"];
 }) {
-  const directed = clarity === "directed";
+  const close = closeBeat(result.nextAction);
   return (
     <>
       {/* Beat 3 — the feelings beat (always) */}
-      <AdvisorBubble>
-        Before anything else — which of these feels like you, and which doesn&rsquo;t? That tells me
-        more than any verdict from me would.
-      </AdvisorBubble>
+      <AdvisorBubble>{FEELINGS_BEAT}</AdvisorBubble>
 
-      {/* Beat 4 — roles, earned in (calibrated) */}
-      <AdvisorBubble>
-        {directed ? (
-          <>
-            The first one is where I&rsquo;d start. I&rsquo;ve already found a handful of real roles
-            that fit — want to look at the first few together?
-          </>
-        ) : (
-          <>
-            No rush to look at roles yet. When one of these starts to feel right, tell me — I&rsquo;ll
-            pull a small handful that genuinely fit, not a wall of them.
-          </>
-        )}
-      </AdvisorBubble>
+      {/* Beat 4 — roles, earned in (calibrated to clarity) */}
+      <AdvisorBubble>{rolesBeat(clarity)}</AdvisorBubble>
 
       {/* Beat 5 — close on one concrete action */}
-      {result.nextAction && (
-        <AdvisorBubble>For now, just one thing: {result.nextAction}</AdvisorBubble>
-      )}
+      {close && <AdvisorBubble>{close}</AdvisorBubble>}
     </>
   );
 }
@@ -722,7 +795,7 @@ function FirstComposer({
         <div className={s.chips}>
           <button
             type="button"
-            className={`${s.chip} ${s.lead}`}
+            className={s.chip}
             onClick={() => onContinue()}
           >
             Show me the first few roles
@@ -751,7 +824,7 @@ function FirstComposer({
           {leadTitle && (
             <button
               type="button"
-              className={`${s.chip} ${s.lead}`}
+              className={s.chip}
               onClick={() => onContinue(`I think ${leadTitle} is the one that feels right`)}
             >
               {leadTitle} feels right
