@@ -300,6 +300,22 @@ the session-structure rebuild; candidate-strength loop waits until Step 1 is gen
   guessing (which is what we're doing now). Feeds ADVISOR_PERSONA + the session-structure rebuild. Pair with
   the parked mentorship market/credibility/business-model session if scope allows; otherwise run the
   "how mentors run sessions" extraction first since it's what unblocks the build.
+- **Advisor as a credible reference / "vouch" — the digital sponsorship play (Lexi, 2026-06-24).** Raised off
+  the Bucket C finding that a digital advisor _can't truly sponsor_ you (can't phone a hiring manager). Lexi's
+  idea: a way for the advisor to **vouch** for a user — a certificate or evidenced analysis, shareable with an
+  employer, attesting to commitment, drive, motivation, performance. This is the digital-native version of Kram's
+  **sponsorship function**, and it converges with the already-parked **B2B "verified progress data → employers to
+  scout high performers"** thesis (mentorship-strategy session, bullet 5) + the user-facing progression-tracking
+  idea (Session 43). **The whole game = selective + evidence-grounded:** a human sponsor carries weight because
+  they stake their reputation and don't vouch for everyone; an AI that gives everyone a glowing certificate is
+  worth nothing. So it can only attest to what it has _observed/verified_ (real work done, verified certs —
+  proof already required — demonstrated engagement over time), never a guess at "drive." Traps to design around:
+  (1) the locked **no-metrics/gamification** line — must read as an evidenced reference, never a score;
+  (2) **honesty** — never vouch for what it can't back (ties to honest-matching + cert-proof rules);
+  (3) **GDPR/consent** — explicit, revocable opt-in, behind the same solicitor question as contact discovery.
+  Strongest eventual form: **AI-evidenced + human-mentor countersigned** (which also = the credibility play).
+  **Down-the-line / B2B era (Phase 4–5). Do not build now.** Fold into the mentorship-strategy + credibility session.
+
 - **Roles matching quality + sourcing — review in a few sessions (Lexi: "sick of it").** A dedicated look at
   how other companies match roles to users and where they pull jobs from. NOT now — deliberately deferred a
   few sessions. Ties to the recommendations-still-bad symptom above.

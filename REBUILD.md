@@ -30,6 +30,15 @@ real data layer, error visibility) were both skipped. Everything else is a sympt
 _After the first live test. Step 1 spine items above are largely done; these are the post-live-test
 fixes + the job-stability architecture. Build order, all on `staging`:_
 
+> **▶ STEP 1 "FEEL ALIVE" — now grounded (2026-06-24 research session).** The advisor-runs-a-session
+> rebuild is no longer guesswork: it's specced in **`research/first-session-arc-spec.md`** (the build
+> checklist is at the bottom), grounded in **`research/mentorship-research.md`** and the new
+> "Mentorship grounding" section of **`ADVISOR_PERSONA.md`**. Key build items: advisor **initiates on
+> load** (orient/contract), add **`directionClarity`** to the profile to drive an adaptive directive↔
+> non-directive dial, add the **"how do you feel about this direction"** beat, **de-emphasise roles as
+> the landing surface**, and **close each first session on one concrete action**. **Pre-launch
+> safeguarding (Lexi):** a distress-signpost surface + terms line — sits with the ICO/privacy items.
+
 1. **Job persistence + daily-new-roles** _(Opus — architecture)._ Persist each user's matched jobs in a
    new `matched_jobs` table keyed by a keyword-hash. Server-read on load (stable across logins); refresh
    the set ONLY when direction/keywords change (`analysis-changed`). On top of the stable set, a
