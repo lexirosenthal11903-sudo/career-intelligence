@@ -31,6 +31,24 @@ Full context: memory `feedback-build-breadth-first`._
    challenge ones that don't earn their place — capture everything, then decide *together, as we go*,
    whether each is worth building (against the mission test). Logging an idea ≠ agreeing to build it.
 
+### Keeping it organised — single source of truth (maintain this; don't let it re-scatter)
+The 2026-06-24 cleanup must not have to happen again. The discipline that prevents it:
+- **One home per thing.** Feature ideas → `FEATURE-ROADMAP.md` (the map) with detail in `parking-lot.md`.
+  Voice → `ADVISOR_PERSONA.md`. Tech state → `REBUILD.md`. Why/north-star → `MISSION.md`. Lessons →
+  `INSIGHTS.md`. Orientation → `START-HERE.md`. **Never invent a new top-level doc when an existing one
+  owns that topic.** If you must, link it from START-HERE and say why.
+- **Capture during, reconcile at the end.** Log every idea the moment it's raised (rule 5). At
+  `/session-handoff`, reconcile: fold loose notes into their home, mark done items, archive anything
+  superseded into `archive/` or `brainstorms/_archived/` (move, don't delete — preserve git history).
+- **Superseded ≠ deleted.** Old plans/audits/design-sessions get moved to `archive/`, never left cluttering
+  the root. The root stays the small set of living docs in the START-HERE table.
+
+### Getting more professional — engineering hardening (do when the time is right, before real users)
+Tracked so it resurfaces (full list in FEATURE-ROADMAP "pre-launch"). Not now, but not forgotten:
+CI pipeline (auto-run tests on push, not just locally) · activate Sentry (DSN + alert rule — currently
+dormant) · widen test coverage beyond core flows · a true production environment separate from staging ·
+the legal/privacy floor (ICO, privacy policy + terms, working account deletion) before ANY real user.
+
 ## Session Discipline — Non-Negotiable
 
 **Before touching any file:**

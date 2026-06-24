@@ -118,7 +118,15 @@ Make the facts real so the product is credible, not guessing. Plan: [GROUNDED-KN
   never a score). Converges with B2B verified-progress-data + the progression view. Consent/GDPR-gated.
   Do not build now; folds into the mentorship-strategy + credibility session. _(Lexi, 2026-06-24)_
 
-## Pre-launch non-negotiables (Lexi's, not build-session work)
+## Pre-launch non-negotiables (before ANY real user — even close contacts)
 
-REED_API_KEY in Vercel · ICO registration · GitHub token rotation · privacy policy + terms · real user
-deletion in Profile · Sentry error tracking + Vercel Analytics · `SENTRY_AUTH_TOKEN` in Vercel (sourcemaps).
+_Real users mean real CVs = real personal data, so the legal + safety floor is not optional._
+
+**Legal / data:** ICO registration · privacy policy + terms · working account deletion in Profile ·
+GitHub token rotation (live security risk) · safeguarding/distress-signpost surface + terms line.
+**Config:** REED_API_KEY in Vercel · Logo.dev keys in Vercel · run the recap + matched_jobs SQL migrations.
+**Observability + maturity (the "more professional" items):** activate Sentry (DSN + alert rule — currently
+dormant, no error visibility) · Vercel Analytics + `SENTRY_AUTH_TOKEN` (sourcemaps) · CI pipeline
+(auto-run tests on push) · widen test coverage beyond core flows · a true production env separate from staging.
+**Quality:** the roles matching/sourcing review (recommendations are still weak — deferred, but it's the
+thing users judge hardest, so address before sharing widely).
