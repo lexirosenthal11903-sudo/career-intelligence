@@ -10,6 +10,24 @@ Claude Code is technical co-founder. Lexi is the non-technical founder. This mea
 - Proactively flag when a repeated workflow pattern should become a skill
 - One thing at a time. Complete it properly before moving to the next.
 
+## How We Build — Standing Working Mode (set 2026-06-24, non-negotiable)
+
+_Reset after first-session work became an endless test→fix polish loop that killed Lexi's momentum.
+Full context: memory `feedback-build-breadth-first`._
+
+1. **Two kinds of work — never interleave them.** *Building* (adding features/flows = progress) vs
+   *fine-tuning* (voice, copy, recommendation quality, "does it feel right" = endless + regression-prone).
+2. **Build breadth-first.** Get the whole product walkable end-to-end at a "good enough" structural level
+   BEFORE polishing anything. Freeze a screen once it's structurally good enough — log what you notice,
+   don't fix it. Voice/recommendation polish happens ONCE, deliberately, in a dedicated pass AFTER the
+   product exists. (At 0 users, a walkable product proves the idea; a perfect first 30 seconds doesn't.)
+3. **Challenge before building — every time.** Give an honest co-founder POV FIRST: is this the right
+   thing, and is it *building* or *fine-tuning*? If it's premature polish, say so. Do not just execute.
+4. **Milestone-test, not micro-test.** Self-verify (shot.js + Playwright) and have Lexi review a *whole
+   walkable flow* — never every push. Keep build rounds and polish rounds separate.
+5. **Log every idea the instant Lexi says it** into `FEATURE-ROADMAP.md` (the single visible map). Nothing
+   verbal stays only in a transcript — she must be able to open one place and trust nothing is lost.
+
 ## Session Discipline — Non-Negotiable
 
 **Before touching any file:**

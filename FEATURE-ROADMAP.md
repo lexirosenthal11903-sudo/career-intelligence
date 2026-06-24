@@ -1,14 +1,18 @@
 # Feature Roadmap — everything we're building, feature by feature
 
-_The single list. Created 2026-06-23 because the feature-by-feature plan had been split across
-START-HERE (the 4 steps), parking-lot (which feature per step), and REBUILD (technical detail) —
-so it was impossible to see the whole thing in one place._
+> **⭐ THIS IS THE MAP. Lexi can open this one file and see the whole road.** Every feature idea lands
+> here the moment it's raised — nothing stays only in a conversation. Detailed rationale for any item
+> lives in [parking-lot.md](parking-lot.md). If something you remember isn't here, tell me and it goes in.
 
-**How to read this:** features are grouped by the four plan steps from [START-HERE.md](START-HERE.md),
-in roughly the order we'll build them. Status: **✓ done** · **▶ next / in progress** · **○ planned**.
-Detail and rationale for parked items live in [parking-lot.md](parking-lot.md); the fix backlog is
-[AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md); technical build state is [REBUILD.md](REBUILD.md).
-This supersedes the archived `ROADMAP.md` as the feature list — don't plan from that one.
+**How we build (set 2026-06-24 — full detail in [CLAUDE.md](CLAUDE.md) "How We Build"):** breadth-first.
+Get the whole product walkable end-to-end at "good enough" BEFORE polishing voice/copy/recommendations.
+*Building* (features = progress) and *fine-tuning* (feel = endless) stay separate; polish happens once,
+later, deliberately. **Current focus: freeze first-session polish → build Step 2 (the candidate-strength
+loop).**
+
+**How to read this:** grouped by the four plan steps, in build order. Status: **✓ done** · **▶ now /
+in progress** · **○ planned**. Fix backlog: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md);
+technical build state: [REBUILD.md](REBUILD.md). Supersedes the archived `ROADMAP.md`.
 
 **The test for every feature** (from [MISSION.md](MISSION.md)): does it help someone send **fewer,
 stronger applications and actually get a response / a foot in the door**? If not, it's not the priority.
@@ -26,13 +30,22 @@ The advisor reacts, is present, and reads you properly before it tells you anyth
   for anyone with an account. _(2026-06-23)_
 - ✓ **Advisor fills profile gaps casually in conversation** — asks for what's missing (values,
   deal-breakers, aspiration, working style) one at a time, never a second intake. _(2026-06-23)_
-- ▶ **Advisor reacting + feeling present** — initiates, responds to what you do, doesn't wait to be asked.
-- ▶ **Use the person's name** — the moment it's known (CV or told), acknowledge it and use the first name
-  naturally in replies (never every line). _(building 2026-06-24)_
-- ▶ **Low-effort first moments** — the opening questions must be no-thinking (tell me about yourself / drop
-  your CV / is this still you?), build trust, then go deeper. The first 30 seconds decide it. _(building 2026-06-24)_
+- ✓ **First-session arc — the advisor runs a session** — initiates, reads how clear you are
+  (directionClarity dial), reflects, invites exploration; roles earned-in, not pushed. _(2026-06-24)_
+- ✓ **One continuous page + conversation survives sign-in** — no page jumps, in-place sign-in, no
+  dead-ends; reveal card stays when the conversation continues. _(2026-06-24)_
+- ✓ **Use the person's name** — once known (CV or told), used naturally, not every line. _(2026-06-24)_
+- ✓ **Low-effort first moments** — opening questions are no-thinking; no parroting; deeper asks deferred
+  until trust is built. _(2026-06-24)_ ← **FROZEN for polish: voice/copy fine-tuning happens later.**
 - ○ **Drag-and-drop CV upload** — drop a file onto the conversation, not only the + button.
+- ○ **Advisor calibrates to the person's situation** — employed/passive vs unemployed/active seeker → pace
+  + expectations differ; never guilt-trip a busy person. _(from S10 brainstorm)_
+- ○ **Away-mode (implicit)** — read last-login + context signals, adjust the welcome (no guilt, warm
+  re-engagement after a gap). Explicit "I'll be away" = later. _(from S10 brainstorm)_
 - ○ **"Start fresh, keep the memory"** — a light session reset that doesn't wipe what the advisor knows.
+
+**Cross-cutting principle (every surface):** *dual interaction* — the advisor path (tell it, it acts) AND
+a direct path (click/drag/edit yourself) always both available. The advisor is a guide, never a gatekeeper.
 
 ## Step 2 — The candidate-strength loop (the heart of the mission)
 
@@ -45,7 +58,11 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
 - ○ **Interview prep via the advisor** — role-specific preparation.
 - ○ **Skills shown in context** — surfaced inside a role/direction, not a separate deficit list.
 - ○ **New-role alerts** — "spotted something" — genuinely new listings, the daily-companion return mechanic.
-- ○ **Mentor-session formats** — structured ways the advisor runs a working session with you.
+- ○ **Decline-pattern detection** — notices when you keep passing on a type of role and asks
+  conversationally ("you've passed on a few consulting roles — what's putting you off?"), uses it to
+  refine direction. Never silently changes direction. _(from S10 brainstorm)_
+- ○ **Mentor-session formats** — structured ways the advisor runs a working session (direction deep-dive,
+  interview prep, application review, values exploration). _(own research+design effort)_
 - ○ **Documents folder** — home for tailored CVs + cover letters (after those exist; uploaded CV lives in Profile).
 
 ## Ongoing fixes & smaller features (chipped between the big steps)
@@ -82,11 +99,24 @@ Make the facts real so the product is credible, not guessing. Plan: [GROUNDED-KN
 
 ---
 
+## Mentorship work — where it stands (Lexi asks)
+
+- ✓ **"How mentors run sessions" research — DONE.** `research/mentorship-research.md` → grounds the
+  first-session arc + ADVISOR_PERSONA "Mentorship grounding". This is *already shaping the build.*
+- ○ **Mentorship market + credibility + business-model strategy session — PARKED, not started.** The big
+  strategy/research session (is there a real UK gap? how do we prove AI advice is credible? all business-
+  model options? go-to-market?). Fully scoped in [parking-lot.md](parking-lot.md). Runs when Lexi signals.
+
 ## Not features — sessions to run when Lexi signals (not builds)
 
-- **Strategy/research:** Mentorship market + business model + credibility (the big one) · Jack & Jill teardown ·
+- **Strategy/research:** the mentorship strategy session above (the big one) · Jack & Jill teardown ·
   niche-industry users. _Detail in [parking-lot.md](parking-lot.md)._
-- **Design:** Advisor identity / visual register + the product's final name (currently speaks as "Career Intelligence"; "Meridian" was dropped) · homepage redesign.
+- **Design:** Advisor identity / visual register + the product's final name (speaks as "Career Intelligence";
+  "Meridian" dropped) · homepage redesign.
+- **B2B-era idea — advisor "vouch" / digital sponsorship:** an evidence-grounded, selective reference the
+  advisor can give an employer (real work done, verified certs, sustained engagement — never a guess,
+  never a score). Converges with B2B verified-progress-data + the progression view. Consent/GDPR-gated.
+  Do not build now; folds into the mentorship-strategy + credibility session. _(Lexi, 2026-06-24)_
 
 ## Pre-launch non-negotiables (Lexi's, not build-session work)
 
