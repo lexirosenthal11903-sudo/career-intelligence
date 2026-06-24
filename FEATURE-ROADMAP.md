@@ -129,4 +129,5 @@ GitHub token rotation (live security risk) · safeguarding/distress-signpost sur
 dormant, no error visibility) · Vercel Analytics + `SENTRY_AUTH_TOKEN` (sourcemaps) · CI pipeline
 (auto-run tests on push) · widen test coverage beyond core flows · a true production env separate from staging.
 **Quality:** the roles matching/sourcing review (recommendations are still weak — deferred, but it's the
-thing users judge hardest, so address before sharing widely).
+thing users judge hardest, so address before sharing widely). Study **JobCopilot + Jobeefy** for *how they
+source and match* jobs; ground our own job data in Step 3 (National Careers Service / LMI). Detail in parking-lot.

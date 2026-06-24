@@ -319,6 +319,11 @@ the session-structure rebuild; candidate-strength loop waits until Step 1 is gen
 - **Roles matching quality + sourcing — review in a few sessions (Lexi: "sick of it").** A dedicated look at
   how other companies match roles to users and where they pull jobs from. NOT now — deliberately deferred a
   few sessions. Ties to the recommendations-still-bad symptom above.
+  - **Named references to study (Lexi, 2026-06-24):** **JobCopilot** + **Jobeefy** (we have
+    `research/competitor-jobeefy-2026-06-14.md`) — specifically *how they source jobs* (which boards/APIs,
+    aggregation vs direct) and *how they match* roles to a user. Pull what's worth adopting for our lane
+    (people who don't know what they want) WITHOUT their spray-and-pray gravity. Pairs with grounding our
+    own job data (Step 3, National Careers Service / LMI) so matching is credible, not just keyword search.
 
 ### Profile concerns checked this session (2026-06-24) — findings
 - **CV on file** — NOT a bug. `cvUpdatedAt` is the real extraction timestamp (cv.ts), persisted to profile;
