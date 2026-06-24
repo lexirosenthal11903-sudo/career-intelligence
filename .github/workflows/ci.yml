@@ -2,9 +2,11 @@ name: CI
 
 # Auto-run the fast, secret-free checks on every push/PR so regressions fail
 # HERE, before they ever reach Lexi (set up 2026-06-24). Deliberately scoped:
-#   - typecheck (tsc) + unit tests + production build + the MOCK-based e2e
+#   - typecheck (tsc) + production build + the MOCK-based e2e
 #   - NOT lint yet (36 pre-existing errors — add the gate once they're cleaned)
-#   - NOT the .prod/.live e2e (they need real Supabase/Anthropic secrets — later)
+#   - NOT the .prod/.live e2e (need real Supabase/Anthropic secrets — later)
+#   - unit tests run locally; they import .ts so they need a TS runner
+#     (vitest) before CI can run them — small follow-up.
 # Dummy public env keeps it fully self-contained: no GitHub secrets, £0.
 
 on:
@@ -13,8 +15,6 @@ on:
   pull_request:
 
 env:
-  # Public, non-secret placeholders so the Supabase browser/server clients
-  # construct during build + dev-server boot. The mock e2e never makes real calls.
   NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
   NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-for-ci
 
@@ -27,7 +27,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -35,9 +35,6 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
-
-      - name: Unit tests
-        run: node --test tests/profile-normalize.test.mjs tests/adzuna-category.test.mjs
 
       - name: Build
         run: npm run build
