@@ -39,6 +39,8 @@ export interface DiscoveryTurn {
   text: string;
 }
 
+export type DirectionClarity = "lost" | "mixed" | "directed";
+
 export interface RevealDirection {
   title: string;
   why: string;
@@ -46,6 +48,9 @@ export interface RevealDirection {
 export interface RevealResult {
   summary: string;
   directions: RevealDirection[];
+  // The one concrete next action to close the first session on (Beat 5). Generated
+  // from the real profile, calibrated to clarity. Empty string = none generated.
+  nextAction: string;
 }
 
 // The slow-pipeline threshold — past this the wait line swaps to the locked
@@ -56,6 +61,8 @@ interface AnalyseResultShape {
   profile?: {
     summary?: string;
     suggestedDirections?: unknown;
+    nextAction?: string;
+    directionClarity?: DirectionClarity;
   };
 }
 
@@ -83,6 +90,10 @@ export function useFirstSession() {
   const [slow, setSlow] = useState(false);
   // The discovery conversation shown in the UI (advisor questions + user answers).
   const [discovery, setDiscovery] = useState<DiscoveryTurn[]>([]);
+  // The advisor's read of how clear they are — drives the post-reveal dial (which
+  // beats lead, how soon roles are offered). The user's stated certainty (captured
+  // in intake) is trusted over the CV's implication. Refined again by the analysis.
+  const [directionClarity, setDirectionClarity] = useState<DirectionClarity | null>(null);
 
   const cvTextRef = useRef("");
   const cvFileNameRef = useRef<string>("");
@@ -92,6 +103,9 @@ export function useFirstSession() {
   // Full intake transcript sent to /api/intake (and later to /api/analyse as context).
   const intakeRef = useRef<{ role: "user" | "assistant"; content: string }[]>([]);
   const questionsAskedRef = useRef(0);
+  // Latest clarity read from intake — passed into /api/analyse so the read (and the
+  // generated close-action) is calibrated to how settled they actually are.
+  const clarityRef = useRef<DirectionClarity | null>(null);
 
   // Read a dropped/selected CV. Best-effort: a failed extract still lets the
   // user type their background, so we keep the filename chip and move on.
@@ -135,6 +149,7 @@ export function useFirstSession() {
           cvText: cvTextRef.current,
           direction: message,
           extra: discoveryContext || undefined,
+          directionClarity: clarityRef.current || undefined,
         }),
         signal: controller.signal,
       });
@@ -191,7 +206,15 @@ export function useFirstSession() {
               setResult({
                 summary: event.result.profile?.summary ?? "",
                 directions: toDirections(event.result.profile?.suggestedDirections),
+                nextAction: event.result.profile?.nextAction ?? "",
               });
+              // The analysis gets the last word on clarity (it has the full read),
+              // but only if intake didn't already capture the user's stated certainty.
+              const analysed = event.result.profile?.directionClarity;
+              if (analysed && !clarityRef.current) {
+                clarityRef.current = analysed;
+                setDirectionClarity(analysed);
+              }
               setPhase("revealed");
             } else if (event.event === "error") {
               setPhase("error");
@@ -230,6 +253,11 @@ export function useFirstSession() {
         }),
       });
       const data = res.ok ? await res.json() : { ready: true };
+      // The user's stated certainty is the signal we trust most — keep the latest.
+      if (data.directionClarity) {
+        clarityRef.current = data.directionClarity;
+        setDirectionClarity(data.directionClarity);
+      }
       if (data.ready || !data.question) {
         beginAnalysis();
         return;
@@ -284,6 +312,7 @@ export function useFirstSession() {
     result,
     slow,
     discovery,
+    directionClarity,
     hasCv: () => cvTextRef.current.length > 0,
     extractCv,
     start,

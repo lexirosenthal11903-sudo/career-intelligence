@@ -22,9 +22,13 @@ The relationship starts on arrival — no separate onboarding screen, no form, n
 speaks first. Because nothing is known yet, the opener *invites*, it doesn't pretend to know.
 
 > **I'm here to help you work out what you actually want — and then go and get it.**
-> No forms, no quiz. Tell me where you're at, or drop your CV in, and we'll start from there.
+> We start with the direction that fits you; the right roles come after, once they're worth your time.
+> No forms, no quiz — just tell me where you're at, or drop your CV in.
 
 - Differentiator stated plainly ("no forms, no quiz") without naming the tech.
+- **Contracting (Beat 1, arc spec):** sets the shape — direction first, roles later, on purpose. This
+  is what stops it reading as a job board. The *specific* "one thing stood out" reflection can't happen
+  on cold arrival (nothing read yet) — it lands at the reveal (§2), which is the profile read.
 - One offer, two easy ways in. Ends with an invitation, never a statement to stare at.
 
 **The wait line** (while the analysis streams — this replaces the old loading screen):
@@ -60,11 +64,48 @@ Locked framing line (from persona): _"I've been looking at what you shared — h
 > - **Service & policy design** — designing the things people actually move through, for charities
 >   and public bodies.
 >
-> The first one is where I'd start. Want to look at the roles I've already found?
+> The first one is where I'd start.
 
 - Reflects her exact words back ("lit up", "why people make the choices they do").
 - Reframes the modern reality ("you don't need the PhD") — persona signature.
-- Names directions as observations; the user decides. Ends with one clear next step.
+- Names directions as observations; the user decides.
+- **The reveal no longer ends by pushing roles** (see §2a). The old ending — "Want to look at the
+  roles I've already found?" — was superseded by the first-session arc spec (2026-06-24): roles are
+  *earned in*, never the immediate next step for someone still unsure.
+
+---
+
+## 2a. Post-reveal beats — the advisor runs the session (LOCKED, arc spec 2026-06-24)
+
+After the reveal, the advisor doesn't hand off to a roles list — it keeps running the session. Three
+beats, in order, calibrated to the user's **directionClarity** (`lost` / `mixed` / `directed`). This
+supersedes the single roles-push that used to follow the reveal.
+
+**Beat 3 — the feelings beat (always, every user — this is what makes it mentorship, not output):**
+
+> Before anything else — which of these feels like you, and which doesn't? That tells me more than
+> any verdict from me would.
+
+**Beat 4 — roles, earned in (calibrated):**
+- **directed** (clear on where they're heading): roles offered now —
+  > The first one is where I'd start. I've already found a handful of real roles that fit — want to
+  > look at the first few together?
+- **lost / mixed** (still unsure): roles held back, no pressure —
+  > No rush to look at roles yet. When one of these starts to feel right, tell me — I'll pull a small
+  > handful that genuinely fit, not a wall of them.
+
+**Beat 5 — close on one concrete action (generated per user, calibrated):**
+
+> For now, just one thing: [single specific action].
+
+- The action is generated from the real profile (`nextAction` from `/api/analyse`). Lost/mixed → it's
+  reflective and low-stakes ("have a think about a time the people-side went well because of you").
+  Directed → practical and pointed at getting hired ("find one brand campaign you admired, and why").
+- One doable thing, framed as interest not a chase. Never a to-do list, never metrics, never urgency.
+
+**The handoff:** the user's reply to these beats (chip or free text) seeds the live workspace
+conversation, where the advisor — now with memory + tools + the same dial — picks the thread up
+properly (e.g. records a rejected direction with `update_direction`).
 
 ---
 

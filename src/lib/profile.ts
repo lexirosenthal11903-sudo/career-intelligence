@@ -23,6 +23,11 @@ export interface ProfileData {
   rightToWork?: string;
   aspiration?: string;
   workStyle?: { preference?: string; teamSize?: string; companyStage?: string };
+  // The advisor's live read of how clear this person is on their direction. Drives
+  // the directive↔non-directive dial and how soon roles surface (first-session arc
+  // spec, 2026-06-24). Revisable by the advisor as the picture changes — never a
+  // one-time label, never shown to the user as a label.
+  directionClarity?: 'lost' | 'mixed' | 'directed';
   memory?: MemoryNote[];
   profileCompleteness?: number;
   // The user's CV on file — its source identity lives in Profile (decided 2026-06-22).

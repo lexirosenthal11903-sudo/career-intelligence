@@ -1,0 +1,120 @@
+import { test, expect, type Page } from '@playwright/test';
+
+/**
+ * First-session arc (Step 1 "feel alive", arc spec 2026-06-24).
+ *
+ * The advisor RUNS a session: it diagnoses how settled the person is
+ * (directionClarity), then runs the beats calibrated to that read —
+ *   feelings beat (always) → roles, earned in (calibrated) → close on one action.
+ *
+ * Mocked end to end (no Anthropic, no auth — the first session is pre-auth), so the
+ * test proves the WIRING + calibration: that the dial actually changes the beats.
+ */
+
+type Clarity = 'lost' | 'mixed' | 'directed';
+
+function trackErrors(page: Page): string[] {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  return errors;
+}
+
+const NEXT_ACTION: Record<Clarity, string> = {
+  lost: 'have a think about a time the people-side of something went well because of you.',
+  mixed: 'jot down which part of your week you would happily do more of.',
+  directed: 'find one brand campaign you admired this year, and why.',
+};
+
+function resultFor(clarity: Clarity) {
+  return {
+    profile: {
+      summary: 'You came in unsure your degree led anywhere — it clearly does.',
+      directionClarity: clarity,
+      nextAction: NEXT_ACTION[clarity],
+      suggestedDirections: [
+        { title: 'Behavioural research', why: 'Your dissertation instinct, made into a job.' },
+        { title: 'UX research', why: 'The same curiosity, pointed at products.' },
+        { title: 'Service design', why: 'Designing what people move through.' },
+      ],
+    },
+  };
+}
+
+// Drive the first session from arrival → reveal, with intake + analyse mocked to a
+// given clarity. Returns once the reveal card is on screen.
+async function runToReveal(page: Page, clarity: Clarity) {
+  let intakeTurns = 0;
+  await page.route('**/api/intake', async (route) => {
+    intakeTurns += 1;
+    const body =
+      intakeTurns === 1
+        ? { ready: false, question: 'How clear are you on what you’re after?', directionClarity: clarity }
+        : { ready: true, directionClarity: clarity };
+    await route.fulfill({ status: 200, body: JSON.stringify(body) });
+  });
+  await page.route('**/api/analyse', async (route) => {
+    await route.fulfill({
+      status: 200,
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
+      body: `data: ${JSON.stringify({ event: 'complete', result: resultFor(clarity) })}\n\n`,
+    });
+  });
+  await page.route('**/api/save-result', (route) => route.fulfill({ status: 200, body: '{}' }));
+
+  await page.goto('/workspace?view=first');
+  const input = page.getByPlaceholder("Tell me what you're thinking…");
+  await expect(input).toBeVisible({ timeout: 15_000 });
+  await input.fill('Just finished my degree and not totally sure what is next.');
+  await input.press('Enter');
+
+  // The advisor asks before it tells — the calibrating question lands.
+  await expect(page.getByText('How clear are you on what you’re after?')).toBeVisible({ timeout: 15_000 });
+  const answer = page.getByPlaceholder('Type your answer…');
+  await expect(answer).toBeVisible({ timeout: 10_000 });
+  await answer.fill('honestly not sure.');
+  await answer.press('Enter');
+
+  await expect(page.getByText('where I see this going')).toBeVisible({ timeout: 15_000 });
+}
+
+const FEELINGS_BEAT = /which of these feels like you, and which doesn’t/;
+const ROLES_OFFER = /want to\s+look at the first few together/;
+const ROLES_SOFT = /No rush to look at roles yet/;
+
+test.describe('First-session arc — the advisor runs a session', () => {
+  test('LOST user: feelings beat + close, roles held back (not pushed)', async ({ page }) => {
+    const errors = trackErrors(page);
+    await runToReveal(page, 'lost');
+
+    // Beat 3 — feelings beat is always present.
+    await expect(page.getByText(FEELINGS_BEAT)).toBeVisible();
+    // Beat 4 — roles are EARNED IN: the soft, no-rush offer; never the direct push.
+    await expect(page.getByText(ROLES_SOFT)).toBeVisible();
+    await expect(page.getByText(ROLES_OFFER)).toHaveCount(0);
+    // Beat 5 — close on the one concrete (reflective) action.
+    await expect(page.getByText('For now, just one thing:')).toBeVisible();
+    await expect(page.getByText(NEXT_ACTION.lost, { exact: false })).toBeVisible();
+    // Chips carry the FEELING forward — roles are not the lead for an unsure user.
+    await expect(page.getByRole('button', { name: 'None of these quite fit' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Show me the first few roles' })).toHaveCount(0);
+
+    expect(errors, `Uncaught errors (lost): ${errors.join(' | ')}`).toHaveLength(0);
+  });
+
+  test('DIRECTED user: feelings beat + roles offered now + roles chip', async ({ page }) => {
+    const errors = trackErrors(page);
+    await runToReveal(page, 'directed');
+
+    // Beat 3 — feelings beat still present (lighter, but always asked).
+    await expect(page.getByText(FEELINGS_BEAT)).toBeVisible();
+    // Beat 4 — a directed user gets the real roles offer, not the held-back one.
+    await expect(page.getByText(ROLES_OFFER)).toBeVisible();
+    await expect(page.getByText(ROLES_SOFT)).toHaveCount(0);
+    // Beat 5 — practical close.
+    await expect(page.getByText(NEXT_ACTION.directed, { exact: false })).toBeVisible();
+    // Roles ARE the lead chip for a directed user.
+    await expect(page.getByRole('button', { name: 'Show me the first few roles' })).toBeVisible();
+
+    expect(errors, `Uncaught errors (directed): ${errors.join(' | ')}`).toHaveLength(0);
+  });
+});

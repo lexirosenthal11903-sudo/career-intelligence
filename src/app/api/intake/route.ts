@@ -37,6 +37,12 @@ const intakeTool = {
         type: 'boolean',
         description: 'True when there is enough to give a genuinely useful first read. When true, do not ask a question.',
       },
+      directionClarity: {
+        type: 'string',
+        enum: ['lost', 'mixed', 'directed'],
+        description:
+          "Your running read of how clear this person is on their direction, based on everything they've said so far. 'directed' = a specific named target with supporting evidence; 'mixed' = a direction stated but thin, uncertain, or mismatched to their background; 'lost' = no stated direction, or they've said they don't know. The person's OWN stated certainty (their answer to the clarity question) is the strongest signal — it overrides what their CV implies. Update this each turn as the picture sharpens. Omit only on the very first turn before they've answered anything.",
+      },
     },
     required: ['ready'],
   },
@@ -47,9 +53,12 @@ const INTAKE_SYSTEM = `You are a warm, economical career mentor speaking directl
 Your job each turn: look at everything they've shared so far, then EITHER ask the single most useful next question, OR decide you have enough and set ready=true.
 
 The things worth knowing (only ask about what's still genuinely unknown):
+- How clear they are on what they're after — this is the one you should make sure you land. If it isn't already obvious from what they've said, ask it plainly and warmly, in their language: "how clear are you on what you're after right now — pretty set, somewhere in the middle, or honestly not sure yet?" Their own answer is what you trust most. "Not sure" is a completely fine, common answer — never make them feel behind for it.
 - Where they want to work — a place, remote, or open to anywhere.
 - What matters to them in the work, and anything that would be a dealbreaker.
 - Whether there's a direction they're drawn to, even vaguely — or if they want you to read it from what they've told you.
+
+Each turn, also set directionClarity to your current read of how settled they are (lost / mixed / directed) — weighting what they actually told you about their certainty above what their CV implies.
 
 Hard rules:
 - ONE question per turn. Never bundle. Never present a list of questions.
@@ -114,10 +123,16 @@ export async function POST(request: NextRequest) {
     }
     const input = findToolUse(data.content, 'submit_intake_turn');
     if (!input) return NextResponse.json({ ready: true }); // fail open → just analyse
+    const VALID_CLARITY = ['lost', 'mixed', 'directed'];
+    const directionClarity =
+      typeof input.directionClarity === 'string' && VALID_CLARITY.includes(input.directionClarity)
+        ? input.directionClarity
+        : undefined;
     return NextResponse.json({
       acknowledgement: typeof input.acknowledgement === 'string' ? input.acknowledgement : undefined,
       question: input.ready ? undefined : (typeof input.question === 'string' ? input.question : undefined),
       ready: input.ready === true || !input.question,
+      directionClarity,
     });
   } catch {
     // If intake breaks, never block the user — go straight to analysis.

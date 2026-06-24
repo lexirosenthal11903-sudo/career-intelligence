@@ -86,6 +86,17 @@ const profileTool = {
         },
       },
       summary: { type: 'string' },
+      directionClarity: {
+        type: 'string',
+        enum: ['lost', 'mixed', 'directed'],
+        description:
+          "Your read of how clear this person is on their direction. 'directed' = a specific named target well-supported by their background; 'mixed' = a direction stated but thin, uncertain, or a real stretch from their background; 'lost' = no real direction, or they've said they don't know. Be honest — a wished-for stretch with no evidence is not 'directed'.",
+      },
+      nextAction: {
+        type: 'string',
+        description:
+          "ONE concrete, doable next action to close their first session on — in your own warm, first-person mentor voice ('you'), specific to THIS person, never a to-do list, never metrics, never pressure. Calibrate it to their clarity: if they're lost/mixed, make it reflective and low-stakes, drawing out who they are (e.g. \"have a think about a time the people-side of something went well because of you — even outside work\"); if they're directed, make it practical and pointed toward getting hired (e.g. \"find one brand campaign you genuinely admired this year and jot down why\"). One or two sentences. Frame it as interest, not a chase.",
+      },
       locationSearch: { type: 'string' },
       searchKeywords: {
         type: 'array',
@@ -102,6 +113,7 @@ const profileTool = {
       'seniorityLevel', 'yearsExperience', 'locationSearch', 'searchKeywords',
       'topRoleTitles', 'extractedSectors', 'extractedSkills',
       'suggestedDirections', 'summary', 'valuesSignals', 'companySuggestions',
+      'directionClarity', 'nextAction',
     ],
   },
 };
@@ -254,6 +266,9 @@ export async function POST(request: NextRequest) {
     selfKnowledge?: string[];
     profile?: AnalysisProfile;
     userProfile?: UserProfile;
+    // The user's stated certainty, captured in discovery. Trusted over the model's
+    // inference (the person knows their own clarity better than a CV shows it).
+    directionClarity?: 'lost' | 'mixed' | 'directed';
   }
 
   const rateLimitResponse = await checkAnalyseRateLimit(request);
@@ -266,7 +281,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge, profile: incomingProfile, userProfile } = body;
+  const { cvText, direction, location, workStyle, empType, salary, extra, selfKnowledge, profile: incomingProfile, userProfile, directionClarity: statedClarity } = body;
 
   // ── ENRICH-ONLY mode ──────────────────────────────────────────────────────
   if (enrichOnly) {
@@ -309,6 +324,19 @@ export async function POST(request: NextRequest) {
 
   const userProfileSection = userProfile ? buildUserProfileSection(userProfile) : '';
 
+  // The user told us how settled they are during discovery — calibrate the read and
+  // the close-action to it (the first-session dial). Their stated certainty wins over
+  // what their CV implies, so hand it to the model as ground truth.
+  const clarityNote = statedClarity
+    ? `\n\nTHIS PERSON'S STATED CLARITY: "${statedClarity}". Trust this over what their CV implies. ` +
+      (statedClarity === 'directed'
+        ? "They're clear on their direction — affirm and honestly sense-check the fit, keep directions tight, and make nextAction practical and pointed toward getting hired."
+        : statedClarity === 'mixed'
+          ? "They're somewhere in the middle — reflect what you see, keep options genuinely open, and make nextAction reflective rather than a commitment."
+          : "They're not sure yet, and that's fine — hold the goal open, lead with self-discovery, never pin a single title, and make nextAction low-stakes and reflective, drawing out who they are.") +
+      ` Still set directionClarity in your output to your honest read (it may sharpen what they said).`
+    : '';
+
   const userPrompt = `Please analyse my background carefully.
 ${cvText ? `CV:\n${cvText.slice(0, 3000)}` : ''}
 ${direction ? `Direction: ${direction}` : 'Direction: Not stated — infer from CV'}
@@ -332,7 +360,7 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
           callClaude({
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 1600,
-            system: PROFILE_SYSTEM,
+            system: PROFILE_SYSTEM + clarityNote,
             tools: [profileTool],
             tool_choice: { type: 'tool', name: 'submit_career_profile' },
             messages: [{ role: 'user', content: userPrompt }],
@@ -369,6 +397,10 @@ ${extra ? `Notes: ${extra}` : ''}${selfKnowledgeSection}${userProfileSection}`;
           controller.close();
           return;
         }
+
+        // The user's stated certainty (from discovery) is trusted over the model's
+        // inference — overwrite the inferred read before persisting.
+        if (statedClarity) profileInput.directionClarity = statedClarity;
 
         // Merge into the same shape as before — downstream code unchanged.
         // Normalize the profile's array fields here, at the write boundary: Haiku

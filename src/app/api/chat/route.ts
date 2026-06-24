@@ -36,7 +36,7 @@ WHAT YOU NEVER DO
 - Never re-ask something you already know from the context below — that breaks trust.
 
 WHAT YOU CAN DO (you have real tools — use them, don't just talk about them)
-You can change this person's world, not just advise on it. You have tools to: remember a durable fact about them, update their profile (values, deal-breakers, aspiration, salary), record how they feel about a direction (reject / prefer / refine), REVISE THE DIRECTIONS THEMSELVES on their Direction page (add, replace, drop or refine — and refresh the roles matched to them), save a specific role for them, and move an application to a new stage. Use them silently as a natural part of the conversation — the moment you learn something durable, remember it; when they reject a direction, record it; when they want a role, save it.
+You can change this person's world, not just advise on it. You have tools to: remember a durable fact about them, update their profile (values, deal-breakers, aspiration, salary), note how settled they are on their direction (set_direction_clarity — your private read of the dial, never shown to them), record how they feel about a direction (reject / prefer / refine), REVISE THE DIRECTIONS THEMSELVES on their Direction page (add, replace, drop or refine — and refresh the roles matched to them), save a specific role for them, and move an application to a new stage. Use them silently as a natural part of the conversation — the moment you learn something durable, remember it; when they reject a direction, record it; when they want a role, save it.
 
 When they ask you to add a direction, change their directions, or find different/relevant roles — that is the revise_directions tool. ACTUALLY CALL IT. Pass the complete new set of directions, and pass searchKeywords too when the roles should change. Only after the tool succeeds do you tell them it's done, in your own words, naming what changed.
 
@@ -89,6 +89,9 @@ async function buildUserContext(
   // Things worth knowing that we don't have yet — so the advisor can fill them in
   // casually, in conversation, rather than a second cold intake (Lexi, 2026-06-23).
   const missing: string[] = [];
+  // The dial position — prefer the advisor's live read (profiles), fall back to the
+  // initial read baked into the analysis. Drives the directive↔non-directive balance.
+  let directionClarity: 'lost' | 'mixed' | 'directed' | undefined;
 
   try {
     const { data: resultRow } = await supabase
@@ -113,6 +116,8 @@ async function buildUserContext(
         parts.push(`Roles that fit their background: ${(profile.topRoleTitles as string[]).join(', ')}`);
       }
       if (profile.seniorityLevel) parts.push(`Seniority: ${profile.seniorityLevel}`);
+      const c = profile.directionClarity;
+      if (c === 'lost' || c === 'mixed' || c === 'directed') directionClarity = c;
     }
   } catch {
     // no analysis yet — fine
@@ -120,6 +125,9 @@ async function buildUserContext(
 
   try {
     const p = await getProfile(supabase, userId);
+    // The advisor's live read overrides the analysis's initial one.
+    if (p.directionClarity === 'lost' || p.directionClarity === 'mixed' || p.directionClarity === 'directed')
+      directionClarity = p.directionClarity;
     if (Array.isArray(p.values) && p.values.length)
       parts.push(`What they value: ${p.values.join(', ')}`);
     else missing.push('what actually matters to them in the work');
@@ -169,6 +177,16 @@ async function buildUserContext(
   // earns it, framed as helping you help them — never a form, never a checklist.
   if (missing.length) {
     context += `\n\nWHAT YOU DON'T YET KNOW: ${missing.join('; ')}. You've already met this person, so this is NOT a fresh intake — never fire these as a list or a quiz. When the conversation makes it natural, you may gently ask about ONE of these, framed as getting to know them better so you can help more precisely ("mind if I ask — …? it changes which roles I'd put in front of you"). One at a time, at most. Don't open every message with a question, and if they'd rather not say, drop it instantly and move on. When they do tell you, capture it with update_profile so you never ask twice.`;
+  }
+
+  if (directionClarity) {
+    const dial =
+      directionClarity === 'directed'
+        ? "They're DIRECTED — clear on roughly where they're heading. Lighter touch: be straight and practical, give real views and honest sense-checks rather than endless questions, and move toward making them a stronger candidate (CV, outreach, real roles) sooner. Don't trap them in step-by-step discovery they don't want."
+        : directionClarity === 'mixed'
+          ? "They're MIXED — a direction in mind but not settled. Reflect what you see and honestly sense-check the fit; keep options genuinely open; move toward roles only once a direction firms up."
+          : "They're LOST — not sure what they want yet, and that's a fine place to start. Stay more non-directive and supportive: draw them out with questions, explore values and strengths, hold the goal open (don't pin a job title early), and let roles surface later, once a direction is genuinely worth showing. Lead with who they are, not listings.";
+    context += `\n\nTHE DIAL — how settled they are right now: ${dial} If your read changes during the conversation, call set_direction_clarity. The rule of thumb: coach the direction, advise the execution.`;
   }
 
   return context;

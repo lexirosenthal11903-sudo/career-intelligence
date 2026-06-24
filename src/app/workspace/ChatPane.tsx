@@ -10,7 +10,7 @@
    the "click" reveal is built from the real analysis (useFirstSession). The wait line,
    reveal structural copy, and bridge line are verbatim from VOICE-IN-UI.md — only the
    summary + direction content is generated. Do not edit advisor wording here. */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useArloChat } from "@/hooks/useArloChat";
@@ -391,9 +391,9 @@ function FirstSession({
           <RadiantAvatar />
         </div>
         <div className={s.bub}>
-          I&rsquo;m here to help you work out what you actually want — and then go and get it. No
-          forms, no quiz. Tell me where you&rsquo;re at, or drop your CV in, and we&rsquo;ll start
-          from there.
+          I&rsquo;m here to help you work out what you actually want — and then go and get it. We
+          start with the direction that fits you; the right roles come after, once they&rsquo;re worth
+          your time. No forms, no quiz — just tell me where you&rsquo;re at, or drop your CV in.
         </div>
       </div>
 
@@ -475,17 +475,11 @@ function FirstSession({
         </div>
       )}
 
-      {/* the bridge to roles (locked §2) */}
+      {/* Post-reveal beats — the advisor runs the session (first-session arc spec).
+          Order: feelings beat (always) → roles offer (calibrated to clarity, never
+          pushed first for an unsure user) → close on one concrete action. */}
       {phase === "revealed" && result && (
-        <div className={s.msg}>
-          <div className={s.av}>
-            <RadiantAvatar />
-          </div>
-          <div className={s.bub}>
-            The first one is where I&rsquo;d start. I&rsquo;ve already found a handful of real roles
-            that fit — want to look at the first few together?
-          </div>
-        </div>
+        <PostReveal result={result} clarity={fs.directionClarity} />
       )}
 
       {/* error — the advisor owns it (locked error voice), with a retry */}
@@ -540,6 +534,61 @@ function RevealCard({ result }: { result: ReturnType<typeof useFirstSession>["re
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ---- post-reveal beats: feelings → calibrated roles offer → close on one action ----
+   The feelings beat is required (it's what makes this mentorship, not output). Roles
+   are "earned in": offered up front only to a DIRECTED user; held back, no-rush, for
+   anyone unsure. The close is the generated, calibrated single next action (Beat 5). */
+function PostReveal({
+  result,
+  clarity,
+}: {
+  result: NonNullable<ReturnType<typeof useFirstSession>["result"]>;
+  clarity: ReturnType<typeof useFirstSession>["directionClarity"];
+}) {
+  const directed = clarity === "directed";
+  return (
+    <>
+      {/* Beat 3 — the feelings beat (always) */}
+      <AdvisorBubble>
+        Before anything else — which of these feels like you, and which doesn&rsquo;t? That tells me
+        more than any verdict from me would.
+      </AdvisorBubble>
+
+      {/* Beat 4 — roles, earned in (calibrated) */}
+      <AdvisorBubble>
+        {directed ? (
+          <>
+            The first one is where I&rsquo;d start. I&rsquo;ve already found a handful of real roles
+            that fit — want to look at the first few together?
+          </>
+        ) : (
+          <>
+            No rush to look at roles yet. When one of these starts to feel right, tell me — I&rsquo;ll
+            pull a small handful that genuinely fit, not a wall of them.
+          </>
+        )}
+      </AdvisorBubble>
+
+      {/* Beat 5 — close on one concrete action */}
+      {result.nextAction && (
+        <AdvisorBubble>For now, just one thing: {result.nextAction}</AdvisorBubble>
+      )}
+    </>
+  );
+}
+
+/* ---- a single advisor bubble (avatar + text), for the scripted first-session beats ---- */
+function AdvisorBubble({ children }: { children: ReactNode }) {
+  return (
+    <div className={s.msg}>
+      <div className={s.av}>
+        <RadiantAvatar />
+      </div>
+      <div className={s.bub}>{children}</div>
     </div>
   );
 }
@@ -638,8 +687,11 @@ function FirstComposer({
   const discovering = phase === "discovery"; // answering a discovery question
   const busy = phase === "thinking" || phase === "analysing"; // advisor's turn — input inert
 
-  // Post-click chips: lead = roles (locked); the rest reflect the real lead direction.
+  // Post-click chips reflect the real lead direction. For a DIRECTED user the lead is
+  // roles; for anyone unsure the lead carries their FEELING forward (roles are earned
+  // in, not pushed) — the seed picks up live in the workspace conversation.
   const leadTitle = result?.directions[0]?.title;
+  const directed = fs.directionClarity === "directed";
 
   function onInputKey(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key !== "Enter" || e.shiftKey) return;
@@ -666,7 +718,7 @@ function FirstComposer({
         </div>
       )}
 
-      {revealed && (
+      {revealed && directed && (
         <div className={s.chips}>
           <button
             type="button"
@@ -684,6 +736,34 @@ function FirstComposer({
               Tell me about {leadTitle}
             </button>
           )}
+          <button
+            type="button"
+            className={s.chip}
+            onClick={() => onContinue("Why these three?")}
+          >
+            Why these three?
+          </button>
+        </div>
+      )}
+
+      {revealed && !directed && (
+        <div className={s.chips}>
+          {leadTitle && (
+            <button
+              type="button"
+              className={`${s.chip} ${s.lead}`}
+              onClick={() => onContinue(`I think ${leadTitle} is the one that feels right`)}
+            >
+              {leadTitle} feels right
+            </button>
+          )}
+          <button
+            type="button"
+            className={s.chip}
+            onClick={() => onContinue("Honestly, none of these quite fit me")}
+          >
+            None of these quite fit
+          </button>
           <button
             type="button"
             className={s.chip}

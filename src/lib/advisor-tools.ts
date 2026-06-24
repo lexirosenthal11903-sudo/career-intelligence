@@ -62,6 +62,19 @@ export const ADVISOR_TOOLS = [
     },
   },
   {
+    name: 'set_direction_clarity',
+    description:
+      "Record how clear this person is on their direction right now — your live read of where they sit on the dial. Call this when their certainty becomes clearer or changes: they arrive lost and start to settle, or arrive confident and then wobble on a direction. It tunes how you work with them everywhere (how much you draw out vs advise, and how soon roles surface) — so keep it honest and current. 'lost' = no real direction / they've said they don't know; 'mixed' = a direction stated but thin, uncertain, or a real stretch; 'directed' = a specific target well-grounded in their background. Never show this label to them.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        clarity: { type: 'string', enum: ['lost', 'mixed', 'directed'], description: 'Your current read of their direction clarity.' },
+        note: { type: 'string', description: 'Optional: what shifted your read.' },
+      },
+      required: ['clarity'],
+    },
+  },
+  {
     name: 'save_job',
     description:
       "Save a specific role for this person so it's waiting in their applications when they're ready. Call this when they express genuine interest in a particular role you've discussed — not speculatively. It also starts that role in their application tracker at the 'preparing' stage.",
@@ -177,6 +190,15 @@ export async function executeAdvisorTool(
         await patchProfile(supabase, userId, { directionFeedback: next });
         const verb = status === 'rejected' ? 'set aside' : status === 'preferred' ? 'starred' : 'refined';
         return { content: `Direction "${direction}" marked ${status}.`, action: `${verb} "${direction}"` };
+      }
+
+      case 'set_direction_clarity': {
+        const clarity = String(input.clarity ?? '').trim();
+        if (!['lost', 'mixed', 'directed'].includes(clarity))
+          return { content: 'Need a valid clarity (lost, mixed, or directed).', isError: true };
+        await patchProfile(supabase, userId, { directionClarity: clarity as ProfileData['directionClarity'] });
+        // Silent bookkeeping — no user-facing echo line; the dial isn't shown to them.
+        return { content: `Direction clarity set to "${clarity}".` };
       }
 
       case 'save_job': {
