@@ -11,6 +11,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
 import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, HintIcon, ChevronIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
+import TailorCVModal from "@/components/TailorCVModal";
 
 export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile";
 
@@ -57,6 +58,12 @@ export default function SidePanel({
   const [interested, setInterested] = useState<Set<string>>(new Set());
   const [passed, setPassed] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState<Set<string>>(new Set());
+  const [tailoring, setTailoring] = useState(false);
+  const [tailorResult, setTailorResult] = useState<{
+    tailoredCv: string;
+    changes: string[];
+    job: PanelJob;
+  } | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUserId(user?.id ?? null));
@@ -117,6 +124,8 @@ export default function SidePanel({
             onBack={() => setSelected(null)}
             onInterested={() => handleInterested(selected)}
             onPass={() => handlePass(selected)}
+            onTailorCV={() => handleTailorCV(selected)}
+            tailoring={tailoring}
           />
         ) : (
           <RolesList
@@ -136,6 +145,15 @@ export default function SidePanel({
       {view === "documents" && <DocumentsView />}
       {view === "saved" && <SavedJobDetail jobId={savedJobId ?? null} onOpenRoles={onOpenRoles} />}
       {view === "profile" && <ProfileView analysisProfile={profile} />}
+
+      {tailorResult && (
+        <TailorCVModal
+          job={tailorResult.job}
+          tailoredCv={tailorResult.tailoredCv}
+          changes={tailorResult.changes}
+          onClose={() => setTailorResult(null)}
+        />
+      )}
     </aside>
   );
 
@@ -168,6 +186,42 @@ export default function SidePanel({
     // Forward-looking so the advisor helps with it now, rather than acknowledging a
     // save it can already see in context (the "you've already done that" bug).
     askAdvisor(`I've just said I'm interested in the ${job.title} role at ${job.company} — what should we do about it?`);
+  }
+
+  async function handleTailorCV(job: PanelJob) {
+    setTailoring(true);
+    try {
+      const res = await fetch("/api/tailor-cv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId: job.id,
+          jobTitle: job.title,
+          jobCompany: job.company,
+          jobDescription: job.description,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error === "no_cv") {
+          window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
+            detail: "I tried to tailor my CV but don't have one on file yet. How do I add my CV?",
+          }));
+        } else {
+          window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
+            detail: `Something went wrong tailoring my CV for the ${job.title} role. Can you help?`,
+          }));
+        }
+        return;
+      }
+      setTailorResult({ tailoredCv: data.tailoredCv, changes: data.changes, job });
+    } catch {
+      window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
+        detail: `I had trouble tailoring my CV for the ${job.title} role. Can you help?`,
+      }));
+    } finally {
+      setTailoring(false);
+    }
   }
 
   async function handlePass(job: PanelJob) {
@@ -309,7 +363,7 @@ function JobRow({ job, strong, onReview }: { job: PanelJob; strong: boolean; onR
 
 /* ===== Single role — contact + outreach + skills INSIDE the role =========== */
 function RoleDetail({
-  job, skills, interested, saving, onBack, onInterested, onPass,
+  job, skills, interested, saving, onBack, onInterested, onPass, onTailorCV, tailoring,
 }: {
   job: PanelJob;
   skills: string[];
@@ -318,6 +372,8 @@ function RoleDetail({
   onBack: () => void;
   onInterested: () => void;
   onPass: () => void;
+  onTailorCV: () => void;
+  tailoring: boolean;
 }) {
   const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
   const strong = (job.relevanceScore ?? 0) >= 7;
@@ -388,7 +444,17 @@ function RoleDetail({
 
       <div className={s.rdActions}>
         {interested ? (
-          <span className={s.rdInterested}>✓ Interested — tracked in Applications</span>
+          <>
+            <span className={s.rdInterested}>✓ Interested — tracked in Applications</span>
+            <button
+              className={s.rdTailorBtn}
+              type="button"
+              onClick={onTailorCV}
+              disabled={tailoring}
+            >
+              {tailoring ? "Tailoring your CV…" : "Tailor my CV for this role"}
+            </button>
+          </>
         ) : (
           <>
             <button className={s.rdInterestedBtn} type="button" onClick={onInterested} disabled={saving}>I&rsquo;m interested</button>

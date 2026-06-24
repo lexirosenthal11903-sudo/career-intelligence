@@ -1049,3 +1049,19 @@
 .stab .x:focus-visible {
   outline-offset: 1px;
 }
+
+.rdTailorBtn {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 0.5rem;
+}
+.rdTailorBtn:hover:not(:disabled) { background: var(--accent-dark); }
+.rdTailorBtn:disabled { opacity: 0.6; cursor: not-allowed; }
