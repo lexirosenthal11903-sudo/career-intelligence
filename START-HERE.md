@@ -17,11 +17,13 @@ door** — instead of firing off hundreds and hearing nothing back. Full why: **
 > single list. The four steps below are the shape; that doc is the detail.
 
 ## What's next (the agreed order — nothing else needs deciding now)
-1. **Make it feel alive** — finish the new-user flow: discovery's done; next is the advisor *reacting* to
-   what you do and *feeling present*. (Also here: a light "start fresh, keep the memory".)
-2. **The candidate-strength loop — the heart** — CV tailoring (beat the ATS), cover letters, outreach /
-   warm intros, interview prep, and the **"why am I not hearing back?"** diagnosis. This is the mission
-   made real. (Mentor-session formats, new-role alerts, and skills-shown-in-context live here too.)
+1. **Make it feel alive** — ✓ largely done: discovery, the first-session arc (the advisor runs a session,
+   reacts, reads how clear you are), one continuous page, sign-in that doesn't lose the conversation, name
+   use, low-effort opening. **Now frozen for polish** — voice/copy fine-tuning happens later, once the
+   product exists. (A light "start fresh, keep the memory" still to do.)
+2. **The candidate-strength loop — the heart (← we build this next)** — CV tailoring (beat the ATS), cover
+   letters, outreach / warm intros, interview prep, and the **"why am I not hearing back?"** diagnosis.
+   This is the mission made real. (Mentor-session formats, new-role alerts, skills-in-context live here too.)
 3. **Grounded knowledge layer** — fact-check the platform against free real data (salaries, skills,
    routes) so it's credible, not guessing. Plan: [GROUNDED-KNOWLEDGE-PLAN.md](GROUNDED-KNOWLEDGE-PLAN.md).
 4. **B2B later** — universities first, only once the candidate loop works.
@@ -43,9 +45,8 @@ _Every parked idea is mapped to one of the above — see the table at the top of
 Everything else below is working detail **I maintain** — you don't need to track it:
 | Doc | What it's for |
 |---|---|
-| FEATURE-ROADMAP.md | **Every planned feature, in build order** — the single list |
+| FEATURE-ROADMAP.md | **Every planned feature, in build order** — the single list (the map) |
 | AUDIT-REPORT-2026-06-22.md | The current prioritised fix/feature backlog |
-| WALKTHROUGH-FEEDBACK-2026-06-22.md | Your raw click-through notes (source for the backlog) |
 | GROUNDED-KNOWLEDGE-PLAN.md | The future "make the facts real" project |
 | parking-lot.md | Every parked idea — now with a map at the top showing *when* each one happens |
 | REBUILD.md | Technical state of what's built (for me) |
@@ -54,8 +55,11 @@ Everything else below is working detail **I maintain** — you don't need to tra
 | archive/ | Superseded docs (old roadmap, old audits) — ignore |
 
 ## How we work (so it stays calm and efficient)
-- All work happens on the **staging** branch → pushed → you test on the live URL. Nothing touches
-  production without you saying so.
+- **Breadth-first:** build the whole product walkable end-to-end at "good enough" BEFORE polishing
+  voice/copy. Building and fine-tuning stay separate; polish happens once, later. (Full rules:
+  [CLAUDE.md](CLAUDE.md) "How We Build".)
+- All work happens on the **staging** branch → pushed → you test on the live URL at *flow milestones*
+  (not every change). Nothing touches production without you saying so.
 - Every change is checked by automated tests before it ships.
 - **£0 rule:** no new paid services beyond your existing Claude/API.
 - One thing at a time. I bring you decisions only when they're genuinely yours to make — otherwise I

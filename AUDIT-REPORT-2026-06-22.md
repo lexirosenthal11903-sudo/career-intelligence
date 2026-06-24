@@ -1,6 +1,6 @@
 # Product audit — consolidated prioritised report (2026-06-22)
 
-_One report, deduped against `WALKTHROUGH-FEEDBACK-2026-06-22.md`. Each item has a root cause, not just
+_One report, deduped against `archive/WALKTHROUGH-FEEDBACK-2026-06-22.md`. Each item has a root cause, not just
 the symptom. Method: code review of the full spine (auth, workspace, pipeline, API routes) + a real-pipeline
 matching audit across 4 personas (`tests/audit/run-personas.mjs`) + a runtime flow pass
 (`tests/audit/run-flow.mjs`). Severity: 🔴 loses users / broken · 🟠 important · 🟡 polish._

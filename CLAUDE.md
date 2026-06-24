@@ -27,6 +27,9 @@ Full context: memory `feedback-build-breadth-first`._
    walkable flow* — never every push. Keep build rounds and polish rounds separate.
 5. **Log every idea the instant Lexi says it** into `FEATURE-ROADMAP.md` (the single visible map). Nothing
    verbal stays only in a transcript — she must be able to open one place and trust nothing is lost.
+6. **The map is a holding pen, not a commitment.** Proactively suggest new features unprompted, AND
+   challenge ones that don't earn their place — capture everything, then decide *together, as we go*,
+   whether each is worth building (against the mission test). Logging an idea ≠ agreeing to build it.
 
 ## Session Discipline — Non-Negotiable
 
