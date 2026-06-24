@@ -77,23 +77,20 @@ async function runToReveal(page: Page, clarity: Clarity) {
   await expect(page.getByText('where I see this going')).toBeVisible({ timeout: 15_000 });
 }
 
-const FEELINGS_BEAT = /which of these feels like you, and which doesn't/;
-const ROLES_OFFER = /want to\s+look at the first few together/;
-const ROLES_SOFT = /No rush to look at roles yet/;
+// Post-reveal is now ONE message (Lexi, 2026-06-24): an invitation to explore, not a
+// stack of asks. The directed variant adds a roles line; lost/mixed never push roles.
+const EXPLORE = /Do any of these feel like you/;
+const DIRECTED_ROLES = /show you what these look like as real roles/;
 
 test.describe('First-session arc — the advisor runs a session', () => {
-  test('LOST user: feelings beat + close, roles held back (not pushed)', async ({ page }) => {
+  test('LOST user: one exploration message, roles not pushed', async ({ page }) => {
     const errors = trackErrors(page);
     await runToReveal(page, 'lost');
 
-    // Beat 3 — feelings beat is always present.
-    await expect(page.getByText(FEELINGS_BEAT)).toBeVisible();
-    // Beat 4 — roles are EARNED IN: the soft, no-rush offer; never the direct push.
-    await expect(page.getByText(ROLES_SOFT)).toBeVisible();
-    await expect(page.getByText(ROLES_OFFER)).toHaveCount(0);
-    // Beat 5 — close on the one concrete (reflective) action.
-    await expect(page.getByText('For now, just one thing:')).toBeVisible();
-    await expect(page.getByText(NEXT_ACTION.lost, { exact: false })).toBeVisible();
+    // ONE message that invites exploration and permits not-knowing.
+    await expect(page.getByText(EXPLORE)).toBeVisible();
+    // Roles are NOT pushed for an unsure user.
+    await expect(page.getByText(DIRECTED_ROLES)).toHaveCount(0);
     // Chips carry the FEELING forward — roles are not the lead for an unsure user.
     await expect(page.getByRole('button', { name: 'None of these quite fit' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Show me the first few roles' })).toHaveCount(0);
@@ -110,20 +107,20 @@ test.describe('First-session arc — the advisor runs a session', () => {
     await expect(page.getByRole('heading', { name: 'Save your results.' })).toBeVisible({ timeout: 10_000 });
     // Still on the workspace — the conversation is behind the modal, not gone.
     expect(new URL(page.url()).pathname).toBe('/workspace');
-    await expect(page.getByText(FEELINGS_BEAT)).toBeVisible();
+    // The reveal card stays put behind the modal (no reformat / dead end).
+    await expect(page.getByText(EXPLORE)).toBeVisible();
+    // "Maybe later" dismisses without a dead end — the reveal + pills are still there.
+    await page.getByRole('button', { name: 'Maybe later' }).click();
+    await expect(page.getByRole('button', { name: 'Show me the first few roles' })).toBeVisible();
   });
 
-  test('DIRECTED user: feelings beat + roles offered now + roles chip', async ({ page }) => {
+  test('DIRECTED user: exploration message offers roles + roles chip', async ({ page }) => {
     const errors = trackErrors(page);
     await runToReveal(page, 'directed');
 
-    // Beat 3 — feelings beat still present (lighter, but always asked).
-    await expect(page.getByText(FEELINGS_BEAT)).toBeVisible();
-    // Beat 4 — a directed user gets the real roles offer, not the held-back one.
-    await expect(page.getByText(ROLES_OFFER)).toBeVisible();
-    await expect(page.getByText(ROLES_SOFT)).toHaveCount(0);
-    // Beat 5 — practical close.
-    await expect(page.getByText(NEXT_ACTION.directed, { exact: false })).toBeVisible();
+    await expect(page.getByText(EXPLORE)).toBeVisible();
+    // A directed user is offered roles within the same single message.
+    await expect(page.getByText(DIRECTED_ROLES)).toBeVisible();
     // Roles ARE the lead chip for a directed user.
     await expect(page.getByRole('button', { name: 'Show me the first few roles' })).toBeVisible();
 

@@ -30,8 +30,10 @@ interface Props {
   initialView?: "signup" | "signin";
   /** When set, overrides the isNewUser routing after auth completes. */
   redirectTo?: string;
-  /** Called when the user explicitly clicks "Continue without saving". */
+  /** Called when the user explicitly clicks the secondary dismiss action. */
   onContinueWithoutSaving?: () => void;
+  /** Label for that secondary action (default "Continue without saving"). */
+  continueLabel?: string;
   /**
    * When set, OTP verification completes IN PLACE — no navigation. Used by the
    * first session so signing in doesn't tear down the conversation. (Google OAuth
@@ -40,7 +42,7 @@ interface Props {
   onAuthed?: () => void;
 }
 
-export default function AuthModal({ isOpen, onClose, initialView = "signup", redirectTo, onContinueWithoutSaving, onAuthed }: Props) {
+export default function AuthModal({ isOpen, onClose, initialView = "signup", redirectTo, onContinueWithoutSaving, onAuthed, continueLabel }: Props) {
   const [view, setView] = useState<AuthView>(initialView);
   const [email, setEmail] = useState("");
   const [otpValue, setOtpValue] = useState("");
@@ -280,7 +282,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
 
             {view === "signup" && (
               <button className={s.linkSecondary} onClick={onContinueWithoutSaving ?? onClose}>
-                <span>Continue without saving</span>
+                <span>{continueLabel ?? "Continue without saving"}</span>
               </button>
             )}
           </>

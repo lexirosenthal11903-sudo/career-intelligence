@@ -20,17 +20,15 @@ export interface ApiMsg {
 export const OPENER =
   "I'm here to help you work out what you actually want — and then go and get it. We start with the direction that fits you; the right roles come after, once they're worth your time. No forms, no quiz — just tell me where you're at, or drop your CV in.";
 
-export const FEELINGS_BEAT =
-  "Before anything else — which of these feels like you, and which doesn't? That tells me more than any verdict from me would.";
-
-export function rolesBeat(clarity: Clarity | null): string {
+// ONE warm message after the reveal (not a stack). Invites a reaction, explicitly
+// permits not-knowing, offers to explore together, reassures memory — never a demand
+// to decide on the spot, never a separate "here's your homework" close. (Lexi, 2026-06-24.)
+export function explorationInvite(clarity: Clarity | null): string {
+  const base =
+    "Do any of these feel like you — or not quite? You don't have to decide now. We can dig into any of them together, and I'll remember everything as we go.";
   return clarity === "directed"
-    ? "The first one is where I'd start. I've already found a handful of real roles that fit — want to look at the first few together?"
-    : "No rush to look at roles yet. When one of these starts to feel right, tell me — I'll pull a small handful that genuinely fit, not a wall of them.";
-}
-
-export function closeBeat(nextAction: string): string | null {
-  return nextAction ? `For now, just one thing: ${nextAction}` : null;
+    ? `${base} And when you want, I can show you what these look like as real roles.`
+    : base;
 }
 
 // The reveal card, rendered as text for the conversation history (the card itself
@@ -63,10 +61,7 @@ export function buildThread(i: ThreadInputs): ApiMsg[] {
   // The discovery turns already alternate user/assistant (opening share is first).
   for (const m of i.intake) msgs.push({ role: m.role, content: m.content });
   msgs.push({ role: "assistant", content: revealText(i.summary, i.directions) });
-  msgs.push({ role: "assistant", content: FEELINGS_BEAT });
-  msgs.push({ role: "assistant", content: rolesBeat(i.clarity) });
-  const close = closeBeat(i.nextAction);
-  if (close) msgs.push({ role: "assistant", content: close });
+  msgs.push({ role: "assistant", content: explorationInvite(i.clarity) });
   return msgs;
 }
 

@@ -23,9 +23,7 @@ import {
   readThread,
   clearThread,
   OPENER,
-  FEELINGS_BEAT,
-  rolesBeat,
-  closeBeat,
+  explorationInvite,
   type ApiMsg,
 } from "@/lib/firstSessionThread";
 import s from "./workspace.module.css";
@@ -88,17 +86,24 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   // the first session it stays dormant (userId null) until the user goes `live`
   // after the reveal — then it's SEEDED with the first-session transcript so the
   // conversation continues seamlessly instead of starting over.
+  // First-session streaming state machine (Step E). Inert until the user sends
+  // their first message; replaces the old loading screen + onboarding bridge.
+  const fs = useFirstSession();
+
+  // When we still hold the structured reveal in memory (OTP / authed-in-place
+  // continuation), KEEP the reveal card on screen and append the live reply below
+  // it. Only the OAuth-return path (state lost on the redirect) falls back to
+  // rendering the transcript as bubbles.
+  const keepCard = first && live && fs.phase === "revealed";
+
   const chat = useArloChat({
     page: "workspace",
     supabase,
     userId: first ? (live ? userId : null) : userId,
     seedThread: first && live ? seedThread ?? undefined : undefined,
     autoSend: first && live ? pendingSend || undefined : undefined,
+    hideSeed: keepCard,
   });
-
-  // First-session streaming state machine (Step E). Inert until the user sends
-  // their first message; replaces the old loading screen + onboarding bridge.
-  const fs = useFirstSession();
 
   const [draft, setDraft] = useState("");
 
@@ -215,14 +220,12 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     clearThread();
   }
 
-  // "Continue without saving" — see the conversation, but stay unauthenticated;
-  // sending a message will warmly prompt sign-in (no reply is auto-sent).
-  function handleContinueWithoutSaving() {
-    const stash = readThread();
+  // "Maybe later" — the conversation can't continue without an account (the live
+  // advisor needs auth), so don't pretend: just dismiss the modal and leave them on
+  // the reveal with the pills still there. No collapse, no dropped question, no dead
+  // end. They can pick any pill again whenever they're ready to sign in.
+  function handleMaybeLater() {
     setAuthOpen(false);
-    if (stash) setSeedThread(stash.messages);
-    setPendingSend("");
-    setLive(true);
     clearThread();
   }
 
@@ -238,9 +241,18 @@ export default function ChatPane({ variant }: { variant: Variant }) {
         <div className={s.col}>
           {first ? (
             live ? (
-              // The first session has gone live in place — the transcript above is
-              // now the conversation; the advisor responds inline. No navigation.
-              <LiveThread chat={chat} userInitial={userInitial} onSignIn={() => setAuthOpen(true)} />
+              keepCard ? (
+                // Continuing in place: the structured reveal STAYS, the live reply
+                // appends below it (no reformat). The seed is history-only here.
+                <>
+                  <FirstSession fs={fs} userInitial={userInitial} />
+                  <LiveThread chat={chat} userInitial={userInitial} onSignIn={() => setAuthOpen(true)} />
+                </>
+              ) : (
+                // OAuth-return: structured state was lost on the redirect, so the
+                // transcript renders as the conversation. Still continuous, no recap.
+                <LiveThread chat={chat} userInitial={userInitial} onSignIn={() => setAuthOpen(true)} />
+              )
             ) : (
               <FirstSession fs={fs} userInitial={userInitial} />
             )
@@ -276,7 +288,8 @@ export default function ChatPane({ variant }: { variant: Variant }) {
         // (OAuth). A returning logged-out user just reloads the workspace once authed.
         redirectTo={first ? "/workspace?view=first&continue=1" : "/workspace"}
         onAuthed={first ? handleAuthed : undefined}
-        onContinueWithoutSaving={first ? handleContinueWithoutSaving : undefined}
+        onContinueWithoutSaving={first ? handleMaybeLater : undefined}
+        continueLabel={first ? "Maybe later" : undefined}
         onClose={() => {
           setAuthOpen(false);
           clearThread();
@@ -567,9 +580,7 @@ function FirstSession({
       {/* Post-reveal beats — the advisor runs the session (first-session arc spec).
           Order: feelings beat (always) → roles offer (calibrated to clarity, never
           pushed first for an unsure user) → close on one concrete action. */}
-      {phase === "revealed" && result && (
-        <PostReveal result={result} clarity={fs.directionClarity} />
-      )}
+      {phase === "revealed" && result && <PostReveal clarity={fs.directionClarity} />}
 
       {/* error — the advisor owns it. A specific reason (e.g. a daily limit) is
           shown verbatim with NO retry (it can't help); otherwise the generic line
@@ -640,25 +651,13 @@ function RevealCard({ result }: { result: ReturnType<typeof useFirstSession>["re
    are "earned in": offered up front only to a DIRECTED user; held back, no-rush, for
    anyone unsure. The close is the generated, calibrated single next action (Beat 5). */
 function PostReveal({
-  result,
   clarity,
 }: {
-  result: NonNullable<ReturnType<typeof useFirstSession>["result"]>;
   clarity: ReturnType<typeof useFirstSession>["directionClarity"];
 }) {
-  const close = closeBeat(result.nextAction);
-  return (
-    <>
-      {/* Beat 3 — the feelings beat (always) */}
-      <AdvisorBubble>{FEELINGS_BEAT}</AdvisorBubble>
-
-      {/* Beat 4 — roles, earned in (calibrated to clarity) */}
-      <AdvisorBubble>{rolesBeat(clarity)}</AdvisorBubble>
-
-      {/* Beat 5 — close on one concrete action */}
-      {close && <AdvisorBubble>{close}</AdvisorBubble>}
-    </>
-  );
+  // ONE message after the reveal — invite exploration, permit not-knowing. The old
+  // feelings + roles + close stack over-asked and made people feel they had to decide.
+  return <AdvisorBubble>{explorationInvite(clarity)}</AdvisorBubble>;
 }
 
 /* ---- a single advisor bubble (avatar + text), for the scripted first-session beats ---- */

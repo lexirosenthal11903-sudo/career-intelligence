@@ -27,6 +27,11 @@ The advisor reacts, is present, and reads you properly before it tells you anyth
 - ✓ **Advisor fills profile gaps casually in conversation** — asks for what's missing (values,
   deal-breakers, aspiration, working style) one at a time, never a second intake. _(2026-06-23)_
 - ▶ **Advisor reacting + feeling present** — initiates, responds to what you do, doesn't wait to be asked.
+- ▶ **Use the person's name** — the moment it's known (CV or told), acknowledge it and use the first name
+  naturally in replies (never every line). _(building 2026-06-24)_
+- ▶ **Low-effort first moments** — the opening questions must be no-thinking (tell me about yourself / drop
+  your CV / is this still you?), build trust, then go deeper. The first 30 seconds decide it. _(building 2026-06-24)_
+- ○ **Drag-and-drop CV upload** — drop a file onto the conversation, not only the + button.
 - ○ **"Start fresh, keep the memory"** — a light session reset that doesn't wipe what the advisor knows.
 
 ## Step 2 — The candidate-strength loop (the heart of the mission)

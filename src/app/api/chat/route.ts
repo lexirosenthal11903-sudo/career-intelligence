@@ -83,9 +83,18 @@ interface ChatMessage {
  */
 async function buildUserContext(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  displayName?: string
 ): Promise<string> {
   const parts: string[] = [];
+  // Personalisation: the moment we know their name, use it (Lexi, 2026-06-24). Kept
+  // separate from `parts` so it doesn't count as "we know them" (which would skip the
+  // new-user welcome). First name only, used naturally — not in every line.
+  const rawFirst = displayName?.trim().split(/\s+/)[0];
+  const nameLine =
+    rawFirst && !rawFirst.includes('@')
+      ? `Their name is ${rawFirst} — use their first name naturally and warmly (a greeting, the odd moment), but NOT in every message.`
+      : '';
   // Things worth knowing that we don't have yet — so the advisor can fill them in
   // casually, in conversation, rather than a second cold intake (Lexi, 2026-06-23).
   const missing: string[] = [];
@@ -167,10 +176,11 @@ async function buildUserContext(
   }
 
   if (!parts.length) {
-    return '\n\nYou are just getting to know this person — you do not have their CV analysis yet. Be welcoming and orient them toward sharing their background.';
+    const intro = nameLine ? `\n\n${nameLine}` : '';
+    return `${intro}\n\nYou are just getting to know this person — you do not have their CV analysis yet. Be welcoming and orient them toward sharing their background.`;
   }
 
-  let context = `\n\nWHAT YOU KNOW ABOUT THIS PERSON (never re-ask these — reference them naturally):\n${parts.join('\n')}`;
+  let context = `\n\nWHAT YOU KNOW ABOUT THIS PERSON (never re-ask these — reference them naturally):\n${[nameLine, ...parts].filter(Boolean).join('\n')}`;
 
   // You already know them — so don't re-interrogate. But where there are gaps, fill
   // them in casually, the way a mentor would: one small question when the moment
@@ -249,7 +259,9 @@ export async function POST(request: Request) {
     }
   }
 
-  const userContext = await buildUserContext(supabase, user.id);
+  const displayName =
+    (user.user_metadata?.full_name as string | undefined) || user.email || undefined;
+  const userContext = await buildUserContext(supabase, user.id, displayName);
   const system = ARLO_SYSTEM_PROMPT + userContext;
 
   // Manual agentic loop: call Claude, run any tools it requests, feed the results

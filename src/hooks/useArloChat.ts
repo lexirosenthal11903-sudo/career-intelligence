@@ -23,6 +23,7 @@ export function useArloChat({
   userId,
   seedThread,
   autoSend,
+  hideSeed,
 }: {
   page: string;
   supabase: SupabaseClient | null;
@@ -35,6 +36,10 @@ export function useArloChat({
   // A pending user message to send the instant the seeded conversation takes over
   // (the reply the user gave to the first-session beats).
   autoSend?: string;
+  // When true, the seed transcript is used as conversation HISTORY only — not
+  // re-rendered as bubbles. The first session keeps its structured reveal card on
+  // screen and the live reply appends below it, so nothing reformats. (Lexi, 2026-06-24.)
+  hideSeed?: boolean;
 }) {
   const [allMsgs, setAllMsgs] = useState<ChatMsg[]>([]);
   const [showPrevious, setShowPrevious] = useState(false);
@@ -114,7 +119,7 @@ export function useArloChat({
           initiate();
         }
       });
-  }, [supabase, userId, page, initiate]);
+  }, [supabase, userId, page, initiate, seedThread]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -217,7 +222,9 @@ export function useArloChat({
     // directly in an effect — after an await is the accepted pattern).
     (async () => {
       await Promise.resolve();
-      setAllMsgs(display);
+      // hideSeed: keep the seed as history only (the structured reveal stays on
+      // screen); otherwise render it as the conversation (OAuth-return path).
+      if (!hideSeed) setAllMsgs(display);
       // Persistence + a live reply both need an authed user. Unauthed ("continue
       // without saving") still SEES the conversation; sending prompts a sign-in.
       if (userId && supabase) {
@@ -231,7 +238,7 @@ export function useArloChat({
       }
       if (autoSend && userId) sendMessage(autoSend);
     })();
-  }, [seedThread, autoSend, userId, supabase, page, sendMessage]);
+  }, [seedThread, autoSend, userId, supabase, page, sendMessage, hideSeed]);
 
   // Auto-scroll when messages change or loading state changes. Honour
   // prefers-reduced-motion — JS smooth scroll isn't covered by the CSS rule.
