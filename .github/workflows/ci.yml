@@ -1,0 +1,49 @@
+name: CI
+
+# Auto-run the fast, secret-free checks on every push/PR so regressions fail
+# HERE, before they ever reach Lexi (set up 2026-06-24). Deliberately scoped:
+#   - typecheck (tsc) + unit tests + production build + the MOCK-based e2e
+#   - NOT lint yet (36 pre-existing errors — add the gate once they're cleaned)
+#   - NOT the .prod/.live e2e (they need real Supabase/Anthropic secrets — later)
+# Dummy public env keeps it fully self-contained: no GitHub secrets, £0.
+
+on:
+  push:
+    branches: [staging, main]
+  pull_request:
+
+env:
+  # Public, non-secret placeholders so the Supabase browser/server clients
+  # construct during build + dev-server boot. The mock e2e never makes real calls.
+  NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-for-ci
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: node --test tests/profile-normalize.test.mjs tests/adzuna-category.test.mjs
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E (mock-based)
+        run: npx playwright test smoke first-session-arc --project=chromium
