@@ -17,6 +17,145 @@
 
 ---
 
+## 🅿️ Session 2026-06-25 — Application-effectiveness research (NEXT research session)
+
+_Agreed at the end of the session that built CV tailoring, cover letters, and the Applications folder.
+Lexi's instruction: capture everything in full, do not summarise, do not abbreviate — this is the brief
+for the next dedicated research session. Nothing below is from memory; all of it was agreed out loud._
+
+**What this session is for:**
+Before building "why am I not hearing back?", outreach, or interview prep, we do the research that
+grounds all of them. This session produces `research/application-effectiveness.md` — a structured
+research document (same pattern as `research/mentorship-research.md`) that the CV/cover letter/outreach/
+interview-prep generation prompts get rewritten against. The point is: the advice the advisor gives
+must be backed by evidence, not AI guessing. The research comes first; the prompt rewrites come second.
+
+**Why now (Lexi's words, distilled):** if we build first and research later, we'll need to go back
+and forward loads of times fixing things. Doing it in the right order saves that. Everything we build
+in Step 2 should be backed by what actually works.
+
+**Source quality — non-negotiable rule:**
+Only primary data sources count. Specifically: CIPD research, Reed annual hiring reports, Indeed UK /
+LinkedIn Talent Insights UK data, academic hiring studies, ONS labour market data. Career advice blogs
+do not count. If a claim cannot be sourced to a primary dataset or peer-reviewed study, the research
+document must label it clearly as "widely believed but not verified from a primary source" — never
+stated as fact.
+
+**Scope of the research session — every thread, in full:**
+
+### Thread 1 — CVs (what actually works, UK early-career)
+What ATS systems actually parse (keyword matching, formatting, file type) — and the reality of how many
+employers in the UK actually use ATS (the answer is: large corporates yes, SMEs often not, and the
+advice differs by route). What recruiters look for in the first 7 seconds of a CV. What makes bullet
+points land versus get skipped. What length is actually right for an early-career / graduate CV. What
+formatting genuinely helps vs what looks like cargo-cult advice recycled from American sources.
+The seniority difference: a graduate CV is read by different people (often junior HR, campus
+recruiters, or the hiring manager directly depending on firm size) and evaluated on different criteria
+than experienced-hire CVs.
+
+### Thread 2 — Cover letters (UK norms, do they get read, what works)
+The honest answer to whether cover letters actually get read in the UK in 2026 — and how the answer
+varies by sector, firm size, and route (direct application vs recruiter submission vs referral). What
+makes a cover letter get read versus skipped. What openers kill it immediately. What length is right
+(shorter than most people think for UK). What the specific failure modes are. The AI detection problem
+in 2026: hiring managers have now been flooded with AI-generated cover letters for 2+ years; there is
+active detection happening; authentic voice is now a genuine differentiator. What an AI-generated cover
+letter looks like to a recruiter, so our output explicitly avoids it.
+
+### Thread 3 — "Why am I not hearing back?" — dedicated research thread
+**This is its own named thread because it is a core feature we are building.** The failure modes
+are different from each other and the advice differs depending on the cause. The research needs to
+identify and document each failure mode separately:
+- ATS filtering: how common is it in the UK, what triggers it, what does and doesn't get through
+- Volume reality: how many applications does a typical UK graduate role actually receive? What does
+  that mean for response rates? What is a realistic expectation for a user who has sent 10 / 20 / 50
+  applications?
+- Role-level mismatch: what causes a CV to read as under- or over-qualified, and how does a recruiter
+  react to it versus an ATS?
+- Timing: UK hiring cycles — when are the high seasons (Jan–Feb, Sept–Oct) and dead periods (Dec, Aug)?
+  For an early-career user, applying in the wrong window is wasted effort and the advisor should be
+  honest about this.
+The advisor must be able to give a specific, probable cause when a user says "I'm not hearing back" —
+not just "keep trying." This research is what makes that possible.
+
+### Thread 4 — Outreach (warm intros vs cold, realistic response rates, what gets a reply)
+The referral reality: research suggests approximately 30–50% of hires come through referrals or
+networking connections. **This number must be verified with UK primary sources** (CIPD, Reed, LinkedIn
+UK data) in the research session — it has been noted verbatim as "approximately 30–50%, to be verified"
+and must not be used in the product or stated to users until it is confirmed and sourced.
+Cold outreach vs warm intro: how different are the response rates, actually? What does cold outreach
+to a stranger on LinkedIn actually achieve for an early-career person in 2026? What makes a cold
+message get a reply versus get ignored? What sectors or firm sizes respond better to cold outreach
+versus others?
+**The platform idea raised by Lexi (2026-06-25):** if referrals are that important, the product
+should not just help users draft outreach messages — it should help them CREATE the referral
+relationships that lead to introductions. This is a product direction idea, not just a feature.
+What could that look like? Could the advisor help a user identify who in their network (or second-
+degree network) is worth reaching out to for a warm intro? Could it help them build a relationship
+over time rather than just send a cold message? This needs a design/strategy discussion before
+building — park the idea here and return to it when the research is done and we know what the
+evidence actually says about referrals.
+
+### Thread 5 — The recruiter vs hiring manager distinction
+A CV is typically screened first by a recruiter (either a recruitment agency or an internal HR/talent
+team) who has completely different evaluation criteria from the hiring manager who ultimately makes the
+decision. The recruiter is filtering for: does this person meet the stated requirements, do they look
+like a safe pass-through, are there red flags. The hiring manager is assessing: would I want to work
+with this person, can they actually do this job, do they fit the team. Our CV tailoring and cover
+letter advice needs to address both filters, not just one. The research should tell us: at what firm
+sizes do recruiters first-filter? In what sectors does the CV go directly to the hiring manager? How
+do you write for both audiences?
+
+### Thread 6 — Industry differentiation (where the playbook genuinely differs)
+Lexi's instinct is right: different industries look for different things. The research must be specific
+about WHERE the playbook actually differs and WHERE the generic advice applies. Not artificially
+differentiated — genuinely different. Known examples: creative industries (portfolio/work samples
+matter more than CV wording), finance/banking (specific certification expectations, very structured
+application processes), tech (GitHub/portfolio for engineers, the CV may be secondary), law (training
+contract process is completely different from a standard job application), ops/generalist roles (closest
+to the generic advice). The research output should include a reference section on which industries
+diverge from the standard playbook and how.
+
+### Thread 7 — The portfolio question
+For certain roles and industries — tech, design, content creation, some marketing — the CV is
+secondary to a portfolio or body of work. Research: which industries, at which seniority levels? What
+does "good" look like for a graduate-level portfolio in these fields? When should the advisor
+deprioritise CV advice in favour of portfolio advice? This affects what the advisor says when a user
+in these fields asks for help.
+
+### Thread 8 — Interview prep (include now so we don't need a second research session later)
+We will build interview prep in Step 2. Do the research now. What are interviewers actually assessing
+at entry level / graduate level? The difference between competency-based (STAR format) and strengths-
+based interviews (which UK graduate employers have moved toward — Unilever, Deloitte, etc.). What
+graduate employers in the UK have said publicly about what makes a candidate stand out vs fail. How
+to prepare for a role when you don't have much experience to draw on. The honest advice about what
+interview prep actually changes (mindset, framing) vs what it doesn't (you can't fake experience).
+
+### Thread 9 — The AI detection problem (cross-cutting, 2026)
+This cuts across all the above: CVs, cover letters, and outreach messages. In 2026, hiring managers
+have been receiving AI-generated applications at scale for 2+ years. There is now active detection
+happening — some use tools, many have developed pattern recognition. Our output has to pass the "sounds
+like a real person" test. The research needs to document: what does AI-generated content look like to
+a recruiter? What are the tells? What does authentic voice look like in contrast? This is not just a
+prompt engineering question — it affects the philosophy of what we're building. The advisor should be
+producing genuinely personalised, specific output that uses the user's actual words and experiences,
+not generic template language with their name inserted.
+
+**What this session produces:**
+- `research/application-effectiveness.md` — the structured research document, with sources cited for
+  every claim, primary data only, UK-specific, early-career focus, 2026-current.
+- Prompt rewrites for `tailor_cv`, `write_cover_letter`, and the to-be-built `why_not_hearing_back`
+  and outreach tools — all grounded in the research findings.
+- A note on which industry differentiations we will and won't encode (scope decision).
+
+**How to run it:**
+WebSearch for current UK primary sources. Verify every stat before writing it into the document.
+Flag anything that can't be verified from a primary source. Do not build anything in this session —
+pure research and documentation. Suggest Opus for this session (reasoning quality matters for
+synthesis). Lexi co-creates the document rather than receiving a surprise drop at the end.
+
+---
+
 ## 🅿️ To discuss later (raised 2026-06-22, during the audit-planning conversation)
 
 - **Niche-industry users.** The concept of a user looking at a more niche / unusual industry — how the

@@ -51,10 +51,15 @@ a direct path (click/drag/edit yourself) always both available. The advisor is a
 
 Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Architecture-heavy — plan on Opus._
 
-- ○ **CV tailoring** — tailor the CV to a specific role to beat the ATS (the #1 reason for silence).
-- ○ **Cover letters** — advisor writes it around the person's real angle; user approves.
-- ○ **"Why am I not hearing back?" diagnosis** — paste role + CV → real reasons + fixes. _Likely killer feature._
-- ○ **Networking / outreach** — warm intros + drafted outreach (most roles go through referral).
+- ✓ **CV tailoring** — tailor the CV to a specific role to beat the ATS. Advisor tool (`tailor_cv`) + `SavedJobDetail` Documents section. Downloadable as PDF. Explains each change. _(2026-06-25)_
+- ✓ **Cover letters** — advisor writes it around the person's real angle (`write_cover_letter` tool). Shows in `SavedJobDetail` Cover letter section alongside the tailored CV. Downloadable as PDF. _(2026-06-25)_
+- ✓ **Applications folder** — each saved role is a hub (stage + notes + tailored CV + cover letter + future interview prep). Applications nav item + `ApplicationsView` list. _(2026-06-25)_
+- **▶ RESEARCH FIRST — application-effectiveness research session** — before building "why am I not hearing back?", outreach, or interview prep, do the research session that grounds ALL of Step 2. Full scope in [parking-lot.md](parking-lot.md) under "Session 2026-06-25 — application-effectiveness research". This session rewrites the CV/cover letter generation prompts AND grounds everything built after it. Do not build the next Step 2 feature until this is done.
+- ○ **CV build from scratch** — for users with no CV on file. Advisor uses the profile it already knows (values, aspiration, direction, self-knowledge answers) to generate a skeleton CV in the target direction. User fills in the specifics; advisor coaches them through it. Same API architecture as tailoring, different prompt. _(Lexi, 2026-06-24)_
+- ○ **"Why am I not hearing back?" diagnosis** — paste role + CV → real reasons + fixes. _Likely killer feature._ ⚠️ Has its own dedicated research thread within the application-effectiveness research session — the failure modes (ATS filter, volume, level mismatch, timing) must be sourced before building so the advisor gives specific, accurate diagnoses rather than guessing. See parking-lot.md.
+- ○ **Networking / outreach** — warm intros + drafted outreach. ⚠️ The referral reality (research suggests ~30–50% of hires come through referrals — stat to be verified in the research session with UK primary sources) means this is not just a "nice to have" outreach feature — it's one of the highest-leverage things an early-career person can do. The product needs to reflect this honestly. Platform idea: a way to help users CREATE referral relationships, not just draft cold messages. See parking-lot.md for the full idea.
+- ○ **"I've seen a role I'm interested in"** — user pastes or describes a role they found elsewhere (LinkedIn, a friend, a site); advisor engages with it exactly as it would a matched role: tailoring, outreach, diagnosis, prep. The platform should never require the user to have found the role here. _(Lexi, 2026-06-25)_
+- ○ **LinkedIn import** — user connects LinkedIn; advisor uses it to fill in the profile (work history, skills, education) and improve the quality of its read. Richer than a CV alone — captures endorsements, tenure, activity. Also the B2B data-export path later. _(Lexi, 2026-06-25; already noted in Step 4 — pulled forward because the user-understanding value is immediate)_
 - ○ **Interview prep via the advisor** — role-specific preparation.
 - ○ **Skills shown in context** — surfaced inside a role/direction, not a separate deficit list.
 - ○ **New-role alerts** — "spotted something" — genuinely new listings, the daily-companion return mechanic.
@@ -62,7 +67,7 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
   conversationally ("you've passed on a few consulting roles — what's putting you off?"), uses it to
   refine direction. Never silently changes direction. _(from S10 brainstorm)_
 - ○ **Mentor-session formats** — structured ways the advisor runs a working session (direction deep-dive,
-  interview prep, application review, values exploration). _(own research+design effort)_
+  interview prep, application review, values exploration, CV building from scratch). _(own research+design effort)_
 - ○ **Documents folder** — home for tailored CVs + cover letters (after those exist; uploaded CV lives in Profile).
 
 ## Ongoing fixes & smaller features (chipped between the big steps)
@@ -109,6 +114,10 @@ Make the facts real so the product is credible, not guessing. Plan: [GROUNDED-KN
 - ○ **Mentorship market + credibility + business-model strategy session — PARKED, not started.** The big
   strategy/research session (is there a real UK gap? how do we prove AI advice is credible? all business-
   model options? go-to-market?). Fully scoped in [parking-lot.md](parking-lot.md). Runs when Lexi signals.
+
+## Future platform extensions (not Step 2 — but real, not dismissed)
+
+- ○ **WhatsApp channel** — the core product stays in the platform, but the user can continue talking to their advisor over WhatsApp when they're on the go. Same memory, same context, different surface. Not a separate product — an access layer. Architecture: Twilio / WhatsApp Business API → webhook → existing `/api/chat`. _(Lexi, 2026-06-25)_
 
 ## Not features — sessions to run when Lexi signals (not builds)
 
