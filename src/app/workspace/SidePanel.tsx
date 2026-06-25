@@ -493,6 +493,7 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
   const [jobDocs, setJobDocs] = useState<DocumentRecord[]>([]);
   const [jobDocsLoading, setJobDocsLoading] = useState(false);
   const [docExpanded, setDocExpanded] = useState<string | null>(null);
+  const [clExpanded, setClExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -671,6 +672,51 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
             <p className={s.rdText}>No tailored CV yet for this role.</p>
             <button className={s.chip} type="button" onClick={() => askAdvisor(`Tailor my CV for the ${job.title} role at ${job.company}.`)}>
               Tailor my CV for this role
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Cover letter for this role */}
+      <div className={s.rdSection}>
+        <div className={s.rdLabel}>Cover letter</div>
+        {jobDocsLoading ? (
+          <div className={`${s.job} ${s.skeleton}`} style={{ height: "36px" }} />
+        ) : jobDocs.filter((d) => d.type === "cover_letter").length > 0 ? (
+          jobDocs.filter((d) => d.type === "cover_letter").map((doc) => {
+            const title = doc.metadata?.jobTitle
+              ? `Cover letter — ${doc.metadata.jobTitle}${doc.metadata.jobCompany ? ` at ${doc.metadata.jobCompany}` : ""}`
+              : "Cover letter";
+            const isOpen = clExpanded === doc.id;
+            const notes: string[] = (doc.metadata as { notes?: string[] })?.notes ?? [];
+            return (
+              <div key={doc.id} className={s.docCard} style={{ marginTop: "6px" }}>
+                <div className={s.docHeader}>
+                  <div className={s.docTitle}>{title}</div>
+                  <div className={s.docActions}>
+                    <button className={s.chip} type="button" onClick={() => openCvForPrinting(doc.content, title)}>Download PDF</button>
+                    <button className={s.chip} type="button" onClick={() => setClExpanded(isOpen ? null : doc.id)}>{isOpen ? "Hide" : "View"}</button>
+                  </div>
+                </div>
+                {isOpen && (
+                  <>
+                    {notes.length > 0 && (
+                      <div className={s.docChanges}>
+                        <div className={s.rdLabel}>What I emphasised and why</div>
+                        <ul className={s.rlist}>{notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
+                      </div>
+                    )}
+                    <div className={s.docCvWrap}><pre className={s.docCvText}>{doc.content}</pre></div>
+                  </>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <>
+            <p className={s.rdText}>No cover letter yet for this role.</p>
+            <button className={s.chip} type="button" onClick={() => askAdvisor(`Write a cover letter for the ${job.title} role at ${job.company}.`)}>
+              Write cover letter
             </button>
           </>
         )}

@@ -132,6 +132,23 @@ export const ADVISOR_TOOLS = [
     },
   },
   {
+    name: 'write_cover_letter',
+    description:
+      "Write a cover letter for this person for a specific role. Call this when they ask you to write, draft, or help with a cover letter — whether they give you a full job description or just a role title. You need their CV on file; if it's missing, tell them to add it in their Profile. After the tool runs, share a brief note on the approach you took and tell them their cover letter is ready to download.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        roleTitle: { type: 'string', description: 'The job title they are applying for.' },
+        company: { type: 'string', description: 'The company name, if known.' },
+        jobDescription: {
+          type: 'string',
+          description: "The full job listing or a description of the role. The more detail, the better the letter. If they haven't shared one, ask — but if they push back, write from the role title alone.",
+        },
+      },
+      required: ['roleTitle'],
+    },
+  },
+  {
     name: 'tailor_cv',
     description:
       "Tailor this person's CV for a specific role. Call this when they ask you to help tailor, rewrite, or optimise their CV for a role — whether they give you a full job description or just a role title. You need their CV on file; if it's missing, tell them to add it in their Profile. After the tool runs, present the key changes conversationally and tell them their tailored CV is ready to download.",
@@ -316,6 +333,107 @@ export async function executeAdvisorTool(
           content: `Directions updated to: ${titles}.${keywords.length ? ' Job search refreshed.' : ''}`,
           action: keywords.length ? 'Updated your directions and refreshed your roles' : 'Updated your directions',
           signal: 'analysis-changed',
+        };
+      }
+
+      case 'write_cover_letter': {
+        const roleTitle = String(input.roleTitle ?? '').trim();
+        if (!roleTitle) return { content: 'Need a role title to write the cover letter for.', isError: true };
+        const company = typeof input.company === 'string' ? input.company.trim() : '';
+        const jobDescription = typeof input.jobDescription === 'string' ? input.jobDescription.trim() : '';
+
+        const profile = await getProfile(supabase, userId);
+        if (!profile.cvText) {
+          return {
+            content: "No CV on file. Tell them to upload their CV via their Profile first, then come back to this.",
+            isError: true,
+          };
+        }
+
+        // Pull in analysis summary + values for personalisation
+        let analysisSummary = '';
+        let userValues: string[] = [];
+        try {
+          const { data: resultRow } = await supabase
+            .from('results')
+            .select('data')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          const p = (resultRow?.data as { profile?: { summary?: string } } | null)?.profile;
+          if (p?.summary) analysisSummary = p.summary;
+        } catch { /* fine */ }
+        if (Array.isArray(profile.values) && profile.values.length) {
+          userValues = profile.values as string[];
+        }
+
+        const contextLines = [
+          analysisSummary ? `Background summary: ${analysisSummary}` : '',
+          userValues.length ? `What they value in work: ${userValues.join(', ')}` : '',
+          profile.aspiration ? `2-year aspiration: ${profile.aspiration}` : '',
+        ].filter(Boolean).join('\n');
+
+        const prompt = [
+          `You are a career advisor writing a cover letter on behalf of someone applying for a role.`,
+          `Write from their perspective, in first person, based only on what's in their CV and background.`,
+          `\nROLE: ${roleTitle}${company ? ` at ${company}` : ''}`,
+          jobDescription ? `\nJOB DESCRIPTION:\n${jobDescription.slice(0, 2000)}` : '',
+          contextLines ? `\nABOUT THEM:\n${contextLines}` : '',
+          `\nTHEIR CV:\n${profile.cvText.slice(0, 3000)}`,
+          `\nCover letter rules:`,
+          `- 3 paragraphs maximum. Concise and direct — 250 words max.`,
+          `- Opening: connect to this specific role and company. Never start with "I am writing to apply".`,
+          `- Middle: 1–2 specific, concrete achievements from their background that are most relevant to this role.`,
+          `- Closing: genuine enthusiasm + one clear next step (hoping to discuss / looking forward to).`,
+          `- Sound like a real person, not a template. No buzzwords. No exaggeration.`,
+          `- Do NOT invent skills, roles, or achievements not in the CV.`,
+          `\nAlso give 2–3 brief notes on the approach you took — what you emphasised and why.`,
+          `\nRespond with valid JSON only, in this exact shape:`,
+          `{"coverLetter":"<the full cover letter>","notes":["<note 1>","<note 2>"]}`,
+        ].filter(Boolean).join('\n');
+
+        const res = await callClaude({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1500,
+          messages: [{ role: 'user', content: prompt }],
+        });
+        const raw = await res.json();
+        const text: string = raw.content?.[0]?.text ?? '';
+
+        let coverLetter = '';
+        let notes: string[] = [];
+        try {
+          const jsonStr = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+          const parsed = JSON.parse(jsonStr) as { coverLetter?: string; notes?: string[] };
+          coverLetter = parsed.coverLetter ?? '';
+          notes = Array.isArray(parsed.notes) ? parsed.notes : [];
+        } catch {
+          coverLetter = text;
+        }
+
+        if (coverLetter) {
+          await supabase.from('documents').upsert(
+            {
+              user_id: userId,
+              job_id: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
+              type: 'cover_letter',
+              content: coverLetter,
+              metadata: { notes, jobTitle: roleTitle, jobCompany: company || undefined },
+            },
+            { onConflict: 'user_id,job_id,type' }
+          );
+        }
+
+        const notesText = notes.length
+          ? notes.map((n) => `• ${n}`).join('\n')
+          : 'Cover letter written for this role.';
+
+        return {
+          content: `Cover letter written for ${roleTitle}. Approach:\n${notesText}\nThe cover letter is ready to download.`,
+          action: `Wrote cover letter for ${roleTitle}${company ? ` at ${company}` : ''}`,
+          signal: 'cover-letter-written',
+          data: { jobTitle: roleTitle, jobCompany: company || undefined, coverLetter, notes },
         };
       }
 
