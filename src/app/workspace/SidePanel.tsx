@@ -9,9 +9,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import s from "./workspace.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
-import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, HintIcon, ChevronIcon } from "./icons";
+import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, HintIcon, ChevronIcon, ApplicationsIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
-export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile";
+export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile" | "applications";
 
 const LOGO_TOKENS = ["--logo-1", "--logo-2", "--logo-3", "--logo-4", "--logo-5", "--logo-6"];
 
@@ -33,6 +33,7 @@ const TAB = {
   documents: { icon: DocumentsIcon, label: "Documents", title: "Documents" },
   saved: { icon: RolesIcon, label: "Saved role", title: "Saved role" },
   profile: { icon: ProfileIcon, label: "Your profile", title: "Your profile" },
+  applications: { icon: ApplicationsIcon, label: "Applications", title: "Applications" },
 } as const;
 
 export default function SidePanel({
@@ -138,6 +139,7 @@ export default function SidePanel({
       {view === "documents" && <DocumentsView />}
       {view === "saved" && <SavedJobDetail jobId={savedJobId ?? null} onOpenRoles={onOpenRoles} />}
       {view === "profile" && <ProfileView analysisProfile={profile} />}
+      {view === "applications" && <ApplicationsView />}
 
     </aside>
   );
@@ -482,12 +484,15 @@ function relativeTime(iso: string): string {
   return "last month";
 }
 
-function SavedJobDetail({ jobId, onOpenRoles }: { jobId: string | null; onOpenRoles?: () => void }) {
+function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { jobId: string | null; onOpenRoles?: () => void; backLabel?: string }) {
   const [app, setApp] = useState<SavedApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [stage, setStage] = useState<string>("preparing");
   const [note, setNote] = useState("");
   const [noteSaved, setNoteSaved] = useState(false);
+  const [jobDocs, setJobDocs] = useState<DocumentRecord[]>([]);
+  const [jobDocsLoading, setJobDocsLoading] = useState(false);
+  const [docExpanded, setDocExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -509,6 +514,18 @@ function SavedJobDetail({ jobId, onOpenRoles }: { jobId: string | null; onOpenRo
         if (!cancelled) setLoading(false);
       }
     })();
+    return () => { cancelled = true; };
+  }, [jobId]);
+
+  useEffect(() => {
+    if (!jobId) return;
+    let cancelled = false;
+    setJobDocsLoading(true);
+    fetch(`/api/documents?jobId=${encodeURIComponent(jobId)}`)
+      .then((r) => r.ok ? r.json() : { documents: [] })
+      .then((d) => { if (!cancelled) setJobDocs(d.documents ?? []); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setJobDocsLoading(false); });
     return () => { cancelled = true; };
   }, [jobId]);
 
@@ -537,7 +554,7 @@ function SavedJobDetail({ jobId, onOpenRoles }: { jobId: string | null; onOpenRo
 
   const backBtn = (
     <button className={s.rdBack} type="button" onClick={onOpenRoles}>
-      <ChevronIcon style={{ transform: "rotate(180deg)" }} /> Saved roles
+      <ChevronIcon style={{ transform: "rotate(180deg)" }} /> {backLabel}
     </button>
   );
 
@@ -613,6 +630,51 @@ function SavedJobDetail({ jobId, onOpenRoles }: { jobId: string | null; onOpenRo
           <p className={s.rdReason}>{job.relevanceReason}</p>
         </div>
       )}
+
+      {/* Tailored CV for this role */}
+      <div className={s.rdSection}>
+        <div className={s.rdLabel}>CV for this role</div>
+        {jobDocsLoading ? (
+          <div className={`${s.job} ${s.skeleton}`} style={{ height: "36px" }} />
+        ) : jobDocs.filter((d) => d.type === "cv_tailored").length > 0 ? (
+          jobDocs.filter((d) => d.type === "cv_tailored").map((doc) => {
+            const title = doc.metadata?.jobTitle
+              ? `CV — ${doc.metadata.jobTitle}${doc.metadata.jobCompany ? ` at ${doc.metadata.jobCompany}` : ""}`
+              : "Tailored CV";
+            const isOpen = docExpanded === doc.id;
+            const changes = doc.metadata?.changes ?? [];
+            return (
+              <div key={doc.id} className={s.docCard} style={{ marginTop: "6px" }}>
+                <div className={s.docHeader}>
+                  <div className={s.docTitle}>{title}</div>
+                  <div className={s.docActions}>
+                    <button className={s.chip} type="button" onClick={() => openCvForPrinting(doc.content, title)}>Download PDF</button>
+                    <button className={s.chip} type="button" onClick={() => setDocExpanded(isOpen ? null : doc.id)}>{isOpen ? "Hide" : "View"}</button>
+                  </div>
+                </div>
+                {isOpen && (
+                  <>
+                    {changes.length > 0 && (
+                      <div className={s.docChanges}>
+                        <div className={s.rdLabel}>What I changed and why</div>
+                        <ul className={s.rlist}>{changes.map((c, i) => <li key={i}>{c}</li>)}</ul>
+                      </div>
+                    )}
+                    <div className={s.docCvWrap}><pre className={s.docCvText}>{doc.content}</pre></div>
+                  </>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <>
+            <p className={s.rdText}>No tailored CV yet for this role.</p>
+            <button className={s.chip} type="button" onClick={() => askAdvisor(`Tailor my CV for the ${job.title} role at ${job.company}.`)}>
+              Tailor my CV for this role
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Interview-prep nudge — contextual, hands off to the conversation */}
       <div className={s.rdSection}>
@@ -864,6 +926,97 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
             </div>
           </>
         )}
+      </div>
+    </>
+  );
+}
+
+/* ===== Applications view =================================================== */
+interface ApplicationListItem {
+  job_id: string;
+  job_data: PanelJob;
+  stage: string;
+  created_at: string;
+}
+
+const STAGE_LABELS: Record<string, string> = {
+  preparing: "Preparing",
+  applied: "Applied",
+  interview: "Interview",
+  offer: "Offer",
+};
+
+function ApplicationsView() {
+  const [apps, setApps] = useState<ApplicationListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/applications");
+        if (!res.ok) return;
+        const { applications } = await res.json();
+        if (!cancelled) setApps(applications ?? []);
+      } catch { /* ignore */ }
+      finally { if (!cancelled) setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (selectedId) {
+    return (
+      <SavedJobDetail
+        jobId={selectedId}
+        onOpenRoles={() => setSelectedId(null)}
+        backLabel="Applications"
+      />
+    );
+  }
+
+  return (
+    <>
+      <div className={s.sideH}>
+        <div className={s.ti}><h3>Applications</h3></div>
+        <div className={s.sub}>Everything about each role — in one place</div>
+      </div>
+      <div className={s.sideB}>
+        {loading && [0, 1, 2].map((i) => (
+          <div key={i} className={`${s.job} ${s.skeleton}`} style={{ height: "66px" }} />
+        ))}
+
+        {!loading && apps.length === 0 && (
+          <div className={s.panelEmpty}>
+            <p>No saved roles yet. Mark a role as interested and it appears here — with your tailored CV, notes, and prep all in one place.</p>
+          </div>
+        )}
+
+        {!loading && apps.map((app) => {
+          const job = app.job_data;
+          const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
+          const stageLabel = STAGE_LABELS[app.stage] ?? "Preparing";
+          return (
+            <button
+              key={app.job_id}
+              className={s.job}
+              type="button"
+              onClick={() => setSelectedId(app.job_id)}
+            >
+              <CompanyLogo
+                company={job.company || job.title || "?"}
+                fallbackColor={logoColour(job.company || job.title || "?")}
+                initial={initial}
+                className={s.jlogo}
+              />
+              <div className={s.jinfo}>
+                <div className={s.jtitle}>{job.title}</div>
+                <div className={s.jmeta}>{job.company}{job.location ? ` · ${job.location}` : ""}</div>
+              </div>
+              <span className={`${s.jfit} ${s.good}`} style={{ flexShrink: 0 }}>{stageLabel}</span>
+            </button>
+          );
+        })}
       </div>
     </>
   );

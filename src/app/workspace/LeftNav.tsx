@@ -14,10 +14,11 @@ import {
   DirectionIcon,
   DocumentsIcon,
   ProfileIcon,
+  ApplicationsIcon,
 } from "./icons";
 
 type Variant = "first" | "returning";
-type PanelView = "roles" | "direction" | "documents" | "profile";
+type PanelView = "roles" | "direction" | "documents" | "profile" | "applications";
 
 export default function LeftNav({
   variant,
@@ -81,6 +82,15 @@ export default function LeftNav({
         ) : rolesCount != null && rolesCount > 0 ? (
           <span className={s.ct}>{rolesCount}</span>
         ) : null}
+      </button>
+
+      <button
+        className={`${s.nitem} ${first ? s.locked : ""} ${activeView === "applications" ? s.on : ""}`}
+        type="button"
+        disabled={first}
+        onClick={() => onNavigate?.("applications")}
+      >
+        <ApplicationsIcon /> Applications
       </button>
 
       <button

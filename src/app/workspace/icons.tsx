@@ -106,3 +106,10 @@ export const FileIcon = (p: I) => (
     <polyline points="14 2 14 8 20 8" />
   </svg>
 );
+
+export const ApplicationsIcon = (p: I) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M3 9h18M8 5V3M16 5V3" />
+  </svg>
+);
