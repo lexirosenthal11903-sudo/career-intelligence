@@ -20,7 +20,6 @@ import ChatPane from "./ChatPane";
 import SidePanel, { type PanelView } from "./SidePanel";
 import { usePanelJobs } from "./usePanelJobs";
 import { flushPendingCv } from "@/lib/cv";
-import TailorCVModal from "@/components/TailorCVModal";
 
 type Variant = "first" | "returning" | "resolve";
 
@@ -99,20 +98,15 @@ function ReturningWorkspace() {
   const [savedJobId, setSavedJobId] = useState<string | null>(null);
   const split = panelOpen;
 
-  // CV tailor results from the chat context (ci:cv-tailored event from useArloChat).
-  const [chatTailorResult, setChatTailorResult] = useState<{
-    jobTitle: string;
-    jobCompany?: string;
-    tailoredCv: string;
-    changes: string[];
-  } | null>(null);
+  // CV tailoring from chat — open the Documents panel so the user can find their CV.
   useEffect(() => {
-    function onTailor(e: Event) {
-      const detail = (e as CustomEvent).detail as typeof chatTailorResult;
-      if (detail?.jobTitle) setChatTailorResult(detail);
+    function onOpenDocuments() {
+      setSavedJobId(null);
+      setPanelView("documents");
+      setPanelOpen(true);
     }
-    window.addEventListener("ci:cv-tailored", onTailor);
-    return () => window.removeEventListener("ci:cv-tailored", onTailor);
+    window.addEventListener("ci:open-documents", onOpenDocuments);
+    return () => window.removeEventListener("ci:open-documents", onOpenDocuments);
   }, []);
 
   // Shared jobs data — fetched once here so the nav count and the panel agree.
@@ -175,16 +169,6 @@ function ReturningWorkspace() {
         </div>
       </div>
 
-      {/* CV tailor modal — opened by the advisor via chat (ci:cv-tailored event) */}
-      {chatTailorResult && (
-        <TailorCVModal
-          jobTitle={chatTailorResult.jobTitle}
-          jobCompany={chatTailorResult.jobCompany}
-          tailoredCv={chatTailorResult.tailoredCv}
-          changes={chatTailorResult.changes}
-          onClose={() => setChatTailorResult(null)}
-        />
-      )}
     </>
   );
 }

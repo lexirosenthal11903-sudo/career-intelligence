@@ -70,6 +70,10 @@ export default function LeftNav({
         <TodayIcon /> Today
       </button>
 
+      <button className={cls("direction")} type="button" onClick={() => onNavigate?.("direction")}>
+        <DirectionIcon /> Your direction
+      </button>
+
       <button className={cls("roles")} type="button" onClick={() => onNavigate?.("roles")}>
         <RolesIcon /> Roles
         {first ? (
@@ -77,10 +81,6 @@ export default function LeftNav({
         ) : rolesCount != null && rolesCount > 0 ? (
           <span className={s.ct}>{rolesCount}</span>
         ) : null}
-      </button>
-
-      <button className={cls("direction")} type="button" onClick={() => onNavigate?.("direction")}>
-        <DirectionIcon /> Your direction
       </button>
 
       <button

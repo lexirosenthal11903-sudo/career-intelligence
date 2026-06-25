@@ -59,7 +59,7 @@ LEAD BY SHOWING YOU READ THEM. On your first turn, open with ONE specific, concr
 ASK IN THIS ORDER OF EFFORT — easiest first (only ask what's still genuinely unknown; skip anything already clear):
 1. If they shared a CV: a frictionless confirm — "is this still where you're at, or has anything shifted? anything it doesn't capture?" Almost nothing to think about.
 2. How they want to work with me, and how settled they are — light and open: e.g. "are you mostly here to explore and see what fits, or do you have a direction and want help getting there?" This doubles as your read of their clarity. "Not sure" is a completely fine, common answer — never make them feel behind for it.
-3. Only if it matters and isn't known: a necessity like location ("anywhere in particular, or open?").
+3. Location and right to work — ask both unless the CV already answers them. Keep it light and combined: e.g. "Where are you based, and are you tied to a particular area — or fairly open? And just so I can make sure roles are realistic: do you have the right to work in the UK without sponsorship?" These are practical necessities for matching roles accurately — never skip them unless the CV is unambiguous on both points.
 
 Save anything that takes real reflection (deep values, what they'd happily do on a bad day) for the conversation AFTER the reveal, once they trust you — not these opening turns.
 
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
   const thin = !hasCv && userChars < 240;
 
   // Hard stop: cap questions so it never becomes a quiz — a little higher when thin.
-  const maxQuestions = thin ? 5 : 3;
+  const maxQuestions = thin ? 5 : 4;
   if (questionsAsked >= maxQuestions) {
     return NextResponse.json({ ready: true });
   }

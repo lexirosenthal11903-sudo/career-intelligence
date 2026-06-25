@@ -56,6 +56,19 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   const [pendingSend, setPendingSend] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
 
+  // When WorkspaceShell promotes from first→returning, it destroys the first ChatPane
+  // and mounts a new returning one. The first-session seed is bridged via sessionStorage
+  // so the returning ChatPane can continue the conversation seamlessly.
+  const [firstSessionSeed] = useState<{ messages: ApiMsg[]; pending: string } | undefined>(() => {
+    if (typeof sessionStorage === "undefined" || variant !== "returning") return undefined;
+    try {
+      const raw = sessionStorage.getItem("ci:first-session-seed");
+      if (!raw) return undefined;
+      sessionStorage.removeItem("ci:first-session-seed");
+      return JSON.parse(raw);
+    } catch { return undefined; }
+  });
+
   const setUserFrom = (user: { id: string; user_metadata?: { full_name?: string }; email?: string } | null) => {
     if (!user) return;
     setUserId(user.id);
@@ -100,8 +113,8 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     page: "workspace",
     supabase,
     userId: first ? (live ? userId : null) : userId,
-    seedThread: first && live ? seedThread ?? undefined : undefined,
-    autoSend: first && live ? pendingSend || undefined : undefined,
+    seedThread: first && live ? seedThread ?? undefined : firstSessionSeed?.messages,
+    autoSend: first && live ? pendingSend || undefined : firstSessionSeed?.pending,
     hideSeed: keepCard,
   });
 
@@ -122,6 +135,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     // forbids setState directly in an effect; after an await is the accepted pattern).
     (async () => {
       await Promise.resolve();
+      try { sessionStorage.setItem("ci:first-session-seed", JSON.stringify(stash)); } catch { /* ignore */ }
       setSeedThread(stash.messages);
       setPendingSend(stash.pending);
       setLive(true);
@@ -197,6 +211,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     const pending = seed ?? "Show me the first few roles";
     const thread = buildFirstThread();
     if (userId) {
+      try { sessionStorage.setItem("ci:first-session-seed", JSON.stringify({ messages: thread, pending })); } catch { /* ignore */ }
       setSeedThread(thread);
       setPendingSend(pending);
       setLive(true);
@@ -215,6 +230,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     const stash = readThread();
     setAuthOpen(false);
     if (stash) {
+      try { sessionStorage.setItem("ci:first-session-seed", JSON.stringify(stash)); } catch { /* ignore */ }
       setSeedThread(stash.messages);
       setPendingSend(stash.pending);
     }
@@ -260,7 +276,7 @@ export default function ChatPane({ variant }: { variant: Variant }) {
               <FirstSession fs={fs} userInitial={userInitial} />
             )
           ) : (
-            <ReturningSession chat={chat} userInitial={userInitial} onSignIn={() => setAuthOpen(true)} />
+            <ReturningSession chat={chat} userInitial={userInitial} onSignIn={() => setAuthOpen(true)} skipRecap={!!firstSessionSeed} />
           )}
         </div>
       </div>
@@ -307,23 +323,27 @@ function ReturningSession({
   chat,
   userInitial,
   onSignIn,
+  skipRecap = false,
 }: {
   chat: ReturnType<typeof useArloChat>;
   userInitial: string;
   onSignIn?: () => void;
+  skipRecap?: boolean;
 }) {
   // Real, per-user recap (VOICE-IN-UI §3). While it generates we hold the space with
   // a skeleton so the conversation doesn't jump; if there's no analysis yet, nothing
   // shows — the conversation just starts. No more hardcoded example copy.
+  // Skip the recap when continuing directly from the first session — there's no "earlier"
+  // to summarise, and the conversation should feel uninterrupted.
   const { recap, loading } = useRecap();
-  const showRecap = loading || !!recap;
+  const showRecap = !skipRecap && (loading || !!recap);
 
   return (
     <>
       {showRecap && <div className={s.stamp}>Earlier</div>}
 
-      {loading && !recap && <RecapSkeleton />}
-      {recap && <RecapCard recap={recap} />}
+      {showRecap && loading && !recap && <RecapSkeleton />}
+      {showRecap && recap && <RecapCard recap={recap} />}
 
       {showRecap && <div className={s.stamp}>Today</div>}
 

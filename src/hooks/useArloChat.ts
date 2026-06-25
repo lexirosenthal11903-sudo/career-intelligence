@@ -172,8 +172,8 @@ export function useArloChat({
           try { sessionStorage.removeItem("cached-jobs"); } catch { /* ignore */ }
           window.dispatchEvent(new CustomEvent("ci:analysis-changed"));
         }
-        if (signals.includes("cv-tailored") && mData["cv-tailored"] && typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("ci:cv-tailored", { detail: mData["cv-tailored"] }));
+        if (signals.includes("cv-tailored") && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("ci:open-documents"));
         }
 
         setAllMsgs((prev) => [...prev, { role: "arlo", text: arloText, actions }]);

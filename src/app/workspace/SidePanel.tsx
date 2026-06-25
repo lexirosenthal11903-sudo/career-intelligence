@@ -11,8 +11,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
 import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, HintIcon, ChevronIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
-import TailorCVModal from "@/components/TailorCVModal";
-
 export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile";
 
 const LOGO_TOKENS = ["--logo-1", "--logo-2", "--logo-3", "--logo-4", "--logo-5", "--logo-6"];
@@ -59,12 +57,6 @@ export default function SidePanel({
   const [passed, setPassed] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState<Set<string>>(new Set());
   const [tailoring, setTailoring] = useState(false);
-  const [tailorResult, setTailorResult] = useState<{
-    tailoredCv: string;
-    changes: string[];
-    jobTitle: string;
-    jobCompany?: string;
-  } | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUserId(user?.id ?? null));
@@ -147,15 +139,6 @@ export default function SidePanel({
       {view === "saved" && <SavedJobDetail jobId={savedJobId ?? null} onOpenRoles={onOpenRoles} />}
       {view === "profile" && <ProfileView analysisProfile={profile} />}
 
-      {tailorResult && (
-        <TailorCVModal
-          jobTitle={tailorResult.jobTitle}
-          jobCompany={tailorResult.jobCompany}
-          tailoredCv={tailorResult.tailoredCv}
-          changes={tailorResult.changes}
-          onClose={() => setTailorResult(null)}
-        />
-      )}
     </aside>
   );
 
@@ -216,7 +199,7 @@ export default function SidePanel({
         }
         return;
       }
-      setTailorResult({ tailoredCv: data.tailoredCv, changes: data.changes, jobTitle: job.title, jobCompany: job.company });
+      window.dispatchEvent(new CustomEvent("ci:open-documents"));
     } catch {
       window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
         detail: `I had trouble tailoring my CV for the ${job.title} role. Can you help?`,
@@ -887,17 +870,138 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
 }
 
 /* ===== Documents view ====================================================== */
+interface DocumentRecord {
+  id: string;
+  job_id: string;
+  type: string;
+  content: string;
+  metadata: { changes?: string[]; jobTitle?: string; jobCompany?: string };
+  created_at: string;
+}
+
+function openCvForPrinting(cv: string, title: string) {
+  const escaped = cv.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>${title}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; color: #000; padding: 2cm; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 20px; border-bottom: 1px solid #ddd; margin-bottom: 24px; }
+    .toolbar h1 { font-size: 14px; font-weight: 600; }
+    .toolbar button { background: #000; color: #fff; border: none; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 4px; }
+    pre { white-space: pre-wrap; word-wrap: break-word; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; }
+    @media print {
+      .toolbar { display: none; }
+      body { padding: 0; }
+      @page { margin: 2cm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>${title}</h1>
+    <button onclick="window.print()">Save as PDF (Cmd+P / Ctrl+P)</button>
+  </div>
+  <pre>${escaped}</pre>
+</body>
+</html>`;
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const w = window.open(url, "_blank");
+  if (w) w.addEventListener("load", () => URL.revokeObjectURL(url));
+}
+
 function DocumentsView() {
+  const [docs, setDocs] = useState<DocumentRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/documents");
+      if (!res.ok) { setLoading(false); return; }
+      const data = await res.json();
+      setDocs(data.documents ?? []);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }
+
+  useEffect(() => {
+    load();
+    window.addEventListener("ci:open-documents", load);
+    return () => window.removeEventListener("ci:open-documents", load);
+  }, []);
+
+  const tailoredCvs = docs.filter((d) => d.type === "cv_tailored");
+
   return (
     <>
       <div className={s.sideH}>
         <div className={s.ti}><h3>Documents</h3></div>
-        <div className={s.sub}>Tailored CVs and outreach drafts live here</div>
+        <div className={s.sub}>Tailored CVs and drafts — always here to find again</div>
       </div>
       <div className={s.sideB}>
-        <div className={s.panelEmpty}>
-          <p>Nothing here yet. When we tailor your CV or draft an outreach message, it&rsquo;ll live here so you can find it again.</p>
-        </div>
+        {loading && [0, 1].map((i) => (
+          <div key={i} className={`${s.job} ${s.skeleton}`} style={{ height: "66px" }} />
+        ))}
+
+        {!loading && tailoredCvs.length === 0 && (
+          <div className={s.panelEmpty}>
+            <p>Nothing here yet. Ask me to tailor your CV for a role and it&rsquo;ll live here — always findable, never lost.</p>
+          </div>
+        )}
+
+        {!loading && tailoredCvs.map((doc) => {
+          const title = doc.metadata?.jobTitle
+            ? `CV — ${doc.metadata.jobTitle}${doc.metadata.jobCompany ? ` at ${doc.metadata.jobCompany}` : ""}`
+            : "Tailored CV";
+          const isOpen = expanded === doc.id;
+          const changes = doc.metadata?.changes ?? [];
+
+          return (
+            <div key={doc.id} className={s.docCard}>
+              <div className={s.docHeader}>
+                <div className={s.docTitle}>{title}</div>
+                <div className={s.docActions}>
+                  <button
+                    className={s.chip}
+                    type="button"
+                    onClick={() => openCvForPrinting(doc.content, title)}
+                  >
+                    Download PDF
+                  </button>
+                  <button
+                    className={s.chip}
+                    type="button"
+                    onClick={() => setExpanded(isOpen ? null : doc.id)}
+                  >
+                    {isOpen ? "Hide" : "View"}
+                  </button>
+                </div>
+              </div>
+
+              {isOpen && (
+                <>
+                  {changes.length > 0 && (
+                    <div className={s.docChanges}>
+                      <div className={s.rdLabel}>What I changed and why</div>
+                      <ul className={s.rlist}>
+                        {changes.map((c, i) => <li key={i}>{c}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  <div className={s.docCvWrap}>
+                    <pre className={s.docCvText}>{doc.content}</pre>
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
     </>
   );
