@@ -45,9 +45,12 @@ fixes + the job-stability architecture. Build order, all on `staging`:_
    **real per-day detection** pass surfaces 1–2 genuinely new listings not already seen (24h gate),
    **plus** an on-demand "show me more roles" the user can trigger. New-user initial set capped to ~5–8
    strong roles (not ~22). Needs a new Supabase migration (Lexi runs it).
-2. **"Already interested" bug.** Confirmed root cause: `handleInterested` (`SidePanel.tsx`) awaits the
-   save-job write *before* `askAdvisor`, so `buildUserContext` (`chat/route.ts`) already sees the job
-   saved → advisor says "you've already done that." Fix on the handoff message + a just-now signal.
+2. ✅ **"Already interested" bug — RESOLVED (verified 2026-06-26).** Root cause was: `handleInterested`
+   (`SidePanel.tsx`) saves the job before `askAdvisor`, so `buildUserContext` (`chat/route.ts`) already
+   sees it saved → advisor says "you've already done that." Fixed at the prompt level (not by reordering):
+   the handoff message is forward-looking ("I've just said I'm interested… what should we do about it?"),
+   AND `buildUserContext` tells the advisor a just-saved job is a fresh decision being confirmed right now,
+   never "already done that." Confirmed both are in place.
 3. **Saved-job detail page** (J&J reference: breadcrumb, job card, "show details", activity log,
    "write a note", interview-prep nudge). Fixes the dead saved-job click + nav Recent → opens the role.
 4. **CV upload saves to Profile** (source identity). Tailored CVs/cover letters → Documents later.

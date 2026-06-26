@@ -24,6 +24,9 @@ export async function DELETE() {
     admin.from('matched_jobs').delete().eq('user_id', user.id),
     admin.from('job_match_state').delete().eq('user_id', user.id),
     admin.from('recaps').delete().eq('user_id', user.id),
+    // tailored CVs + cover letters. The FK has on-delete-cascade, but we erase
+    // explicitly too so GDPR deletion never depends on the cascade (same rule as above).
+    admin.from('documents').delete().eq('user_id', user.id),
   ]);
 
   const { error } = await admin.auth.admin.deleteUser(user.id);

@@ -172,7 +172,7 @@ export default function SidePanel({
     window.dispatchEvent(new CustomEvent("ci:roles-changed"));
     // Forward-looking so the advisor helps with it now, rather than acknowledging a
     // save it can already see in context (the "you've already done that" bug).
-    askAdvisor(`I've just said I'm interested in the ${job.title} role at ${job.company} — what should we do about it?`);
+    askAdvisor(`I've just said I'm interested in the ${job.title} role at ${job.company}. What should we do about it?`);
   }
 
   async function handleTailorCV(job: PanelJob) {
