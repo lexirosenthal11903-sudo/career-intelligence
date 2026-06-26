@@ -1,5 +1,9 @@
 # Career Intelligence — Project Instructions
 
+_Active rules only (2026-06-26 prune) — a bloated CLAUDE.md gets half-ignored. State → `REBUILD.md`; features
+→ `FEATURE-ROADMAP.md`; orientation → `START-HERE.md`; design → `SESSION_DECISIONS.md`; voice →
+`ADVISOR_PERSONA.md`; history → `archive/CLAUDE-historical-detail-2026-06-26.md`. Keep under 200 lines._
+
 ## Role
 
 Claude Code is technical co-founder. Lexi is the non-technical founder. This means:
@@ -28,26 +32,13 @@ Full context: memory `feedback-build-breadth-first`._
 5. **Log every idea the instant Lexi says it** into `FEATURE-ROADMAP.md` (the single visible map). Nothing
    verbal stays only in a transcript — she must be able to open one place and trust nothing is lost.
 6. **The map is a holding pen, not a commitment.** Proactively suggest new features unprompted, AND
-   challenge ones that don't earn their place — capture everything, then decide *together, as we go*,
-   whether each is worth building (against the mission test). Logging an idea ≠ agreeing to build it.
+   challenge ones that don't earn their place — capture everything, then decide *together, as we go*.
 
-### Keeping it organised — single source of truth (maintain this; don't let it re-scatter)
-The 2026-06-24 cleanup must not have to happen again. The discipline that prevents it:
-- **One home per thing.** Feature ideas → `FEATURE-ROADMAP.md` (the map) with detail in `parking-lot.md`.
-  Voice → `ADVISOR_PERSONA.md`. Tech state → `REBUILD.md`. Why/north-star → `MISSION.md`. Lessons →
-  `INSIGHTS.md`. Orientation → `START-HERE.md`. **Never invent a new top-level doc when an existing one
-  owns that topic.** If you must, link it from START-HERE and say why.
-- **Capture during, reconcile at the end.** Log every idea the moment it's raised (rule 5). At
-  `/session-handoff`, reconcile: fold loose notes into their home, mark done items, archive anything
-  superseded into `archive/` or `brainstorms/_archived/` (move, don't delete — preserve git history).
-- **Superseded ≠ deleted.** Old plans/audits/design-sessions get moved to `archive/`, never left cluttering
-  the root. The root stays the small set of living docs in the START-HERE table.
-
-### Getting more professional — engineering hardening (do when the time is right, before real users)
-Tracked so it resurfaces (full list in FEATURE-ROADMAP "pre-launch"). Not now, but not forgotten:
-CI pipeline (auto-run tests on push, not just locally) · activate Sentry (DSN + alert rule — currently
-dormant) · widen test coverage beyond core flows · a true production environment separate from staging ·
-the legal/privacy floor (ICO, privacy policy + terms, working account deletion) before ANY real user.
+**Single source of truth — don't let it re-scatter.** One home per thing: features → `FEATURE-ROADMAP.md`
+(detail in `parking-lot.md`) · voice → `ADVISOR_PERSONA.md` · tech state → `REBUILD.md` · why → `MISSION.md`
+· lessons → `INSIGHTS.md` · orientation → `START-HERE.md`. Never invent a new top-level doc when one owns
+the topic. Capture during the session; reconcile at `/session-handoff`. Superseded ≠ deleted — move old
+docs to `archive/`, never leave them cluttering the root, never lose git history.
 
 ## Session Discipline — Non-Negotiable
 
@@ -64,18 +55,22 @@ the legal/privacy floor (ICO, privacy policy + terms, working account deletion) 
 _Full context: `INSIGHTS.md` — read before any complex session._
 
 1. **Start in plan mode.** Shift+Tab before touching any file. Read, reason, get approval — then execute.
+   (Skip planning only for genuine one-sentence changes; plan hard when it touches multiple files.)
 2. **Haiku for sub-tasks.** Sub-agents, `/goal` tasks, research — all default to Haiku unless reasoning demands Sonnet.
 3. **`/goal` for bug fixes.** Specify: what to fix, what done looks like (objective criteria), which files not to touch.
 4. **Never skip `/deploy-check`.** Required before any merge discussion. No exceptions.
-5. **Compact at 60% context.** `/compact` with: "keep all API integration and design token decisions from SESSION_DECISIONS.md."
-6. **Run `/session-handoff` at end of every session.** Compact first if context >60%.
-7. **Don't switch models mid-session.** Model switches break the cache entirely.
-8. **Sessions idle >1 hour break the cache.** If stepping away: session handoff → `/clear` → paste summary into new session.
-9. **CLAUDE.md max 200 lines.** If it grows past 200, prune before the next session.
+5. **Close the loop — run `/code-review` + `/simplify` after any code slice, before Lexi tests.** `/code-review`
+   for bugs, `/simplify` for tightness. Give me a pass/fail to run (tests, lint, shot.js) so I self-correct
+   rather than stopping at "looks done". (Adopted 2026-06-26 from the Anthropic best-practices guide.)
+6. **Compact at 60% context.** `/compact` with: "keep all API integration and design token decisions from SESSION_DECISIONS.md."
+7. **Run `/session-handoff` at end of every session.** Compact first if context >60%. `/clear` between unrelated threads.
+8. **Don't switch models mid-session.** Model switches break the cache entirely.
+9. **Sessions idle >1 hour break the cache.** If stepping away: session handoff → `/clear` → paste summary into new session.
+10. **CLAUDE.md max 200 lines.** If it grows past 200, prune before the next session.
 
 ## The Product
 
-**Career Intelligence** (working name — the final name is TBD; "Meridian" was dropped) is a career intelligence platform for graduates and early-career individuals who don't know what they're looking for. Not a job board. Not an AI tool.
+**Career Intelligence** (working name — final name TBD; "Meridian" was dropped) is a career intelligence platform for graduates and early-career individuals who don't know what they're looking for. Not a job board. Not an AI tool.
 
 **The user:** Someone at a genuine crossroads — anxious, uncertain, without a clear direction. They need to understand themselves before they can search at all. Emotional context is anxiety. Every design and copy decision must address this.
 
@@ -100,27 +95,10 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Design Status
 
-**⚠️ Advisor name dropped (Session 36, 2026-06-20; "Meridian" later dropped too):** All references to "Arlo" in locked screens are superseded. The advisor has no face, no character name. Advisor panel header currently = "Career Intelligence" (the product's working name; final name TBD). Visual language = astronomical photography as abstract texture. Homepage redesign locked to Perplexity structure. The product's final name + advisor identity are deferred to a dedicated identity/branding session.
-
-**Phase 0 — Design. In progress. Do not start engineering until all screens are locked.**
-
-### Locked ✓ (all sessions to date)
-- **Design tokens** — `.design/career-intelligence-redesign/SESSION_DECISIONS.md` (source of truth)
-- **Homepage** — `mockups/homepage-v2.html` — LOCKED (Session 18, 2026-06-11). Three feature sections: direction / roles that fit / every day. Nav: Log in + Sign up. Fit labels (Strong fit / Good fit) not scores. Copywriting session pending (Phase 5).
-- **Dashboard home** — `mockups/dashboard-home.html` — LOCKED (hierarchy fixed Session 10)
-- **Input page** — `mockups/input-page.html` — LOCKED (Session 10). Chat UI, Arlo intro sequence.
-- **Loading screen** — `mockups/loading-screen.html` — LOCKED (Session 10). Text only, 4 phrases, Arlo 56px.
-- **Skills tab** — `mockups/dashboard-skills.html` — LOCKED (Session 13). Direction card + strengths + Before you apply + Worth building. Trajectory framing, not deficit.
-- **Applications tab** — `mockups/dashboard-applications.html` — LOCKED (Session 12). Stage filter + application cards + Arlo panel. Stages: Preparing → Applied → Interview → Offer → Archive.
-- **Auth overlay** — LOCKED (Session 11). Google OAuth + email OTP. Arlo surfaces save prompt before overlay opens.
-- **Roles tab v2** — `mockups/dashboard-roles-v2.html` — LOCKED (Session 13). Tab switcher: Role types / Live listings. Filter pills by role type + Passed. Interested/Pass actions. Post-interest state.
-- **Role detail** — `mockups/role-detail.html` — LOCKED (Session 13). Brief + honest picture + salary (UK) + what it rewards + listings link. Arlo personalises on right.
-- **Onboarding bridge** — `mockups/onboarding-bridge.html` — LOCKED (Session 13). Arlo → direction card (with roles inside) → Arlo note → CTA.
-- **Returning user experience** — `mockups/returning-user.html` — LOCKED (Session 14, 2026-06-10). Three states: new roles / deadline urgency / nothing new. Priority stack in SESSION_DECISIONS.md.
-- **Profile tab** — `mockups/dashboard-profile.html` — LOCKED (Session 15, 2026-06-10). Mirror screen. Activity strip + direction card + "What Arlo knows" (background/values/dealbreakers) + CV on file + preferences + account. Profile lives in bottom-left user area, not a nav tab.
-- **Basic error states** — `mockups/error-states.html` — LOCKED (Session 16, 2026-06-10). Analysis failure + slow pipeline + lost connection + Arlo chat failure. Arlo error voice locked in `ADVISOR_PERSONA.md`.
-
-### Phase 0 complete ✓ — All screens locked. Phase 1 engineering begins next.
+**Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10) — full locked-screen list in
+`SESSION_DECISIONS.md` (source of truth) and `archive/CLAUDE-historical-detail-2026-06-26.md`. Advisor has
+no face and no character name; speaks as "Career Intelligence". Visual language = astronomical photography
+as abstract texture. Final name + advisor identity deferred to a dedicated identity/branding session.
 
 ### Key design rules (override anything older)
 - Sidebar: white. Direction card: cream. Amber ONLY on: primary button, user chat bubbles, active nav.
@@ -132,7 +110,7 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 ## Design Build Discipline — non-negotiable
 
 1. **Screenshot-iterate before showing Lexi.** Use `.design/tools/shot.js`. Iterate until it's as close as it can be. Lexi is never the first to spot obvious bugs.
-2. **Screenshots from shot.js are YOUR OWN observations — never Lexi's.** When `shot.js` returns an image, you took that screenshot autonomously. Never say "looking at the screenshot you sent" or "the screenshot you provided" — that is wrong. Say "looking at this" or "I can see" and describe what you observe in your own voice.
+2. **Screenshots from shot.js are YOUR OWN observations — never Lexi's.** When `shot.js` returns an image, you took that screenshot autonomously. Never say "looking at the screenshot you sent" — say "looking at this" or "I can see" and describe what you observe in your own voice.
 3. **Apply the user-emotion + information lens while iterating.** Is everything clear? Is anything repeated? Is every element necessary? How does an anxious 22-year-old feel looking at this?
 4. **Espresso/dark-brown at the bottom only.** Mid-page warmth = subtle amber radial glow only.
 5. **Match named references faithfully — with a parity check.** Screenshot the reference AND the mockup. Verify the specific attribute actually matches before showing Lexi.
@@ -141,217 +119,54 @@ User arrives with their whole self. Something clicks — the path becomes visibl
 
 ## Technical Architecture
 
-**Target stack (Phase 2 onwards):** Next.js (App Router) · Vercel · Supabase (auth, database, encrypted storage, 90-day deletion) · Vercel API routes · Anthropic API (claude-sonnet-4-6) · Adzuna · Resend
+**Stack:** Next.js (App Router) · Vercel · Supabase (auth, database, encrypted storage, 90-day deletion) · Vercel API routes · Anthropic API (claude-sonnet-4-6 for the advisor, claude-haiku-4-5 for sub-tasks) · Adzuna + Reed (live jobs) · Resend. **Build state of record: `REBUILD.md`.**
 
-**Current stack (legacy — do not build on top of):** Single `index.html` · Vercel `/api/` serverless. The old frontend is being replaced in Phase 2. Backend `api/` functions port to Next.js API routes with minimal changes.
-
-**API endpoints (carry over to Next.js):** analyse.js · chat.js · config.js · extract.js · jobs.js · profile.js · save-job.js · save-result.js · score.js
-
-**Outstanding performance issue:** ~90s pipeline will cause abandonment. Fix: Haiku for extraction + Sonnet for intelligence + streaming. See `INSIGHTS.md` section 1. Fix during Phase 2 build when analyse.js is ported.
-
-**Context7 MCP:** Installed globally. Active in every session. Pulls live Next.js/React docs — prevents deprecated API suggestions. No action needed.
+**Outstanding performance issue:** ~90s pipeline will cause abandonment. Fix: Haiku for extraction + Sonnet for intelligence + streaming. See `INSIGHTS.md` section 1. **Context7 MCP** (global, always on) pulls live Next.js/React docs — no action needed.
 
 ## Git Workflow
 
 - `main` — production. Never push directly. Never merge without explicit instruction from Lexi.
-- `staging` — all work happens here. Workflow: commit → verify on staging preview → Lexi confirms → merge to main.
+- `staging` — all work happens here, and is the production branch (every push updates `career-intelligence-xi.vercel.app`). Workflow: commit → push → Lexi tests on the live URL at flow milestones → Lexi confirms before any merge to main.
 - **Before any merge discussion:** run `/deploy-check`. Always.
-- GitHub token was exposed in a session — needs rotation. Lexi deferred.
+- GitHub token was exposed in a session — needs rotation. Lexi deferred (on the pre-launch list).
 
-## ⚠️ START HERE — Session Continuity (updated 2026-06-23)
+## Orientation — read at session start
 
-**Orientation order:** `START-HERE.md` (human-facing where-are-we / what's-next) → `MISSION.md` (the why,
-north star) → `REBUILD.md` (technical build state). **`ROADMAP.md`, `PLAYBOOK.md`, and the old audit
-reports are now in `archive/` — superseded, ignore.** Current backlog: `AUDIT-REPORT-2026-06-22.md`.
-
-**⚠️ `REBUILD.md` (repo root) is the technical source of truth for what's built.** Read its top
-"▶ CURRENT BUILD QUEUE" block. (`ROADMAP.md` is archived — do not plan from it.)
-
-**Where we are (after the first live test, 2026-06-22):** Step 0 floor + most of Step 1 spine are done
-(advisor memory + agency, jobs-that-are-right, recap card is real, company logos, routing flipped so
-`/workspace` IS the product). Lexi did the first real click-through and logged feedback. **Stable URL:
-`career-intelligence-xi.vercel.app`** (production branch = `staging`; every push updates it).
-
-**Current build queue (REBUILD.md top block, Lexi signed off 2026-06-22):** (1) job persistence +
-daily-new-roles [Opus]; (2) "already interested" bug; (3) saved-job detail page; (4) CV upload → Profile.
-
-**Pending Lexi clicks (product not fully working until done):** run `20260622_recaps.sql` in Supabase;
-add the new `matched_jobs` migration from this session; add Logo.dev env vars in Vercel. See
-`.session-handoff.md`.
-
-### Critical bugs found by Lexi (Session 37, 2026-06-20)
-
-**CRITICAL — product does not function:**
-1. Roles, Applications, and Profile pages return "this page couldn't load" — core product inaccessible
-2. Dashboard shows "DIRECTIONS WORTH EXPLORING / Your directions will appear here once you've shared your background" even after a completed analysis — real data not reaching the dashboard
-3. Onboarding bridge shows "I've matched you with 2015 directions" — reading a date field as a count. Data flow from analysis → onboarding bridge is broken.
-
-**IMPORTANT — product works but is wrong:**
-4. Onboarding bridge title is hardcoded placeholder: "You think in systems, but you're drawn to people problems." — not from real analysis
-5. Input page and Arlo intro text are not personalised — still generic placeholder
-6. "Update my CV" in Profile takes user through the entire input page flow — should just allow CV replacement
-7. Arlo text on input page is generic, not tailored to the user
-
-**Root cause to investigate:** The data flow from `/api/analyse` → sessionStorage → onboarding bridge → dashboard is clearly broken for at least some users/flows. Returning users especially affected. The "2015 directions" bug suggests the code is reading `result.created_at` or similar instead of `result.suggestedDirections.length`.
-
-### Automated bug detection — standing problem
-The audit agent catches code issues but cannot catch UI bugs without running the product. **Session 38 must include writing Playwright end-to-end tests** covering every critical flow, so bugs surface automatically before Lexi has to find them manually. This was in the roadmap since Phase 2 and was never done. Do it in Session 38.
-
-### Session 37 decisions (2026-06-20)
-- Homepage redesign: **shelved**. Draft saved at `.design/career-intelligence-redesign/mockups/homepage-v3.html`. Not locked. Revisit after real user feedback.
-- Arlo face + name: **dropped** (advisor has no character name; speaks as "Career Intelligence"). Product's final name + advisor identity deferred to a dedicated identity session before the first university pitch (Phase 4). "Meridian" was dropped.
-- Astronomical images: saved as `img-moon.jpg` + `img-nebula.jpg` in mockups/ for future use.
-- Mentorship feel: **real problem identified**. Product reads as "dashboard + chatbot", not "mentorship platform". Arlo should initiate, not wait. Fix is in Session 39.
-
-### Revised session priority order
-1. **Session 38:** Fix all critical + important bugs above. Write Playwright tests for every flow.
-2. **Session 39:** Arlo initiates on page load (small change, big feel shift) + direction refinement feature
-3. **Session 40:** CV tailoring basic + cover letter basic
-4. **Then:** Share with 3–5 close contacts. Get real feedback.
-→ Final name + advisor identity: deferred to identity session (before Phase 4). "Meridian" dropped; speaks as "Career Intelligence" for now
-→ Homepage redesign: deferred until after first users + feedback
-→ Full Phase 3c: build after first user feedback, not before
-
-### What "good enough to share with close contacts" looks like
-- Core flow works end to end: input → loading → onboarding bridge (real data) → dashboard (real directions) → roles (real jobs)
-- Direction refinement works (Arlo responds when user says a direction doesn't fit)
-- Arlo initiates when you open a page — doesn't wait to be asked
-- CV tailoring basic (Arlo tailors your CV to a specific role)
-- Cover letter basic (Arlo writes it, user approves)
+**Order:** `START-HERE.md` (where we are / what's next) → `MISSION.md` (the why) → `REBUILD.md` (technical
+build state — read its top "▶ CURRENT BUILD QUEUE"). `ROADMAP.md` and `PLAYBOOK.md` are **archived — ignore.**
 
 **At the start of every session:**
-1. Run `git branch` — confirm `* staging` is active before touching anything
-2. Read `ROADMAP.md` — confirm current phase and today's focus
-3. Check `INSIGHTS.md` — find sections tagged with the current phase
-4. State: "We're in Phase [X], Session [Y]. Today's focus is [Z]."
+1. Run `git branch` — confirm `* staging` before touching anything.
+2. Read `START-HERE.md` + `.session-handoff.md` — confirm current step + today's focus.
+3. State where we are and today's focus.
 
-**⚠️ Challenge before building — standing instruction:**
-Before writing any code in response to Lexi describing a problem or idea: state your understanding of the problem, ask 1-2 clarifying questions, confirm. Never interpret and immediately act. This is a co-founder role — engage first, build second.
-
-**⚠️ Action needed:** Add `REED_API_KEY` to Vercel Production + Preview env vars. Value in `.env.local`. Without this, Reed returns nothing in deployment.
-
-**Master roadmap:** `ROADMAP.md` — single source of truth for sequencing.
-**Session-by-session guide:** `PLAYBOOK.md` — read the current session entry before starting work.
+**Challenge before building (standing):** before writing any code, state your understanding of the problem,
+ask 1–2 clarifying questions, confirm. Never interpret and immediately act.
 
 ## Document Map
 
 | Situation | Read these |
 |---|---|
-| Start of any session | `CLAUDE.md` → `ROADMAP.md` → `PLAYBOOK.md` (current session) → `INSIGHTS.md` (relevant tagged sections) |
+| Start of any session | `START-HERE.md` → `.session-handoff.md` → `MISSION.md` → `REBUILD.md` |
 | Design work | + `SESSION_DECISIONS.md` + `ADVISOR_PERSONA.md` |
-| Engineering / build work | + `SESSION_DECISIONS.md` + `tokens.css` (once reconciled with SESSION_DECISIONS.md) |
+| Engineering / build work | + `REBUILD.md` + `SESSION_DECISIONS.md` |
 | Writing advisor copy | + `ADVISOR_PERSONA.md` + `brainstorms/career-intelligence-emotional-vision.md` |
-| Product decisions | + `brainstorms/career-intelligence-emotional-vision.md` + `ROADMAP.md` |
+| Product decisions | + `MISSION.md` + `FEATURE-ROADMAP.md` |
 | Pipeline / sub-agents / model costs | + `INSIGHTS.md` sections 2b, 3, 5 |
-| Context management / session discipline | + `INSIGHTS.md` section 2 |
-| End of session | Run `/session-handoff`. Compact first if context >60%. |
-| Merging to main | Run `/deploy-check`. Always. |
-| **Document conflicts** | SESSION_DECISIONS.md > CLAUDE.md > ADVISOR_PERSONA.md > DESIGN_BRIEF.md |
-| **Do not use** | `BASE44_HANDOVER.md` (archived) · `tokens.css` (stale until reconciled) |
+| Feature ideas / what's next | `FEATURE-ROADMAP.md` (the map) + `parking-lot.md` (detail) |
+| End of session / merging to main | `/session-handoff` (compact if >60%) · `/deploy-check` before any merge |
+| **Document conflicts** | SESSION_DECISIONS.md > CLAUDE.md > ADVISOR_PERSONA.md |
 
 ## Current Phase
 
-**Phase 3a — COMPLETE ✓ (2026-06-14). Phase 3b begun.**
+**Step 2 — the candidate-strength loop (the heart).** Done + persisting: CV tailoring, cover letters,
+Applications folder, the "why am I not hearing back?" diagnosis. Next: outreach/warm intros, then interview
+prep. Full step sequence in `START-HERE.md`; build state in `REBUILD.md`.
 
-**Phase 0 — Design. COMPLETE ✓** All screens locked (Session 16, 2026-06-10).
-
-**Phase 1 — Foundation Engineering. PARTIALLY COMPLETE ✓**
-- ✓ Next.js scaffold (Session 17)
-- ✓ Session 23: Backend hardening — auth middleware, Arlo persona, rate limiting, input validation
-
-**Phase 2 — Visual Redesign. COMPLETE ✓** Sessions 19–21, 2026-06-11.
-
-**Phase 3a — Session 24 COMPLETE ✓ (2026-06-12):**
-- ✓ Google OAuth wired via Supabase → AuthModal.tsx
-- ✓ Email OTP wired to Supabase (signInWithOtp + verifyOtp)
-- ✓ Auth callback route `/auth/callback` — new users → /input, returning → /dashboard
-- ✓ Session persistence via @supabase/ssr middleware (already in place from Session 23)
-- ✓ Sign out wired in Profile (Supabase signOut → redirect to /)
-- ✓ Real name/email shown in Dashboard greeting and Profile tab
-- ✓ HomepageNav auto-opens signin modal on ?signin=required redirect
-
-**Phase 3a — Session 25 COMPLETE ✓ (2026-06-12):**
-- ✓ InputChat: real file extraction via /api/extract, all inputs saved to sessionStorage
-- ✓ analyse/route.ts: SSE streaming (enrichOnly branch unchanged)
-- ✓ LoadingScreen: SSE consumer — phrase cycling for UX, saves result on complete
-- ✓ OnboardingBridgePage: reads real direction + summary + role titles from sessionStorage
-- ✓ save-result called fire-and-forget on complete — `results` table recreated with correct schema (CASCADE drop fixed schema mismatch from previous session)
-
-**Phase 3a — Session 26 COMPLETE ✓ (2026-06-12):**
-- ✓ Adzuna real job listings in Roles tab (RolesPage reads sessionStorage → /api/results → /api/jobs → /api/score)
-- ✓ /api/results endpoint created (GET latest analysis from Supabase)
-- ✓ Pipeline architectural fix: two parallel Anthropic calls (~700 + ~1,100 tokens each), Vercel Hobby safe
-- ✓ LoadingScreen: redirect to /analysis-error on stream close without complete event
-- ✓ Auth callback: respects ?next param for all users (not just returning)
-- ✓ AuthModal: redirectTo prop — overrides isNewUser routing for both OAuth and OTP
-- ✓ OnboardingBridgePage: checks auth before navigating; opens auth modal with redirectTo=/dashboard
-- ✓ "Continue without saving" → /dashboard; /dashboard accessible without auth
-- ✓ Jobs: shorter keywords (1-3 words, mixed role/industry/function), fallback search if < 5 results
-- ✓ Jobs: score < 4 filtered out, industry-aware scoring, cross-domain collision detection
-- ✓ Jobs: 5 shown initially, Load more +5
-- ✓ Filter pills: simplified to All + Passed only
-- ✓ Input textarea: auto-expands, resets height after send
-- ✓ INSIGHTS.md: standing rule on Anthropic token budgets + call architecture
-
-**Phase 3a — COMPLETE ✓ (2026-06-14):**
-- ✓ Session 27: Arlo chat wired to /api/chat, conversation history per page in Supabase `conversations` table
-- ✓ Session 27: Unauthenticated result persistence fix — re-calls save-result on dashboard load
-- ✓ Session 27 follow-up: Rate limiting on /api/chat (100 msg/user/day, Upstash)
-- ✓ Session 27 follow-up: Dashboard direction card reads real analysis data
-- ✓ Session 27 follow-up: Vercel Production env vars added (NEXT_PUBLIC_SUPABASE_URL + ANON_KEY)
-- ✓ Conversations SQL migration run in Supabase dashboard
-
-**Phase 3b — Session 28 COMPLETE ✓ (2026-06-14):**
-- ✓ Analysis prompts: specificity rules, sector-aware + seniority-aware keyword strategy
-- ✓ Scoring: relevanceReason expanded to 2-3 sentences
-- ✓ Reed API: `/api/reed` wired, runs in parallel with Adzuna for all profiles
-- ✓ companySuggestions surfaced in direction card on dashboard home
-
-**Phase 3b — Session 29 COMPLETE ✓ (2026-06-15):**
-- ✓ Skills tab: reads real data from sessionStorage (`analysis-result`) + /api/results fallback; real auth in sidebar
-- ✓ Applications tab: reads from /api/applications; stage changes PATCH /api/applications; empty state links to Roles
-- ✓ /api/applications route: GET/PATCH/DELETE for saved_applications table
-- ✓ save-job extended: when status=interested, also upserts to saved_applications (stage: preparing)
-- ✓ saved_applications table created in Supabase (SQL migration run)
-- ✓ Critical bug: sessionStorage key mismatch fixed across all tabs (all now use 'analysis-result')
-- ✓ Critical bug: profile call max_tokens raised 1200→1600; required field order fixed so searchKeywords generates before suggestedDirections
-- ✓ Critical bug: suggestedDirections now generates before summary/valuesSignals (3-sentence limit on why)
-- ✓ Seniority: ALL role-title keywords must be prefixed junior/graduate/assistant for entry-level profiles; senior roles score 1-2 (not 3); fallback removed
-- ✓ Dashboard direction card: reads sessionStorage outside auth check (works for unauthenticated users)
-- ✓ Dashboard direction card: shows all 3 directions as "Directions worth exploring" (not single verdict)
-- ✓ Sign-in gate on Interested button: redirects to signup (not signin) with ?next=/dashboard/roles
-- ✓ HomepageNav: reads ?next= param, passes as redirectTo to AuthModal; handles ?signup=required
-- ✓ Job caching: results cached in sessionStorage for 30min so listing count is stable across navigates
-- ✓ Role card descriptions: first sentence only (not truncated with ellipsis)
-- ✓ Real auth (name/email) in Skills, Applications, Roles sidebar
-- ✓ Debug console.logs removed
-
-**Phase 3b — Session 30 COMPLETE ✓ (2026-06-16):**
-- ✓ Strategic repositioning discussion — see ROADMAP.md strategic context block
-- ✓ OTP: show error state instead of silently failing when signInWithOtp errors
-- ✓ Profile sidebar: replace hardcoded Lexi/lexi@email.com with real auth data
-- ✓ RoleDetailPage: fully rewritten — reads real direction from sessionStorage (slug match); Arlo wired to /api/chat via useArloChat; shows direction title + why + ask-Arlo prompts + other directions
-- ✓ ProfilePage: Arlo wired to /api/chat via useArloChat (removed fake timeout response)
-- ✓ DashboardHome: all hardcoded placeholder content removed (Bloom & Wild, logistics role, 12 active days, fake counts)
-
-**Phase 3b — Session 31 COMPLETE ✓ (2026-06-16):**
-- ✓ Post-audit bug fix pass (commit bd6f07e): Applications loading, direction card labels, Arlo bubble spacing, sidebar email truncation, Profile preference defaults, Arlo system prompt (no fake UI actions), login modal copy, Interested button error logging, middleware session refresh for /api/applications + /api/results
-
-**Phase 3b — Session 32 COMPLETE ✓ (2026-06-18):**
-- ✓ Fix: Arlo unauthenticated chat sign-in button (commit 2daa8db)
-- ✓ Chrome audit prompt written — `research/audit-prompt.md`
-- ✓ Full product audit completed — `career_intelligence_audit_18jun2026.md`
-- ✓ Competitive analysis: Apt AI documented
-
-**✓ Direction concept RESOLVED (Session 33, 2026-06-18):**
-"Directions" stays as the word. Directions = what the user *could become* — not a verdict, Arlo's observation. Onboarding bridge intro line (locked): "I've been looking at what you shared — here's where I see this going." UI label: "DIRECTIONS WORTH EXPLORING" across all tabs (never "YOUR DIRECTION"). Full detail in ADVISOR_PERSONA.md "Direction framing" section.
-
-**⚠️ STRATEGIC CONTEXT (added Session 30, 2026-06-16):**
-- Competitive: Jack & Jill AI ($20M funded) owns the "I know what I want" market. Our lane: people who don't know yet.
-- The advisor is the product. Job listings are a utility. Never pitch "we find you jobs."
-- Evolution path: B2C self-discovery → university partnerships (Phase 4) → employer network (Phase 5+)
-- University angle: careers offices are the B2B wedge. Don't build for them yet — have ONE conversation first.
-- Full context in ROADMAP.md strategic context block.
+**⚠️ Strategic context:** Jack & Jill AI ($20M funded) owns the "I know what I want" market — our lane is
+people who don't know yet. **The advisor is the product; job listings are a utility — never pitch "we find
+you jobs."** Evolution: B2C self-discovery → university partnerships (Phase 4) → employer network (Phase 5+).
+Don't build for universities yet — have ONE conversation first. B2C must prove itself before B2B.
 
 **Pre-launch non-negotiables (Lexi to handle — not deferred to build sessions):**
 - ⬜ Add `REED_API_KEY` to Vercel Production + Preview env vars
@@ -360,30 +175,26 @@ Before writing any code in response to Lexi describing a problem or idea: state 
 - ⬜ Real privacy policy + terms of service
 - ⬜ Wire actual user deletion in Profile tab
 - ⬜ Sentry error tracking + Vercel Analytics
-
-**Skills installed:** `systematic-debugging` · `zoom-out` · Context7 MCP (global)
+- ⬜ CI pipeline (auto-run tests on push) · clear the lint backlog to green
 
 ## Professional Engineering Standards
 
-_Applies from the first line of Stage 1 engineering._
-
 - **Tokens are the contract.** `color: var(--accent)` not `color: #A85E16`. Every visual value uses a token. Full token table in `globals.css`. Never introduce a new hex value — add a token first.
-- **Token reference (Session 20, 2026-06-11):** `--accent-dark` (#8F4F10 — hover on accent buttons) · `--green` (#3E9B6B — match/success states) · `--green-soft` (rgba(62,155,107,0.1) — badge backgrounds) · `--danger` (#C0392B — urgent/deadline) · `--danger-dark` (#A93226 — danger hover)
+- **Token reference:** `--accent-dark` (#8F4F10 — hover) · `--green` (#3E9B6B — match/success) · `--green-soft` (rgba(62,155,107,0.1) — badge bg) · `--danger` (#C0392B) · `--danger-dark` (#A93226).
 - **CSS handles appearance. JS handles behaviour. They never mix.**
-- **Every interactive element must have an onClick or href before shipping.** No dead buttons. No `href="#"`. Use `disabled` with a tooltip for things that are coming in a future phase.
+- **Every interactive element must have an onClick or href before shipping.** No dead buttons. No `href="#"`. Use `disabled` with a tooltip for things coming in a future phase.
 - **WCAG AA minimum.** Verified text contrast. Visible focus states. Reduced-motion respected.
-- **Clean commits.** One concern per commit. No debug console.log. Descriptive messages.
-- **No dead code.** Leave the codebase cleaner than you found it.
+- **Clean commits.** One concern per commit. No debug console.log. Descriptive messages. No dead code.
 - **Error states exist before engineering begins.** Never invented on the fly.
 - At the start of every engineering session: install systematic-debugging and zoom-out skills from `~/Desktop/Claude Code/All Installed Skills/`.
 
 ## Permanent Product Decisions
 
-- Platform name: **not locked.** "Meridian" (Session 36) was **dropped**. The product speaks as **"Career Intelligence"** for now; the final name is deferred to the identity/branding session (Phase 4). Do not reintroduce "Meridian".
+- Platform name: **not locked.** "Meridian" was **dropped**. Speaks as **"Career Intelligence"** for now; final name deferred to the identity/branding session (Phase 4). Do not reintroduce "Meridian".
 - Mobile: deferred. Desktop first. Do not raise mobile unless Lexi raises it.
 - GDPR: solicitor's opinion on contact discovery outstanding. Flag proactively.
 - Merge to main: only on explicit instruction from Lexi, after staging is verified.
 - Design sessions and build sessions are separate — never mix them.
 - B2C must prove itself before B2B is pursued. Do not raise B2B before Phase 4.
-- **Quality over quantity** — the product's goal is fewer, better applications. Never optimise for volume or activity metrics. Every feature should help users spend more time preparing, which produces better outcomes. Applies to skills, applications, outreach, and Arlo's behaviour equally.
-- **No gamification** — no streaks, points, badges, or leaderboards. Wrong register for an anxious early-career user. The return mechanic is value: new roles matched, direction clarifying, Arlo remembering.
+- **Quality over quantity** — the product's goal is fewer, better applications. Never optimise for volume or activity metrics. Every feature should help users spend more time preparing. Applies to skills, applications, outreach, and the advisor's behaviour equally.
+- **No gamification** — no streaks, points, badges, or leaderboards. Wrong register for an anxious early-career user. The return mechanic is value: new roles matched, direction clarifying, the advisor remembering.
