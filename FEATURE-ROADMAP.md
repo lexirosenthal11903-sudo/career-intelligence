@@ -103,6 +103,7 @@ Make the facts real so the product is credible, not guessing. Plan: [GROUNDED-KN
 - ○ Fact-check salaries / skills / routes against free authoritative data (£0 constraint).
 - ○ Niche-industry coverage — serve users in small / non-standard fields well.
 - ○ "What makes a good mentor" research — credibility grounding for the advisor.
+- ○ **Employment rights & work law (curated, never AI-generated)** — the advisor will brush against legal questions (unpaid internships that are actually unlawful, worker status & minimum wage, contract types, probation, what an employer can/can't ask). AI-generating this is a liability + a safety risk for an anxious user. Source from **gov.uk + ACAS** primary pages (start: https://www.gov.uk/employment-rights-for-interns), store as facts the advisor retrieves, never invents. Protective, honest register — on-mission and a differentiator. See GROUNDED-KNOWLEDGE-PLAN.md item 8. _(Lexi, 2026-06-26 — from a LinkedIn post on intern pay)_
 
 ## Step 4 — B2B (universities first, only after the candidate loop works)
 

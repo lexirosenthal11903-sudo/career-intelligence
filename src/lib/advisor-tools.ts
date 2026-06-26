@@ -374,20 +374,26 @@ export async function executeAdvisorTool(
           profile.aspiration ? `2-year aspiration: ${profile.aspiration}` : '',
         ].filter(Boolean).join('\n');
 
+        // Grounded in research/application-effectiveness.md (Threads 2 & 9): cover letters are now the
+        // document most saturated with AI text, so authentic specificity is the whole edge — not detector
+        // evasion. Built from the user's real motivation and examples, never template language.
         const prompt = [
-          `You are a career advisor writing a cover letter on behalf of someone applying for a role.`,
-          `Write from their perspective, in first person, based only on what's in their CV and background.`,
+          `You are helping an early-career / graduate applicant write a cover letter for a specific UK role.`,
+          `Write in first person, from their perspective, using ONLY what is in their CV and background.`,
           `\nROLE: ${roleTitle}${company ? ` at ${company}` : ''}`,
           jobDescription ? `\nJOB DESCRIPTION:\n${jobDescription.slice(0, 2000)}` : '',
           contextLines ? `\nABOUT THEM:\n${contextLines}` : '',
           `\nTHEIR CV:\n${profile.cvText.slice(0, 3000)}`,
-          `\nCover letter rules:`,
-          `- 3 paragraphs maximum. Concise and direct — 250 words max.`,
-          `- Opening: connect to this specific role and company. Never start with "I am writing to apply".`,
-          `- Middle: 1–2 specific, concrete achievements from their background that are most relevant to this role.`,
-          `- Closing: genuine enthusiasm + one clear next step (hoping to discuss / looking forward to).`,
-          `- Sound like a real person, not a template. No buzzwords. No exaggeration.`,
-          `- Do NOT invent skills, roles, or achievements not in the CV.`,
+          `\nHow cover letters actually work for UK early-career applicants — ground the letter in this:`,
+          `- This is now the document most flooded with AI-generated text. A generic, competent, AI-shaped letter carries no signal and disappears into a huge pile. Genuine specificity in the applicant's own register is exactly what is now scarce, and it is the whole point.`,
+          `- Build it from their REAL motivation and concrete examples — never template language with the company name slotted in.`,
+          `\nRules:`,
+          `- 3 short paragraphs, half a page to one page, 250 words max. Tight.`,
+          `- Opening: a specific, genuine reason for THIS role and employer that shows they understand what the organisation actually does. Never "I am writing to apply…", never "Dear Sir/Madam" on a named role, never just restate the CV.`,
+          `- Middle: 1–2 concrete, specific achievements or experiences from their background most relevant to this role — real evidence, not adjectives.`,
+          `- Closing: genuine interest + one clear, low-key next step.`,
+          `- Sound like a real person. Avoid the tells of AI writing: inflated abstract vocabulary, the stock adjectives ("passionate", "dynamic", "meticulous", "results-driven"), symmetrical three-part lists, and claims with no evidence behind them.`,
+          `- Do NOT invent skills, roles, or achievements not in the CV. No exaggeration.`,
           `\nAlso give 2–3 brief notes on the approach you took — what you emphasised and why.`,
           `\nRespond with valid JSON only, in this exact shape:`,
           `{"coverLetter":"<the full cover letter>","notes":["<note 1>","<note 2>"]}`,
@@ -451,16 +457,31 @@ export async function executeAdvisorTool(
           };
         }
 
+        // Grounded in research/application-effectiveness.md (Threads 1, 5, 6, 9): tailor for BOTH the
+        // recruiter filter (scannable match to stated requirements) AND the hiring manager (real capability
+        // signal); one page for early-career; substance over AI polish; route-conditional, not "beat the ATS".
         const prompt = [
-          `You are a CV expert. Rewrite the CV below to better target the following role.`,
+          `You are a CV expert helping an early-career / graduate applicant tailor their CV for a specific UK role.`,
           `\nROLE: ${roleTitle}${company ? ` at ${company}` : ''}`,
           jobDescription ? `\nJOB DESCRIPTION:\n${jobDescription}` : '',
           `\nORIGINAL CV:\n${profile.cvText}`,
+          `\nHow UK early-career CVs are actually read — ground every change in this:`,
+          `- The CV usually passes TWO readers. First a recruiter/screen checks it fast and in volume against the role's stated requirements (a graduate vacancy now averages ~140 applicants). Then a hiring manager judges whether this person can really do the job and would fit. Tailor for BOTH: make the match to the stated requirements obvious and scannable, AND keep genuine, specific human signal — never hollow the CV into keywords.`,
+          `- It is read fast and top-down: the top third of the first page must earn the rest of the read. Put the most relevant evidence first.`,
+          `- Graduates are judged on potential, motivation and transferable evidence (study, projects, part-time work, societies) — not a long track record. Evidence behaviours and results; never fake seniority.`,
+          `- Keep it to ONE page of genuinely relevant content. Never pad to fill a second page.`,
+          `\nField-specific emphasis — infer the field from the role and adjust:`,
+          `- Law (solicitor / training contract): the route is SQE + qualifying work experience, recruited 1–2 years ahead. Emphasise legal exposure, commercial awareness and academics; in your changes, note that navigating the application route matters as much as the CV.`,
+          `- Finance / investment banking: structured, early, numbers-heavy. Emphasise quantitative evidence, relevant modules and precision.`,
+          `- Portfolio fields (design, content/creative, front-end & software engineering, parts of marketing): the portfolio / body of work matters more than CV wording. Tailor the CV, but in your changes flag that their portfolio or public work is the primary thing to get right.`,
+          `- Everything else: the general playbook — clear logical structure, most relevant evidence first.`,
           `\nRules:`,
-          `- Rewrite to highlight relevant experience and skills for this role`,
-          `- Adjust bullet points to emphasise achievements that match the role`,
-          `- Do NOT invent qualifications, roles, skills or achievements not in the original`,
-          `- List exactly 3 to 4 specific changes you made and why, as concise bullets`,
+          `- Rewrite to surface the experience, skills and evidence most relevant to THIS role, matched to the advert's language where it is genuine.`,
+          `- Strong bullets = action + specific contribution + concrete outcome. Cut filler.`,
+          `- Keep formatting ATS-safe (standard section headings; no key information trapped in images or tables) — sensible defensively, harmless either way. Do not over-optimise for keywords at the cost of human signal.`,
+          `- Write like a real person. NO generic adjectives ("passionate", "dynamic", "meticulous", "results-driven"), no symmetrical three-part lists, no inflated abstract language. Specifics over polish.`,
+          `- Do NOT invent qualifications, roles, skills or achievements not in the original.`,
+          `- List exactly 3 to 4 specific changes you made and why, as concise bullets.`,
           `\nRespond with valid JSON only, in this exact shape:`,
           `{"tailoredCv":"<the full rewritten CV>","changes":["<change 1>","<change 2>","<change 3>"]}`,
         ].filter(Boolean).join('\n');

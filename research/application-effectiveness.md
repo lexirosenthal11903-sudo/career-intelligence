@@ -378,11 +378,22 @@ _The prompt rewrites are a separate, later step (per the brief). This is the bri
 6. **Cross-cutting (all generators):** authentic, specific, user-grounded output is the product's edge in a
    140:1, AI-saturated market — this is now **evidence-backed**, not a stylistic preference.
 
-### Scope decision still open for Lexi
-**Industry differentiation (Thread 6):** how many sectors do we encode now? My recommendation: encode the
-**three with the hardest structural divergence** first — **law (SQE/SRA route + early cycle), finance (early
-rolling cycle + tests), and portfolio fields (portfolio-primary)** — plus a **default "generalist" playbook**
-for everything else. Tech/consulting awareness can be light-touch until there's user demand. Decide together.
+### Scope decision — RESOLVED (Lexi delegated, 2026-06-26)
+**Industry differentiation (Thread 6):** encode the **three with the hardest structural divergence** —
+**law (SQE/SRA route + early cycle), finance (early rolling cycle + tests), and portfolio fields
+(portfolio-primary)** — plus a **default "generalist" playbook** for everything else. Tech/consulting stay
+light-touch until user demand. (This is the *best* sequencing, not the easiest — generalist-only would leave
+law/finance/portfolio users mis-advised.) **Now encoded in the `tailor_cv` prompt** (field-specific emphasis,
+inferred from the role).
+
+### ✅ APPLIED (2026-06-26) — the two live generators are now grounded
+- **`tailor_cv`** rewritten in `src/lib/advisor-tools.ts`: both-gates (recruiter filter + hiring manager),
+  one-page early-career, substance-over-AI-polish (no stock adjectives / symmetrical lists), ATS formatting
+  as soft defensive advice not "beat the ATS", the 7-second/75% stats dropped, and the law/finance/portfolio
+  + generalist field handling above.
+- **`write_cover_letter`** rewritten: authenticity-as-signal framing (most AI-saturated document → specificity
+  is the edge), no template openers, built from the user's real motivation/examples, AI-tell avoidance.
+- **Still to build (own sessions, design/spec first):** `why_not_hearing_back`, outreach, interview prep.
 
 ---
 

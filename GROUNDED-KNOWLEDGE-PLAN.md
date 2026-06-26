@@ -49,6 +49,14 @@ lookup code on Vercel). Semantic search, if ever needed, uses a **free local** e
 6. **Company claims** ("a small boutique", sector) — today: unsourced. Ground in **Companies House**.
 7. **Role→search-category mapping** (the Adzuna category map I hand-rolled) — could be grounded in a real
    ESCO↔ISCO↔Adzuna crosswalk later. Minor.
+8. **Employment rights & work law** (NEW, Lexi 2026-06-26) — today: the advisor would AI-generate any
+   legal claim, which is both a liability and a safety risk for an anxious early-career user (e.g. telling
+   someone an unpaid "internship" is fine when worker status legally entitles them to minimum wage). Ground
+   in **gov.uk + ACAS** primary pages — never invent. Scope: intern/worker status & pay
+   (https://www.gov.uk/employment-rights-for-interns), National Minimum/Living Wage, contract types,
+   probation, what an employer can/can't ask, holiday/sick basics. This is its own legal-knowledge thread:
+   curated, sourced, advisor-retrieves-never-generates. On-mission (protective + honest register). Distinct
+   from the application-effectiveness research (that's "how to get hired"; this is "your rights at work").
 
 ## Strategy: broad foundation first, then deepen (revised 2026-06-23)
 Earlier note said "pick 3–5 sectors". Revised after talking to Lexi: the free sources are **full
