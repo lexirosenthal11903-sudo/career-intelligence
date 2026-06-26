@@ -24,6 +24,7 @@ itself, plan with it, push it, and keep the context clean._
 | **Prune CLAUDE.md** | Whenever Claude *adds* to CLAUDE.md (never let it pass 200 lines) | Claude (auto) |
 | **Model up to Opus/Fable** | Before reasoning-heavy work (architecture, hard debugging, nuance) | Claude prompts |
 | **Check prior art first** | The moment a task is a common/solved problem (auth, social login, CV/coaching conventions) | Claude prompts |
+| **Research-grounded building** | Before building ANY feature whose quality rests on real-world facts (advice, matching, diagnosis, outreach, salaries, timing) | Claude (auto) |
 | **`/voice`** | Lexi's choice — already in use | Lexi |
 
 ---
@@ -145,3 +146,53 @@ fans out, so usage stays intentional even with the upgraded plan.
 `/loop` reruns a task on a schedule on this machine; `/schedule` runs it in the cloud (keeps going with the
 laptop closed). Anthropic engineers set up autonomous loops where Claude writes code, runs tests, and iterates,
 then review the ~80%-done result. Claude flags when something we do repeatedly should become a loop/schedule.
+
+---
+
+## Research-grounded building — the standard (set 2026-06-26, non-negotiable)
+
+_Why this exists: the product's credibility IS the product. An advisor that gives generic, AI-average advice
+(the statistical mean of everything ever written) is worth nothing to an anxious 22-year-old. So anything the
+advisor asserts as fact — how to tailor a CV, why you're not hearing back, who to reach out to and how, what a
+role pays, when schemes open — must be grounded in real, current, credible research BEFORE it's built. This is
+the same discipline as the design rule "references are not optional": without a real source, output drifts to
+the AI average. We already work this way (mentorship research, application-effectiveness research, outreach
+research); this codifies the bar so it never quietly slips._
+
+**The rule.** Before building any feature whose quality rests on real-world facts (advice, matching,
+diagnosis, outreach, salaries, timing, conventions), produce a grounding research report FIRST, save it to
+`research/<topic>-research.md`, and have the build (prompts + logic) cite/encode it. No grounding → no build.
+Re-ground when the world changes. Research is offloaded to a sub-agent (saves Opus usage); the main thread
+grades it against the bar below before trusting it.
+
+**The bar every grounding report must clear (Claude grades each report against this before it informs a build):**
+1. **Credible, named sources** — gov.uk / National Careers Service, university careers services, primary
+   studies, official platform docs, reputable named orgs. Never content-farm SEO blogs. Never AI-guessed facts.
+2. **Current + UK + audience-right** — true *now*, UK context, early-career/graduate audience, not US-generic.
+   Dated sources are flagged as such.
+3. **Cited inline** — every load-bearing claim is traceable to its source in the text.
+4. **Confidence-tagged** — verified / inferred / uncertain. Every statistic carries its source AND a confidence
+   tag. Numbers without a source are removed, not softened.
+5. **Free (£0)** — public/free sources only, per the standing cost constraint.
+6. **Honest** — no inflated or cherry-picked numbers; contradictions between sources are surfaced, not hidden.
+   Consistent with honest-matching: the advisor stays realistic.
+7. **Build-actionable** — the report MUST end in a concrete "build implications / how to ground the advisor"
+   section (specific do's, don'ts, when-to and how-to-calibrate). Research that doesn't change what we build,
+   or that can't be encoded into a prompt or feature, has failed the bar.
+8. **Complete against a defined scope** _(added 2026-06-26 — Lexi pushback)._ "Complete" is meaningless
+   unless coverage is defined up front. Before researching, list the scope explicitly (e.g. every major UK
+   industry from a standard taxonomy, plus the edge cases that matter for our users — people with no existing
+   network / low social capital, career-changers, international students, regional and accessibility
+   differences). The report covers every item or names it as a known gap. Nothing is implicitly skipped, and
+   the report ends with a "Known gaps / lower-confidence areas" list so omissions are visible, not silent.
+
+**Source hierarchy:** primary/institutional first (gov.uk, ONS, CIPD, ISE, university careers services,
+academic studies, official platform data). Commercial/SEO blogs are directional only (Tier B) — never the
+sole basis for a hard rule. Any claim that becomes a build *rule* needs 2+ independent sources.
+
+**Independent review (writer/reviewer split for research)** _(added 2026-06-26)._ A *separate* agent audits
+each grounding report for gaps, errors, and weak sources before it informs a build — the researcher never
+grades its own homework, exactly as we do for code. The main thread folds the audit in, then builds.
+
+**If a report misses the bar, it goes back** (re-run or reviewer audit) before any code is written against it.
+Research is a living document: re-ground when the market shifts, and carry a review date.
