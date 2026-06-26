@@ -653,11 +653,11 @@ function RevealCard({ result }: { result: ReturnType<typeof useFirstSession>["re
             <div className={s.rlabel}>{label}</div>
             <ul className={s.dirs}>
               {directions.map((d, i) => (
-                <li key={i} className={i === 0 ? `${s.dir} ${s.lead}` : s.dir}>
+                <li key={i} className={s.dir}>
                   <span className={s.num}>{i + 1}</span>
                   <span className={s.dt}>
                     <b>{d.title}</b>
-                    {d.why ? <> — {d.why}</> : null}
+                    {d.why ? <>: {d.why}</> : null}
                   </span>
                 </li>
               ))}
@@ -732,14 +732,25 @@ function LiveComposer({
         ))}
       </div>
       <div className={s.cbar}>
-        <button className={s.cplus} type="button" aria-label="Attach a file">
+        <button
+          className={s.cplus}
+          type="button"
+          aria-label="Add or replace your CV in your Profile"
+          title="To add or replace your CV, open your Profile"
+          disabled
+        >
           <PlusIcon />
         </button>
-        <input
+        <textarea
           aria-label="Message Career Intelligence"
           placeholder="Tell me what you're thinking…"
+          rows={1}
           value={draft}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            onChange(e.target.value);
+            e.target.style.height = "auto";
+            e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px";
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();

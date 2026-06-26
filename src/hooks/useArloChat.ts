@@ -12,7 +12,7 @@ export type ChatMsg = {
 type ApiMsg = { role: "user" | "assistant"; content: string };
 
 const SIGN_IN_PROMPT =
-  "I'd love to respond properly — but I'll need you to sign in first to keep our conversation going. It takes about 30 seconds.";
+  "There's a lot here I'd like to get into properly with you. Sign in and we can keep going from right where we are.";
 
 const ERROR_MSG =
   "Something went wrong on my end — say that again?";

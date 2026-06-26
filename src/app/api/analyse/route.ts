@@ -232,7 +232,7 @@ KEYWORD RULES:
   - Technology: use "product", "data", "growth", "engineering"
   - Academic-adjacent: use "research", "think tank", "knowledge", "publishing"
 - CRITICAL seniority rule: if seniorityLevel contains "Graduate" or "Entry" OR yearsExperience is 0-2 years: ALL role-title keywords MUST start with "junior", "graduate", or "assistant" (e.g. "junior analyst", "graduate consultant", "assistant coordinator"). Never include a bare role title like "analyst" or "consultant" for a graduate profile — it will return senior roles.
-- locationSearch: default to "london" if not specified.
+- locationSearch: ONLY set this if the user actually gave a location. If none is specified, leave it empty (an empty location searches nationwide). NEVER default to London.
 
 OTHER RULES:
 - companySuggestions: types of company (not named employers) that suit this person, with a specific why anchored to their background.

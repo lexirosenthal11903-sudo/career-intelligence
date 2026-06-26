@@ -141,3 +141,65 @@ actions everywhere (#11) · working stage board + advisor reaction (#12) · real
 #1 (systemic string→array normalization) · #2 (E avatar) · #3 (clearest-fit) · #6 (auth convention) ·
 #8 (dead Profile nav honest state) · #13 (career-changer listing seniority) · #21 (worth-exploring pill).
 Everything else is sequenced above for Lexi to approve.
+
+---
+
+## Live-test feedback — Lexi full-flow walk (2026-06-26)
+
+_Captured verbatim from a real end-to-end walk: input page → onboarding → sign-in gate → sign-up → workspace.
+Nothing here is built yet. Severity: 🔴 breaks the walkable flow · 🟠 important · 🟡 polish/voice._
+
+**GOOD — preserve, do not regress:**
+- The **unpaid-internship answer** was rated great (informs + signposts, flags "worth checking", weighs the
+  real cost). This is the target behaviour for the whole regulated-domains guardrail.
+- **Uses her name** on the signed-in opening ("Alexandra. Good to have you here.") — loved.
+- **Writes a fresh opening message on login** — liked (just needs to FLOW from the input convo, see 🔴-C).
+- Input page is **much better than before**.
+
+**🔴 Breaks the walkable flow (continuity + core bugs):**
+- **A. Sign-up loses the input conversation + CV.** She pasted her CV and lots of detail in the input convo;
+  after sign-up the advisor says "no CV on file, no directions set." Profile got *some* details and Your
+  Direction has the onboarding roles, but the **raw CV text + transcript did not migrate** into the signed-in
+  workspace. ⚠️ She had **deleted the old account then re-created one with the same email** — confirm whether
+  that orphaned the migration. THE priority bug — it breaks the "sign-in doesn't lose the conversation" promise.
+  Needs a proper investigation (systematic-debugging), not a guess.
+- **B. The last pre-sign-in message is dropped.** Her final turn ("I like the roles you've suggested, but I'm
+  also interested in family offices and partnerships") was lost with no record. Must be carried + acknowledged
+  after sign-in. Part of the continuity failure.
+- **C. After onboarding, sending a message reformats the onboarding message and fails to send.** Had to
+  retype/resend; the second send hit the sign-in gate. Flow bug in input → onboarding → first message.
+- **D. The "+" add-files button does nothing once signed in** (workspace). Dead control.
+- **E. Input textarea doesn't wrap/grow.** Long multi-sentence text scrolls on a single line instead of
+  becoming a paragraph. CSS/textarea bug.
+
+**🟠 Voice / copy (fine-tune — but B-tier are tied to what shipped this session):**
+- **F. Remove ALL em dashes from advisor output** (system prompt + tailor_cv + write_cover_letter). On-brand:
+  em-dash cadence is literally an AI tell in our own Thread 9 research. (Also applies to Claude's writing to Lexi.)
+- **G. Over-honesty — PLATFORM-WIDE voice rule, not just the visa reply.** The visa reply over-narrates the
+  guardrail ("Immigration is a regulated area. If I get the details wrong... it could actually harm you, so I
+  won't improvise the rules"). Lexi has noticed the same over-honest meta-narration elsewhere too. Keep the
+  BEHAVIOUR (signpost, don't advise; no false certainty) but **cut the disclaimer about being honest** — a good
+  mentor just quietly does the right thing. Sweep all advisor output for it, not only the visa case. See memory
+  `feedback-no-overhonesty` + ADVISOR_PERSONA §5.
+- **H. The fresh signed-in opening line feels abrupt.** Soften.
+- **I. The sign-in gate message should acknowledge what the user just said first**, then ask them to sign in
+  to carry on ("That's a great thing to explore — to keep going on it, sign in and I'll pick up right here").
+  Currently a generic "I'd love to respond properly, but I'll need you to sign in."
+
+**🟠 Design:**
+- **J. Onboarding highlights direction #1 in orange as "most recommended."** Too early to assert a top pick at
+  onboarding. Treat the three as equal at this stage (aligns with honest-matching + restrained-amber rules).
+- **K. "Where are you based now, and is London where you want to work?" must NOT assume London.** Confirm
+  whether it's inferred from a CV signal (fine) or hard-defaulted to London (not fine — not everyone is in
+  London). Keep location genuinely open.
+
+**🅿️ Features (capture, spec before building):**
+- **L. Conversation agenda / parking (VALIDATED by this test).** She stacked big topics back-to-back (student
+  visa, then unpaid internship) and the advisor just answered each directly. A real mentor would offer to park
+  one and come back ("want to finish the visa thread first, or shall I note it and we pick it up after?"),
+  sequence them, and never let a topic get lost. This is exactly the **"user's agenda / what we're working
+  through"** roadmap item — now confirmed wanted by live use. Strong signal to prioritise.
+- **M. Scam-job detection — design question.** The advisor can't open URLs/browse, so it can't vet a pasted
+  link (correctly said so for the StudySmarter link). Open question: how do we offer scam protection without
+  browsing? Likely: recognise scam signals from the pasted JD/description + run the verify-the-employer
+  checklist (Companies House / JobsAware), rather than reading the link. Needs design.

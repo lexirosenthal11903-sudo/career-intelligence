@@ -23,6 +23,7 @@ itself, plan with it, push it, and keep the context clean._
 | **`/loop` or `/schedule`** | When a task is going to repeat (status polling, recurring reports) | Claude prompts |
 | **Prune CLAUDE.md** | Whenever Claude *adds* to CLAUDE.md (never let it pass 200 lines) | Claude (auto) |
 | **Model up to Opus/Fable** | Before reasoning-heavy work (architecture, hard debugging, nuance) | Claude prompts |
+| **Check prior art first** | The moment a task is a common/solved problem (auth, social login, CV/coaching conventions) | Claude prompts |
 | **`/voice`** | Lexi's choice — already in use | Lexi |
 
 ---
@@ -79,6 +80,14 @@ and generating variations.
 ### 8. Talk instead of type — `/voice`
 You speak ~3× faster than you type and instructions come out more detailed. `/voice`, hold spacebar,
 describe what you want. Lexi already uses this.
+
+### 9. Check prior art / industry standards first
+For any common or solved problem, name how it is normally done or who does it best BEFORE building
+from discussion, then decide together. Do not reinvent. Name a real reference (the platform's own
+built-in feature, a named product, a known pattern), not a vague "best practice" — the same rule as
+named design references. (Adopted 2026-06-26, Lexi's process insight.) Worked example: the sign-up
+carry-forward is the standard "anonymous account, then link on signup" pattern that Supabase ships
+natively, not the custom browser-cache bridge we had hand-rolled. See memory `feedback-check-prior-art-first`.
 
 ### Bonus 1 — Let Claude interview you (before anything big)
 Don't write the perfect prompt — let Claude pull it out of you. It asks about edge cases and trade-offs you

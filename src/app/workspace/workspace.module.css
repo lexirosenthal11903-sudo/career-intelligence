@@ -632,7 +632,8 @@
 .cplus:disabled { opacity: 0.4; cursor: default; }
 .cbar input:disabled { color: var(--ink-3); cursor: default; }
 .csend:disabled { opacity: 0.55; cursor: default; }
-.cbar input {
+.cbar input,
+.cbar textarea {
   flex: 1;
   border: 0;
   background: transparent;
@@ -641,7 +642,16 @@
   outline: none;
   color: var(--ink);
 }
-.cbar input::placeholder { color: var(--ink-3); }
+/* the live composer field wraps long messages into a paragraph (auto-grows, capped) */
+.cbar textarea {
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.5;
+  max-height: 140px;
+  padding: 0;
+}
+.cbar input::placeholder,
+.cbar textarea::placeholder { color: var(--ink-3); }
 .csend {
   width: 36px;
   height: 36px;

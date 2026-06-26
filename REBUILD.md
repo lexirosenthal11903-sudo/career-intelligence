@@ -62,6 +62,24 @@ fixes + the job-stability architecture. Build order, all on `staging`:_
    suggestions but live listings don't filter). Honesty is the product's differentiator — high-stakes,
    worth doing carefully (consider `/grill-me` on what "honest realism" means first).
 
+6. **Anonymous-auth migration — the sign-up carry-forward fix** _(Opus, architecture; PLAN FIRST, Lexi
+   approves before any code)._ Replace the hand-rolled sessionStorage CV/result bridge with Supabase's
+   built-in **anonymous sign-ins + link-to-permanent-account** (the industry-standard deferred-registration
+   pattern). Every visitor gets a real anonymous account on landing, so CV + transcript + directions persist
+   server-side from second one; on signup we attach the email to the account they already have, so nothing
+   is "carried forward". **Fixes the root cause found 2026-06-26** (advisor saw an empty account on in-place
+   signup: the analysis result was never server-saved on that path, and the CV flush raced the first context
+   build; full writeup in AUDIT-REPORT "Live-test feedback" A/B). **Keeps the no-commitment try-before-signup
+   flow — Lexi's hard constraint.** GDPR obligations to build alongside: a privacy-notice line covering
+   pre-account data, cookie consent covers the anon token, **auto-delete abandoned anonymous accounts
+   (30–90 days)**, CAPTCHA/rate-limit on anonymous sign-ins, and solicitor sign-off (rides the existing
+   contact-discovery legal question). Standard pattern, confirmed legal with these duties handled.
+7. **Live-test sweep (2026-06-26)** — the voice/UI/design fixes + bugs from Lexi's full-flow walk, full list
+   in **AUDIT-REPORT-2026-06-22.md → "Live-test feedback"**. The *quick sweep* (no auth dependency, ships
+   first): em dashes removed, over-honesty softened platform-wide, opening + sign-in-gate copy, "+" file
+   button, input textarea wrap, drop the direction-1 orange highlight, no London assumption, scam dead-end
+   copy. Plus regulated-domain eval personas. The continuity bugs (A/B) are fixed by item 6.
+
 **Locked product decisions (confirmed 2026-06-22):**
 - Jobs are **stable** for returning users — never reshuffle on login; only change on direction/keyword change.
 - **Daily-new-roles:** real per-day detection of genuinely new listings + on-demand "show more".

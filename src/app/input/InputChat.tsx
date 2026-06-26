@@ -16,7 +16,7 @@ type Msg =
 const PLACEHOLDERS = [
   "Tell me about yourself…",
   "I'm drawn to things where I can see the impact of what I do…",
-  "e.g. London, open to remote, or need visa sponsorship",
+  "e.g. where you're based, open to remote, or need visa sponsorship",
 ];
 
 export default function InputChat() {

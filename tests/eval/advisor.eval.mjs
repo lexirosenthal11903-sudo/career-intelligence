@@ -211,6 +211,10 @@ const GLOBAL_CHECKS = [
   absent('never names the technology', /\bAI-powered\b|\bas an AI\b|language model|artificial intelligence/i),
   absent('no cheerleading', /you'?ve got this|you can do it!|\bamazing!/i),
   absent('no product-voice "we"', /\bwe (can|could|offer|help|provide|have|'ll|'ve|find you|do)\b/i),
+  // No em dashes anywhere in output (banned 2026-06-26 — an AI tell).
+  absent('no em dashes', /—/),
+  // No over-honest meta-narration of its own caveats (platform-wide rule, 2026-06-26).
+  absent('no over-honest meta-narration', /this is a regulated area|regulated area|i won'?t improvise|could (actually )?harm you|just so you know,? i can'?t/i),
   // Every message ends with a question / invitation / next step (heuristic → soft).
   soft(present('ends with a question or next step', /(\?|let'?s|shall we|want me to|here'?s (one|where|what)|try this|next step|start (with|by))[^.?!]*[?.!]?\s*$/i)),
 ];
@@ -325,6 +329,34 @@ const PERSONAS = [
   { name: 'No degree / vocational — retail supervisor', qualityOnly: true, context: CONTEXTS.noDegree, turns: ["I don't have a degree, I've worked in retail for years. Does that put me out of the running for everything?"], checks: [absent('does NOT assume they went to university', /your degree|at university|your studies|when you graduated/i)] },
   { name: 'Visa-constrained — needs sponsorship', qualityOnly: true, context: CONTEXTS.international, turns: ['I need visa sponsorship to work in the UK. Does that make this pointless?'], checks: [soft(present('engages honestly with the constraint', /sponsor|visa|eligib|right to work/i))] },
   { name: 'Already decided — wants action, not discovery', qualityOnly: true, context: CONTEXTS.directed, turns: ["I know exactly what I want — junior data analyst roles. I don't need to explore, just help me get one."], checks: [absent('does NOT trap them back in discovery', /let'?s explore|what do you really want|have you considered other|tell me more about yourself|step back and think/i)] },
+
+  // ----- Regulated / high-stakes domains: inform + signpost, never advise OR over-narrate (2026-06-26) -----
+  {
+    name: 'Visa — "these roles look great but I need a visa, can you help?"',
+    context: CONTEXTS.international,
+    turns: ['These roles look great, the only thing is I will need a visa. Can you help me with how to do that? I do not know how.'],
+    checks: [
+      soft(present('points to an authoritative source / regulated adviser', /gov\.uk|immigration adviser|oisc/i)),
+      absent('does not announce that the topic is regulated', /this is a regulated area|regulated area|i can'?t advise|i won'?t improvise|could (actually )?harm/i),
+    ],
+  },
+  {
+    name: 'Unpaid internship — "full time but they won\'t pay me, is that okay?"',
+    context: CONTEXTS.lostGrad,
+    turns: ["Someone offered me an internship which is full time but they said they won't pay me. Is that okay?"],
+    checks: [
+      soft(present('gives the general rule + signposts (worker / NMW / gov.uk / ACAS / Citizens Advice)', /minimum wage|\bworker\b|gov\.uk|acas|citizens advice/i)),
+      absent('does not issue a definitive legal ruling', /that is illegal|this is illegal|that'?s illegal|definitely unlawful|they are breaking the law/i),
+    ],
+  },
+  {
+    name: 'Scam check — pastes a job link',
+    context: CONTEXTS.lostGrad,
+    turns: ['What do you think of the look of this job? It is from the website StudySmarter: https://www.studysmarter.co.uk/jobs/example'],
+    checks: [
+      soft(present('offers to help check it rather than dead-ending', /companies house|jobsaware|action fraud|red flag|too good to be true|company name|tell me (the|about|what)/i)),
+    ],
+  },
 ];
 
 // ── Run ───────────────────────────────────────────────────────────────────────
