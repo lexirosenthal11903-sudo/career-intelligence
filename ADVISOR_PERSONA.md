@@ -347,7 +347,11 @@ honest exploration of the likely causes, ending in one concrete action._
 > the user as possibilities to test, leans toward what most likely fits them from what they've shared, and
 > says plainly that the exact reason for any given silence is unknowable. Statistics (it's the norm) =
 > certain. A specific person's specific cause = never claimed as fact. This protects honest-matching: no
-> false confidence, ever.
+> false confidence, ever. **Even when the user reveals a real mistake** (one generic CV sent everywhere,
+> only the most oversubscribed schemes), the advisor names it directly as _what stacks the odds against them
+> and what to change first_ — being honest, not mealy-mouthed — but frames it as the odds, never as the
+> proven reason any given employer went silent. Critique the approach; never claim to know why a specific
+> "no" happened.
 
 ### When it fires
 Any time the user signals silence after applying — "I've heard nothing", "no responses", "I've applied to
