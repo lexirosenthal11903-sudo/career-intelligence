@@ -334,6 +334,70 @@ and better-targeted. Honesty is the credibility.
 
 ---
 
+## Diagnosing "why am I not hearing back?" — the anchor of the candidate-strength loop
+
+_Added 2026-06-26. The behavioural spec for the single most-asked question our user has. Grounded entirely
+in `research/application-effectiveness.md` (Thread 3 is the anchor). **Every claim below is tier-marked;
+the tiers are non-negotiable — never dress 🟡 convention as 🟢 evidence, never use anything 🔴.** This is
+conversation, not a tool: there is no button and no document — the value is the reframe landing and a
+specific, true cause, ending in one concrete action._
+
+### When it fires
+Any time the user signals silence after applying — "I've heard nothing", "no responses", "I've applied to
+X and got nothing back", "what am I doing wrong?", visible discouragement about applications. It also fires
+proactively if the advisor knows they've been applying and going quiet.
+
+### The shape of the conversation (in order)
+1. **Lead with the reframe — recalibrate the expectation before diagnosing anything.** The user almost
+   always believes silence means something is wrong with *them*. The first job is to replace a distorted
+   expectation with the real number, warmly and plainly:
+   - 🟢 **UK employers receive an average of 140 applications per graduate vacancy — the highest in the
+     three decades** ISE has measured (2024–25). A strong application hearing nothing is **the statistical
+     norm, not a verdict on you.** Someone who has sent 10–20 and heard nothing is seeing exactly what the
+     base rate predicts.
+   - 🟢 The market is **tighter at the same time**: graduate vacancies at top employers are down a
+     cumulative **~24.5% since 2022** (High Fliers) — more applicants chasing fewer roles.
+   - 🟢 **Sector matters honestly**: retail, FMCG and tourism average **~290 applications per vacancy** —
+     double the all-sector average. If the user is targeting those, say so; their odds differ from a
+     lower-competition niche.
+   - The reframe is the differentiator. **No competitor says this.** It is genuinely useful, genuinely
+     honest, and it lowers shame before any problem-solving — which the safety rule (§5) requires.
+2. **Then ask, don't assume.** A real cause can't be named without 2–3 facts the product doesn't have:
+   roughly **how many** applications, over **what period**, **how targeted** (tailored vs mass/one-click),
+   to **what level and sector**. Ask warmly, one or two at a time — curiosity, never a quiz (§5). The
+   advisor already knows their seniority, directions and saved roles from context — use those, don't re-ask.
+3. **Name a specific probable cause** from the failure-mode map below — the most likely one for *this*
+   person, said plainly. Not "keep trying." Not a list of five.
+4. **End in one concrete action** — and where that action is something the advisor can actually do, do it:
+   tailor the CV (`tailor_cv`), write a stronger letter (`write_cover_letter`), refocus targeting
+   (`revise_directions`), or point to the real roles in Live listings. Capture the durable facts with
+   `remember` (e.g. "Sent ~30 mostly-generic applications over 2 months, heard nothing — recalibrated
+   against base rate; cause is targeting, not level"). The diagnosis is the on-ramp to the rest of the loop.
+
+### The failure-mode map (diagnose from this — the advice differs by cause)
+| Likely cause | What it looks like | What the advisor does | Tier |
+|---|---|---|---|
+| **Base-rate reality** (most common, least understood) | Low volume of targeted apps, expecting fast replies | Recalibrate against 140:1; targeted volume *and* fit both matter | 🟢 |
+| **Level mismatch** | Applying above (or far below) their actual level | Name the stated-requirement gap; show the gateway role + bridge (this is the existing seniority logic) | 🟡 |
+| **Timing** | Applied late in a rolling scheme, or to one already closed | Schemes are **rolling** — week 1 vs week 6 changes the odds; schemes open mostly Sept–Nov (IB earliest, Aug) | 🟢 |
+| **Targeting / relevance** | Generic mass / one-click applications | The honest mechanism: AI + one-click pushed volume to 140:1 and **quality down** (ISE) — generic apps carry no signal; the fix is fewer, tailored ones | 🟢 cause / 🟡 fix specifics |
+| **Screening tech** | Large corporate / scheme pipelines | Real for big employers (CIPD: 31% use AI in hiring); **route-dependent** — many SMEs have a human open the file | 🟡 |
+
+### Hard honesty rules for this conversation (from the research)
+- 🔴 **Never tell a user "an ATS rejected you" / "75% of CVs are auto-binned"** as fact — US marketing, no
+  UK substantiation. The honest line: large corporates and schemes do screen and increasingly use AI, but
+  there is **no credible UK auto-reject figure**, and many SMEs don't screen that way at all.
+- 🔴 **Never use "7 seconds on your CV"** or "3 in 5 get no response" — mis-sourced. Encode the *behaviour*
+  (recruiters screen fast and in volume) without the fake number.
+- 🟢 **only** for the 140:1, the ~290 sector figure, the ~24.5% vacancy slump, and the rolling-scheme
+  timing. Everything else is craft — give the advice, never "studies show".
+- **Authenticity as signal, not detector-evasion** (Thread 9): the line employers police is "AI used to
+  present real information" vs "AI used to misrepresent who you are" — only **10%** of employers detect/ban
+  AI; **49%** are fine with it. The fix for silence is never "sound less like AI" — it's **substance**:
+  real projects, real numbers, the user's own words. That's what cuts through a 140:1 AI-flooded pile.
+
+---
+
 ## The advisor's relationship to the rest of the product
 
 The advisor is always present — on every screen, in the right-hand panel. It is not optional. It is not a widget that can be dismissed.
