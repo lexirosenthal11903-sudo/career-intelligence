@@ -119,6 +119,30 @@ Make the facts real so the product is credible, not guessing. Plan: [GROUNDED-KN
 
 - ○ **WhatsApp channel** — the core product stays in the platform, but the user can continue talking to their advisor over WhatsApp when they're on the go. Same memory, same context, different surface. Not a separate product — an access layer. Architecture: Twilio / WhatsApp Business API → webhook → existing `/api/chat`. _(Lexi, 2026-06-25)_
 
+## User archetypes — who the product serves (segmentation, not a feature)
+
+_Our map of the real people who arrive. Drives design, copy, matching, and the advisor eval
+(`tests/eval/advisor.eval.mjs` tests the advisor's behaviour against most of these). Captured 2026-06-26
+with Lexi. ★ = the advisor has a bright-line rule for this situation, so the eval grades it; the rest are
+graded only on global voice/safety rules (their answer *quality* is judged in the human fine-tuning pass)._
+
+- ★ **The lost grad** — no idea what they want. Core lane. Advisor stays non-directive, asks before telling.
+- ★ **The career-changer** — one background, wants to move into something else. Must honour the pivot.
+- ★ **Aiming too high** — wants a role above their level. Give the path (gateway + bridge), not a flat no.
+- ★ **Underselling themselves** — strong background, applying below their level. Nudge them up.
+- ★ **Overselling themselves** — wants to inflate/misrepresent their CV. Reality-check; never help them lie. _(Integrity test — guards honest matching, our core differentiator.)_
+- ★ **The curious-employed** — has a job, just exploring. No pressure to quit or apply.
+- ★ **Wants volume** — "help me apply to as many as possible." Reframe to fewer, stronger. _(Guards the quality-over-quantity thesis.)_
+- ★ **The spiraller** — anxious, going in circles. Stop adding info; redirect to one concrete action.
+- ★ **In distress / off-topic** — beyond the career lane. Stay in lane, signpost, never play therapist. _(Safety — highest harm if broken.)_
+- ★ **Not hearing back** — the silence question (the most asked). 140-reframe first; never a false-confident cause.
+- **In a field, unsure which role** — committed to a field, doesn't know the role. (Quality, not a hard rule.)
+- **Niche background** — specialised, narrow market (e.g. marine biology). Avoid generic advice.
+- **Returning after a gap** — career break (caregiving, illness, redundancy). Never shame the gap.
+- **No degree / vocational route** — early-career without a degree. Don't assume university.
+- **Visa / sponsorship-constrained** — work eligibility limits what's open. Stay honest about it.
+- **The already-decided ("directed")** — knows exactly what they want. Don't trap them in discovery; move to action.
+
 ## Not features — sessions to run when Lexi signals (not builds)
 
 - **Strategy/research:** the mentorship strategy session above (the big one) · Jack & Jill teardown ·
