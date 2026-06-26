@@ -44,6 +44,11 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   // Who's here — drives the user bubble avatar and gates the live conversation.
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [userId, setUserId] = useState<string | null>(null);
+  // Anonymous-auth: every visitor now has a real user id once they engage, so
+  // "is there a userId" no longer means "has a real account". `isReal` is true
+  // only for a permanent (non-anonymous) account — it gates the live advisor and
+  // the sign-up prompt, which an anonymous visitor must still cross.
+  const [isReal, setIsReal] = useState(false);
   // No placeholder letter — an avatar initial only appears once we actually know
   // the user's name (the "E" bug: a stray initial shown before/without auth).
   const [userInitial, setUserInitial] = useState("");
@@ -69,9 +74,14 @@ export default function ChatPane({ variant }: { variant: Variant }) {
     } catch { return undefined; }
   });
 
-  const setUserFrom = (user: { id: string; user_metadata?: { full_name?: string }; email?: string } | null) => {
-    if (!user) return;
+  const setUserFrom = (user: { id: string; is_anonymous?: boolean; user_metadata?: { full_name?: string }; email?: string } | null) => {
+    if (!user) {
+      setUserId(null);
+      setIsReal(false);
+      return;
+    }
     setUserId(user.id);
+    setIsReal(!user.is_anonymous);
     const name = user.user_metadata?.full_name ?? user.email ?? "";
     if (name) setUserInitial(name[0]!.toUpperCase());
   };
@@ -109,10 +119,15 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   // rendering the transcript as bubbles.
   const keepCard = first && live && fs.phase === "revealed";
 
+  // The live advisor (and its API cost) stays gated behind a REAL account. An
+  // anonymous visitor has a userId but isReal is false, so the chat hook sees null
+  // and prompts sign-up exactly as before — anon auth only persists data underneath.
+  const liveUserId = isReal ? userId : null;
+
   const chat = useArloChat({
     page: "workspace",
     supabase,
-    userId: first ? (live ? userId : null) : userId,
+    userId: first ? (live ? liveUserId : null) : liveUserId,
     seedThread: first && live ? seedThread ?? undefined : firstSessionSeed?.messages,
     autoSend: first && live ? pendingSend || undefined : firstSessionSeed?.pending,
     hideSeed: keepCard,
@@ -210,7 +225,11 @@ export default function ChatPane({ variant }: { variant: Variant }) {
   function beginContinue(seed?: string) {
     const pending = seed ?? "Show me the first few roles";
     const thread = buildFirstThread();
-    if (userId) {
+    // A real (signed-up) account continues live in place. An anonymous visitor —
+    // who has a userId but no real account — crosses the sign-up gate first, which
+    // now CONVERTS their anon account (keeping the CV + conversation already saved
+    // to it) rather than creating an empty new one.
+    if (isReal) {
       try { sessionStorage.setItem("ci:first-session-seed", JSON.stringify({ messages: thread, pending })); } catch { /* ignore */ }
       setSeedThread(thread);
       setPendingSend(pending);

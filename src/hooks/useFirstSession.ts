@@ -24,6 +24,7 @@
 import { useCallback, useRef, useState } from "react";
 import { cacheAnalysisResult } from "@/lib/analysisResult";
 import { stashCv, flushPendingCv } from "@/lib/cv";
+import { ensureAnonSession } from "@/lib/anonAuth";
 
 export type FirstPhase =
   | "arrival"
@@ -206,21 +207,34 @@ export function useFirstSession() {
 
             if (event.event === "complete" && event.result) {
               receivedComplete = true;
-              // Cache for /workspace + persist (fire-and-forget; unauth → 401, fine).
+              // Cache for /workspace immediately (kept as a belt-and-braces fallback).
               cacheAnalysisResult(event.result);
-              fetch("/api/save-result", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ data: event.result }),
-              }).catch(() => undefined);
-
-              // The uploaded CV's home is the Profile. Stash it, then try to persist
-              // now — if the user hasn't signed up yet it stays stashed and is flushed
-              // when they land authed on the workspace (mirrors save-result).
-              if (cvTextRef.current) {
-                stashCv(cvFileNameRef.current || "Your CV", cvTextRef.current);
-                flushPendingCv();
-              }
+              // Persist server-side. With the anonymous session in place these are
+              // normal authed writes (no 401), so the analysis + CV land on the SAME
+              // account the user later attaches their email to — the fix for sign-up
+              // opening against an empty account. Await the session first so the auth
+              // cookie is set before the writes go out.
+              const cvText = cvTextRef.current;
+              const cvName = cvFileNameRef.current || "Your CV";
+              void ensureAnonSession()
+                .then(() => {
+                  fetch("/api/save-result", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: event.result }),
+                  }).catch(() => undefined);
+                  // The uploaded CV's home is the Profile.
+                  if (cvText) {
+                    stashCv(cvName, cvText);
+                    flushPendingCv();
+                  }
+                })
+                .catch(() => {
+                  // Anon sign-in failed (e.g. feature off / network) — fall back to
+                  // the old client-side path: cache holds the result; stash the CV so
+                  // a later authed surface can still flush it. No data lost.
+                  if (cvText) stashCv(cvName, cvText);
+                });
 
               setResult({
                 summary: event.result.profile?.summary ?? "",
@@ -314,6 +328,11 @@ export function useFirstSession() {
       userMessageRef.current = text;
       intakeRef.current = [{ role: "user", content: text || "(shared a CV)" }];
       questionsAskedRef.current = 0;
+      // Create the anonymous account the instant the user commits, so by the time
+      // the analysis finishes the session (and its auth cookie) is ready and the
+      // result + CV save to a real account. Errors are swallowed — the save path
+      // re-awaits this and degrades to the old client-side cache if it failed.
+      void ensureAnonSession().catch(() => undefined);
       runIntake();
     },
     [runIntake]

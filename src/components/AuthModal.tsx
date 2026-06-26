@@ -48,6 +48,11 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
   const [otpValue, setOtpValue] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  // True when this OTP is confirming an email ATTACHED to an existing anonymous
+  // account (updateUser → "email change"), vs a fresh passwordless sign-in/up
+  // (signInWithOtp → "email"). The two verify with different OTP types, so we
+  // remember which path sent the code.
+  const [convertFlow, setConvertFlow] = useState(false);
   // Distinguishes a rate-limit ("you asked for a code recently") from a real failure,
   // so the send-error copy is calm and specific rather than a scary "something went wrong".
   const [rateLimited, setRateLimited] = useState(false);
@@ -67,6 +72,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
       setCodeSent(false);
       setLoading(false);
       setRateLimited(false);
+      setConvertFlow(false);
     }
   }, [isOpen, initialView]);
 
@@ -98,6 +104,18 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
     const callbackUrl = redirectTo
       ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
       : `${window.location.origin}/auth/callback`;
+    // If the visitor is on an anonymous account, LINK Google to it so their CV +
+    // conversation (already saved to that account) become permanent — rather than
+    // signing into a separate, empty Google account. Falls back to a normal OAuth
+    // sign-in when there's no anon session to convert.
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.is_anonymous) {
+      await supabase.auth.linkIdentity({
+        provider: "google",
+        options: { redirectTo: callbackUrl },
+      });
+      return;
+    }
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: callbackUrl },
@@ -145,15 +163,29 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
           setView("account-exists");
           return;
         }
-        const { error } = await supabase.auth.signInWithOtp({
-          email: addr,
-          options: { shouldCreateUser: true },
-        });
-        if (error) return handleSendError(error.message);
-        setView("otp");
+        // If the visitor is on an anonymous account, ATTACH this email to it
+        // (updateUser) so the CV + conversation already saved to it carry over.
+        // Otherwise fall back to a fresh passwordless sign-up (the old path).
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.is_anonymous) {
+          const { error } = await supabase.auth.updateUser({ email: addr });
+          if (error) return handleSendError(error.message);
+          setConvertFlow(true);
+          setView("otp");
+        } else {
+          const { error } = await supabase.auth.signInWithOtp({
+            email: addr,
+            options: { shouldCreateUser: true },
+          });
+          if (error) return handleSendError(error.message);
+          setConvertFlow(false);
+          setView("otp");
+        }
       } else {
         // Sign in — must be an existing account; shouldCreateUser:false makes
         // Supabase error for unknown emails so we can say "no account found".
+        // (This SWITCHES away from any anon session into the real account, which
+        // is correct: they're choosing their existing account.)
         const { error } = await supabase.auth.signInWithOtp({
           email: addr,
           options: { shouldCreateUser: false },
@@ -165,6 +197,7 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
           }
           return handleSendError(error.message);
         }
+        setConvertFlow(false);
         setView("otp");
       }
     } finally {
@@ -177,10 +210,12 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
     const digits = otpValue.replace(/\D/g, "");
     if (digits.length < 6 || loading) return;
     setLoading(true);
+    // An email attached to an anon account verifies as an "email_change"; a fresh
+    // passwordless sign-in/up verifies as "email". convertFlow tracks which sent it.
     const { error } = await supabase.auth.verifyOtp({
       email,
       token: digits,
-      type: "email",
+      type: convertFlow ? "email_change" : "email",
     });
     setLoading(false);
     if (error) {
@@ -215,7 +250,12 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
     setOtpValue("");
     setCodeSent(true);
     setView("otp");
-    await supabase.auth.signInWithOtp({ email: email.trim() });
+    // Re-send via the same path that sent the first code, so the OTP type matches.
+    if (convertFlow) {
+      await supabase.auth.updateUser({ email: email.trim() });
+    } else {
+      await supabase.auth.signInWithOtp({ email: email.trim() });
+    }
   }
 
   if (!isOpen) return null;
