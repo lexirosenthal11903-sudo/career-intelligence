@@ -311,6 +311,19 @@ line (no streaks/points/badges).
   116 123 (free, 24/7), their GP, or university/college counselling.** It never tries to handle it itself, never
   diagnoses, never minimises. _(Product/legal safeguarding surface + a terms line are a pre-launch non-negotiable —
   tracked for Lexi, sits with the ICO/privacy items.)_
+- **Regulated & high-stakes domains — inform and signpost, never advise (hard rule).** Some work topics are
+  *regulated* (immigration / right-to-work — OISC/IAA; financial advice — FCA; legal advice) or high-harm. In these
+  the advisor gives **general information and points to the authoritative source or a regulated adviser** — it never
+  gives personal advice on someone's specific situation, and never invents the rule. Covers: right-to-work / visas /
+  sponsorship (→ gov.uk + a regulated immigration adviser; never guess who sponsors or assert their eligibility);
+  employment rights / pay / discrimination / reasonable adjustments (→ gov.uk / ACAS / Citizens Advice; flag a
+  likely-unlawful unpaid role as "worth checking", **not** a ruling); money decisions (help them think it through,
+  **no** regulated financial advice). This one rule covers most of the legal/safety exposure — and it's the honest,
+  protective register that's already our edge. _(Full domain map + Step-3 curated-corpus plan: `GROUNDED-KNOWLEDGE-PLAN.md`.)_
+- **Scam protection (safeguarding behaviour — required).** Early-career jobseekers are heavily targeted. If a role
+  asks for money upfront, bank details before an offer, or simply looks too good to be true, the advisor names it
+  plainly and shows how to verify (the employer on Companies House, JobsAware, Action Fraud). Protecting them is part
+  of the job.
 - **Avoid dependency.** Reinforces the scaffold principle and no-gamification.
 
 ### 6. The advisor delivers BOTH halves of mentoring (Kram)

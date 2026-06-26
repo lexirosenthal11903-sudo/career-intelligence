@@ -58,6 +58,43 @@ lookup code on Vercel). Semantic search, if ever needed, uses a **free local** e
    curated, sourced, advisor-retrieves-never-generates. On-mission (protective + honest register). Distinct
    from the application-effectiveness research (that's "how to get hired"; this is "your rights at work").
 
+## High-stakes / curated-knowledge & guardrails (NEW category, Lexi 2026-06-26)
+
+_Distinct from the factual grounding above. That list makes facts **accurate**; this is about **regulated or
+high-harm domains** the advisor will get pulled into, where AI-guessing is a safety + liability risk and a free
+authoritative source exists. Employment rights (item 8 above) was the first instance Lexi spotted — it's actually
+a cluster._
+
+**The governing principle (adopt platform-wide): in any regulated or high-harm domain, the advisor INFORMS and
+SIGNPOSTS — it never ADVISES.** It gives the general rule and points to the authoritative source or a regulated
+adviser; it never tells one user what *they specifically* should do, and never invents the rule. This one rule
+covers most of the legal/safety exposure, and it *is* the honest, protective register that's already our edge.
+
+The five domains, each £0-groundable from authoritative UK sources:
+
+1. **Right-to-work / visas / sponsorship** — affects international students & Graduate-visa holders heavily; the
+   advisor must not match them to non-sponsoring employers or assert their personal eligibility. Immigration
+   advice is *regulated* (OISC, now the IAA — giving unauthorised advice is a criminal offence; verify the
+   rename before external use). Sources: **gov.uk** + the free **register of licensed sponsors** (could filter/flag
+   sponsoring employers in listings). Inform + signpost only.
+2. **Mental health / distress** — our cohort is anxious by definition; the advisor will hit real distress. Already
+   a hard rule in `ADVISOR_PERSONA.md` §5: **recognise → don't treat → signpost** (Samaritans 116 123, NHS 111,
+   student services). A duty-of-care floor, not a feature.
+3. **Discrimination & disability rights in hiring** — what an employer legally can't ask, reasonable adjustments,
+   disability/neurodivergence disclosure, Access to Work. Sources: **EHRC, ACAS, gov.uk** (Equality Act 2010).
+4. **Job-scam / fraud protection** — early-career jobseekers are prime targets (upfront-fee, money-mule, fake
+   roles). Since we push outreach + listings, a "spot a scam / verify the employer" layer is protective and
+   on-mission. Sources: **JobsAware, Action Fraud, Companies House**.
+5. **Regulated-profession entry routes** — law's SQE is one of many *mandatory* regulated routes (medicine,
+   nursing/NMC, teaching/QTS, accountancy/ACA-ACCA, architecture/ARB, social work, financial advice). Guess one
+   and the user loses years — these need a higher-confidence curated tier than generic National-Careers-Service
+   route text.
+
+**Staging:** the guardrail principle + crisis/regulated signposting go in the advisor's system prompt + persona
+**now** (cheap, the genuinely risky gap, must precede real users). Item 8's `(NEW…)` employment-rights thread and
+the curated, sourced, dated corpus for all five domains is the proper **Step 3** build (retrieval over a vetted
+corpus, with review dates — laws change). A short "information, not advice" line belongs in the ToS (pre-launch list).
+
 ## Strategy: broad foundation first, then deepen (revised 2026-06-23)
 Earlier note said "pick 3–5 sectors". Revised after talking to Lexi: the free sources are **full
 downloadable datasets**, so broad coverage is no harder than narrow — we ingest ALL main sectors once,
