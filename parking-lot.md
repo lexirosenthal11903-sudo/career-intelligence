@@ -18,7 +18,10 @@
 
 ---
 
-## 🅿️ Process session — adopt working-practice tips from the Anthropic Claude Code PDF (raised 2026-06-26)
+## ✅ DONE 2026-06-26 — Process session: adopted working-practice tips from the Anthropic Claude Code PDF
+
+_All 11 tips/bonuses adopted as permanent practice → `WORKING-PRACTICES.md`. CLAUDE.md rules 5/10/11 added
+(close-the-loop, auto-prune, Claude owns practice timing). CLAUDE.md pruned 389→200. Original brief below._
 
 _Lexi flagged a PDF on her Desktop: **"How Anthropic's Own Team Uses Claude Code / 8 Insider Tips | Learn
 AI With Mariah"**. She wants to extract ways to improve how we work and implement the good ones._
