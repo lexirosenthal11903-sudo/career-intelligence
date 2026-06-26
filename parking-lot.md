@@ -12,8 +12,24 @@
 | **3. Grounded knowledge layer** | Niche-industry coverage · "what makes a good mentor" research · credibility/verification of AI advice |
 | **4. B2B (universities first)** | LinkedIn OAuth import · application-tracker export · offer evaluation · progress-data-for-employers (GDPR-safe) |
 | **Strategy/research sessions** (run when you signal — not builds) | **Mentorship market + business model + credibility** (the big one) · Jack & Jill teardown · niche-industry-users discussion |
+| **Process / how-we-work sessions** | **Adopt working-practice tips from the "How Anthropic's Own Team Uses Claude Code" PDF** (recommend next-session-start, before build) |
 | **Design sessions** (deferred) | Advisor identity / visual register + the product's final name ("Meridian" dropped; speaks as "Career Intelligence" for now) · homepage redesign |
 | **✅ Already done** | advisor actually changes directions/roles · jobs stable per login + daily-new · fewer jobs shown · CV→Profile · "already interested" bug · seniority ceiling · discovery conversation |
+
+---
+
+## 🅿️ Process session — adopt working-practice tips from the Anthropic Claude Code PDF (raised 2026-06-26)
+
+_Lexi flagged a PDF on her Desktop: **"How Anthropic's Own Team Uses Claude Code / 8 Insider Tips | Learn
+AI With Mariah"**. She wants to extract ways to improve how we work and implement the good ones._
+
+**What this session is for:** Claude reads the PDF, pulls out what's concretely applicable to *our* setup
+(skills, CLAUDE.md discipline, subagents, plan mode, how we test/handoff, model use), and we decide together
+which to adopt. Output: changes to CLAUDE.md / INSIGHTS.md / our working mode, or new skills.
+
+**Recommended timing:** first thing in the next session, before any build — process changes compound, so
+the sooner the good ones are adopted, the more every later session benefits. Deliberately kept OUT of the
+current Step 2 build thread (don't interleave build and process work).
 
 ---
 
