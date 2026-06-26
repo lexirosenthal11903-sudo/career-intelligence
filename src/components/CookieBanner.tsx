@@ -7,6 +7,8 @@ export default function CookieBanner() {
 
   useEffect(() => {
     const accepted = localStorage.getItem("cookie-consent");
+    // Show the banner only if consent isn't already stored — external state on mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!accepted) setVisible(true);
   }, []);
 

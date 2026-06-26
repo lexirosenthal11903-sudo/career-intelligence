@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import s from "./profile.module.css";
@@ -77,6 +78,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
+    // Read a persisted UI preference from localStorage on mount — external state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved !== null) setArloVisible(saved !== "false");
   }, []);
 
@@ -159,46 +162,46 @@ export default function ProfilePage() {
 
       {/* ── SIDEBAR ── */}
       <nav className={s.sidebar}>
-        <a href="/" className={s.brand}>Career Intelligence</a>
+        <Link href="/" className={s.brand}>Career Intelligence</Link>
 
-        <a href="/dashboard" className={s.navItem}>
+        <Link href="/dashboard" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           </svg>
           Home
-        </a>
-        <a href="/dashboard/roles" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/roles" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="7" width="18" height="13" rx="2" />
             <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           Roles
-        </a>
-        <a href="/dashboard/applications" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/applications" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M9 4V2M15 4V2M3 9h18M9 14h6" />
           </svg>
           Applications
-        </a>
-        <a href="/dashboard/skills" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/skills" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <path d="M12 8v8M8 12h8" />
           </svg>
           Skills
-        </a>
+        </Link>
 
         <div className={s.navGap} />
 
-        <a href="/dashboard/profile" className={`${s.navUser} ${s.navUserActive}`}>
+        <Link href="/dashboard/profile" className={`${s.navUser} ${s.navUserActive}`}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div className={s.navUserInfo}>
             <div className={s.navName}>{userName ?? "You"}</div>
             <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>
           <span className={s.navUserChevron}>{chevronUpDown}</span>
-        </a>
+        </Link>
       </nav>
 
       {/* ── MAIN ── */}
@@ -240,21 +243,21 @@ export default function ProfilePage() {
                   <div className={s.directionRolesLabel}>Based on your background</div>
                   <div className={s.rolesWrap}>
                     {(Array.isArray(analysisResult.profile.suggestedDirections) ? analysisResult.profile.suggestedDirections : []).map((d) => (
-                      <a
+                      <Link
                         key={d.title}
                         href={`/dashboard/roles/${slugify(d.title)}`}
                         className={s.roleTypeChip}
                         style={{ textDecoration: "none" }}
                       >
                         {d.title}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </>
               ) : (
                 <div className={s.directionCardSub}>
                   Run your analysis to see your directions.{" "}
-                  <a href="/input" style={{ color: "var(--accent)", textDecoration: "none" }}>Start now →</a>
+                  <Link href="/input" style={{ color: "var(--accent)", textDecoration: "none" }}>Start now →</Link>
                 </div>
               )}
               <div className={s.directionRefine}>

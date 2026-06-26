@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 function applyInline(text: string): React.ReactNode[] {
@@ -97,7 +98,7 @@ export function ArloMessage({
             Sign in
           </button>
         ) : (
-          <a
+          <Link
             href="/?signup=required"
             style={{
               display: "inline-block",
@@ -113,7 +114,7 @@ export function ArloMessage({
             }}
           >
             Sign in
-          </a>
+          </Link>
         ))}
     </>
   );

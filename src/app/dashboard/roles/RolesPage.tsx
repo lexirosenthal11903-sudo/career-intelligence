@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import s from "./roles.module.css";
@@ -49,10 +50,6 @@ interface Job {
   relevanceReason?: string;
 }
 
-function capitalize(s: string) {
-  return s.replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -96,6 +93,8 @@ export default function RolesPage() {
   // ── Load Arlo visibility + user id ───────────────────────────────────────
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
+    // Read a persisted UI preference from localStorage on mount — external state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved !== null) setArloVisible(saved !== "false");
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
@@ -226,12 +225,16 @@ export default function RolesPage() {
   }, []);
 
   useEffect(() => {
+    // Fetch live listings when the analysis changes — async external data, not derivable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (analysisResult) fetchJobs(analysisResult);
   }, [analysisResult, fetchJobs]);
 
   // ── Interested / Pass ─────────────────────────────────────────────────────
   async function handleInterested(job: Job) {
     if (!userId) {
+      // Event handler, not render: a full navigation to the signup gate is intended.
+      // eslint-disable-next-line react-hooks/immutability
       window.location.href = "/?signup=required&next=/dashboard/roles";
       return;
     }
@@ -301,7 +304,6 @@ export default function RolesPage() {
   // Guard against malformed stored analyses where these were saved as a string
   // (older schema) — calling .map on a non-array crashed the whole page.
   const directions = Array.isArray(profile?.suggestedDirections) ? profile.suggestedDirections : [];
-  const keywords = Array.isArray(profile?.searchKeywords) ? profile.searchKeywords : [];
 
   const directionTagline = directions.length
     ? directions.map((d) => d.title).join(" · ")
@@ -328,45 +330,45 @@ export default function RolesPage() {
 
       {/* ── SIDEBAR ── */}
       <nav className={s.sidebar}>
-        <a href="/" className={s.brand}>Career Intelligence</a>
+        <Link href="/" className={s.brand}>Career Intelligence</Link>
 
-        <a href="/dashboard" className={s.navItem}>
+        <Link href="/dashboard" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           </svg>
           Home
-        </a>
-        <a href="/dashboard/roles" className={`${s.navItem} ${s.active}`}>
+        </Link>
+        <Link href="/dashboard/roles" className={`${s.navItem} ${s.active}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="7" width="18" height="13" rx="2" />
             <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           Roles
-        </a>
-        <a href="/dashboard/applications" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/applications" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M9 4V2M15 4V2M3 9h18M9 14h6" />
           </svg>
           Applications
-        </a>
-        <a href="/dashboard/skills" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/skills" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <path d="M12 8v8M8 12h8" />
           </svg>
           Skills
-        </a>
+        </Link>
 
         <div className={s.navGap} />
 
-        <a href="/dashboard/profile" className={s.navProfile}>
+        <Link href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div className={s.navInfo}>
             <div className={s.navName}>{userName ?? "You"}</div>
             <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>
-        </a>
+        </Link>
       </nav>
 
       {/* ── MAIN ── */}
@@ -398,7 +400,7 @@ export default function RolesPage() {
               <div className={s.directionCard}>
                 <div className={s.directionLabel}>Directions worth exploring</div>
                 <div className={s.directionTitle}>Complete your profile to see matches.</div>
-                <a href="/input" className={s.directionCta}>Start your analysis →</a>
+                <Link href="/input" className={s.directionCta}>Start your analysis →</Link>
               </div>
             ) : (
               <div className={s.directionCard}>
@@ -448,7 +450,7 @@ export default function RolesPage() {
                   </div>
                 )}
                 {!resultLoading && directions.map((role) => (
-                  <a key={role.title} href={`/dashboard/roles/${slugify(role.title)}`} className={s.roleCard}>
+                  <Link key={role.title} href={`/dashboard/roles/${slugify(role.title)}`} className={s.roleCard}>
                     <div className={s.roleCardBody}>
                       <div className={s.roleCardTitle}>{role.title}</div>
                       <div className={s.roleCardDesc}>{role.why?.split(/[.!?]/)[0]?.trim()}</div>
@@ -458,7 +460,7 @@ export default function RolesPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M2 6h8M6 2l4 4-4 4" />
                       </svg>
                     </div>
-                  </a>
+                  </Link>
                 ))}
               </div>
             )}
@@ -490,7 +492,7 @@ export default function RolesPage() {
                 {/* Error */}
                 {!jobsLoading && jobsError && (
                   <div className={s.emptyState}>
-                    <div className={s.emptyTitle}>Couldn't load listings.</div>
+                    <div className={s.emptyTitle}>Couldn&apos;t load listings.</div>
                     <div className={s.emptySub}>
                       <button className={s.retryBtn} onClick={() => analysisResult && fetchJobs(analysisResult)}>
                         Try again
@@ -503,7 +505,7 @@ export default function RolesPage() {
                 {!jobsLoading && !jobsError && !analysisResult && (
                   <div className={s.emptyState}>
                     <div className={s.emptyTitle}>Complete your analysis first.</div>
-                    <div className={s.emptySub}><a href="/input">Start here →</a></div>
+                    <div className={s.emptySub}><Link href="/input">Start here →</Link></div>
                   </div>
                 )}
 
@@ -565,9 +567,9 @@ export default function RolesPage() {
                           )}
                           <div className={s.jobActions}>
                             {isInterested ? (
-                              <a href="/dashboard/applications" className={s.btnViewApp}>
+                              <Link href="/dashboard/applications" className={s.btnViewApp}>
                                 View in Applications →
-                              </a>
+                              </Link>
                             ) : (
                               <>
                                 <button
@@ -642,7 +644,7 @@ export default function RolesPage() {
                 </div>
                 {jobs.length > 0 && (
                   <div className={s.aiBubble}>
-                    {jobs.length} live listings pulled from Adzuna and Reed and ranked for you. The ones at the top scored highest against your profile — they're worth looking at first.
+                    {jobs.length} live listings pulled from Adzuna and Reed and ranked for you. The ones at the top scored highest against your profile — they&apos;re worth looking at first.
                   </div>
                 )}
               </div>

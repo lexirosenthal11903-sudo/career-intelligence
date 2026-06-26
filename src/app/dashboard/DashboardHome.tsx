@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import s from "./dashboard.module.css";
@@ -46,7 +47,8 @@ export default function DashboardHome() {
   const [homeState, setHomeState] = useState<HomeState>("nothing-new");
   const [directions, setDirections] = useState<Array<{ title: string; why: string }>>([]);
   const [directionsLoaded, setDirectionsLoaded] = useState(false);
-  const [companySuggestions, setCompanySuggestions] = useState<Array<{ type: string; why: string }>>([]);
+  // Write-only: fetched + stored but not yet surfaced in the UI (see session note).
+  const [, setCompanySuggestions] = useState<Array<{ type: string; why: string }>>([]);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   const { extraMsgs, sendMessage, isLoading, messagesEndRef, hasPrevious, showPrevious, togglePrevious } = useArloChat({
@@ -57,6 +59,9 @@ export default function DashboardHome() {
 
   // Compute time-dependent values client-side to prevent hydration mismatch
   useEffect(() => {
+    // Client-only time values — deferred to the client to avoid an SSR hydration
+    // mismatch, so they are not derivable during render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGreeting(getGreeting());
     setDateLabel(getDateLabel());
   }, []);
@@ -110,6 +115,8 @@ export default function DashboardHome() {
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
+    // Read a persisted UI preference from localStorage on mount — external state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved !== null) setArloVisible(saved !== "false");
   }, []);
 
@@ -148,45 +155,45 @@ export default function DashboardHome() {
 
       {/* ── SIDEBAR ── */}
       <nav className={s.sidebar}>
-        <a href="/" className={s.brand}>Career Intelligence</a>
+        <Link href="/" className={s.brand}>Career Intelligence</Link>
 
-        <a href="/dashboard" className={`${s.navItem} ${s.active}`}>
+        <Link href="/dashboard" className={`${s.navItem} ${s.active}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           </svg>
           Home
-        </a>
-        <a href="/dashboard/roles" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/roles" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="7" width="18" height="13" rx="2" />
             <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           Roles
-        </a>
-        <a href="/dashboard/applications" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/applications" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M9 4V2M15 4V2M3 9h18M9 14h6" />
           </svg>
           Applications
-        </a>
-        <a href="/dashboard/skills" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/skills" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <path d="M12 8v8M8 12h8" />
           </svg>
           Skills
-        </a>
+        </Link>
 
         <div className={s.navGap} />
 
-        <a href="/dashboard/profile" className={s.navProfile}>
+        <Link href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div>
             <div className={s.navName}>{userName ?? "You"}</div>
             <div className={s.navEmail}></div>
           </div>
-        </a>
+        </Link>
       </nav>
 
       {/* ── MAIN ── */}
@@ -229,17 +236,17 @@ export default function DashboardHome() {
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                     {directions.map((d, i) => (
-                      <a key={i} href="/dashboard/roles" className={s.directionLink}>
+                      <Link key={i} href="/dashboard/roles" className={s.directionLink}>
                         <span>{d.title}</span>
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M2 6h8M6 2l4 4-4 4"/></svg>
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </>
               ) : (
                 <p className={s.directionBody}>
                   Your directions will appear here once you&apos;ve shared your background.{" "}
-                  <a href="/input" style={{ color: "var(--accent)", textDecoration: "none" }}>Start now →</a>
+                  <Link href="/input" style={{ color: "var(--accent)", textDecoration: "none" }}>Start now →</Link>
                 </p>
               )}
             </div>
@@ -291,27 +298,27 @@ export default function DashboardHome() {
 
             <div className={s.exploreLabel}>Explore</div>
             <div className={s.exploreCards}>
-              <a href="/dashboard/roles" className={s.exploreCard}>
+              <Link href="/dashboard/roles" className={s.exploreCard}>
                 <div>
                   <div className={s.exploreCardLabel}>Your role matches</div>
                   <div className={s.exploreCardSub}>All matches, ranked by fit</div>
                 </div>
                 <div className={s.exploreCardN}>→</div>
-              </a>
-              <a href="/dashboard/skills" className={s.exploreCard}>
+              </Link>
+              <Link href="/dashboard/skills" className={s.exploreCard}>
                 <div>
                   <div className={s.exploreCardLabel}>Skills to focus on</div>
                   <div className={s.exploreCardSub}>The gaps closest to closing</div>
                 </div>
                 <div className={s.exploreCardN}>→</div>
-              </a>
-              <a href="/dashboard/applications" className={s.exploreCard}>
+              </Link>
+              <Link href="/dashboard/applications" className={s.exploreCard}>
                 <div>
                   <div className={s.exploreCardLabel}>Applications</div>
                   <div className={s.exploreCardSub}>Track where things stand</div>
                 </div>
                 <div className={s.exploreCardN}>→</div>
-              </a>
+              </Link>
             </div>
 
             <div className={s.momentum}>

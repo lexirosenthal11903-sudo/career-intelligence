@@ -7,6 +7,9 @@ export default function OfflineBanner() {
   const [offline, setOffline] = useState(false);
 
   useEffect(() => {
+    // Seed from the browser's live connection status, then subscribe below —
+    // external state plus a subscription, the sanctioned use of an effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOffline(!navigator.onLine);
 
     function handleOffline() { setOffline(true); }

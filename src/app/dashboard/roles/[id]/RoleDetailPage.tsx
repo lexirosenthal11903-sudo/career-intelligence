@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import s from "./role-detail.module.css";
@@ -56,6 +57,8 @@ export default function RoleDetailPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
+    // Read a persisted UI preference from localStorage on mount — external state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved !== null) setArloVisible(saved !== "false");
 
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -109,44 +112,44 @@ export default function RoleDetailPage() {
 
       {/* ── SIDEBAR ── */}
       <nav className={s.sidebar}>
-        <a href="/" className={s.brand}>Career Intelligence</a>
+        <Link href="/" className={s.brand}>Career Intelligence</Link>
 
-        <a href="/dashboard" className={s.navItem}>
+        <Link href="/dashboard" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           </svg>
           Home
-        </a>
-        <a href="/dashboard/roles" className={`${s.navItem} ${s.active}`}>
+        </Link>
+        <Link href="/dashboard/roles" className={`${s.navItem} ${s.active}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="7" width="18" height="13" rx="2" />
             <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           Roles
-        </a>
-        <a href="/dashboard/applications" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/applications" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M9 4V2M15 4V2M3 9h18M9 14h6" />
           </svg>
           Applications
-        </a>
-        <a href="/dashboard/skills" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/skills" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <path d="M12 8v8M8 12h8" />
           </svg>
           Skills
-        </a>
+        </Link>
 
         <div className={s.navGap} />
 
-        <a href="/dashboard/profile" className={s.navProfile}>
+        <Link href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div>
             <div className={s.navName}>{userName ?? "You"}</div>
           </div>
-        </a>
+        </Link>
       </nav>
 
       {/* ── MAIN ── */}
@@ -193,7 +196,7 @@ export default function RoleDetailPage() {
                       {allDirections
                         .filter((d) => slugify(d.title) !== slug)
                         .map((d) => (
-                          <a
+                          <Link
                             key={d.title}
                             href={`/dashboard/roles/${slugify(d.title)}`}
                             className={s.listingsLink}
@@ -204,7 +207,7 @@ export default function RoleDetailPage() {
                               <div className={s.listingsSub}>{d.why?.split(/[.!?]/)[0]?.trim()}</div>
                             </div>
                             <div className={s.listingsArrow}>→</div>
-                          </a>
+                          </Link>
                         ))}
                     </div>
                   </>
@@ -231,7 +234,7 @@ export default function RoleDetailPage() {
                 </div>
 
                 {/* Live listings link */}
-                <a
+                <Link
                   href={`/dashboard/roles?tab=listings&filter=${encodeURIComponent(direction.title)}`}
                   className={s.listingsLink}
                   style={{ marginTop: "2rem" }}
@@ -241,16 +244,16 @@ export default function RoleDetailPage() {
                     <div className={s.listingsSub}>See all matched roles →</div>
                   </div>
                   <div className={s.listingsArrow}>→</div>
-                </a>
+                </Link>
               </>
             ) : (
               <div>
                 <div className={s.briefTitle}>Direction not found</div>
                 <p className={s.briefSummary}>
                   We couldn&apos;t find this direction in your analysis.{" "}
-                  <a href="/dashboard/roles" style={{ color: "var(--accent)", textDecoration: "none" }}>
+                  <Link href="/dashboard/roles" style={{ color: "var(--accent)", textDecoration: "none" }}>
                     Go back to your matched roles →
-                  </a>
+                  </Link>
                 </p>
               </div>
             )}

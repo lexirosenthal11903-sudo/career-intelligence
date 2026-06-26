@@ -15,8 +15,11 @@ export default function TailorCVModal({ jobTitle, jobCompany, tailoredCv, change
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    dialogRef.current?.showModal();
-    return () => dialogRef.current?.close();
+    // Capture the node at mount: the <dialog> ref is stable for the modal's
+    // lifetime, so the cleanup closes the same element it opened.
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => dialog?.close();
   }, []);
 
   function handleBackdrop(e: React.MouseEvent<HTMLDialogElement>) {

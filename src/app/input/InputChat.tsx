@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import s from "./input.module.css";
@@ -176,7 +177,7 @@ export default function InputChat() {
   return (
     <>
       <nav className={s.nav}>
-        <a className={s.navBrand} href="/">Career Intelligence</a>
+        <Link className={s.navBrand} href="/">Career Intelligence</Link>
         {confirmRestart ? (
           <div className={s.restartConfirm}>
             <span className={s.restartConfirmText}>Your answers won&apos;t be saved.</span>

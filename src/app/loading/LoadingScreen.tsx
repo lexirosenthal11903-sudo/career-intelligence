@@ -154,6 +154,9 @@ export default function LoadingScreen() {
   // On complete: jump to "Almost there", then navigate
   useEffect(() => {
     if (!analysisComplete) return;
+    // Drives a one-off timed transition (jump to the final state, then navigate) in
+    // response to an external completion signal — sequencing, not derivable state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFading(false);
     setIndex(STATES.length - 1);
     const t = setTimeout(() => router.push('/onboarding-bridge'), 1500);

@@ -521,6 +521,8 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
   useEffect(() => {
     if (!jobId) return;
     let cancelled = false;
+    // Loading flag for an async document fetch keyed on jobId — external data.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setJobDocsLoading(true);
     fetch(`/api/documents?jobId=${encodeURIComponent(jobId)}`)
       .then((r) => r.ok ? r.json() : { documents: [] })
@@ -1130,6 +1132,9 @@ function DocumentsView() {
   }
 
   useEffect(() => {
+    // Fetch documents on mount and subscribe to the refresh event — external data
+    // plus a subscription, the sanctioned use of an effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     window.addEventListener("ci:open-documents", load);
     return () => window.removeEventListener("ci:open-documents", load);

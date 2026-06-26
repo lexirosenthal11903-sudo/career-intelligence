@@ -167,7 +167,6 @@ export function useArloChat({
         // Direction tab, Roles list and nav count update live — the advisor only ever
         // says "done" because it really is.
         const signals = Array.isArray(data.meridianSignals) ? (data.meridianSignals as string[]) : [];
-        const mData = (data.meridianData ?? {}) as Record<string, unknown>;
         if (signals.includes("analysis-changed") && typeof window !== "undefined") {
           try { sessionStorage.removeItem("cached-jobs"); } catch { /* ignore */ }
           window.dispatchEvent(new CustomEvent("ci:analysis-changed"));

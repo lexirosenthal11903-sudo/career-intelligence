@@ -16,6 +16,8 @@ export default function HomepageNav() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const next = params.get("next") || undefined;
+    // Read deep-link query params on mount to drive the auth modal — external state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (next) setRedirectTo(next);
     if (params.get("signin") === "required") openSignin();
     if (params.get("signup") === "required") openSignup();

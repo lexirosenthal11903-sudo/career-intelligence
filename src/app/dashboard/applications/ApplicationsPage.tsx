@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import s from "./applications.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -14,12 +15,6 @@ const ARLO_16 = `<svg width="16" height="16" viewBox="0 0 80 80" fill="none" xml
 const sendIcon = (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2">
     <path strokeLinecap="round" strokeLinejoin="round" d="M1 7h12M7 1l6 6-6 6" />
-  </svg>
-);
-
-const chevronDown = (
-  <svg width="14" height="14" fill="none" viewBox="0 0 14 14" stroke="currentColor" strokeWidth="1.8">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5l4 4 4-4" />
   </svg>
 );
 
@@ -88,6 +83,8 @@ export default function ApplicationsPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("arlo-visible");
+    // Read a persisted UI preference from localStorage on mount — external state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved !== null) setArloVisible(saved !== "false");
 
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -142,20 +139,11 @@ export default function ApplicationsPage() {
   }
 
   const [activeFilter, setActiveFilter] = useState<Stage | "all">("all");
-  const [expandedTimelines, setExpandedTimelines] = useState<Set<string>>(new Set());
 
   function toggleArlo() {
     setArloVisible((v) => {
       const next = !v;
       localStorage.setItem("arlo-visible", String(next));
-      return next;
-    });
-  }
-
-  function toggleTimeline(id: string) {
-    setExpandedTimelines((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
@@ -212,42 +200,42 @@ export default function ApplicationsPage() {
 
       {/* ── SIDEBAR ── */}
       <nav className={s.sidebar}>
-        <a href="/" className={s.brand}>Career Intelligence</a>
-        <a href="/dashboard" className={s.navItem}>
+        <Link href="/" className={s.brand}>Career Intelligence</Link>
+        <Link href="/dashboard" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           </svg>
           Home
-        </a>
-        <a href="/dashboard/roles" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/roles" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="7" width="18" height="13" rx="2" />
             <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           Roles
-        </a>
-        <a href="/dashboard/applications" className={`${s.navItem} ${s.active}`}>
+        </Link>
+        <Link href="/dashboard/applications" className={`${s.navItem} ${s.active}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M9 4V2M15 4V2M3 9h18M9 14h6" />
           </svg>
           Applications
-        </a>
-        <a href="/dashboard/skills" className={s.navItem}>
+        </Link>
+        <Link href="/dashboard/skills" className={s.navItem}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <path d="M12 8v8M8 12h8" />
           </svg>
           Skills
-        </a>
+        </Link>
         <div className={s.navGap} />
-        <a href="/dashboard/profile" className={s.navProfile}>
+        <Link href="/dashboard/profile" className={s.navProfile}>
           <div className={s.navAv}>{userName ? userName[0].toUpperCase() : "?"}</div>
           <div className={s.navInfo}>
             <div className={s.navName}>{userName ?? "You"}</div>
             <div className={s.navEmail}>{userEmail ?? ""}</div>
           </div>
-        </a>
+        </Link>
       </nav>
 
       {/* ── MAIN ── */}
@@ -321,7 +309,7 @@ export default function ApplicationsPage() {
                   <div className={s.emptyTitle}>No applications yet.</div>
                   <div className={s.emptySub}>
                     Mark roles as Interested in the{" "}
-                    <a href="/dashboard/roles" className={s.emptyLink}>Roles tab</a>{" "}
+                    <Link href="/dashboard/roles" className={s.emptyLink}>Roles tab</Link>{" "}
                     to start tracking them here.
                   </div>
                 </div>
@@ -339,7 +327,6 @@ export default function ApplicationsPage() {
                 const currentStage = stages[app.job_id] ?? app.stage;
                 const moveLabel = MOVE_LABELS[currentStage];
                 const isArchived = currentStage === "archive";
-                const timelineOpen = expandedTimelines.has(app.job_id);
 
                 return (
                   <div key={app.job_id} className={s.appCard}>

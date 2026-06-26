@@ -58,6 +58,9 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
 
   useEffect(() => {
     if (isOpen) {
+      // Reset the form to a clean state each time the modal opens — synchronising
+      // internal state to an external open/close trigger, not derivable in render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setView(initialView);
       setEmail("");
       setOtpValue("");
