@@ -74,6 +74,7 @@ fixes + the job-stability architecture. Build order, all on `staging`:_
    pre-account data, cookie consent covers the anon token, **auto-delete abandoned anonymous accounts
    (30–90 days)**, CAPTCHA/rate-limit on anonymous sign-ins, and solicitor sign-off (rides the existing
    contact-discovery legal question). Standard pattern, confirmed legal with these duties handled.
+   **Full plan (verified vs Supabase docs, awaiting Lexi's approval): `docs/plans/anonymous-auth-migration.md`.**
 7. **Live-test sweep (2026-06-26)** — the voice/UI/design fixes + bugs from Lexi's full-flow walk, full list
    in **AUDIT-REPORT-2026-06-22.md → "Live-test feedback"**. The *quick sweep* (no auth dependency, ships
    first): em dashes removed, over-honesty softened platform-wide, opening + sign-in-gate copy, "+" file
