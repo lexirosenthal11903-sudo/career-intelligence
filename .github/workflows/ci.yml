@@ -1,12 +1,12 @@
 name: CI
 
 # Auto-run the fast, secret-free checks on every push/PR so regressions fail
-# HERE, before they ever reach Lexi (set up 2026-06-24). Deliberately scoped:
-#   - typecheck (tsc) + production build + the MOCK-based e2e
-#   - NOT lint yet (36 pre-existing errors — add the gate once they're cleaned)
+# HERE, before they ever reach Lexi (set up 2026-06-24; lint + unit-test gates
+# added 2026-06-26 once the lint backlog was cleared to green). Scope:
+#   - lint (eslint) + typecheck (tsc) + unit tests + production build + MOCK e2e
+#   - unit tests run via `node --test` — Node 24 strips the .ts imports natively,
+#     so no vitest/test-runner dependency is needed.
 #   - NOT the .prod/.live e2e (need real Supabase/Anthropic secrets — later)
-#   - unit tests run locally; they import .ts so they need a TS runner
-#     (vitest) before CI can run them — small follow-up.
 # Dummy public env keeps it fully self-contained: no GitHub secrets, £0.
 
 on:
@@ -33,8 +33,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
       - name: Typecheck
         run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npm test
 
       - name: Build
         run: npm run build
