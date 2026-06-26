@@ -419,7 +419,7 @@ proactively if the advisor knows they've been applying and going quiet.
   timing. Everything else is craft — give the advice, never "studies show".
 - **Authenticity as signal, not detector-evasion** (Thread 9): the line employers police is "AI used to
   present real information" vs "AI used to misrepresent who you are" — only **10%** of employers detect/ban
-  AI; **49%** are fine with it. The fix for silence is never "sound less like AI" — it's **substance**:
+  AI; **just under half (46%)** are fine with it. The fix for silence is never "sound less like AI" — it's **substance**:
   real projects, real numbers, the user's own words. That's what cuts through a 140:1 AI-flooded pile.
 
 ---

@@ -60,9 +60,10 @@ advisor must be able to give a **specific probable cause**, not "keep trying."_
   this has **pushed the quality of applications down** — volume up, quality down.
 - **The market is tightening at the same time (High Fliers Graduate Market 2026, verified at source):**
   graduate vacancies at top employers were cut **−6.4% (2023), −14.6% (2024), −5.1% (2025)**, with a further
-  **−0.5% forecast for 2026** — a cumulative **−24.5% slump since 2022**, which High Fliers states is **a
-  larger reduction than the 2020 pandemic or the 2008–09 "Great Recession".** More applicants chasing fewer
-  roles.
+  **−0.5% forecast for 2026** — a cumulative **−24.5% slump since 2022**, leaving vacancy levels the **lowest
+  since 2012** (High Fliers). _(The "larger than the 2020 pandemic / 2008-09 recession" comparison sits in the
+  paywalled report and could not be confirmed from public sources: verify at source before using it externally.)_
+  More applicants chasing fewer roles.
 
 **What this means for a user — honest and true:** at 140:1, a strong application getting no response is
 **the statistical norm, not evidence that something is wrong with you.** Someone who has sent 10–20
@@ -168,7 +169,7 @@ to evidence *behaviours and motivation*, not pretend to seniority.
 - We have **no clean UK primary figure for "what % of UK employers read cover letters."** Every "83% read
   them / 50% don't" stat traces to **US résumé-builder blogs and LinkedIn posts** — 🔴 do not cite.
 - What *is* 🟢 evidenced and directly relevant: ISE 2025 notes candidate AI use is **"largely restricted
-  to drafting covering letters and CVs or completing online application questions"**, and **49% of employers
+  to drafting covering letters and CVs or completing online application questions"**, and **46% of employers
   have no problem with AI use** (only 10% ban/detect it). The cover letter is therefore the document **most
   saturated with AI generation** — which is exactly why an authentic one stands out, and why employers'
   concern is AI *misrepresenting* ability, not AI per se (Thread 9).
@@ -194,7 +195,7 @@ to evidence *behaviours and motivation*, not pretend to seniority.
 The brief assumed "active AI detection is happening; authentic voice is needed to *evade detection*." The UK
 primary data (ISE 2025, verified at source) tells a more useful — and almost opposite — story:
 
-- Employers are **largely permissive, not policing:** **49% have no problem with candidates using AI** in
+- Employers are **largely permissive, not policing:** **46% have no problem with candidates using AI** in
   the process; only **10% have banned it or introduced technical measures to detect/prevent it.** The frame
   is **not** "get caught by a detector and rejected" — detection is the minority response.
 - AI use is **concentrated in exactly the documents we generate:** ISE notes candidate AI use is "largely
@@ -207,8 +208,11 @@ primary data (ISE 2025, verified at source) tells a more useful — and almost o
   recruitment because of candidate AI use** (about **one-third redesigning selection**, **46% reviewing**) —
   moving toward harder-to-fake signals (strengths, structured/values interviews, assessment centres,
   verified work). The concern they name is **AI *misrepresenting* a candidate's ability** (48% of employers
-  worried about graduates' AI use doing this, 52% for school/college leavers); undisclosed AI use *in
-  interviews* was reported by **61%**, and cheating encounters **doubled (7% → 15%)** year-on-year.
+  worried about graduates' AI use doing this; a 52% variant for school/college leavers is cited but could not be
+  verified at source, so treat as 🟡 pending confirmation); undisclosed AI use *in interviews* was reported by
+  **61%** (the strongest single figure here). _Correction: an earlier draft said "cheating doubled 7% → 15%" — that
+  was a misread. The actual ISE finding is that the share of employers who had **never** suspected cheating fell
+  from 22% to 15%, i.e. more employers now encounter suspected AI misuse._
 
 **The strategic reframe for our product (this is the important one):** the line employers draw is **not
 "AI vs no AI" — it's "AI used to present real information" vs "AI used to misrepresent who you are."** Our
@@ -400,7 +404,7 @@ inferred from the role).
 ## Sources
 
 **🟢 Primary (UK):**
-- ISE — Student Recruitment Survey 2025 (full report paywalled): https://ise.org.uk/knowledge/research/491/ise_student_recruitment_survey_2025/ · **headline stats verified at source on ISE's free page:** "Top 10 Stats of 2025": https://ise.org.uk/knowledge/insights/513/ise_top_10_stats_of_2025_you_need_to_know/ (140 & 290 apps/vacancy; 49% no problem with AI / 10% ban-or-detect; 79% redesigning-or-reviewing; 54% self-awareness / 46% resilience skill gaps; cheating 7%→15%)
+- ISE — Student Recruitment Survey 2025 (full report paywalled): https://ise.org.uk/knowledge/research/491/ise_student_recruitment_survey_2025/ · **headline stats verified at source on ISE's free page:** "Top 10 Stats of 2025": https://ise.org.uk/knowledge/insights/513/ise_top_10_stats_of_2025_you_need_to_know/ (140 & 290 apps/vacancy; 46% no problem with AI / 10% ban-or-detect; 79% redesigning-or-reviewing; 54% self-awareness / 46% resilience skill gaps; share of employers who never suspected cheating fell 22%→15%). NB: the 54/46 skill-gap figures are from the ISE Student **Development** Survey 2025, a separate instrument from the Recruitment Survey.
 - High Fliers — The Graduate Market (2025 & 2026): https://www.highfliers.co.uk/publication-the-graduate-market-report
 - CIPD — Selection Methods factsheet: https://www.cipd.org/uk/knowledge/factsheets/selection-factsheet/ · Recruitment process factsheet: https://www.cipd.org/uk/knowledge/factsheets/recruitment-factsheet/ · Resourcing & Talent Planning + Labour Market Outlook: https://www.cipd.org/uk/knowledge/reports/resourcing-surveys/
 - Reed — recruiter survey (300+ UK recruiters), CV findings: https://www.reed.co.uk/career-advice/what-recruiters-are-really-looking-for-in-your-cv/ and https://www.reed.co.uk/career-advice/how-long-should-a-cv-be/

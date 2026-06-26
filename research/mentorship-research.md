@@ -26,7 +26,10 @@ Honest standard, set with Lexi 2026-06-24:
   university, on the site, to a sceptic), trace it to the primary source. A search summary is not good enough to
   put in front of a careers director.
 - **Statistics are indicative only** unless traced to the primary study. The "65%/95% goal-completion with a
-  check-in partner" figure is widely repeated and often mangled — do **not** cite it publicly without the source.
+  check-in partner" figure is folklore: it traces to an unlocatable ASTD/ATD claim with no peer-reviewed source, so
+  do **not** use it at all, even internally. Where accountability evidence is needed, the citable anchor is Matthews
+  (2014, Dominican University), which found a higher completion rate for written goals shared with a friend (a
+  different mechanism, not 65%/95%).
 - **Internal vs external use:** for shaping the advisor's behaviour, this research is solid now. For proving
   credibility to others, the evidence bucket (E) gets a proper primary-source verification pass — not summaries.
 - Nothing in this doc is fabricated: no invented studies, no made-up quotes, all source URLs are real.
@@ -69,9 +72,10 @@ non-gamified mechanism:
   dependence on the tool. This is the answer to "how do you motivate without gamifying": you **evoke the
   person's own motivation** (see Bucket B — motivational interviewing) and scaffold it, you don't bolt on points.
 - **Check-ins create momentum.** Regular, low-pressure "what did you do toward your direction?" check-ins prevent
-  procrastination and build progress. (Pairs with Clutterbuck's progress-review question in Bucket A.) _A
-  widely-cited figure puts goal completion far higher with a committed check-in partner — treat as indicative,
-  not hard evidence._
+  procrastination and build progress. (Pairs with Clutterbuck's progress-review question in Bucket A.) _The often-quoted
+  "much higher completion with a check-in partner" figure is untraceable folklore (see the confidence note at the top);
+  the citable anchor is Matthews (2014, Dominican University) on written, shared goals. Treat regular check-ins as sound
+  practice, not a statistic._
 
 **For us:** momentum = one concrete next action + the advisor remembering and checking back, framed as care not
 pressure. It's already half-built into the persona ("stop thinking, do one thing"); now it's grounded and named
@@ -403,8 +407,9 @@ the stronger-evidence category.
   — Kram's mentoring functions, motivational interviewing, Rogers' active listening, Clutterbuck's developmental
   model — and mentoring is evidenced across multiple meta-analyses to benefit people across many domains (real if
   modest effects), with the strongest evidence in the workplace/career context we operate in."
-- **Do not repeat the 65%/95% goal-completion statistic publicly** — unverified, frequently mangled. The two
-  meta-analyses above are the citations we stand on.
+- **Never use the 65%/95% goal-completion statistic** (internally or publicly): it is untraceable folklore (ASTD/ATD,
+  no findable primary study). For accountability, cite Matthews (2014, Dominican University). The two meta-analyses
+  above are the citations we stand on for mentoring's effect.
 
 ### Check against what we already believe
 
