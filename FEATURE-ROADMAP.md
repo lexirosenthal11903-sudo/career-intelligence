@@ -66,6 +66,7 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
 - ○ **Interview prep via the advisor** — role-specific preparation.
 - ○ **Skills shown in context** — surfaced inside a role/direction, not a separate deficit list.
 - ○ **New-role alerts** — "spotted something" — genuinely new listings, the daily-companion return mechanic.
+- ○ **Stalled-application nudge + optional email reminders** — when a user marks a role "interested" (it moves to Applications) and then nothing happens for a few days, the advisor gently checks in ("you saved the X role a few days back, want to take the next step on it, or let it go?"). On-mission return mechanic and it keeps applications moving instead of stalling. ⚠️ Must be a WARM mentor nudge, never nagging, guilt-tripping, or gamified (no streaks) — our user is anxious. Optional **email reminders** (opt-in only, explicit GDPR consent + an off switch; uses Resend, already in the stack) for users who want them. Design as ONE system with the agenda, decline-pattern detection and the recap ("the advisor remembers and follows up"), not a separate notifier bolted on. _(Lexi, 2026-06-26)_
 - ○ **Decline-pattern detection** — notices when you keep passing on a type of role and asks
   conversationally ("you've passed on a few consulting roles — what's putting you off?"), uses it to
   refine direction. Never silently changes direction. _(from S10 brainstorm)_
