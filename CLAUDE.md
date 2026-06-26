@@ -66,7 +66,8 @@ _Full context: `INSIGHTS.md` — read before any complex session._
 7. **Run `/session-handoff` at end of every session.** Compact first if context >60%. `/clear` between unrelated threads.
 8. **Don't switch models mid-session.** Model switches break the cache entirely.
 9. **Sessions idle >1 hour break the cache.** If stepping away: session handoff → `/clear` → paste summary into new session.
-10. **CLAUDE.md max 200 lines.** If it grows past 200, prune before the next session.
+10. **CLAUDE.md max 200 lines — prune in the SAME edit whenever you add. Never let it pass 200; never make Lexi remind you.**
+11. **Own the timing of every working practice.** Lexi won't know when to do these — you call the moment, every time, proactively ("now's a good subagent job"; "before we merge, let me run a fresh review"; "natural `/clear` point"; "let's grill this first"). Full set + triggers: `WORKING-PRACTICES.md`.
 
 ## The Product
 
@@ -132,8 +133,7 @@ as abstract texture. Final name + advisor identity deferred to a dedicated ident
 
 ## Orientation — read at session start
 
-**Order:** `START-HERE.md` (where we are / what's next) → `MISSION.md` (the why) → `REBUILD.md` (technical
-build state — read its top "▶ CURRENT BUILD QUEUE"). `ROADMAP.md` and `PLAYBOOK.md` are **archived — ignore.**
+**Order:** `START-HERE.md` (where we are / what's next) → `MISSION.md` (the why) → `REBUILD.md` (build state — read its top "▶ CURRENT BUILD QUEUE"). `ROADMAP.md` and `PLAYBOOK.md` are **archived — ignore.**
 
 **At the start of every session:**
 1. Run `git branch` — confirm `* staging` before touching anything.
@@ -154,6 +154,7 @@ ask 1–2 clarifying questions, confirm. Never interpret and immediately act.
 | Product decisions | + `MISSION.md` + `FEATURE-ROADMAP.md` |
 | Pipeline / sub-agents / model costs | + `INSIGHTS.md` sections 2b, 3, 5 |
 | Feature ideas / what's next | `FEATURE-ROADMAP.md` (the map) + `parking-lot.md` (detail) |
+| How we work / when to use a practice | `WORKING-PRACTICES.md` (the 11 practices + Claude's proactive triggers) |
 | End of session / merging to main | `/session-handoff` (compact if >60%) · `/deploy-check` before any merge |
 | **Document conflicts** | SESSION_DECISIONS.md > CLAUDE.md > ADVISOR_PERSONA.md |
 
@@ -191,10 +192,9 @@ Don't build for universities yet — have ONE conversation first. B2C must prove
 ## Permanent Product Decisions
 
 - Platform name: **not locked.** "Meridian" was **dropped**. Speaks as **"Career Intelligence"** for now; final name deferred to the identity/branding session (Phase 4). Do not reintroduce "Meridian".
-- Mobile: deferred. Desktop first. Do not raise mobile unless Lexi raises it.
-- GDPR: solicitor's opinion on contact discovery outstanding. Flag proactively.
+- Mobile: deferred — desktop first; don't raise unless Lexi does. GDPR: solicitor's opinion on contact discovery outstanding — flag proactively.
 - Merge to main: only on explicit instruction from Lexi, after staging is verified.
 - Design sessions and build sessions are separate — never mix them.
 - B2C must prove itself before B2B is pursued. Do not raise B2B before Phase 4.
-- **Quality over quantity** — the product's goal is fewer, better applications. Never optimise for volume or activity metrics. Every feature should help users spend more time preparing. Applies to skills, applications, outreach, and the advisor's behaviour equally.
-- **No gamification** — no streaks, points, badges, or leaderboards. Wrong register for an anxious early-career user. The return mechanic is value: new roles matched, direction clarifying, the advisor remembering.
+- **Quality over quantity** — fewer, better applications. Never optimise for volume or activity metrics; every feature should help users spend more time preparing. Applies to skills, applications, outreach, and the advisor equally.
+- **No gamification** — no streaks, points, badges, or leaderboards. Wrong register for an anxious user. The return mechanic is value: new roles matched, direction clarifying, the advisor remembering.

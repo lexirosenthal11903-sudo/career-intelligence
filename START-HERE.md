@@ -52,6 +52,7 @@ Everything else below is working detail **I maintain** — you don't need to tra
 | REBUILD.md | Technical state of what's built (for me) |
 | ADVISOR_PERSONA.md | The advisor's voice (source of truth) |
 | CLAUDE.md / INSIGHTS.md | My operating instructions + technical reference |
+| WORKING-PRACTICES.md | How we use Claude Code — the 11 adopted practices + when I prompt you for each |
 | archive/ | Superseded docs (old roadmap, old audits) — ignore |
 
 ## How we work (so it stays calm and efficient)
