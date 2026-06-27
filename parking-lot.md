@@ -528,3 +528,15 @@ Saved as a PNG screenshot (links not extractable from an image). A LinkedIn-publ
 when Lexi shares the links/text: triage which trace to primary UK sources (gov.uk/ISE/High Fliers/LinkedIn data)
 → fold into research docs; Tier B → directional only; myths → flag. The article's own prose is AI-average, not
 something to adopt wholesale.
+
+### Conversation history view — "see earlier conversations" button (Lexi, 2026-06-27)
+Lexi logged in (anon-auth carry-forward CONFIRMED working live: advisor remembered her visa questions +
+which roles are worth her time) but couldn't see her earlier transcript on the surface she landed on. Root
+cause (likely): conversations are stored per `user_id + page` and reloaded per-surface (`useArloChat` loads
+`conversations.messages` for the current page); the returning experience shows a recap, not the full replayed
+thread. Memory FACTS are global to the account (separate store), which is why those carried but the transcript
+didn't appear. **Nothing is lost** — the data exists; this is a surfacing feature, not a rebuild.
+**Feature:** a way to view earlier conversation history (a button / panel listing past threads, openable).
+On-mission: continuity = trust for a daily companion ("it remembers you"). Pairs with the existing recap card.
+**Priority:** after the candidate-strength loop (outreach + interview prep); part of the daily-companion pillar,
+not a now-interrupt. Design choice to settle: full raw transcript vs a cleaner "past conversations" list.
