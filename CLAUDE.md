@@ -172,13 +172,11 @@ Don't build for universities yet — have ONE conversation first. B2C must prove
 **Pre-launch non-negotiables (Lexi to handle — not deferred to build sessions):**
 - ⬜ Add `REED_API_KEY` to Vercel Production + Preview env vars
 - ⬜ ICO registration (ico.org.uk/registration, £40/year)
-- 🔶 GitHub token rotation — new classic PAT (repo+workflow) created 2026-06-26 + in keychain;
-  **still TODO: revoke the OLD exposed token** at github.com/settings/tokens (the new one doesn't kill it)
-- ⬜ Real privacy policy + terms of service
-- ⬜ Wire actual user deletion in Profile tab
+- 🔶 GitHub token: new PAT in keychain; **still TODO: revoke the OLD exposed token** at github.com/settings/tokens
+- ⬜ Real privacy policy + terms of service · wire actual user deletion in Profile tab
 - ⬜ Sentry error tracking + Vercel Analytics
-- ✅ CI pipeline — lint backlog cleared to green (47→0, 2026-06-26); ci.yml now gates lint + unit tests +
-  typecheck + build + mock e2e on every push. (Still open: .prod/.live e2e need real secrets.)
+- ⬜ Email: verify a real Resend sending domain (test-mode now sends only to the owner's inbox); tie to naming session
+- 🔶 Outreach: solicitor review of data handling before real users (added 2026-06-27)
 
 ## Professional Engineering Standards
 
