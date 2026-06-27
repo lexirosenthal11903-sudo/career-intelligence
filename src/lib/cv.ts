@@ -14,6 +14,21 @@ export interface PendingCv {
   at: string;
 }
 
+/** Parse a CV file to plain text via /api/extract. Returns the text, or null on
+    failure (so callers can fall back to "describe your background instead"). */
+export async function extractCvText(file: File): Promise<string | null> {
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/extract", { method: "POST", body: fd });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return typeof data?.text === "string" && data.text ? data.text : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Hold the just-extracted CV so a later authed surface can persist it. */
 export function stashCv(fileName: string, text: string): void {
   if (!text) return;

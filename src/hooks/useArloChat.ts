@@ -251,7 +251,7 @@ export function useArloChat({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
         ? "auto"
         : "smooth";
-    messagesEndRef.current?.scrollIntoView({ behavior, block: "nearest" });
+    messagesEndRef.current?.scrollIntoView({ behavior, block: "end" });
   }, [allMsgs, isLoading]);
 
   // Split at divider: messages before it are "previous session", after are current

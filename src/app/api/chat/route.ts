@@ -104,11 +104,28 @@ async function buildUserContext(
       .order('created_at', { ascending: false })
       .limit(10);
     if (jobs?.length) {
-      const titles = jobs
-        .map((j) => (j.job_data as { title?: string; company?: string }))
-        .map((j) => (j?.title ? `${j.title}${j.company ? ` at ${j.company}` : ''}` : null))
-        .filter(Boolean);
-      if (titles.length) parts.push(`Roles they've saved to their applications (this list updates the instant they save one — some may have been saved seconds ago, in this very conversation): ${titles.join('; ')}. If they tell you they're interested in one of these, they are confirming it to you right now — engage with that fresh decision and help them with it; never tell them they've "already done that".`);
+      type SavedJob = { title?: string; company?: string; description?: string; relevanceReason?: string; location?: string };
+      const saved = jobs.map((j) => j.job_data as SavedJob).filter((j) => j?.title);
+      if (saved.length) {
+        const titles = saved
+          .map((j) => `${j.title}${j.company ? ` at ${j.company}` : ''}`)
+          .join('; ');
+        parts.push(`Roles they've saved to their applications (this list updates the instant they save one — some may have been saved seconds ago, in this very conversation): ${titles}. If they tell you they're interested in one of these, they are confirming it to you right now — engage with that fresh decision and help them with it; never tell them they've "already done that".`);
+        // The 3 most recent carry their detail so you already hold the listing —
+        // never re-ask the user for a job description you've been given here.
+        const recent = saved.slice(0, 3).filter((j) => j.description || j.relevanceReason);
+        if (recent.length) {
+          const detail = recent
+            .map((j) => {
+              const bits = [`• ${j.title}${j.company ? ` at ${j.company}` : ''}${j.location ? ` (${j.location})` : ''}`];
+              if (j.relevanceReason) bits.push(`  Why it fits them: ${j.relevanceReason}`);
+              if (j.description) bits.push(`  Listing: ${j.description.slice(0, 600)}`);
+              return bits.join('\n');
+            })
+            .join('\n');
+          parts.push(`The listings for their most recently saved roles — you already hold these, so work from them directly rather than asking the person to paste a job description again:\n${detail}`);
+        }
+      }
     }
   } catch {
     // no saved jobs — fine

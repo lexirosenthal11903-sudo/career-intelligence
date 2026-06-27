@@ -19,6 +19,8 @@ function makeRatelimiter(prefix: string, limit: number): Ratelimit | null {
 let analyseRatelimiter: Ratelimit | null | undefined;
 let intakeRatelimiter: Ratelimit | null | undefined;
 let chatRatelimiter: Ratelimit | null | undefined;
+let extractRatelimiter: Ratelimit | null | undefined;
+let checkEmailRatelimiter: Ratelimit | null | undefined;
 
 // A full analysis is two Claude calls — the expensive op — so it's capped tighter.
 // 25/day/IP is comfortable for genuine use (a user runs 1-3) while still bounding abuse.
@@ -41,6 +43,24 @@ function getChatRatelimiter(): Ratelimit | null {
   if (chatRatelimiter !== undefined) return chatRatelimiter;
   chatRatelimiter = makeRatelimiter('ci:chat', 100);
   return chatRatelimiter;
+}
+
+// CV extraction parses an uploaded PDF/docx on an unauthenticated POST (it powers
+// the pre-signup upload), so it's a compute-abuse vector. 30/day/IP is generous for
+// genuine use (a user uploads/re-uploads a handful of times) while bounding abuse.
+function getExtractRatelimiter(): Ratelimit | null {
+  if (extractRatelimiter !== undefined) return extractRatelimiter;
+  extractRatelimiter = makeRatelimiter('ci:extract', 30);
+  return extractRatelimiter;
+}
+
+// check-email is an email-enumeration oracle that also runs an expensive listUsers
+// pagination. A tighter per-IP cap (20/day) lets a genuine signup attempt a few
+// retries while stopping someone scraping the oracle for which emails are registered.
+function getCheckEmailRatelimiter(): Ratelimit | null {
+  if (checkEmailRatelimiter !== undefined) return checkEmailRatelimiter;
+  checkEmailRatelimiter = makeRatelimiter('ci:check-email', 20);
+  return checkEmailRatelimiter;
 }
 
 // Shared IP-keyed limiter check for the public (pre-auth) endpoints. `message`
@@ -101,6 +121,30 @@ export async function checkIntakeRateLimit(
     request,
     (_limit, resetTime) =>
       `We've talked a lot today — I need to pause until after ${resetTime}. Nothing's lost; come back then and we'll carry on.`
+  );
+}
+
+/** Rate limit for /api/extract (unauthenticated CV file parsing). IP-keyed. */
+export async function checkExtractRateLimit(
+  request: NextRequest
+): Promise<NextResponse | null> {
+  return checkIpRateLimit(
+    getExtractRatelimiter(),
+    request,
+    (_limit, resetTime) =>
+      `We've processed a lot of uploads from your connection today — I need to pause until after ${resetTime}. Come back then and I'll pick this up.`
+  );
+}
+
+/** Rate limit for /api/auth/check-email (enumeration + listUsers cost). IP-keyed. */
+export async function checkCheckEmailRateLimit(
+  request: NextRequest
+): Promise<NextResponse | null> {
+  return checkIpRateLimit(
+    getCheckEmailRatelimiter(),
+    request,
+    (_limit, resetTime) =>
+      `Too many attempts from your connection. Please try again after ${resetTime}.`
   );
 }
 

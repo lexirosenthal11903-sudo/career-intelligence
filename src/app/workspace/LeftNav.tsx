@@ -134,9 +134,9 @@ export default function LeftNav({
       <div className={s.sp} />
 
       {!first && user && (
-        <button className={s.user} type="button" onClick={() => onNavigate?.("profile")} title="Your profile">
+        <button className={s.user} type="button" onClick={() => onNavigate?.("profile")} title={email || "Your profile"}>
           <div className={s.uav}>{initial}</div>
-          <div>
+          <div className={s.uinfo}>
             <div className={s.uname}>{name}</div>
             {email && <div className={s.umail}>{email}</div>}
           </div>

@@ -26,6 +26,7 @@ import {
   explorationInvite,
   type ApiMsg,
 } from "@/lib/firstSessionThread";
+import { extractCvText, saveCvToProfile } from "@/lib/cv";
 import s from "./workspace.module.css";
 import {
   RadiantAvatar,
@@ -735,6 +736,38 @@ function LiveComposer({
     "Refine my direction",
     "Help with my CV",
   ];
+
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  // CV re-upload: a logged-in user can replace the CV on their profile straight
+  // from the composer. Extract → save to profile; the advisor picks the new CV up
+  // as context on the next turn (no faked "you typed this" message).
+  const [cvStatus, setCvStatus] = useState<"idle" | "reading" | "saved" | "readError" | "saveError">("idle");
+
+  // Clearing `draft` in state doesn't fire the textarea's onChange, so the inline
+  // height set while typing would otherwise stay expanded after send. Reset it here.
+  useEffect(() => {
+    if (draft === "" && taRef.current) taRef.current.style.height = "auto";
+  }, [draft]);
+
+  async function handleCvFile(file: File) {
+    setCvStatus("reading");
+    const text = await extractCvText(file);
+    if (!text) {
+      setCvStatus("readError");
+      return;
+    }
+    // Distinguish a parse failure from a save/auth failure — an anonymous visitor
+    // can read a CV but not persist it, and "couldn't read that file" would be a lie.
+    const ok = await saveCvToProfile({
+      fileName: file.name,
+      text,
+      at: new Date().toISOString(),
+    });
+    setCvStatus(ok ? "saved" : "saveError");
+    if (ok) window.setTimeout(() => setCvStatus("idle"), 4000);
+  }
+
   return (
     <div className={s.composer}>
       <div className={s.chips}>
@@ -750,17 +783,38 @@ function LiveComposer({
           </button>
         ))}
       </div>
+      {cvStatus !== "idle" && (
+        <div className={s.cvStatus} role="status">
+          {cvStatus === "reading" && "Reading your CV…"}
+          {cvStatus === "saved" && "CV updated — I'll use it from here."}
+          {cvStatus === "readError" && "I couldn't read that file. Try a PDF or DOCX."}
+          {cvStatus === "saveError" && "I read it, but couldn't save it. Sign in and try again."}
+        </div>
+      )}
       <div className={s.cbar}>
         <button
           className={s.cplus}
           type="button"
-          aria-label="Add or replace your CV in your Profile"
-          title="To add or replace your CV, open your Profile"
-          disabled
+          aria-label="Replace your CV"
+          title="Replace the CV on your profile"
+          onClick={() => fileRef.current?.click()}
+          disabled={disabled || cvStatus === "reading"}
         >
           <PlusIcon />
         </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".pdf,.docx"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleCvFile(f);
+            e.target.value = "";
+          }}
+        />
         <textarea
+          ref={taRef}
           aria-label="Message Career Intelligence"
           placeholder="Tell me what you're thinking…"
           rows={1}
@@ -959,7 +1013,7 @@ function FirstComposer({
         <input
           ref={fileRef}
           type="file"
-          accept=".pdf,.doc,.docx"
+          accept=".pdf,.docx"
           style={{ display: "none" }}
           onChange={(e) => {
             const f = e.target.files?.[0];

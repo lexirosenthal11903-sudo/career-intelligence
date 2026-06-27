@@ -1,6 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { checkExtractRateLimit } from '@/lib/ratelimit';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const rateLimited = await checkExtractRateLimit(request);
+  if (rateLimited) return rateLimited;
+
   let file: File | null = null;
   try {
     const formData = await request.formData();

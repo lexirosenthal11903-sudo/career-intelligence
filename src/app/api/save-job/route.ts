@@ -19,7 +19,16 @@ export async function POST(request: Request) {
   const { user, supabase } = await getAuthedUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
-  const { jobId, jobData } = await request.json();
+  let jobId: unknown, jobData: unknown;
+  try {
+    ({ jobId, jobData } = await request.json());
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+  }
+  if (!jobId || !jobData) {
+    return NextResponse.json({ error: 'jobId and jobData required' }, { status: 400 });
+  }
+
   const { error } = await supabase
     .from('saved_jobs')
     .upsert(

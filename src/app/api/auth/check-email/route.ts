@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serviceClient } from '@/lib/supabase/server';
+import { checkCheckEmailRateLimit } from '@/lib/ratelimit';
 
 /**
  * Does an account already exist for this email?
@@ -17,6 +18,9 @@ import { serviceClient } from '@/lib/supabase/server';
  * dedicated lookup (DB function / profiles mirror) once the user count grows.
  */
 export async function POST(request: NextRequest) {
+  const rateLimited = await checkCheckEmailRateLimit(request);
+  if (rateLimited) return rateLimited;
+
   let email: string;
   try {
     const body = await request.json();

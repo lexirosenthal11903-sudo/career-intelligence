@@ -603,8 +603,13 @@ export async function executeAdvisorTool(
         // GDPR-safe by construction (research/outreach-research.md §1, §3): we generate a
         // deep-link SEARCH the user opens themselves — we never scrape, never look up a real
         // person, never store a contact. The user does the finding and the sending.
+        // When the user already pasted a specific person (foundContext), a generic
+        // role search is useless — they've found their target, so we skip the link.
+        const hasFoundPerson = !!foundContext;
         const searchKeywords = [roleTitle, company].filter(Boolean).join(' ');
-        const searchUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(searchKeywords)}`;
+        const searchUrl = hasFoundPerson
+          ? ''
+          : `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(searchKeywords)}`;
 
         // Grounded in research/outreach-research.md (§4 message craft, §3 warm-vs-cold,
         // sector calibration): warm out-responds cold; the ask is a short conversation,
@@ -688,18 +693,22 @@ export async function executeAdvisorTool(
         const notesText = notes.length ? notes.map((n) => `• ${n}`).join('\n') : '';
         const contentForAdvisor = [
           personType ? `Who to approach: ${personType}` : '',
-          `Search link to find them (share this as a markdown link, e.g. [Find them on LinkedIn](${searchUrl}) — they open it and pick who to contact; you do NOT know the actual person): ${searchUrl}`,
+          hasFoundPerson
+            ? `They've already found this person themselves (they pasted that profile/post), so they send the message straight to them — do NOT give them a search link or tell them to go looking again.`
+            : `Search link to find them (share this as a markdown link, e.g. [Find them on LinkedIn](${searchUrl}) — they open it and pick who to contact; you do NOT know the actual person): ${searchUrl}`,
           `\nDrafted message (give them this verbatim${channel === 'email' && subject ? `, subject "${subject}"` : ''}):\n${message}`,
           `\nOne follow-up if no reply after ~a week: ${followUp}`,
           notesText ? `\nApproach:\n${notesText}` : '',
-          `\nRemember: you give them the search and the words — they do the finding and the sending. Don't claim to have found a specific person or their contact details.`,
+          hasFoundPerson
+            ? `\nRemember: you give them the words; they already have the person and do the sending. Don't claim to have looked anyone up or to hold their contact details.`
+            : `\nRemember: you give them the search and the words — they do the finding and the sending. Don't claim to have found a specific person or their contact details.`,
         ].filter(Boolean).join('\n');
 
         return {
           content: contentForAdvisor,
           action: `Drafted outreach for ${roleTitle}${company ? ` at ${company}` : ''}`,
           signal: 'outreach-drafted',
-          data: { roleTitle, company: company || undefined, personType, searchUrl, subject: subject || undefined, message, followUp, mailto: mailto || undefined, notes },
+          data: { roleTitle, company: company || undefined, personType, searchUrl: searchUrl || undefined, subject: subject || undefined, message, followUp, mailto: mailto || undefined, notes },
         };
       }
 
