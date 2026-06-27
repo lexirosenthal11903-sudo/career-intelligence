@@ -165,6 +165,28 @@ export const ADVISOR_TOOLS = [
       required: ['roleTitle'],
     },
   },
+  {
+    name: 'draft_outreach',
+    description:
+      "Help this person reach out to someone who could open a door — a warm intro or a cold approach. Call this when they want help with networking, outreach, warm intros, reaching out to someone, getting a foot in the door, or approaching a company/team directly — especially when there are few live roles, or they've found a company or field they want to break into. BEFORE calling, find out in conversation whether they already know anyone there, or anyone who has worked there (warm beats cold) — pass that as warmPath. This produces the right TYPE of person to approach, a LinkedIn search link so THEY can find that person, and a short message to send. After it runs: tell them who to approach, share the search link, give them the drafted message verbatim, mention the one-line follow-up, and offer to adjust the tone.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        roleTitle: { type: 'string', description: 'The role, field, or kind of work they want to break into or ask about.' },
+        company: { type: 'string', description: 'The specific company or organisation to target, if they have one in mind.' },
+        warmPath: {
+          type: 'string',
+          description: "Any existing connection they have mentioned: an alum from their university, a friend or contact who works there, a mutual connection, someone they met at an event. Leave empty for a genuinely cold approach with no connection.",
+        },
+        channel: {
+          type: 'string',
+          enum: ['linkedin', 'email'],
+          description: "Where they intend to send it. Default to linkedin unless they specifically want email.",
+        },
+      },
+      required: ['roleTitle'],
+    },
+  },
 ] as const;
 
 export interface ToolOutcome {
@@ -177,6 +199,23 @@ export interface ToolOutcome {
 
 function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+}
+
+/** Latest analysis summary for personalising generated documents; '' if none / on error. */
+async function latestAnalysisSummary(supabase: SupabaseClient, userId: string): Promise<string> {
+  try {
+    const { data: resultRow } = await supabase
+      .from('results')
+      .select('data')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const p = (resultRow?.data as { profile?: { summary?: string } } | null)?.profile;
+    return p?.summary ?? '';
+  } catch {
+    return '';
+  }
 }
 
 /**
@@ -351,22 +390,8 @@ export async function executeAdvisorTool(
         }
 
         // Pull in analysis summary + values for personalisation
-        let analysisSummary = '';
-        let userValues: string[] = [];
-        try {
-          const { data: resultRow } = await supabase
-            .from('results')
-            .select('data')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          const p = (resultRow?.data as { profile?: { summary?: string } } | null)?.profile;
-          if (p?.summary) analysisSummary = p.summary;
-        } catch { /* fine */ }
-        if (Array.isArray(profile.values) && profile.values.length) {
-          userValues = profile.values as string[];
-        }
+        const analysisSummary = await latestAnalysisSummary(supabase, userId);
+        const userValues = Array.isArray(profile.values) ? (profile.values as string[]) : [];
 
         const contextLines = [
           analysisSummary ? `Background summary: ${analysisSummary}` : '',
@@ -529,6 +554,128 @@ export async function executeAdvisorTool(
           action: `Tailored CV for ${roleTitle}${company ? ` at ${company}` : ''}`,
           signal: 'cv-tailored',
           data: { jobTitle: roleTitle, jobCompany: company || undefined, tailoredCv, changes },
+        };
+      }
+
+      case 'draft_outreach': {
+        const roleTitle = String(input.roleTitle ?? '').trim();
+        if (!roleTitle) return { content: 'Need a role or field to draft the outreach for.', isError: true };
+        const company = typeof input.company === 'string' ? input.company.trim() : '';
+        const warmPath = typeof input.warmPath === 'string' ? input.warmPath.trim() : '';
+        const channel = input.channel === 'email' ? 'email' : 'linkedin';
+
+        const profile = await getProfile(supabase, userId);
+
+        // Pull what we know about them, so the message is in their real register and
+        // grounded in genuine background, never generic. CV is helpful but not required;
+        // the analysis summary alone is enough to write something specific.
+        const analysisSummary = await latestAnalysisSummary(supabase, userId);
+
+        if (!profile.cvText && !analysisSummary) {
+          return {
+            content: "I don't have anything about them yet — no CV and no background from our conversation. Ask them to share a bit about themselves (or add their CV in Profile) before drafting outreach, so the message is genuinely theirs and not generic.",
+            isError: true,
+          };
+        }
+
+        const userValues = Array.isArray(profile.values) ? (profile.values as string[]) : [];
+        const contextLines = [
+          analysisSummary ? `Background summary: ${analysisSummary}` : '',
+          userValues.length ? `What they value in work: ${userValues.join(', ')}` : '',
+          profile.aspiration ? `Where they're heading: ${profile.aspiration}` : '',
+          profile.cvText ? `CV (for genuine, specific detail — never invent beyond this):\n${profile.cvText.slice(0, 2000)}` : '',
+        ].filter(Boolean).join('\n');
+
+        // GDPR-safe by construction (research/outreach-research.md §1, §3): we generate a
+        // deep-link SEARCH the user opens themselves — we never scrape, never look up a real
+        // person, never store a contact. The user does the finding and the sending.
+        const searchKeywords = [roleTitle, company].filter(Boolean).join(' ');
+        const searchUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(searchKeywords)}`;
+
+        // Grounded in research/outreach-research.md (§4 message craft, §3 warm-vs-cold,
+        // sector calibration): warm out-responds cold; the ask is a short conversation,
+        // never a job or "look at my CV"; UK register is understated; specificity is the
+        // edge in an AI-flooded inbox; one follow-up only.
+        const prompt = [
+          `You are helping a UK early-career person reach out to someone who could help them get a foot in the door. Write the message in first person, from their perspective, in a natural UK register.`,
+          `\nWHAT THEY WANT: to break into / ask about "${roleTitle}"${company ? ` at ${company}` : ''}.`,
+          warmPath
+            ? `\nWARM CONNECTION (use it — warm outreach vastly out-responds cold): ${warmPath}. Reference this connection naturally and early.`
+            : `\nNO existing connection — this is a cold approach. Make it specific and earned, not templated.`,
+          `\nABOUT THEM (write only from this — never invent experience, skills, or claims):\n${contextLines}`,
+          `\nHow outreach that actually gets a reply works — ground the message in this:`,
+          `- The right person to approach is usually someone IN that team or function who is one to three years ahead, or a team lead, or an alum — a real human who was recently where they are, not a generic "hiring manager".`,
+          `- The ask must be small and specific: a 15-20 minute conversation, or one or two genuine questions about their path or the work. NEVER ask for a job, an introduction to a recruiter, or for them to look at a CV. The low ask is the whole point.`,
+          `- Lead with something specific and genuine about the PERSON or the work, not about the sender's needs. ${warmPath ? 'Open from the shared connection.' : 'Reference something real about the field/company or why this person specifically.'}`,
+          `- UK register: understated, warm, brief, no hype, no flattery, no salesiness.`,
+          `- Specificity is the edge: in 2026 inboxes are flooded with AI-generated, generic outreach, so a genuinely specific, human message in their own words is what stands out.`,
+          `\nSector calibration — infer the field from the role and match the tone:`,
+          `- Finance / law / insurance: more formal, very brief, precise. Respect their time explicitly.`,
+          `- Tech / startups / creative / media: warmer, direct, a little more personality is fine.`,
+          `- Charity / public sector / research: values-led, mission-first, sincere.`,
+          `- Everything else: warm, plain, professional.`,
+          `\nFORMAT:`,
+          channel === 'email'
+            ? `- An email: 90-150 words, with a short specific subject line. 2-3 short paragraphs.`
+            : `- A LinkedIn message: 90-150 words, 2-3 short paragraphs. Keep it sendable as a message (not a 300-character connection note).`,
+          `- No AI tells: no stock adjectives ("passionate", "dynamic", "keen"), no symmetrical three-part lists, no em dashes, no "I hope this message finds you well", no "I am reaching out to". Sound like a real person.`,
+          `- Sign off simply; do NOT invent the sender's name (leave it natural, the user adds their own name).`,
+          `\nAlso produce: a single one-line follow-up they could send if there's no reply after about a week (gentle, no pressure, ONE only), and 2-3 brief notes on the approach you took.`,
+          `\nRespond with valid JSON only, in this exact shape:`,
+          `{"personType":"<one line: the type of person to approach and why>","subject":${channel === 'email' ? '"<email subject line>"' : '""'},"message":"<the full message>","followUp":"<the one-line follow-up>","notes":["<note 1>","<note 2>"]}`,
+        ].filter(Boolean).join('\n');
+
+        const res = await callClaude({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1200,
+          messages: [{ role: 'user', content: prompt }],
+        });
+        const raw = await res.json();
+        const text: string = raw.content?.[0]?.text ?? '';
+
+        let personType = '';
+        let subject = '';
+        let message = '';
+        let followUp = '';
+        let notes: string[] = [];
+        try {
+          const jsonStr = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+          const parsed = JSON.parse(jsonStr) as {
+            personType?: string; subject?: string; message?: string; followUp?: string; notes?: string[];
+          };
+          personType = parsed.personType ?? '';
+          subject = parsed.subject ?? '';
+          message = parsed.message ?? '';
+          followUp = parsed.followUp ?? '';
+          notes = Array.isArray(parsed.notes) ? parsed.notes : [];
+        } catch {
+          message = text;
+        }
+
+        if (!message) return { content: "I couldn't draft that one — ask me to try again.", isError: true };
+
+        // A pre-filled email link for the click-through (no recipient — the user finds and
+        // adds the person). Passed in the data payload for the client to use.
+        const mailto =
+          channel === 'email'
+            ? `mailto:?subject=${encodeURIComponent(subject || `Quick question about ${roleTitle}${company ? ` at ${company}` : ''}`)}&body=${encodeURIComponent(message)}`
+            : '';
+
+        const notesText = notes.length ? notes.map((n) => `• ${n}`).join('\n') : '';
+        const contentForAdvisor = [
+          personType ? `Who to approach: ${personType}` : '',
+          `Search link to find them (share this as a markdown link, e.g. [Find them on LinkedIn](${searchUrl}) — they open it and pick who to contact; you do NOT know the actual person): ${searchUrl}`,
+          `\nDrafted message (give them this verbatim${channel === 'email' && subject ? `, subject "${subject}"` : ''}):\n${message}`,
+          `\nOne follow-up if no reply after ~a week: ${followUp}`,
+          notesText ? `\nApproach:\n${notesText}` : '',
+          `\nRemember: you give them the search and the words — they do the finding and the sending. Don't claim to have found a specific person or their contact details.`,
+        ].filter(Boolean).join('\n');
+
+        return {
+          content: contentForAdvisor,
+          action: `Drafted outreach for ${roleTitle}${company ? ` at ${company}` : ''}`,
+          signal: 'outreach-drafted',
+          data: { roleTitle, company: company || undefined, personType, searchUrl, subject: subject || undefined, message, followUp, mailto: mailto || undefined, notes },
         };
       }
 

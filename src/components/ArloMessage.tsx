@@ -2,12 +2,33 @@ import Link from "next/link";
 import React from "react";
 
 function applyInline(text: string): React.ReactNode[] {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  // Handle **bold** and [label](url) markdown links. Links open in a new tab and
+  // are scheme-restricted to http(s)/mailto so model output can never inject a
+  // javascript: or data: URL.
+  const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\))/g);
   return parts.map((part, i) => {
+    if (!part) return null;
     if (part.startsWith("**") && part.endsWith("**")) {
       return <strong key={i}>{part.slice(2, -2)}</strong>;
     }
-    return part || null;
+    const link = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(part);
+    if (link) {
+      const label = link[1];
+      const href = link[2];
+      if (!/^(https?:|mailto:)/i.test(href)) return label;
+      return (
+        <a
+          key={i}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "var(--accent)", textDecoration: "underline" }}
+        >
+          {label}
+        </a>
+      );
+    }
+    return part;
   });
 }
 
