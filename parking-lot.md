@@ -175,6 +175,70 @@ synthesis). Lexi co-creates the document rather than receiving a surprise drop a
 
 ---
 
+## Session 2026-06-27 PM — Outreach Slice 2 live-test feedback (Lexi clicked through the live workspace)
+
+_Captured live so nothing's lost. Root-cause findings are Claude's; fixes proposed, not yet built._
+
+**🔴 BUGS (correctness — batch into one fix pass):**
+1. **Slice 2 entry points are on the WRONG surface — invisible to real users (root cause, highest priority).**
+   The three entry points (role-types nudge "Not all roles are advertised…", direction-detail "Help me reach
+   out to someone in X", no-listings "Ask who to reach out to") were built in `/dashboard/roles/RolesPage.tsx`
+   + `/dashboard/roles/[id]/RoleDetailPage.tsx`. But the live primary surface is `/workspace` →
+   `WorkspaceShell` (SidePanel for Direction/Roles, ChatPane for chat). Returning users never land on
+   `/dashboard/roles`, so they never see the entry points. **Slice 2 is effectively non-functional in prod.**
+   Fix: re-implement the three entry points in `SidePanel.tsx` (roles + direction views). Paste-to-tailor
+   DID work because it lives in the advisor chat/backend (shared across surfaces). **Lesson:** build-time
+   green (tsc/lint/build/e2e) didn't catch a feature shipped to a dead surface — the e2e walks the workspace,
+   not /dashboard/roles. Consider an INSIGHTS note + a test that asserts entry points render on the live shell.
+2. **LinkedIn search link is useless in the found-person case.** `searchKeywords = [roleTitle, company]`
+   only (advisor-tools.ts:607) — when the user PASTES a person (foundContext), roleTitle/company are empty,
+   so the link searches for nothing / not the pasted person ("doesn't take to her real profile"). Fix: when
+   foundContext is present, either build the search from the pasted person's identifiable details, or reframe
+   ("you've already found them — here's the message") and drop/soften the search link. Also: the label "Find
+   [name] on LinkedIn" implies it's their profile when it's a search — clarify it's a search, not a profile.
+3. **Chat: no auto-scroll to newest message on send.** `endRef.scrollIntoView` exists (ChatPane.tsx:522) but
+   isn't firing on the user's own send — you have to scroll down manually. Standard chat behaviour; fix it.
+4. **Chat: textarea doesn't reset height after send.** Auto-grow sets height to scrollHeight (ChatPane.tsx:771)
+   but never resets to 1 row on send, so the box stays expanded. Reset on send.
+5. **"+" file-upload button doesn't work when logged in.** The file input exists (ChatPane.tsx:961, accepts
+   pdf/doc/docx) but the click/onChange path is broken for the logged-in state. Investigate + fix.
+6. **Direction panel: a "1" still renders amber/orange.** Violates the locked design rule (amber ONLY on
+   primary button / active nav / user chat bubble; numbered badge in amber = banned). Re-token to neutral.
+7. **"Don't scroll endlessly — just tell me what to change" reads like a button but is a static hint**
+   (SidePanel.tsx:275). Either make it clearly non-interactive, or make it actually focus the chat input.
+8. **Advisor honesty refinement (foundContext prompt).** The draft said "I read your piece on low-income
+   households…" when the pasted bio only said she *writes about* those topics — implies a specific artefact
+   not in the text. Tighten the foundContext prompt: reference what they actually said ("your writing on X"),
+   never invent a specific piece/article. Otherwise the paste-to-tailor draft was strong and correctly
+   grounded (referenced FT→policy move, housing, Resolution Foundation; soft ask; one follow-up; honest).
+
+**🟡 FEATURES (capture + decide, don't bolt on):**
+- **A. Paste a LinkedIn URL instead of the whole bio.** Lower friction — the user shouldn't have to extract
+  the text themselves. ⚠️ HONEST CONSTRAINT: for LinkedIn *specifically* we can't fetch/scrape a profile from
+  a URL (never-scrape principle + LinkedIn blocks server fetch). So a pasted LinkedIn *link* can't be read.
+  The planned **paste-a-link (server-side fetch + readable-text extraction)** feature works for OTHER public
+  pages (a job ad, a company "about" page, a public article) but not LinkedIn profiles. Resolution to discuss:
+  keep paste-TEXT for LinkedIn (make it frictionless), use paste-LINK for fetchable public pages. Folds into
+  the existing "Paste-a-link" roadmap item.
+- **B. Outreach follow-up loop (the advisor remembers + chases gently).** After drafting, the platform asks
+  the user to confirm they sent it; ~1 week later asks if they got a reply and whether they want to follow up
+  — only if they haven't already said they replied sooner. This is the OUTREACH-specific instance of the
+  already-logged "stalled-application nudge + advisor remembers + follows up" system (FEATURE-ROADMAP Step 2).
+  Design as ONE memory/agenda/follow-up system, not a separate notifier. Warm, never nagging (anxious user).
+- **C. Advisor must remember "I have no warm network" / "stop asking me that."** Today the warm-first probe
+  ("do you know anyone there?") is hard-coded in the advisor prompt (advisor-prompt.ts:81) with no skip logic,
+  so it asks every time even after the user says no twice. Fix: when the user says they don't know anyone (or
+  explicitly asks it to stop), `remember` that fact and the prompt should skip the warm-first probe next time.
+  This is a real test of "the advisor has a memory" — currently it would keep asking. Ties to honest-matching
+  + the memory tools that already exist; needs the prompt to RESPECT a stored "no-network" fact over the
+  hard-coded warm-first instruction.
+
+**✅ Confirmed working:** the "Arlo" rename (no character name visible anywhere); paste-to-tailor core
+(the draft referenced genuine specifics from the pasted bio). Test 3 (no-listings) not testable — Lexi had
+live listings, which is the expected reason that entry point was hidden.
+
+---
+
 ## 🅿️ To discuss later (raised 2026-06-22, during the audit-planning conversation)
 
 - **Niche-industry users.** The concept of a user looking at a more niche / unusual industry — how the
