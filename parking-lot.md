@@ -491,3 +491,40 @@ the session-structure rebuild; candidate-strength loop waits until Step 1 is gen
 - **"What I know grows as we talk"** — honest/real: advisor has wired `update_profile`/`remember` tools
   through a working tool loop; profile mirror reads them back. Caveat: depends on the model calling the tools
   — confirm with a quick live test.
+
+---
+
+### Multi-critic evaluation system (Lexi, 2026-06-27) — the next layer of eval, NOT now
+Lexi's idea: 3-4 expert-persona critics (mentorship, recruitment, user) review everything the advisor does
+and produces, scoring across usability, mentorship relevance, analytical feedback, ongoing insights, and app
+improvement. The next layer on top of the existing bright-line advisor eval (`tests/eval/advisor.eval.mjs`).
+On-strategy and worth building — **after** the breadth-first build (it evaluates a product that must exist first).
+**Design it in a dedicated session (`/brainstorming` + `/grill-me`; `agent-builder` if persona agents).**
+Honest refinements agreed 2026-06-27:
+1. **Synthetic critics have a ceiling** — an LLM "recruiter" gives the AI-average of recruiter content (the same
+   trap as ungrounded advice). Use them as a fast, repeatable REGRESSION NET, never as proof of real-world
+   quality. Gold standard stays: primary-source grounding + eventually REAL mentors/recruiters/users.
+2. **No "/1000" single score** — false precision (an LLM can't tell 742 from 781). Use a rubric: each dimension
+   1-5 WITH a written reason, rolled into a total. The written critique is the value; the number is a sort key.
+3. **The critics must be grounded too** — brief each with our actual research (140:1, the two-tier facts) or it
+   will "correct" us toward the myths we deliberately removed.
+Ties to: the parked synthetic-persona QA agents (handoff 2026-06-27), [[feedback_research_grounded_building]],
+and the run-time hallucination guardrails below.
+
+### Run-time hallucination / relevance guardrails (Lexi, 2026-06-27) — build-time vs run-time distinction
+Lexi asked if "sourcing via terminal" is the right approach. Answer: right for HALF.
+- **Build-time (terminal):** research + verify against primary sources → bake into prompts. YES, already our
+  standard (research-grounded building). The terminal is the correct tool here.
+- **Run-time (live product):** the terminal isn't in the deployed path, so it can't verify live answers. Live
+  guardrails are separate: (i) prompt constraints / two-tier facts / myth bans [done], (ii) deterministic
+  post-processing (e.g. the em-dash sanitiser `src/lib/sanitize.ts`, 2026-06-27), (iii) eventually a RETRIEVAL
+  layer so the advisor pulls facts from a vetted store instead of recalling from training, (iv) evals that catch
+  regressions (incl. the multi-critic system above). Capture: a retrieval/RAG layer is the eventual run-time fix
+  for factual grounding; pairs with the Grounded-knowledge layer (Step 3).
+
+### LinkedIn "Grad's Guide 2025" article (Lexi's desktop, 2026-06-27) — triage its sources, don't quote it
+Saved as a PNG screenshot (links not extractable from an image). A LinkedIn-published careers article = Tier B
+(commercial/practitioner) by our research standard: a POINTER to primary sources, not evidence itself. Action
+when Lexi shares the links/text: triage which trace to primary UK sources (gov.uk/ISE/High Fliers/LinkedIn data)
+→ fold into research docs; Tier B → directional only; myths → flag. The article's own prose is AI-average, not
+something to adopt wholesale.
