@@ -108,10 +108,16 @@ This applies to everything already built (audit + map it, the priority) AND ever
 Quick, easy future wins can jump the queue if they speed things up. See memory
 `feedback-check-prior-art-first` and the prior-art map deliverable.
 
-### Bonus 1 — Let Claude interview you (before anything big)
+### Bonus 1 — Let Claude interview you, then write the spec (standing, before any sizeable feature)
 Don't write the perfect prompt — let Claude pull it out of you. It asks about edge cases and trade-offs you
-hadn't considered, then writes the spec. This is our `/grill-me` + `/brainstorming`. **Outreach is the next
-candidate** — it has real open design questions.
+hadn't considered, then writes the spec. This is our `/grill-me` + `/brainstorming`.
+
+**Standing rule (set 2026-06-27 with Lexi): every sizeable feature gets a written, agreed spec BEFORE any
+code.** Claude grills Lexi, then writes a short spec to a file she can read and approve. The spec captures
+two things, straight from the four questions (§9): the **best-in-class baseline** to match, AND the **bar
+that makes it ours** (our research + mission + advisor layer). That spec then becomes the concrete thing
+Claude self-verifies against (close-the-loop, §1) — so "done" means "meets the spec we agreed", not "looks
+done". This is the difference between Claude guessing what Lexi meant and both agreeing up front.
 > Copy-paste: _"I want to build [X]. Interview me in detail before we start — technical choices, edge cases,
 > trade-offs I might not have considered. Keep going until we've covered everything, then write a spec to SPEC.md."_
 
