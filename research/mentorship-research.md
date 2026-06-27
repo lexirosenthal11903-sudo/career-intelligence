@@ -34,6 +34,24 @@ Honest standard, set with Lexi 2026-06-24:
   credibility to others, the evidence bucket (E) gets a proper primary-source verification pass — not summaries.
 - Nothing in this doc is fabricated: no invented studies, no made-up quotes, all source URLs are real.
 
+### Scope + review (added 2026-06-27)
+
+- **Audience scope — all ages, not graduate-only.** The mentoring literature here (Kram, Clutterbuck, MI/OARS,
+  Rogers, Edmondson, the meta-analyses) is drawn from *general adult* mentoring and coaching, not a
+  graduate-specific evidence base. It therefore applies across ages and career stages. Early-career is our
+  go-to-market **beachhead**, not the ceiling of who the advisor serves — a career-changer at 40 or a returner
+  at 55 is inside scope, and nothing in the advisor's mentoring behaviour should assume the user is 22.
+- **Source tiering (made explicit).** Three tiers used below: **institutional/academic** (Kram, the two
+  meta-analyses, Edmondson HBS, Rogers & Farson, Miller & Rollnick, the **EMCC Global Code of Ethics** for the
+  refer-on boundary) carry weight externally; **careers/coaching authority** (Clutterbuck/CMI, Whitmore/GROW,
+  NHS NES, NIHR) is field-standard practitioner doctrine; **practitioner/commercial** (Mentorloop, CoachVantage,
+  Bailey Balfour, Coaching Leaders, Amanda Dudman, CoachMentoring.co.uk, the "Push-Pull" blog write-ups) is
+  directional texture only — never the sole basis for an external claim. Statistics are indicative unless traced
+  to the primary study (see the confidence note above).
+- **Review date.** Written 2026-06-24, retrofitted to the research bar 2026-06-27. **Next review: 2027-06**, or
+  sooner if the safeguarding/signpost behaviour is challenged or a UK regulator publishes guidance on AI career
+  or wellbeing tools.
+
 ---
 
 ## Cross-cutting principles (confirmed with Lexi, 2026-06-24)
@@ -326,12 +344,19 @@ _(Edmondson; HBS.)_
 **2. Mentoring boundaries — what a mentor must NOT do.**
 - **A mentor is not a therapist.** They offer "perspective from professional experience, not clinical mental
   health support." A sounding board, yes; counselling/diagnosis, no.
-- **Operate within competence; refer on when exceeded.** "If competence is exceeded, you refer the mentee on
-  [to a therapist/counsellor] and you stop mentoring them" on that issue. Mentoring "is not appropriate for
-  addressing issues of mental health."
+- **Operate within competence; refer on when exceeded — this is now institutionally anchored, not just
+  practitioner blogs.** The **EMCC Global Code of Ethics** (the European Mentoring and Coaching Council, the UK
+  field's standard-setting body), §4 on competence, states that members "should recognise where their competence
+  has the potential to be exceeded and where necessary refer the client either to a more experienced
+  coach/mentor, or support the client in seeking the help of another professional, such as a counsellor,
+  psychotherapist or other appropriate specialist." This is the citable, institutional basis for the advisor's
+  refer-on/signpost behaviour (the practitioner sources below say the same thing in plainer words).
+- **A mentor is not a therapist** — perspective from experience, not clinical support (EMCC §4 above; practitioner
+  sources). Mentoring "is not appropriate for addressing issues of mental health."
 - **Avoid dependency** — the mentee coming to "rely unduly on the relationship to meet an unconscious need."
 - **Boundaries are set by defining purpose/scope upfront** — i.e. the same contracting move as Bucket A.
-_(Mentorloop; Amanda Dudman; CoachMentoring.co.uk.)_
+_(Institutional: **EMCC Global Code of Ethics §4**. Practitioner/commercial texture, re-tiered: Mentorloop;
+Amanda Dudman; CoachMentoring.co.uk.)_
 
 ### Translation — what this means for us
 
@@ -361,7 +386,10 @@ _(Mentorloop; Amanda Dudman; CoachMentoring.co.uk.)_
      **Pre-launch non-negotiable, Lexi to action** — sits with the ICO/privacy items.
 
 **Sources:**
+_Institutional (carry externally):_
 [Edmondson — psychological safety (HBS PDF)](https://www.hbs.edu/ris/Publication%20Files/02-062_0b5726a8-443d-4629-9e75-736679b870fc.pdf) ·
+[EMCC Global Code of Ethics — §4 competence / refer-on boundary](https://www.globalcodeofethics.org/) ([EMCC Global ethics hub](https://www.emccglobal.org/quality/ethics/))
+_Practitioner/commercial (directional texture only, re-tiered 2026-06-27):_
 [Mentorloop — boundaries in mentoring](https://mentorloop.com/blog/boundaries-mentoring/) ·
 [Mentorloop — what a mentor is and isn't](https://mentorloop.com/blog/what-a-mentor-is-and-isnt/) ·
 [CoachMentoring.co.uk — managing mentoring boundaries](https://www.coachmentoring.co.uk/blog/2023/10/managing-mentoring-boundaries-to-shape-and-structure-better-outcomes/)
@@ -422,6 +450,44 @@ the stronger-evidence category.
 [Allen et al. 2004 — full text PDF](https://ellenensher.com/wp-content/uploads/2013/06/Career-benefits-associated-with-mentoring-for-proteges.pdf) ·
 [Eby et al. 2008 — open access (PMC)](https://pmc.ncbi.nlm.nih.gov/articles/PMC2352144/) ·
 [Eby et al. 2008 — PubMed](https://pubmed.ncbi.nlm.nih.gov/19343074/)
+
+---
+
+## Known gaps and lower-confidence areas (added 2026-06-27)
+
+_This section exists so omissions are visible, not silent — per the research bar (point 8). Items marked
+with * would benefit from a qualified domain expert (a counsellor, an EMCC/CIPD-accredited practitioner)
+before being relied on externally._
+
+### Evidence gaps
+
+1. **No evidence that these frameworks transfer to a *text-based AI* advisor.** Every framework here (Kram,
+   GROW, MI/OARS, Rogers, Clutterbuck) was developed for, and validated in, *human* one-to-one relationships.
+   Our entire translation to a chat advisor is reasoned, not evidenced — no study tested MI or active listening
+   delivered by an AI to an anxious early-career user. This is the single largest gap: treat the translation as
+   a well-grounded hypothesis, not a proven design. *
+2. **The meta-analyses are human-mentoring and somewhat dated.** Allen et al. (2004) and Eby et al. (2008) are
+   the citable spine for "mentoring works," but both predate the current market and neither studied digital or
+   AI-mediated mentoring. Effect sizes were small. No more recent UK-specific meta-analysis was located.
+3. **Frameworks are decades old.** Acknowledged in the confidence note as still-standard rather than stale —
+   but flagged here so the age is visible. No newer framework was found that supersedes them.
+4. **Matthews (2014, Dominican University)** — the accountability anchor — is a single, small, unpublished-in-
+   a-top-journal study. It supports "written, shared goals help," not a precise effect size. Do not over-claim it.
+5. **Gallup CliftonStrengths figures are commercial and indicative.** The strengths-development evidence base is
+   real but the specific engagement/performance percentages are Gallup's own; verify before any external quote. *
+6. **Specific phrasings sourced from web-search summaries, not primary texts** (flagged throughout) — the named
+   frameworks and authors are verified; some exact wordings are not. Trace to primary before external use.
+
+### Contested or practitioner-only areas
+
+7. **The directive ↔ non-directive "Push-Pull" model** is practitioner doctrine (coaching blogs, NHS NES), not a
+   single validated instrument. The spectrum is well-accepted; the specific labels are convention.
+8. **"A digital advisor cannot truly sponsor"** (Bucket C) is our own honest reasoning about the medium, not a
+   researched finding. It is almost certainly right, but it is an argument, not evidence.
+9. **No UK statutory safeguarding standard exists for AI career/wellbeing tools.** The refer-on/signpost behaviour
+   is anchored to the EMCC ethics code (built for human practitioners) and general duty-of-care reasoning. There
+   is no regulator-issued spec for what an AI advisor must do when a user discloses distress — so our
+   safeguarding behaviour is best-practice-derived and should be reviewed by someone qualified before launch. *
 
 ---
 

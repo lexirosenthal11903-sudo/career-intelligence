@@ -7,6 +7,18 @@ must be backed by what real UK data shows — and where it can't be, that must b
 
 **Scope:** UK, early-career / graduate, current (2026 where it exists, 2025 floor). Nine threads.
 
+**Audience scope note (added 2026-06-27) — all ages, not graduate-only.** Much of the hardest evidence here
+(ISE/High Fliers) is specifically *graduate-recruitment* data, because that's where the UK primary datasets
+exist. But the product serves all ages and stages — early-career is the go-to-market **beachhead**, not the
+ceiling. Where a finding is graduate-specific (the 140:1 volume, scheme-cycle timing, strengths-based grad
+interviewing), that's noted; the structural craft (both-gates CV, authentic cover letters, the failure-mode
+map, outreach) applies across ages. A 45-year-old career-changer faces the same volume reality and the same
+recruiter/hiring-manager gates; the advisor should not assume the user is 22.
+
+**Review date (added 2026-06-27).** Drafted 2026-06-25, retrofitted to the research bar 2026-06-27.
+**Next review: when the ISE Student Recruitment Survey 2026 and High Fliers Graduate Market 2027 publish**
+(roughly mid-2026 / early-2027) — the headline volume and vacancy-trend figures should be refreshed then.
+
 ---
 
 ## ⚠️ Confidence + verification status — READ THIS FIRST
@@ -401,20 +413,64 @@ inferred from the role).
 
 ---
 
+## Known gaps and lower-confidence areas (added 2026-06-27)
+
+_This consolidates the lower-confidence items already flagged throughout into one visible list — per the
+research bar (point 8), so omissions are explicit, not silent. The 🔴 myths are catalogued inline above and in
+the Sources "do not use" list; this section is the unresolved/uncertain residue. Items marked * would benefit
+from a UK domain expert before external use._
+
+### Factual gaps (no reliable UK primary source found)
+
+1. **No UK primary figure for cover-letter read rates.** Every "X% read them" stat traces to US résumé-builder
+   blogs (Thread 2). The advisor gives craft advice on cover letters but must never attach a read-rate number.
+2. **No UK auto-reject / ATS rejection rate.** The "75% binned by an ATS" claim is US marketing (Thread 3). We
+   know large corporates use ATS/AI and SMEs often don't; the *rate* is genuinely unknown.
+3. **No UK referral percentage.** The "30–50% / 40% of hires from referrals" figures are US/LinkedIn (Thread 4).
+   Direction (networks are a major route in) is sound; the magnitude is unmeasured for the UK.
+4. **CIPD 78% / 31% recruitment-tech figures come from factsheet text via a search summary, not the primary PDF**
+   (Thread 3). Directionally reliable; trace to the CIPD primary document before any external quote. *
+5. **The 290:1 sector ratio and the 140:1 headline are large-employer ISE data**, not SME or non-scheme hiring.
+   They describe structured graduate-employer pipelines; the SME/direct market our outreach feature targets has
+   different, harder-to-measure odds. The advisor should not imply 140:1 applies to a speculative SME approach.
+6. **"Prior experience is a weak predictor of performance"** (Thread 8) is attributed to Schmidt & Hunter — but
+   that literature was materially revised by Sackett et al. (2022), which corrected several validity coefficients
+   downward. The directional point (graduates can win on motivation/behaviour, not track record) still holds, but
+   the exact citation and effect size are contested — verify before any external claim. *
+
+### Contested or unverified figures (do not quote externally without source-tracing)
+
+7. **The "larger than the 2020 pandemic / 2008–09 recession" vacancy comparison** (Thread 3) sits in the
+   paywalled High Fliers report and could not be confirmed from public sources.
+8. **The 52% school/college-leaver AI-misrepresentation figure** (Thread 9) could not be verified at source —
+   treated as 🟡 pending confirmation; the 48% graduate figure and 61% interview figure are the safer anchors.
+9. **Strengths-based prevalence (~50% of grad recruiters use it, ~69% blend approaches)** (Thread 8) is ISE-sourced
+   but the exact figures should be traced to the ISE primary before external quoting.
+
+### Areas needing a domain-expert sanity-check *
+
+- **Law (SQE/SRA route) and finance (cycle timing/tests)** encoding (Thread 6) is sourced to SRA and High Fliers
+  but a practising solicitor/training-contract adviser and an IB graduate recruiter should confirm the 2026
+  specifics before the advisor leans on them hard.
+- **The 🟡 "convention" tier broadly** (CV bullet craft, cover-letter length, ATS formatting advice): near-
+  universal among UK careers professionals but not primary-evidenced. Sound craft; never dress as "studies show."
+
+---
+
 ## Sources
 
 **🟢 Primary (UK):**
 - ISE — Student Recruitment Survey 2025 (full report paywalled): https://ise.org.uk/knowledge/research/491/ise_student_recruitment_survey_2025/ · **headline stats verified at source on ISE's free page:** "Top 10 Stats of 2025": https://ise.org.uk/knowledge/insights/513/ise_top_10_stats_of_2025_you_need_to_know/ (140 & 290 apps/vacancy; 46% no problem with AI / 10% ban-or-detect; 79% redesigning-or-reviewing; 54% self-awareness / 46% resilience skill gaps; share of employers who never suspected cheating fell 22%→15%). NB: the 54/46 skill-gap figures are from the ISE Student **Development** Survey 2025, a separate instrument from the Recruitment Survey.
 - High Fliers — The Graduate Market (2025 & 2026): https://www.highfliers.co.uk/publication-the-graduate-market-report
 - CIPD — Selection Methods factsheet: https://www.cipd.org/uk/knowledge/factsheets/selection-factsheet/ · Recruitment process factsheet: https://www.cipd.org/uk/knowledge/factsheets/recruitment-factsheet/ · Resourcing & Talent Planning + Labour Market Outlook: https://www.cipd.org/uk/knowledge/reports/resourcing-surveys/
-- Reed — recruiter survey (300+ UK recruiters), CV findings: https://www.reed.co.uk/career-advice/what-recruiters-are-really-looking-for-in-your-cv/ and https://www.reed.co.uk/career-advice/how-long-should-a-cv-be/
 - National Careers Service (gov.uk) — graduate schemes timing: https://nationalcareers.service.gov.uk/careers-advice/how-to-find-graduate-schemes/
 - SRA — pathways to qualification (SQE/QWE): https://www.sra.org.uk/become-solicitor/admission/pathways-qualification/
 - gov.uk — Success Profiles: Strengths: https://www.gov.uk/government/publications/success-profiles/success-profiles-strengths
 
-**🟡 Convention / careers-sector (used as convention, not evidence):**
-- Prospects (Jisc) — strengths-based & competency interviews; SQE explainer: https://www.prospects.ac.uk/careers-advice/interview-tips/strength-based-interviews/
-- TargetJobs — CV length & strengths interviews: https://targetjobs.co.uk/careers-advice
+**🟡 Commercial / practitioner (re-tiered 2026-06-27 — strong industry signal, NOT gov/academic primary):**
+- **Reed — recruiter survey (300+ UK recruiters), CV findings:** https://www.reed.co.uk/career-advice/what-recruiters-are-really-looking-for-in-your-cv/ and https://www.reed.co.uk/career-advice/how-long-should-a-cv-be/ — **Reed is a commercial recruitment company surveying its own network; this is recruiter-opinion data, not peer-reviewed or official.** It is the strongest *industry* signal we have for "what UK recruiters say they want" and the brief names it, so we use it with authority on recruiter *preferences* — but it is Tier B, not 🟢 primary, and must not be dressed as academic or official evidence. Moved out of the 🟢 list 2026-06-27.
+- Prospects (Jisc) — strengths-based & competency interviews; SQE explainer: https://www.prospects.ac.uk/careers-advice/interview-tips/strength-based-interviews/ _(graduate-lens careers authority)_
+- TargetJobs — CV length & strengths interviews: https://targetjobs.co.uk/careers-advice _(commercial graduate-careers site)_
 - University careers services (Bath, Kent, Manchester) — graduate CV & interview guidance
 
 **🔴 Mis-sourced / do not use as fact:**
