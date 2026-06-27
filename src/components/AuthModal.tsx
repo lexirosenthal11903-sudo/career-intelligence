@@ -147,6 +147,10 @@ export default function AuthModal({ isOpen, onClose, initialView = "signup", red
   }
 
   function handleSendError(message?: string) {
+    // Surface the real Supabase error so a send failure is diagnosable (the user
+    // only ever sees the friendly copy). Built-in Supabase email fails quietly;
+    // this tells us whether it's a rate limit or an SMTP/config problem.
+    console.error("[auth] failed to send code:", message);
     setRateLimited(isRateLimit(message));
     setView("send-error");
   }
