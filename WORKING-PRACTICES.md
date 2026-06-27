@@ -82,13 +82,31 @@ and generating variations.
 You speak ~3× faster than you type and instructions come out more detailed. `/voice`, hold spacebar,
 describe what you want. Lexi already uses this.
 
-### 9. Check prior art / industry standards first
+### 9. Check prior art / industry standards first — the four questions before EVERY build
 For any common or solved problem, name how it is normally done or who does it best BEFORE building
 from discussion, then decide together. Do not reinvent. Name a real reference (the platform's own
 built-in feature, a named product, a known pattern), not a vague "best practice" — the same rule as
 named design references. (Adopted 2026-06-26, Lexi's process insight.) Worked example: the sign-up
 carry-forward is the standard "anonymous account, then link on signup" pattern that Supabase ships
 natively, not the custom browser-cache bridge we had hand-rolled. See memory `feedback-check-prior-art-first`.
+
+**The four questions (run before building or fixing ANY feature — set 2026-06-27 with Lexi):**
+1. Has someone already solved this well?
+2. If so, who does it best, and what exactly is worth copying?
+3. How does ours compare right now?
+4. What do we keep, change, and layer on top to make it ours?
+
+**Two non-negotiable principles on top of the four questions:**
+- **Copying is the START line, not the finish.** Matching best-in-class gets us to "great" fast so we
+  spend our real effort on the part only we can do. Every replicated pattern is still measured against
+  our own research + mission + the advisor differentiator, and we build on top. Copied ≠ done.
+- **Understand before changing — never wipe-and-replace blind.** The four-questions output is a map we
+  read together FIRST. Nothing built is replaced as a side effect. If what we have is already good, the
+  map says keep it. Decisions to change are made together, one feature at a time.
+
+This applies to everything already built (audit + map it, the priority) AND everything we plan to build.
+Quick, easy future wins can jump the queue if they speed things up. See memory
+`feedback-check-prior-art-first` and the prior-art map deliverable.
 
 ### Bonus 1 — Let Claude interview you (before anything big)
 Don't write the perfect prompt — let Claude pull it out of you. It asks about edge cases and trade-offs you

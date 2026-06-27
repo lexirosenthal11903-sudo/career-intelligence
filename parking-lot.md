@@ -239,6 +239,46 @@ live listings, which is the expected reason that entry point was hidden.
 
 ---
 
+## Session 2026-06-27 (later) — DECISION: audit the foundation BEFORE building more + role-interest reframe
+
+_Lexi's call, and the right one: stop building new features until we know the current state is sound. Anything
+that is a STANDARD, solved feature across platforms (auth, file upload, application tracking, chat UX, etc.)
+must follow best-practice protocol before we layer more on top. Foundation first. No more finding bugs in
+things everyone already knows how to build correctly — that is wasted time._
+
+**▶ SEQUENCING (set 2026-06-27):** Audit first → fix the foundation to standard → THEN resume building.
+The outreach Slice 2 bug batch (the PM section above) and the new bugs below all roll INTO the audit's
+prioritised fix list rather than being a separate pass. The role-interest mentoring redesign (the heart) is
+the first BUILD after the foundation is sound, and it gets grilled/designed before any code.
+
+**The audit — two lenses (output = ONE prioritised list, foundation-first, not a wall):**
+1. **Correctness** — does what we've built actually work? (bugs in existing flows.)
+2. **Best-practice conformance** — for every feature that is a standard/solved thing across platforms, does
+   ours follow the industry-standard protocol? (auth/OTP, file upload + validation, application tracking,
+   chat UX — scroll/textarea/optimistic state, error handling, loading states, accessibility, data handling.)
+
+**New bugs found this session (roll into the audit list):**
+- **Role-interest hands off WITHOUT the role's details.** Clicking "I'm interested" fires a visible
+  auto-message in the user's name ("I've just said I'm interested in the X role at Y. What should we do?")
+  and the advisor then asks the user to paste the job description — which it already holds (the listing has
+  title/company/description). The advisor's chat context doesn't carry the role details. Fix at the root via
+  the memory layer (advisor knows the user's saved roles + details), not by stuffing the prompt. _(Symptom of
+  the missing memory layer + the transactional design.)_
+- **"I'm interested" → Applications is not obvious enough**, and the auto-sent message reads as if the USER
+  typed it. Make the save visibly clear, and make the advisor's follow-up feel like IT reacting, not a
+  message masquerading as the user's.
+- **"+" CV re-upload is a dead loop for logged-in users.** The composer "+" is disabled (CV was meant to
+  live in Profile), but Profile has no uploader — it tells users to "drop one into the conversation", which
+  is the disabled button. A logged-in user currently has NO working way to re-upload/replace a CV. Infra
+  exists (`/api/extract` + `saveCvToProfile`); wire it.
+
+**Role-interest reframe (the big one — full item now in FEATURE-ROADMAP Step 2):** clicking a role / showing
+interest should start an adaptive MENTORING conversation (why interested → honest alignment → gaps → company
+→ process → a plan), not jump to spitting out a CV + cover letter. The captured "why" feeds future
+recommendations (the compounding moat). Paced, never an interrogation. Design + grill before build.
+
+---
+
 ## 🅿️ To discuss later (raised 2026-06-22, during the audit-planning conversation)
 
 - **Niche-industry users.** The concept of a user looking at a more niche / unusual industry — how the
