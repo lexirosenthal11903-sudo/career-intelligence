@@ -299,6 +299,16 @@ export default function RolesPage() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   }
 
+  // Outreach entry points: make sure Arlo is visible, then hand it a contextual
+  // prompt — the advisor picks up draft_outreach from there.
+  function askArlo(prompt: string) {
+    if (!arloVisible) {
+      setArloVisible(true);
+      localStorage.setItem("arlo-visible", "true");
+    }
+    sendMessage(prompt);
+  }
+
   // ── Derived data ──────────────────────────────────────────────────────────
   const profile = analysisResult?.profile;
   // Guard against malformed stored analyses where these were saved as a string
@@ -462,6 +472,15 @@ export default function RolesPage() {
                     </div>
                   </Link>
                 ))}
+                {/* Gentle outreach reminder (trigger 3: direction → roles view) */}
+                {!resultLoading && directions.length > 0 && (
+                  <button
+                    className={s.outreachNudge}
+                    onClick={() => askArlo("I'd like to reach out to people directly to get a foot in the door. Can you help me work out who to approach and what to say?")}
+                  >
+                    Not all roles are advertised. Ask me to help you reach out to the right people →
+                  </button>
+                )}
               </div>
             )}
 
@@ -521,6 +540,15 @@ export default function RolesPage() {
                       <>
                         <div className={s.emptyTitle}>No listings found right now.</div>
                         <div className={s.emptySub}>Live listings update daily. Check back soon.</div>
+                        <div className={s.emptySub} style={{ marginTop: "0.75rem" }}>
+                          When roles are thin on the ground, reaching out directly is often the way in.{" "}
+                          <button
+                            className={s.retryBtn}
+                            onClick={() => askArlo(`There aren't many live roles for ${directionTagline || "my directions"} right now. Can you help me reach out to people directly to get a foot in the door?`)}
+                          >
+                            Ask Arlo who to reach out to
+                          </button>
+                        </div>
                       </>
                     ) : (
                       <>

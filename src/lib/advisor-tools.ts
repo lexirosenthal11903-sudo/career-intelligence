@@ -169,7 +169,7 @@ export const ADVISOR_TOOLS = [
   {
     name: 'draft_outreach',
     description:
-      "Help this person reach out to someone who could open a door — a warm intro or a cold approach. Call this when they want help with networking, outreach, warm intros, reaching out to someone, getting a foot in the door, or approaching a company/team directly — especially when there are few live roles, or they've found a company or field they want to break into. BEFORE calling, find out in conversation whether they already know anyone there, or anyone who has worked there (warm beats cold) — pass that as warmPath. This produces the right TYPE of person to approach, a LinkedIn search link so THEY can find that person, and a short message to send. After it runs: tell them who to approach, share the search link, give them the drafted message verbatim, mention the one-line follow-up, and offer to adjust the tone.",
+      "Help this person reach out to someone who could open a door — a warm intro or a cold approach. Call this when they want help with networking, outreach, warm intros, reaching out to someone, getting a foot in the door, or approaching a company/team directly — especially when there are few live roles, or they've found a company or field they want to break into. BEFORE calling, find out in conversation whether they already know anyone there, or anyone who has worked there (warm beats cold) — pass that as warmPath. If the user has PASTED something they found themselves — a specific person's LinkedIn post, profile text, or bio — pass that text as foundContext so the message can reference it specifically (the 'I saw you posted about X' opener that actually gets replies); never go and fetch anything yourself, only use what they paste. This produces the right TYPE of person to approach (or a message tailored to the specific person they pasted), a LinkedIn search link so THEY can find that person, and a short message to send. After it runs: tell them who to approach, share the search link, give them the drafted message verbatim, mention the one-line follow-up, and offer to adjust the tone.",
     input_schema: {
       type: 'object',
       properties: {
@@ -183,6 +183,10 @@ export const ADVISOR_TOOLS = [
           type: 'string',
           enum: ['linkedin', 'email'],
           description: "Where they intend to send it. Default to linkedin unless they specifically want email.",
+        },
+        foundContext: {
+          type: 'string',
+          description: "Text the USER pasted from a specific person they found themselves — a LinkedIn post, profile summary, or bio. Use it to tailor the message to that real person and reference something genuine they said or did. Only ever the user's own pasted text; never invent it and never go and fetch it.",
         },
       },
       required: ['roleTitle'],
@@ -566,6 +570,13 @@ export async function executeAdvisorTool(
         const company = typeof input.company === 'string' ? input.company.trim() : '';
         const warmPath = typeof input.warmPath === 'string' ? input.warmPath.trim() : '';
         const channel = input.channel === 'email' ? 'email' : 'linkedin';
+        // Paste-to-tailor: the USER brings text about a person THEY found (a post,
+        // profile, or bio). We process it transiently to tailor the message and
+        // NEVER persist it as a contact — no contact record is ever written here,
+        // and the GDPR posture stays the same as a cold/warm draft. (The pasted
+        // text does live in their own chat history; flagged for solicitor review.)
+        // Capped so a giant paste can't blow the token budget.
+        const foundContext = typeof input.foundContext === 'string' ? input.foundContext.trim().slice(0, 1500) : '';
 
         const profile = await getProfile(supabase, userId);
 
@@ -605,6 +616,9 @@ export async function executeAdvisorTool(
           warmPath
             ? `\nWARM CONNECTION (use it — warm outreach vastly out-responds cold): ${warmPath}. Reference this connection naturally and early.`
             : `\nNO existing connection — this is a cold approach. Make it specific and earned, not templated.`,
+          foundContext
+            ? `\nTHE SPECIFIC PERSON THEY FOUND — the user pasted this themselves (a post, profile, or bio). Tailor the message to THIS person: open by referencing something genuine and specific from it (what they posted about, their path, their work), in a way that shows the sender actually read it and isn't sending a template. Use only what is here; never infer private details or invent anything beyond it:\n"""\n${foundContext}\n"""`
+            : '',
           `\nABOUT THEM (write only from this — never invent experience, skills, or claims):\n${contextLines}`,
           `\nHow outreach that actually gets a reply works — ground the message in this:`,
           `- The right person to approach is usually someone IN that team or function who is one to three years ahead, or a team lead, or an alum — a real human who was recently where they are, not a generic "hiring manager".`,

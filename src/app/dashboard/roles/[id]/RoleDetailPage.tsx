@@ -233,6 +233,20 @@ export default function RoleDetailPage() {
                   ))}
                 </div>
 
+                {/* Reaching out — outreach entry point (trigger 2: a specific direction) */}
+                <div className={s.sLabel} style={{ marginTop: "2rem" }}>Reaching out</div>
+                <button
+                  className={s.listingsLink}
+                  style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", width: "100%" }}
+                  onClick={() => handleArloPrompt(`Who could I reach out to to get a foot in the door in ${direction.title}, and what should I say to them?`)}
+                >
+                  <div>
+                    <div className={s.listingsLabel}>Help me reach out to someone in {direction.title}</div>
+                    <div className={s.listingsSub}>Often how people actually get in. I&apos;ll find who to approach and draft the message.</div>
+                  </div>
+                  <div className={s.listingsArrow}>→</div>
+                </button>
+
                 {/* Live listings link */}
                 <Link
                   href={`/dashboard/roles?tab=listings&filter=${encodeURIComponent(direction.title)}`}
