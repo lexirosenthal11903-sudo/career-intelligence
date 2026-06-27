@@ -540,3 +540,7 @@ didn't appear. **Nothing is lost** — the data exists; this is a surfacing feat
 On-mission: continuity = trust for a daily companion ("it remembers you"). Pairs with the existing recap card.
 **Priority:** after the candidate-strength loop (outreach + interview prep); part of the daily-companion pillar,
 not a now-interrupt. Design choice to settle: full raw transcript vs a cleaner "past conversations" list.
+**Day dividers (Lexi 2026-06-27):** group history by day with date headings like WhatsApp/iMessage ("Tuesday",
+"Monday", then date) so the user sees what they worked on each day, turning the transcript into a journal of
+progress (reinforces the daily-companion feel). Relative labels (Today/Yesterday/weekday) for recent days,
+absolute dates for older. The conversation store already has timestamps to drive this.
