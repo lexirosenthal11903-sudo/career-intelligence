@@ -25,6 +25,7 @@
  * broken", not "great answer". Read the printed replies, not just the ticks.
  */
 import { ARLO_SYSTEM_PROMPT } from '../../src/lib/advisor-prompt.ts';
+import { stripDashes } from '../../src/lib/sanitize.ts';
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!API_KEY) {
@@ -150,7 +151,9 @@ async function askAdvisor(userTurns, context) {
     .filter((b) => b.type === 'text')
     .map((b) => b.text)
     .join('\n');
-  return { text, usage: data.usage ?? {} };
+  // Grade the text the USER actually sees: the chat route strips em dashes before
+  // returning, so the eval applies the same production sanitiser here.
+  return { text: stripDashes(text), usage: data.usage ?? {} };
 }
 
 // Sonnet 4.6 standard rates, $ per million tokens (likely — the standard Sonnet rate).

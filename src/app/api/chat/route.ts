@@ -5,6 +5,7 @@ import { getAuthedUser } from '@/lib/supabase/server';
 import { checkChatRateLimit } from '@/lib/ratelimit';
 import { getProfile } from '@/lib/profile';
 import { ADVISOR_TOOLS, executeAdvisorTool } from '@/lib/advisor-tools';
+import { stripDashes } from '@/lib/sanitize';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const maxDuration = 60;
@@ -224,6 +225,13 @@ export async function POST(request: Request) {
       if (!response.ok) return NextResponse.json(data, { status: response.status });
 
       if (data.stop_reason !== 'tool_use') {
+        // Deterministic backstop for the "no em dashes" voice rule the model keeps
+        // breaking — strip them from every text block before it reaches the user.
+        if (Array.isArray(data.content)) {
+          data.content = data.content.map((b: { type?: string; text?: string }) =>
+            b?.type === 'text' && typeof b.text === 'string' ? { ...b, text: stripDashes(b.text) } : b
+          );
+        }
         data.meridianActions = meridianActions;
         data.meridianSignals = meridianSignals;
         data.meridianData = meridianData;

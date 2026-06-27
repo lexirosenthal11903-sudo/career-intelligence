@@ -12,6 +12,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getProfile, patchProfile, addMemory, type ProfileData } from '@/lib/profile';
 import { callClaude } from '@/lib/anthropic';
+import { stripDashes } from '@/lib/sanitize';
 
 // ── Tool schemas sent to Claude ───────────────────────────────────────────────
 // Prescriptive descriptions: state WHEN to call, not just what it does. Recent
@@ -443,6 +444,7 @@ export async function executeAdvisorTool(
           coverLetter = text;
         }
 
+        coverLetter = stripDashes(coverLetter);
         if (coverLetter) {
           await supabase.from('documents').upsert(
             {
@@ -531,6 +533,7 @@ export async function executeAdvisorTool(
           tailoredCv = text;
         }
 
+        tailoredCv = stripDashes(tailoredCv);
         if (tailoredCv) {
           await supabase.from('documents').upsert(
             {
@@ -652,7 +655,14 @@ export async function executeAdvisorTool(
           message = text;
         }
 
-        if (!message) return { content: "I couldn't draft that one — ask me to try again.", isError: true };
+        if (!message) return { content: "I couldn't draft that one. Ask me to try again.", isError: true };
+
+        // No em dashes in anything the user sees (the model ignores the rule).
+        personType = stripDashes(personType);
+        subject = stripDashes(subject);
+        message = stripDashes(message);
+        followUp = stripDashes(followUp);
+        notes = notes.map(stripDashes);
 
         // A pre-filled email link for the click-through (no recipient — the user finds and
         // adds the person). Passed in the data payload for the client to use.
