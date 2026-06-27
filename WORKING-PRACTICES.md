@@ -196,3 +196,38 @@ grades its own homework, exactly as we do for code. The main thread folds the au
 
 **If a report misses the bar, it goes back** (re-run or reviewer audit) before any code is written against it.
 Research is a living document: re-ground when the market shifts, and carry a review date.
+
+---
+
+## Agent & automation timeline (ordered by trigger) — set 2026-06-27 with Lexi
+
+_Lexi asked whether we need standing/scheduled agents (research-freshness + others) and, if so, to sequence
+them and surface each at the right moment. Decision: capture the full set, build the NEW ones only when their
+trigger fires. Claude owns raising each at its trigger (per "Claude owns the timing" above). Key design rule
+for any scheduled agent: it CHECKS and FLAGS for human review, it never silently ACTS. £0 discipline applies._
+
+**Distinction taught:** build-time helper agents (spun up during a session, in-loop, cost usage only while
+running) vs scheduled/autonomous agents (run on a timer with no one watching, ongoing cost, higher risk).
+**OpenClaw evaluated + rejected** (autonomous local agent via messaging apps): can't be our product, security
+profile (broad permissions, prompt-injection, unvetted skills) disqualifies it anywhere near user CVs, and
+Claude Code + `/schedule` already cover our needs. It does validate the WhatsApp access-layer pattern, which
+we build ourselves (Twilio/WhatsApp Business API) per the FEATURE-ROADMAP "WhatsApp channel" item.
+
+| When (trigger) | Agent | Type | Claude raises it |
+|---|---|---|---|
+| **Now / ongoing** | Session-start code audit | build-time | every session start |
+| **Now / ongoing** | Research + independent-reviewer | build-time | whenever grounding a fact-based feature |
+| **Now / ongoing** | Code-review / security-review | build-time | after each code slice, before merge |
+| **Product walkable end-to-end** (Step 2 built, before polish) | Synthetic-persona dogfooding agents | scheduled QA | first NEW agent — raise when the loop is walkable. Roadmap §Step 2 (parked) |
+| **Product walkable end-to-end** | Multi-critic eval (mentor/recruiter/user) | scheduled QA | right after dogfooding. Roadmap/parking-lot (parked) |
+| **Approaching launch** (pre-launch window) | Research-freshness checker (monthly, volatile topics only: AI-in-interviews, scheme windows, salary data) | scheduled, flag-only | raise during pre-launch non-negotiables |
+| **Approaching launch** | Legal/regulatory watch (GDPR/ICO, employment law) | scheduled, flag-only | with the solicitor review |
+| **Approaching launch** | Error/uptime monitoring (Sentry + Vercel Analytics — not an agent) | ops | already on the pre-launch list |
+| **Post-launch (has users)** | Competitor watch | scheduled, flag-only | once in-market |
+| **Post-launch (has users)** | Market / "AI and work" news monitor (feeds advisor credibility + blog) | scheduled, flag-only | once there's an audience/content surface |
+| **B2B era (Phase 4+)** | Employer/university-facing automation | TBD | decided then |
+
+**Honest steer recorded:** the first NEW agent is months away (waits for a walkable product); almost
+everything else waits for launch. Do NOT build agent infrastructure pre-product. Research stays current via
+honest review dates now; the proper run-time freshness fix is the Step 3 retrieval/grounded-knowledge layer,
+not a swarm of refresh agents.
