@@ -329,7 +329,7 @@ export default function SkillsPage() {
                 )}
 
                 <button className={s.certTellArlo} onClick={() => { toggleCert(skill.id); tellArlo(skill.name); }}>
-                  Tell Arlo instead →
+                  Tell me instead →
                 </button>
               </div>
             )}
@@ -422,7 +422,7 @@ export default function SkillsPage() {
           <span className={s.topbarTitle}>Skills</span>
           <button className={s.arloToggle} onClick={toggleArlo}>
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
-            {arloVisible ? "Hide Arlo" : "Show Arlo"}
+            {arloVisible ? "Hide advisor" : "Show advisor"}
           </button>
         </div>
 
@@ -516,7 +516,7 @@ export default function SkillsPage() {
             <div className={s.mentorHead}>
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
-                <div className={s.mentorHeadName}>Arlo</div>
+                <div className={s.mentorHeadName}>Career Intelligence</div>
                 <div className={s.mentorHeadStatus}>{arloLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
@@ -551,7 +551,7 @@ export default function SkillsPage() {
               )}
               {arloLoading && (
                 <div className={s.aiMsg}>
-                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Thinking…</div>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -563,7 +563,7 @@ export default function SkillsPage() {
                   ref={chatInputRef}
                   className={s.mentorInput}
                   type="text"
-                  placeholder="Ask Arlo…"
+                  placeholder="Ask anything…"
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
                   onKeyDown={handleChatKey}

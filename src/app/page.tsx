@@ -44,7 +44,7 @@ export default function HomePage() {
               You shouldn&rsquo;t have to figure out your career alone.
             </h1>
             <p className={`${s.heroSub} reveal`}>
-              Arlo maps your direction, finds the roles that actually fit, and walks every step of the search with you — one clear action at a time.
+              Career Intelligence maps your direction, finds the roles that actually fit, and walks every step of the search with you, one clear action at a time.
             </p>
             <div className={`${s.heroActions} reveal`}>
               <a href="/workspace?view=first" className={s.ctaLg}>Start with who you are →</a>
@@ -121,7 +121,7 @@ export default function HomePage() {
               <div className={s.shotArloHead}>
                 <div className={s.shotArloAv}><ArloSvgLg /></div>
                 <div>
-                  <div className={s.shotArloName}>Arlo</div>
+                  <div className={s.shotArloName}>Career Intelligence</div>
                   <div className={s.shotArloStatus}>Here with you</div>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function HomePage() {
               <div className={s.featEyebrow}>01 · Your direction</div>
               <h2 className={s.featH2}>From who you are to where you&rsquo;re going.</h2>
               <p className={s.featBody}>
-                Tell Arlo about yourself — not your CV, but you. Your instincts, what you&rsquo;ve actually done, what energises you. In return: a clear direction in plain words. Not a quiz result. Not a list of job titles. A real read of where you fit.
+                Tell us about yourself, not your CV, but you. Your instincts, what you&rsquo;ve actually done, what energises you. In return: a clear direction in plain words. Not a quiz result. Not a list of job titles. A real read of where you fit.
               </p>
               <div className={s.featIllo}>
                 <svg width="120" height="86" viewBox="0 0 130 90" fill="none">
@@ -247,7 +247,7 @@ export default function HomePage() {
               <div className={s.featEyebrow}>03 · Every day</div>
               <h2 className={s.featH2}>Close the gap. One step at a time.</h2>
               <p className={s.featBody}>
-                Arlo knows exactly what stands between you and the role — and what to do about it today. Not a generic skills list. A specific plan, updated as you make progress, from someone who knows your whole search.
+                Career Intelligence knows exactly what stands between you and the role, and what to do about it today. Not a generic skills list. A specific plan, updated as you make progress, from someone who knows your whole search.
               </p>
               <div className={s.featIllo}>
                 <svg width="130" height="86" viewBox="0 0 150 86" fill="none">
@@ -268,7 +268,7 @@ export default function HomePage() {
               <div className={s.f3ArloHead}>
                 <div className={s.f3ArloAv}><ArloSvgLg /></div>
                 <div>
-                  <div className={s.f3ArloName}>Arlo</div>
+                  <div className={s.f3ArloName}>Career Intelligence</div>
                   <div className={s.f3ArloStatus}>Here with you</div>
                 </div>
               </div>
@@ -324,7 +324,7 @@ export default function HomePage() {
       <div className={s.wrap}>
         <section className={`${s.closing} reveal`}>
           <h2 className={s.closingH2}>Your career deserves more than a job board.</h2>
-          <p className={s.closingP}>Start with one minute. Tell Arlo who you are.</p>
+          <p className={s.closingP}>Start with one minute. Tell us who you are.</p>
           <a href="/workspace?view=first" className={s.ctaLg}>Start with who you are →</a>
           <span className={s.closingReassure}>Takes about a minute · No CV required</span>
         </section>

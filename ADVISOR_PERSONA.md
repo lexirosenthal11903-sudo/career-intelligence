@@ -13,11 +13,11 @@ The advisor is the product's most important design element. Every decision about
 
 ## Name
 
-**Arlo — confirmed 2026-06-10.**
+**Dropped 2026-06-27. The advisor has no character name — it speaks as "Career Intelligence" (working name; final TBD at the identity/branding session).**
 
-Chosen after a full persona session that built the character first, then named it. Warm, genuinely gender-neutral, no strong cultural associations to fight against. Fits the person: worldly, grounded, a bit weathered. Not romantic or literary. Just a person.
+This supersedes the earlier "Arlo — confirmed 2026-06-10" decision, in line with CLAUDE.md ("no face, no character name") and the doc-conflict order (CLAUDE.md > ADVISOR_PERSONA.md). The user-facing UI no longer shows "Arlo" anywhere (done 2026-06-27): panel header = "Career Intelligence", chat speaks in first person ("I"/"you"). Code identifiers (CSS classes, the `arlo-visible` key, the `useArloChat` hook) still say "arlo" internally — pure naming, not user-facing, left as-is to avoid churn.
 
-Do not use any other name. Arlo is the name.
+Below, wherever this document still says "Arlo", read it as "the advisor" — the *character* (warm, grounded, honest, economical) is unchanged; only the name is dropped. A full rename pass happens at the identity/branding session once the real name is chosen. Do not reintroduce "Arlo" or "Meridian" in user-facing copy.
 
 ---
 

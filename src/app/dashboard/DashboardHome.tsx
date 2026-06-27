@@ -206,7 +206,7 @@ export default function DashboardHome() {
           </div>
           <button className={s.arloToggle} onClick={toggleArlo}>
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
-            {arloVisible ? "Hide Arlo" : "Show Arlo"}
+            {arloVisible ? "Hide advisor" : "Show advisor"}
           </button>
         </div>
 
@@ -257,7 +257,7 @@ export default function DashboardHome() {
                 <div className={s.sectionLabel}>Your analysis is ready</div>
                 <div className={s.todayAction}>New roles have been matched to your profile.</div>
                 <div className={s.todayWhy}>
-                  Arlo has scored each one against your background. Start with the Role types tab to understand the directions, then browse live listings.
+                  Each one is scored against your background. Start with the Role types tab to understand the directions, then browse live listings.
                 </div>
                 <div className={s.btnRow}>
                   <button className={s.btnPrimary} onClick={handleSeeNewMatches}>See your matches →</button>
@@ -287,7 +287,7 @@ export default function DashboardHome() {
                 <div className={s.sectionLabel}>Where to start</div>
                 <div className={s.todayAction}>Browse your matched roles and save the ones worth pursuing.</div>
                 <div className={s.todayWhy}>
-                  Arlo has matched roles to your background. Save the ones that feel right — even if you&apos;re not sure yet. You can always pass later.
+                  These are matched to your background. Save the ones that feel right, even if you&apos;re not sure yet. You can always pass later.
                 </div>
                 <div className={s.btnRow}>
                   <button className={s.btnPrimary} onClick={() => router.push("/dashboard/roles")}>See your matched roles →</button>
@@ -332,7 +332,7 @@ export default function DashboardHome() {
             <div className={s.mentorHead}>
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
-                <div className={s.mentorHeadName}>Arlo</div>
+                <div className={s.mentorHeadName}>Career Intelligence</div>
                 <div className={s.mentorHeadStatus}>{isLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
@@ -384,7 +384,7 @@ export default function DashboardHome() {
               {/* Typing indicator */}
               {isLoading && (
                 <div className={s.aiMsg}>
-                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Thinking…</div>
                 </div>
               )}
 

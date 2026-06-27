@@ -203,7 +203,7 @@ export default function InputChat() {
               className={s.welcomeFace}
               dangerouslySetInnerHTML={{ __html: ARLO_64 }}
             />
-            <div className={s.welcomeName}>Arlo</div>
+            <div className={s.welcomeName}>Career Intelligence</div>
             <h1 className={s.welcomeHeading}>
               You don&apos;t need to have it figured out.
             </h1>
@@ -227,7 +227,7 @@ export default function InputChat() {
                         className={s.aiMetaFace}
                         dangerouslySetInnerHTML={{ __html: ARLO_24 }}
                       />
-                      <span className={s.aiMetaName}>Arlo</span>
+                      <span className={s.aiMetaName}>Career Intelligence</span>
                     </div>
                     <div className={s.aiBubble}>{msg.text}</div>
                   </div>

@@ -212,7 +212,7 @@ export default function ProfilePage() {
           <span className={s.topbarTitle}>Profile</span>
           <button className={s.arloToggle} onClick={toggleArlo}>
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
-            {arloVisible ? "Hide Arlo" : "Show Arlo"}
+            {arloVisible ? "Hide advisor" : "Show advisor"}
           </button>
         </div>
 
@@ -266,17 +266,17 @@ export default function ProfilePage() {
                   className={s.directionRefineLink}
                   onClick={() => talkToArlo("I want to talk through my directions.")}
                 >
-                  Ask Arlo →
+                  Talk it through →
                 </button>
               </div>
             </div>
 
-            {/* What Arlo knows */}
+            {/* What the advisor knows */}
             <div className={s.knowsCard}>
               {Array.isArray(analysisResult?.profile?.valuesSignals) && analysisResult.profile.valuesSignals.length ? (
                 <>
                   <div className={s.knowsRow}>
-                    <div className={s.knowsLabel}>What Arlo sees in you</div>
+                    <div className={s.knowsLabel}>What I see in you</div>
                     <div className={s.knowsText}>
                       {analysisResult.profile.valuesSignals.slice(0, 3).map((v, i) => (
                         <p key={i} style={{ margin: i === 0 ? 0 : "0.5rem 0 0" }}>{v}</p>
@@ -286,9 +286,9 @@ export default function ProfilePage() {
                 </>
               ) : (
                 <div className={s.knowsRow}>
-                  <div className={s.knowsLabel}>What Arlo knows</div>
+                  <div className={s.knowsLabel}>What I know</div>
                   <div className={s.knowsText}>
-                    Complete your analysis and Arlo will build up a picture of what makes you specifically you.
+                    Complete your analysis and I&apos;ll build up a picture of what makes you specifically you.
                   </div>
                 </div>
               )}
@@ -298,7 +298,7 @@ export default function ProfilePage() {
                   className={s.knowsFooterLink}
                   onClick={() => talkToArlo("Something about my background or preferences has changed.")}
                 >
-                  Tell Arlo →
+                  Tell me →
                 </button>
               </div>
             </div>
@@ -321,7 +321,7 @@ export default function ProfilePage() {
             {/* Preferences */}
             <div className={s.profileSection}>
               <div className={s.sectionHead}>Preferences</div>
-              <div className={s.sectionHint}>Tell Arlo your preferences, or let Arlo ask you. These are applied across your matched roles.</div>
+              <div className={s.sectionHint}>Tell me your preferences, or let me ask you. These are applied across your matched roles.</div>
 
               <div className={s.prefField}>
                 <div className={s.prefLabel}>
@@ -462,7 +462,7 @@ export default function ProfilePage() {
             <div className={s.mentorHead}>
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
-                <div className={s.mentorHeadName}>Arlo</div>
+                <div className={s.mentorHeadName}>Career Intelligence</div>
                 <div className={s.mentorHeadStatus}>{arloLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
@@ -502,7 +502,7 @@ export default function ProfilePage() {
               )}
               {arloLoading && (
                 <div className={s.aiMsg}>
-                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Thinking…</div>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -513,7 +513,7 @@ export default function ProfilePage() {
                   ref={chatInputRef}
                   className={s.mentorInput}
                   type="text"
-                  placeholder="Ask Arlo…"
+                  placeholder="Ask anything…"
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
                   onKeyDown={handleChatKey}

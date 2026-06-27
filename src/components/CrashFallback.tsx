@@ -50,7 +50,7 @@ export default function CrashFallback({ onReset, onSecondary, secondaryLabel }: 
       }}
     >
       {arloErrorFace}
-      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-2, #3D2E1A)" }}>Arlo</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink-2, #3D2E1A)" }}>Career Intelligence</div>
       <h1
         style={{
           fontSize: 22,

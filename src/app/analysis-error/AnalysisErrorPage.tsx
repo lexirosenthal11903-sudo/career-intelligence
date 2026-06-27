@@ -36,7 +36,7 @@ export default function AnalysisErrorPage() {
     <div className={s.stage}>
       <div className={s.group}>
         <div className={s.face}>{arloErrorFace}</div>
-        <div className={s.name}>Arlo</div>
+        <div className={s.name}>Career Intelligence</div>
 
         <p className={s.message}>
           Something went wrong on my end.<br />

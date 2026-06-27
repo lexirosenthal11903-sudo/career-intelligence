@@ -188,7 +188,7 @@ export default function LoadingScreen() {
           className={s.face}
           dangerouslySetInnerHTML={{ __html: current.svg }}
         />
-        <div className={s.name}>Arlo</div>
+        <div className={s.name}>Career Intelligence</div>
         <p className={s.phrase}>{current.text}</p>
         <p className={s.tagline}>About a minute.</p>
       </div>

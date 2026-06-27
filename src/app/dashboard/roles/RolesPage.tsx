@@ -389,7 +389,7 @@ export default function RolesPage() {
           <span className={s.topbarTitle}>Roles</span>
           <button className={s.arloToggle} onClick={toggleArlo}>
             <span dangerouslySetInnerHTML={{ __html: ARLO_16 }} />
-            {arloVisible ? "Hide Arlo" : "Show Arlo"}
+            {arloVisible ? "Hide advisor" : "Show advisor"}
           </button>
         </div>
 
@@ -546,7 +546,7 @@ export default function RolesPage() {
                             className={s.retryBtn}
                             onClick={() => askArlo(`There aren't many live roles for ${directionTagline || "my directions"} right now. Can you help me reach out to people directly to get a foot in the door?`)}
                           >
-                            Ask Arlo who to reach out to
+                            Ask who to reach out to
                           </button>
                         </div>
                       </>
@@ -653,7 +653,7 @@ export default function RolesPage() {
             <div className={s.mentorHead}>
               <div className={s.mentorAv} dangerouslySetInnerHTML={{ __html: ARLO_42 }} />
               <div>
-                <div className={s.mentorHeadName}>Arlo</div>
+                <div className={s.mentorHeadName}>Career Intelligence</div>
                 <div className={s.mentorHeadStatus}>{arloLoading ? "Thinking…" : "Here with you"}</div>
               </div>
             </div>
@@ -692,7 +692,7 @@ export default function RolesPage() {
               )}
               {arloLoading && (
                 <div className={s.aiMsg}>
-                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Arlo is thinking…</div>
+                  <div className={s.aiBubble} style={{ opacity: 0.6, fontStyle: "italic" }}>Thinking…</div>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -703,7 +703,7 @@ export default function RolesPage() {
                 <input
                   className={s.mentorInput}
                   type="text"
-                  placeholder="Ask Arlo about any of these roles…"
+                  placeholder="Ask about any of these roles…"
                   value={chatValue}
                   onChange={(e) => setChatValue(e.target.value)}
                   onKeyDown={handleChatKey}

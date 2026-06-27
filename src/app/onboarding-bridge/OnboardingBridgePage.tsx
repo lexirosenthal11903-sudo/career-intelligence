@@ -129,7 +129,7 @@ export default function OnboardingBridgePage() {
       {/* Arlo header */}
       <div className={s.arloRow}>
         <div className={s.arloFace}>{arloFace}</div>
-        <div className={s.arloName}>Arlo</div>
+        <div className={s.arloName}>Career Intelligence</div>
       </div>
 
       {/* Direction card — always visible */}
@@ -195,7 +195,7 @@ export default function OnboardingBridgePage() {
               ref={inputRef}
               className={s.chatInput}
               type="text"
-              placeholder="Tell Arlo what's off…"
+              placeholder="Tell me what's off…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
