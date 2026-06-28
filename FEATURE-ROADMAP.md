@@ -138,6 +138,20 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
   Once done, add the lint gate to CI.
 - ○ **Unit tests in CI** — the `.mjs` unit tests (`profile-normalize`, `adzuna-category`) import `.ts`
   directly, so they need a TS test runner (vitest) before CI can run them; they run locally for now.
+- ○ **Role-interest e2e spec — automate criterion 6 (QA, Claude owns the timing)** — the Playwright harness
+  already EXISTS (`tests/`: smoke, workspace-routing, advisor-agency.prod, seedAuth helper, prod/live configs,
+  CI mock-e2e). `advisor-agency.prod.spec.ts` already proves the hard half of the role-interest "why" memory:
+  it drives the real `/api/chat` tool loop and asserts a `remember` fact lands in `profiles.data.memory`. So
+  this is NOT from-scratch — **add one `role-interest.prod.spec.ts` mirroring it**: POST "I'm interested in
+  [role]" → assert the reply opens with a question and does NOT jump to a CV/cover-letter offer (criteria 1-2);
+  then POST a turn stating a "why" → assert a memory note capturing it persists (criterion 6). Gated behind
+  `E2E_LIVE_DEPS=1` against a credentialed server (Upstash + Anthropic), pennies/run, never per-commit.
+  **What it does NOT do:** judge whether the question is GOOD or the tone feels like a mentor — that stays
+  Lexi's human read (voice/quality is never automatable). **Value:** it catches the single most likely failure
+  mode (advisor not calling `remember`) without Lexi being the QA — serves `feedback_self_verify_no_retest`.
+  **TRIGGER (Claude raises it proactively):** strong case to add NOW since it guards the riskiest part of the
+  feature just shipped; otherwise bundle with the next workspace-flow build. Related: parked synthetic-persona
+  "co-worker" dogfooding panel (Step 2) + `[[project_test_eval_infra]]` + `webapp-testing`. _(Lexi + Claude, 2026-06-28)_
 
 ## Step 3 — Grounded knowledge layer
 

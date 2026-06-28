@@ -110,12 +110,18 @@ export function adminClient() {
   });
 }
 
-/** Resolve the seeded test user's auth id (it must already exist via seedAuthCookies). */
+/** Resolve the seeded test user's auth id (it must already exist via seedAuthCookies).
+ *  listUsers() pages at 50 by default, so on a project with many auth users the test
+ *  user sits on a later page — page through until we find it (or run out). */
 export async function getTestUserId(): Promise<string> {
   const admin = adminClient();
-  const { data, error } = await admin.auth.admin.listUsers();
-  if (error) throw new Error(`listUsers failed: ${error.message}`);
-  const user = data.users.find((u) => u.email === TEST_USER_EMAIL);
-  if (!user) throw new Error(`Test user ${TEST_USER_EMAIL} not found — run seedAuthCookies first`);
-  return user.id;
+  const PER_PAGE = 1000;
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: PER_PAGE });
+    if (error) throw new Error(`listUsers failed: ${error.message}`);
+    const user = data.users.find((u) => u.email === TEST_USER_EMAIL);
+    if (user) return user.id;
+    if (data.users.length < PER_PAGE) break; // last page reached
+  }
+  throw new Error(`Test user ${TEST_USER_EMAIL} not found — run seedAuthCookies first`);
 }
