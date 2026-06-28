@@ -138,7 +138,12 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
   Once done, add the lint gate to CI.
 - ○ **Unit tests in CI** — the `.mjs` unit tests (`profile-normalize`, `adzuna-category`) import `.ts`
   directly, so they need a TS test runner (vitest) before CI can run them; they run locally for now.
-- ○ **Role-interest e2e spec — automate criterion 6 (QA, Claude owns the timing)** — the Playwright harness
+- ✓ **DONE (2026-06-28, commit `0fd24b1`) — Role-interest e2e spec automates SPEC criteria 1-2 + 6.**
+  `tests/role-interest.prod.spec.ts` proves, against the real advisor: interested → a question + no doc tool
+  fires; a stated "why" → a note persists to `profiles.data.memory`. Both green. Also fixed a latent
+  `getTestUserId` pagination bug (default 50/page missed the seeded user on a busy project) — unblocks
+  `advisor-agency.prod.spec.ts` too. Gated `E2E_LIVE_DEPS=1`, pennies/run. **Still Lexi's alone:** the
+  qualitative feel (is the question GOOD, does it read like a mentor). Original note for context: the harness
   already EXISTS (`tests/`: smoke, workspace-routing, advisor-agency.prod, seedAuth helper, prod/live configs,
   CI mock-e2e). `advisor-agency.prod.spec.ts` already proves the hard half of the role-interest "why" memory:
   it drives the real `/api/chat` tool loop and asserts a `remember` fact lands in `profiles.data.memory`. So
