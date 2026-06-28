@@ -357,6 +357,9 @@ const PERSONAS = [
       present('opens with a genuine question', /\?/),
       // Criterion 4: names the weak fit kindly before helping (soft — many phrasings).
       present('names the stretch honestly', /stretch|reach|long shot|honest|gap|competitive|2\s*\+?\s*years|buy-?side|don'?t (yet )?have|not (yet|quite)|tough|steep/i),
+      // Outreach-as-realistic-route for a stretch (soft — the advisor may hold it for a
+      // later turn once the "why" is clear, so a miss here is not a failure).
+      soft(present('offers a foot-in-the-door / outreach route', /reach out|warm (intro|introduction|conversation)|foot in the door|someone (who|inside|there)|connect with|speak to someone/i)),
     ],
   },
   {
