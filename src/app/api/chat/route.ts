@@ -104,7 +104,7 @@ async function buildUserContext(
       .order('created_at', { ascending: false })
       .limit(10);
     if (jobs?.length) {
-      type SavedJob = { title?: string; company?: string; description?: string; relevanceReason?: string; location?: string };
+      type SavedJob = { title?: string; company?: string; description?: string; relevanceReason?: string; relevanceScore?: number; location?: string };
       const saved = jobs.map((j) => j.job_data as SavedJob).filter((j) => j?.title);
       if (saved.length) {
         const titles = saved
@@ -118,6 +118,8 @@ async function buildUserContext(
           const detail = recent
             .map((j) => {
               const bits = [`• ${j.title}${j.company ? ` at ${j.company}` : ''}${j.location ? ` (${j.location})` : ''}`];
+              if (typeof j.relevanceScore === 'number')
+                bits.push(`  Fit score I calculated for them: ${j.relevanceScore} out of 10 (higher is a stronger match; be honest if it's a stretch).`);
               if (j.relevanceReason) bits.push(`  Why it fits them: ${j.relevanceReason}`);
               if (j.description) bits.push(`  Listing: ${j.description.slice(0, 600)}`);
               return bits.join('\n');

@@ -115,6 +115,25 @@ const CONTEXTS = {
     'Seniority: qualified but early in their career.',
     "THE DIAL: They're MIXED — committed to the field, unsure of the role.",
   ]),
+  // Just marked a role interested — already saved to their applications. The listing
+  // and a calculated fit score are in context, mirroring buildUserContext after a save.
+  interestedWeakFit: ctx([
+    'Their name is Sam.',
+    'Seniority: entry-level (graduated last year, one retail job, no finance background).',
+    "THE DIAL: They're MIXED.",
+    'A role they JUST marked interested (already saved to their applications): Investment Analyst at Redwood Capital.',
+    'The listing I already hold: Investment Analyst, Redwood Capital (London). Requires a 2:1 in finance or economics, 2+ years buy-side experience, and financial modelling.',
+    'Fit score I calculated for them: 3 out of 10 (a real stretch for them).',
+  ]),
+  interestedStrongFit: ctx([
+    'Their name is Chris.',
+    'Their direction: clear — wants junior data analyst roles.',
+    'Seniority: entry-level, but a genuinely strong fit (statistics degree, SQL, a data internship).',
+    "THE DIAL: They're DIRECTED — clear on where they're heading. Lighter touch.",
+    'A role they JUST marked interested (already saved to their applications): Junior Data Analyst at Brightwave.',
+    'The listing I already hold: Junior Data Analyst, Brightwave. Entry-level, SQL and Excel, graduates welcome.',
+    'Fit score I calculated for them: 9 out of 10 (a strong match).',
+  ]),
 };
 
 /** Send scripted user turns to the real advisor; return its text reply + token usage.
@@ -322,6 +341,32 @@ const PERSONAS = [
     checks: [
       present("hedges — can't know why one employer went quiet", /can'?t (tell|know|say)[^.]{0,40}(why|exactly)|nobody can|no way to know|can'?t (be )?(sure|certain)|won'?t call it (the|a) (cause|reason)/i),
       { label: 'does NOT assert it as the proven reason', ok: (t) => !assertsProvenCause(t) },
+    ],
+  },
+
+  {
+    name: 'Interested in a weak-fit role — mentoring opens, honest on fit, no doc-jump',
+    context: CONTEXTS.interestedWeakFit,
+    turns: ["I'm interested in the Investment Analyst role at Redwood Capital."],
+    checks: [
+      // Criteria 1 & 2: curious-first, NEVER jump straight to documents.
+      absent(
+        'does NOT jump straight to tailoring a CV / cover letter',
+        /tailor(ing)? your cv|i'?ll tailor|tailor it (now|for)|write (you )?a cover letter|let'?s (tailor|do) your cv|get your cv ready/i
+      ),
+      present('opens with a genuine question', /\?/),
+      // Criterion 4: names the weak fit kindly before helping (soft — many phrasings).
+      present('names the stretch honestly', /stretch|reach|long shot|honest|gap|competitive|2\s*\+?\s*years|buy-?side|don'?t (yet )?have|not (yet|quite)|tough|steep/i),
+    ],
+  },
+  {
+    name: 'Interested, directed, strong fit — light touch, no discovery trap',
+    context: CONTEXTS.interestedStrongFit,
+    turns: ["I'm interested in the Junior Data Analyst role at Brightwave."],
+    checks: [
+      // Criterion 3: a directed user is not dragged back into discovery.
+      absent('does NOT trap a directed user in discovery', /let'?s explore|what do you really want|step back and think|tell me more about yourself|have you considered other/i),
+      present('engages with this specific role', /data|analyst|brightwave|sql/i),
     ],
   },
 

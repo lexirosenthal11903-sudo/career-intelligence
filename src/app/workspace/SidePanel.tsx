@@ -170,9 +170,11 @@ export default function SidePanel({
     finally { setSaving((prev) => { const n = new Set(prev); n.delete(id); return n; }); }
     // Let the left-nav "Recent" pick this up without a reload (progressive disclosure).
     window.dispatchEvent(new CustomEvent("ci:roles-changed"));
-    // Forward-looking so the advisor helps with it now, rather than acknowledging a
-    // save it can already see in context (the "you've already done that" bug).
-    askAdvisor(`I've just said I'm interested in the ${job.title} role at ${job.company}. What should we do about it?`);
+    // A clean interest statement, NOT "what should we do about it" — that biased the
+    // advisor toward an action menu (jumping to docs). The role-interest section of the
+    // prompt now drives a curious-first response: one genuine question, then a plan,
+    // documents only later. The role is already saved above, so the advisor never re-saves.
+    askAdvisor(`I'm interested in the ${job.title} role at ${job.company}.`);
   }
 
   async function handleTailorCV(job: PanelJob) {
