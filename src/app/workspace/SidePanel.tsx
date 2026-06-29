@@ -493,7 +493,7 @@ function relativeTime(iso: string): string {
   return "last month";
 }
 
-function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { jobId: string | null; onOpenRoles?: () => void; backLabel?: string }) {
+function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStageChange }: { jobId: string | null; onOpenRoles?: () => void; backLabel?: string; onStageChange?: (jobId: string, stage: string) => void }) {
   const [app, setApp] = useState<SavedApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [stage, setStage] = useState<string>("saved");
@@ -544,6 +544,9 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
   async function setStageAndSave(next: string) {
     if (!app) return;
     setStage(next);
+    // Tell the parent list so its pill re-derives from the same state (optimistic —
+    // the list shouldn't keep showing "Saved" after the stage moves on in here).
+    onStageChange?.(String(app.job_id), next);
     try {
       await fetch("/api/applications", {
         method: "PATCH", headers: { "Content-Type": "application/json" },
@@ -630,10 +633,15 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
         </div>
       </div>
 
-      {/* Activity log */}
+      {/* Activity — the genuine "saved" event plus where it is now. A full dated
+          timeline of every stage move is a separate feature (needs stored events);
+          we don't fake timestamps here. */}
       <div className={s.rdSection}>
         <div className={s.rdLabel}>Activity</div>
         <p className={s.rdText}>Saved · {relativeTime(app.created_at)}</p>
+        {stage !== "saved" && (
+          <p className={s.rdText}>Now: {STAGES.find((st) => st.key === stage)?.label ?? stage}</p>
+        )}
       </div>
 
       {job.relevanceReason && (
@@ -1032,6 +1040,9 @@ function ApplicationsView({ initialJobId = null }: { initialJobId?: string | nul
         jobId={selectedId}
         onOpenRoles={() => setSelectedId(null)}
         backLabel="Applications"
+        onStageChange={(jobId, stage) =>
+          setApps((prev) => prev.map((a) => (String(a.job_id) === jobId ? { ...a, stage } : a)))
+        }
       />
     );
   }
