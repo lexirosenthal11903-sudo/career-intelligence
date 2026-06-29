@@ -87,6 +87,24 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
 - ○ **Internship application windows (timing intelligence)** — for the internship/early-career archetype: tell users WHEN schemes open and close (many big internship/grad schemes open in autumn and close early, rolling) so they apply at the right moment instead of missing the window. Genuinely on-mission (right application, right time). ⚠️ The hard part is the DATA, not the UI — internship deadlines aren't in a clean free API; they're scattered across employer sites. Belongs with the Grounded-knowledge layer (Step 3) for sourcing; £0 constraint applies. _(Lexi, 2026-06-26)_
 - ○ **LinkedIn import** — user connects LinkedIn; advisor uses it to fill in the profile (work history, skills, education) and improve the quality of its read. Richer than a CV alone — captures endorsements, tenure, activity. Also the B2B data-export path later. _(Lexi, 2026-06-25; already noted in Step 4 — pulled forward because the user-understanding value is immediate)_
 - ○ **Interview prep via the advisor** — role-specific preparation. TWO parts: **(1) Planning** — the likely question types for this role/sector and how to prepare for them (grounded). **(2) Live mock interview (Lexi, 2026-06-27)** — the advisor actually *runs* a mock interview, calibrated to the interview TYPE (competency/behavioural, technical, case, strengths, panel, screening call), asks questions in turn, and gives honest feedback after. This is the mission made real for the interview stage: rehearsal, not just advice. Needs grounding research first (interview formats + what actually works) per the research-grounded standard; pairs naturally with the voice features below (speak your answers as you would in a real interview).
+  - ◌ **PARK / LATER PHASE — "Focused interview mode": a video mock-interview studio (Lexi, 2026-06-28).**
+    A dedicated focused surface (the right panel goes full mock): "Start interview" → a question appears on
+    screen → the user answers to their webcam, seeing themselves → it RECORDS each answer → they rewatch their
+    takes → the platform evaluates the performance. Like Big Interview / Yoodli / Google Interview Warmup.
+    Real value, on-mission (rehearsal, not advice), and aligned with the rise of async video interviews (§ research).
+    **Why it is LATER, not now (Claude's honest POV):** (1) breadth-first — it's deep polish on ONE step before
+    the candidate loop is even walkable; at 0 users the conversational mock proves the idea, the studio is the
+    gold-plated version; (2) **£0 + storage** — video files are large; storing them is a real recurring cost we
+    don't have, breaks the £0 rule; (3) **GDPR/privacy is serious** — recording users' faces is sensitive,
+    near-biometric, and our data handling already needs solicitor review (outreach) — video raises the bar a lot;
+    (4) **"evaluate the video" is the hard/expensive part** — cheap+honest = transcribe the audio and evaluate
+    CONTENT (STAR, specificity) + delivery proxies (pace, filler words, length); evaluating VISUALS (eye contact,
+    body language) is costly, contested, and risks penalising neurodivergent/EAL candidates — directly against
+    our honest/inclusive stance (research says feedback on "clarity not accent"). **Staged path:** (a) NOW =
+    conversational mock in chat (this build); (b) NEXT increment = a *focused* mock surface (one question at a
+    time, no video) + voice answers (Web Speech API, £0) the advisor evaluates; (c) LATER PHASE = webcam record +
+    rewatch + evaluation, gated on PROVEN mock demand + a £0/storage answer + solicitor sign-off on storing video.
+    Detail in [parking-lot.md](parking-lot.md).
 - ○ **Company-specific intelligence (cross-cutting — Lexi, 2026-06-27)** — make prep, CV tailoring, outreach
   and "why am I not hearing back?" specific to the actual *company*, not just the role/sector. ⚠️ **Glassdoor
   ruled out as a source:** its public/free API is dead (enterprise-partnership only since 2024, undisclosed

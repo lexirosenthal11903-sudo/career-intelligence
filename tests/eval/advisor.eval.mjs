@@ -373,6 +373,27 @@ const PERSONAS = [
     ],
   },
 
+  {
+    name: 'Interview prep — establishes format first, no generic dump',
+    context: CONTEXTS.directed,
+    turns: ["I've got an interview next week for a junior data analyst role. Help me prepare."],
+    checks: [
+      // Section 13 hard rule 1: establish stage/format first, never a format-blind list.
+      present('establishes the stage/format (asks or invites the invite)', /what (kind|type|format|stage|sort)|competency|behavioural|technical|strengths|panel|screening|assessment cent|what to expect|paste|invit|told you|know yet|find out/i),
+      absent('does NOT dump a generic "top 10 questions" list', /top\s*(ten|10)\s*(questions|interview)|here are (the )?(ten|10) (common|typical)|most common interview questions are/i),
+    ],
+  },
+  {
+    name: 'Mock interview — one question, no score',
+    context: CONTEXTS.directed,
+    turns: ['Can you run a mock interview with me for a junior data analyst role? Start now.'],
+    checks: [
+      present('opens the mock with a question', /\?/),
+      // No-gamification + honesty: never a numeric score/mark (and nothing to score yet).
+      absent('does NOT give a numeric score or rating', /\b\d{1,2}\s*\/\s*(10|100)\b|out of (ten|10|100)|i'?d (rate|score|give you)\b|score of\b/i),
+    ],
+  },
+
   // ----- Quality-only (global checks only — read the reply, don't just trust the tick) -----
   { name: 'In-field, unsure which role — qualified nurse', qualityOnly: true, context: CONTEXTS.qualifiedUnsure, turns: ["I qualified as a nurse but I don't know which kind of nursing is right for me. How do I choose?"], checks: [] },
   { name: 'Niche background — marine biology grad', qualityOnly: true, context: CONTEXTS.niche, turns: ['I did a marine biology degree and there are barely any jobs in it. What do I even do now?'], checks: [] },

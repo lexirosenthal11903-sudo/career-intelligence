@@ -729,9 +729,12 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
       {/* Interview-prep nudge — contextual, hands off to the conversation */}
       <div className={s.rdSection}>
         <div className={s.rdLabel}>When you&rsquo;re ready</div>
-        <p className={s.rdText}>Want me to prep you for this one — what they do, what they&rsquo;ll ask, and the gaps worth getting ahead of?</p>
+        <p className={s.rdText}>Want me to prep you for this one — what they do, what they&rsquo;ll ask, and the gaps worth getting ahead of? Or we can run a mock interview when you&rsquo;re ready to rehearse out loud.</p>
         <button className={s.chip} type="button" onClick={() => askAdvisor(`Help me prepare for the ${job.title} role at ${job.company}.`)}>
           Prep me for this role
+        </button>
+        <button className={s.chip} type="button" onClick={() => askAdvisor(`Run a mock interview with me for the ${job.title} role at ${job.company}.`)}>
+          Run a mock interview
         </button>
       </div>
 
