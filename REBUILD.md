@@ -25,6 +25,29 @@ real data layer, error visibility) were both skipped. Everything else is a sympt
 
 ---
 
+## ✅ SHIPPED 2026-06-29 (Session 42) — Theme A: the advisor drives state + holds you through it
+
+The advisor now changes the user's application state from conversation and the whole UI reflects it live, holds
+them through outcomes (offer / interview / rejection), and can navigate them — but only when they ask. Grounded in
+`research/rejection-care-and-navigation-research.md` (rejection care, feedback-routing, navigation discipline).
+- **A1 — live state + nav bridge.** `save_job` + `set_application_stage` (`lib/advisor-tools.ts`) emit a new
+  `application-changed` signal → `useArloChat` dispatches `ci:application-changed` → the Applications list, the
+  saved-role detail (`SidePanel`), and the left-nav count/Recent (`useNavProgress`) all re-read live. The advisor
+  write already worked; the gap was UI reflection + the nav (which also needed `save_job` to write
+  `status:'interested'`, matching a UI save, or chat-saved roles never counted).
+- **Navigation — user-requested only.** New `open_surface` advisor tool + `ci:open-surface` → `WorkspaceShell`.
+  A state change NEVER moves the user (Nielsen User-Control & Freedom); the advisor opens a surface only on an
+  explicit "show me my X". Surface list shared via `lib/surfaces.ts` so tool + workspace can't drift.
+- **A2 — outcome acknowledgement** (offer = genuine well done, never gamified; interview = prep; applied = steadying)
+  carried in the `set_application_stage` tool result + the prompt/persona.
+- **A3 — rejection care:** light fixed arc (acknowledge → normalise → ask about feedback, never "paste the email"
+  → turn forward); distress still escalates via §5. Persona "Outcomes" section + prompt; +2 eval personas.
+- **Ride-alongs:** unsave/remove a role (two-step, clears both tables); direction #1 → equal weight; dead scroll hint
+  + its CSS/icon removed.
+- **Verified:** tsc + lint + production build green; 19/19 unit tests; `eval:advisor` all hard rules held;
+  3-agent `/code-review` run → fixes applied (stage-matcher blank-title guard, unsave `response.ok` check, silent-load
+  null guard, nav event+status fix, DELETE body guards, shared surfaces constant). **Lexi to live-test on staging.**
+
 ## ✅ SHIPPED 2026-06-29 — Engaged, focused mentor (proactive return + holding the thread)
 
 The advisor now initiates on a meaningful return and holds the thread when the user switches mid-task.

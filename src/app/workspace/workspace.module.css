@@ -419,9 +419,6 @@
   place-items: center;
   margin-top: 1px;
 }
-/* Lead direction number stays neutral — amber is reserved for primary button,
-   user bubbles and active nav only. The lead reads as lead via its .leadTag. */
-.dir.lead .num { background: var(--ink); color: #fff; }
 .dir .dt { font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
 .dir .dt b { color: var(--ink); font-weight: 600; }
 .dir .dt .leadTag { color: var(--accent); font-weight: 600; }
@@ -732,18 +729,6 @@
   border-radius: 99px;
 }
 .sideH .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 4px; }
-/* Informational caption — deliberately not a filled box, so it doesn't read as a
-   clickable chip/button (it has no action). */
-.sideH .hint {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 10px;
-  font-size: 12px;
-  font-style: italic;
-  color: var(--ink-3);
-}
-.sideH .hint svg { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
 .sideB {
   flex: 1;
   overflow-y: auto;

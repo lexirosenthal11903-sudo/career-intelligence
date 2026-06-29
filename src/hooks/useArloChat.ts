@@ -209,6 +209,20 @@ export function useArloChat({
         if (signals.includes("cv-tailored") && typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("ci:open-documents"));
         }
+        // A saved role moved stage (or a new one was saved) — tell the Applications
+        // surface to re-read so its pills/list update live. Quiet by design: this
+        // refreshes data, it never moves the user (research §3).
+        if (signals.includes("application-changed") && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("ci:application-changed"));
+        }
+        // The user explicitly asked to be taken to a surface — open it. Only ever
+        // fires because the advisor chose the open_surface tool in response to a
+        // direct request; never a side-effect of another change.
+        if (signals.includes("open-surface") && typeof window !== "undefined") {
+          const payload = (data.meridianData as Record<string, { surface?: string }> | undefined)?.["open-surface"];
+          const surface = payload?.surface;
+          if (surface) window.dispatchEvent(new CustomEvent("ci:open-surface", { detail: surface }));
+        }
 
         setAllMsgs((prev) => [...prev, { role: "arlo", text: arloText, actions }]);
 

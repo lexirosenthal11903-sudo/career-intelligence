@@ -94,12 +94,6 @@ export const ChevronIcon = (p: I) => (
   </svg>
 );
 
-export const HintIcon = (p: I) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" {...p}>
-    <path d="M3 6h18M7 12h10M11 18h2" />
-  </svg>
-);
-
 export const FileIcon = (p: I) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />

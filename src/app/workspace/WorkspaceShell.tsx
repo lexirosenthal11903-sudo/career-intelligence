@@ -20,6 +20,7 @@ import ChatPane from "./ChatPane";
 import SidePanel, { type PanelView } from "./SidePanel";
 import { usePanelJobs } from "./usePanelJobs";
 import { flushPendingCv } from "@/lib/cv";
+import { isAdvisorSurface } from "@/lib/surfaces";
 
 type Variant = "first" | "returning" | "resolve";
 
@@ -107,6 +108,22 @@ function ReturningWorkspace() {
     }
     window.addEventListener("ci:open-documents", onOpenDocuments);
     return () => window.removeEventListener("ci:open-documents", onOpenDocuments);
+  }, []);
+
+  // The user asked the advisor to take them to a surface (open_surface tool). This
+  // only ever fires from an explicit request — never a side-effect of a state change
+  // (research §3: user control & freedom). Every ADVISOR_SURFACES value is a valid
+  // PanelView, and the list is shared with the tool so the two can't drift.
+  useEffect(() => {
+    function onOpenSurface(e: Event) {
+      const surface = (e as CustomEvent<string>).detail;
+      if (!isAdvisorSurface(surface)) return;
+      setSavedJobId(null);
+      setPanelView(surface);
+      setPanelOpen(true);
+    }
+    window.addEventListener("ci:open-surface", onOpenSurface);
+    return () => window.removeEventListener("ci:open-surface", onOpenSurface);
   }, []);
 
   // Shared jobs data — fetched once here so the nav count and the panel agree.

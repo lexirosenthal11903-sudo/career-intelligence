@@ -5,11 +5,11 @@
    the direction, or documents. Which surface shows is driven by the left nav (`view`).
    Roles wire to the real pipeline via usePanelJobs (same flow as the dashboard Roles tab).
    All advisor copy is verbatim from VOICE-IN-UI.md — never invented here. Tokens only. */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import s from "./workspace.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
-import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, HintIcon, ChevronIcon, ApplicationsIcon } from "./icons";
+import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, ChevronIcon, ApplicationsIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
 export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile" | "applications";
 
@@ -275,9 +275,6 @@ function RolesList({
         <div className={s.sub}>
           Ranked by fit{newCount > 0 ? ` · ${newCount} new since you last looked` : " · stable until your direction changes"}
         </div>
-        <div className={s.hint}>
-          <HintIcon /> Don&rsquo;t scroll endlessly — just tell me what to change.
-        </div>
       </div>
 
       <div className={s.sideB}>
@@ -503,29 +500,48 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
   const [jobDocsLoading, setJobDocsLoading] = useState(false);
   const [docExpanded, setDocExpanded] = useState<string | null>(null);
   const [clExpanded, setClExpanded] = useState<string | null>(null);
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
+  const [removing, setRemoving] = useState(false);
+
+  // `silent` skips the skeleton + leaves the note input alone — used when the advisor
+  // changes this application's stage from the conversation (ci:application-changed),
+  // so the chip updates live without flashing or clobbering a half-typed note.
+  const loadApp = useCallback(async (silent = false) => {
+    if (!jobId) return;
+    if (!silent) setLoading(true);
+    try {
+      const res = await fetch("/api/applications");
+      if (!res.ok) { if (!silent) setApp(null); return; }
+      const { applications } = await res.json();
+      const found: SavedApplication | undefined = (applications || []).find(
+        (a: SavedApplication) => String(a.job_id) === String(jobId)
+      );
+      if (!found) {
+        // On a silent refresh (e.g. this row was just removed) leave the view as-is —
+        // the removal flow navigates away and unmounts us; nulling here would flash an
+        // inconsistent frame. Only the initial/non-silent load clears to the not-found state.
+        if (!silent) setApp(null);
+        return;
+      }
+      setApp(found);
+      setStage(found.stage || "saved");
+      if (!silent) setNote(found.notes || "");
+    } catch {
+      if (!silent) setApp(null);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, [jobId]);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/applications");
-        if (!res.ok) { if (!cancelled) setApp(null); return; }
-        const { applications } = await res.json();
-        const found: SavedApplication | undefined = (applications || []).find(
-          (a: SavedApplication) => String(a.job_id) === String(jobId)
-        );
-        if (cancelled) return;
-        setApp(found ?? null);
-        if (found) { setStage(found.stage || "saved"); setNote(found.notes || ""); }
-      } catch {
-        if (!cancelled) setApp(null);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [jobId]);
+    // Defer the initial load past an await (workspace lint rule: no synchronous
+    // setState in an effect body). The event listener is the accepted subscribe case.
+    (async () => { await Promise.resolve(); if (!cancelled) loadApp(); })();
+    const onChanged = () => loadApp(true);
+    window.addEventListener("ci:application-changed", onChanged);
+    return () => { cancelled = true; window.removeEventListener("ci:application-changed", onChanged); };
+  }, [loadApp]);
 
   useEffect(() => {
     if (!jobId) return;
@@ -565,6 +581,34 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
       });
       setNoteSaved(true);
     } catch { /* best-effort */ }
+  }
+
+  async function removeApplication() {
+    if (!app) return;
+    setRemoving(true);
+    try {
+      // A saved role IS an application — it lives in two tables: saved_applications
+      // (the board) and saved_jobs (what the advisor knows it has saved). Remove from
+      // both so it leaves Applications AND the advisor stops referencing it.
+      const [appsRes, jobRes] = await Promise.all([
+        fetch("/api/applications", {
+          method: "DELETE", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId: app.job_id }),
+        }),
+        fetch("/api/save-job", {
+          method: "DELETE", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId: app.job_id }),
+        }),
+      ]);
+      // fetch only rejects on network error, so check status explicitly — otherwise a
+      // failed delete would still navigate away and claim success while the row remains.
+      if (!appsRes.ok || !jobRes.ok) { setRemoving(false); return; }
+      onOpenRoles?.(); // unmount this detail first → back to the Applications list
+      if (typeof window !== "undefined")
+        window.dispatchEvent(new CustomEvent("ci:application-changed"));
+    } catch {
+      setRemoving(false);
+    }
   }
 
   const backBtn = (
@@ -773,6 +817,31 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
           <a className={s.rdListing} href={job.applyUrl} target="_blank" rel="noopener noreferrer">View listing ↗</a>
         </div>
       )}
+
+      {/* Remove from applications — two-step, since it also clears any tailored CV /
+          cover letter / notes for this role. Quiet and at the bottom by design. */}
+      <div className={s.rdSection}>
+        {!confirmingRemove ? (
+          <button className={s.dangerChip} type="button" onClick={() => setConfirmingRemove(true)}>
+            Remove from applications
+          </button>
+        ) : (
+          <div className={s.dangerBox}>
+            <p className={s.rdText}>
+              This removes {job.title} from your applications, along with anything saved against it —
+              its tailored CV, cover letter and notes. It can&rsquo;t be undone.
+            </p>
+            <div className={s.acctActions}>
+              <button className={s.chip} type="button" onClick={() => setConfirmingRemove(false)} disabled={removing}>
+                Keep it
+              </button>
+              <button className={s.dangerBtn} type="button" onClick={removeApplication} disabled={removing}>
+                {removing ? "Removing…" : "Remove"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -792,8 +861,11 @@ function DirectionView({ profile, hasResult }: { profile: AnalysisProfile | null
           <>
             <div className={s.rdLabel} style={{ padding: "10px 10px 4px" }}>Directions worth exploring</div>
             <ul className={s.dirs} style={{ padding: "8px 10px" }}>
+              {/* Equal visual weight — no lead highlight on #1. Asserting one direction
+                  as "the" answer is an unearned verdict (honest-matching, REBUILD item 5);
+                  these are options worth exploring, ordered but not ranked-as-truth. */}
               {directions.map((d, i) => (
-                <li key={d.title} className={`${s.dir} ${i === 0 ? s.lead : ""}`}>
+                <li key={d.title} className={s.dir}>
                   <span className={s.num}>{i + 1}</span>
                   <span className={s.dt}>
                     <b>{d.title}</b>
@@ -1020,19 +1092,26 @@ function ApplicationsView({ initialJobId = null }: { initialJobId?: string | nul
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(initialJobId);
 
+  const reload = useCallback(async () => {
+    try {
+      const res = await fetch("/api/applications");
+      if (!res.ok) return;
+      const { applications } = await res.json();
+      setApps(applications ?? []);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/applications");
-        if (!res.ok) return;
-        const { applications } = await res.json();
-        if (!cancelled) setApps(applications ?? []);
-      } catch { /* ignore */ }
-      finally { if (!cancelled) setLoading(false); }
-    })();
-    return () => { cancelled = true; };
-  }, []);
+    // The advisor can save a role or move a stage from the conversation; when it
+    // does it emits ci:application-changed. Re-read so the list/pills update live
+    // without the user closing and reopening the panel. Initial load deferred past
+    // an await (workspace lint rule); the listener is the accepted subscribe case.
+    (async () => { await Promise.resolve(); if (!cancelled) reload(); })();
+    window.addEventListener("ci:application-changed", reload);
+    return () => { cancelled = true; window.removeEventListener("ci:application-changed", reload); };
+  }, [reload]);
 
   if (selectedId) {
     return (

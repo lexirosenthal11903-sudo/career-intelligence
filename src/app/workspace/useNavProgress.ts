@@ -78,10 +78,16 @@ export function useNavProgress() {
       }
     }
     load();
+    // Refetch when a role is flagged/passed in the panel (ci:roles-changed) AND when
+    // the advisor saves a role, moves a stage, or a role is removed from the
+    // conversation/board (ci:application-changed) — otherwise the nav count drifts
+    // out of step with the Applications board after any chat-driven change.
     window.addEventListener("ci:roles-changed", load);
+    window.addEventListener("ci:application-changed", load);
     return () => {
       cancelled = true;
       window.removeEventListener("ci:roles-changed", load);
+      window.removeEventListener("ci:application-changed", load);
     };
   }, []);
 

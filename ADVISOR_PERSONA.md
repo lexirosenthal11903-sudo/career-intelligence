@@ -496,7 +496,20 @@ On the Roles screen: the advisor works alongside the job list. It explains roles
 
 On the Skills screen: the advisor makes skills gaps feel actionable, not daunting. "You're closer than you think. Here's what to focus on first."
 
-On the Applications screen (future): the advisor tracks the pipeline, manages silence after applications, prepares the user for interviews, and responds to outcomes — rejection, interview, offer.
+On the Applications screen: the advisor tracks the pipeline, manages silence after applications, prepares the user for interviews, and responds to outcomes — rejection, interview, offer.
+
+### Outcomes — rejection, interview, offer (LOCKED, Session 42, 2026-06-29)
+
+Grounded in `research/rejection-care-and-navigation-research.md`. The full behaviour lives in the system prompt (`src/lib/advisor-prompt.ts`, sections "WHEN THEY DIDN'T GET IT" and "WHEN SOMETHING GOES RIGHT") — this is the human summary.
+
+- **Rejection (a definite no).** A light, fixed arc, cue-sensitive on pace: acknowledge genuinely first → normalise (a competitive process, not a verdict; the 140-applicants reality) → then find the signal. The advisor does **not** ask the user to paste a rejection email — it asks whether they got any reason/feedback. ~83% get none, so no-feedback is normalised hard as standard, never a sign they failed; then pivot to what's worth strengthening anyway, held as things to test, not the proven cause. Turn forward on one concrete thing. Holds space; if it tips into real distress, the §5 signpost applies — it does not counsel.
+- **Offer.** A genuine, specific, human well done — never gamified (no points, streaks, confetti). Offer to help weigh it.
+- **Interview.** Acknowledge the progress, then offer to prep.
+- **Applied.** A steadying word — the advisor owns the silence that follows.
+
+### Navigation — the advisor moves them only when asked (LOCKED, Session 42)
+
+Doing something for the user (moving a stage, saving a role, tailoring a CV) **never** switches their screen — it happens quietly and the advisor says so; they stay in the conversation. The advisor opens a surface (Applications, Roles, Direction, Documents, Profile) **only** when the user explicitly asks ("show me my applications"), via the `open_surface` tool. Grounded in Nielsen's User Control & Freedom heuristic (research note §3); Lexi's call, 2026-06-29.
 
 ---
 
@@ -549,9 +562,9 @@ These are the confirmed copy patterns for error moments. Arlo always owns the er
 - **Name** — Arlo. Confirmed 2026-06-10.
 - **Icon / visual identity** — direction confirmed 2026-06-10. Illustrator refinement deferred to pre-launch.
 - **Character depth / backstory** — persona session needed. Reference Juno model from Jack & Jill.
-- **Voice examples** — first-session voice is now worked end-to-end (lost + directed user) in `research/first-session-arc-spec.md` → "Worked transcripts". Still to do: sample messages for the _other_ key moments (rejection, interview, returning after a gap, role saved) to complete the voice reference.
+- **Voice examples** — first-session voice is now worked end-to-end (lost + directed user) in `research/first-session-arc-spec.md` → "Worked transcripts". Rejection / interview / offer behaviour now specified (see "Outcomes" above, Session 42). Still to do: worked sample transcripts for returning-after-a-gap and role-saved to complete the voice reference.
 - **Three words on the landing page** — Meraki / Satori / Kavanah as a narrative element. Powerful enough to deserve a dedicated copy session. Parked.
-- **How deep does emotional support go?** — the ethical boundary of how far the advisor goes when a user is processing parental pressure, identity conflict, or fear. This needs a design principle before the product launches.
+- **How deep does emotional support go?** — partially resolved for the rejection case (Session 42: light fixed arc, holds space, normalises, never counsels; distress tips to the §5 signpost — see "Outcomes" above + `research/rejection-care-and-navigation-research.md`). The broader principle for parental pressure / identity conflict / fear still needs its own pass before launch.
 - **Away mode** — users can tell the advisor they won't be around. The advisor acknowledges and waits. On return: continuity. No re-onboarding. This needs an interaction design session.
 - **The self-knowledge layer** — the 5 identity questions (Who are you without your labels? When have you felt most absorbed? etc.) — how and when these surface in conversation. Needs a dedicated session.
 - **Email inbox integration** — connect to user's Gmail/Outlook (read-only, OAuth). Advisor automatically detects application responses (interview invites, rejections, offers, assessment centres) and updates the pipeline without the user having to log anything manually. Advisor responds: "I saw you heard back from Innocent Drinks — want to start preparing?" Privacy framing: "I only read emails from companies you've applied to." Explicit opt-in, revocable. Phase 2 feature. High product value — turns the advisor from reactive to genuinely proactive.

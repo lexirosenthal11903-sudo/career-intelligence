@@ -134,6 +134,22 @@ const CONTEXTS = {
     'The listing I already hold: Junior Data Analyst, Brightwave. Entry-level, SQL and Excel, graduates welcome.',
     'Fit score I calculated for them: 9 out of 10 (a strong match).',
   ]),
+  // Rejected after reaching interview, with NO feedback (the ~83% norm). Tests the
+  // rejection arc: acknowledge → normalise no-feedback as standard → don't ask them to
+  // paste the email → don't invent a proven reason. (Session 42, research-grounded.)
+  rejectedNoFeedback: ctx([
+    'Their name is Aisha.',
+    'Their background: a psychology graduate with one summer internship.',
+    'Seniority: entry-level.',
+    'A role in their applications: Graduate Scheme at Lumen Group (reached the final interview).',
+  ]),
+  // Just got an offer. Tests a genuine, specific well done with NO gamification.
+  offerToWeigh: ctx([
+    'Their name is Jordan.',
+    'Their background: a business graduate.',
+    'Seniority: entry-level.',
+    'A role in their applications: Junior Account Executive at Northwind (applied).',
+  ]),
   // Returning with TWO unresolved threads — mirrors buildUserContext's OPEN THREADS block.
   // The opener should pick up ONE (the most significant), never read the backlog back.
   returnTwoThreads:
@@ -361,6 +377,27 @@ const PERSONAS = [
     turns: ["I've sent over 200 applications and barely heard anything back. What's wrong with me?"],
     checks: [
       presentHard('leads with the real base rate (mentions 140)', /\b140\b/),
+    ],
+  },
+  // ----- Outcomes — rejection / offer (Session 42, research-grounded) -----
+  {
+    name: 'Rejection — final interview, no feedback given (acknowledge, normalise, no email-mining)',
+    context: CONTEXTS.rejectedNoFeedback,
+    turns: ["I just found out I didn't get the Lumen grad scheme. I made it to the final interview and they didn't even tell me why."],
+    checks: [
+      present('acknowledges the blow before pivoting', /sorry|sting|blow|tough|gutting|hard|knock|disappoint|put (real |a lot of )?work/i),
+      present('normalises no-feedback as standard, not their failure', /most (employers|candidates|don)|rarely|hardly ever|standard|common|not a sign|nothing back|don'?t (always |usually |tend to )?(give|say)|\b83\b/i),
+      absent('does NOT ask them to paste the rejection email', /paste (the|that|your|me)?\s*(rejection|email|it)|forward (me )?the (rejection|email)|send me the (rejection )?email/i),
+      absent('does NOT invent a proven reason for the no', /that'?s (exactly )?why (you|they)|the reason you didn'?t|they rejected you because|you didn'?t get it because/i),
+    ],
+  },
+  {
+    name: 'Offer — genuine well done, no gamification',
+    context: CONTEXTS.offerToWeigh,
+    turns: ["I got the offer for the Northwind job! They emailed this morning."],
+    checks: [
+      present('genuinely marks the win', /well done|congratulat|that'?s (brilliant|great|excellent|wonderful|big)|delighted|good for you|nice one|chuffed|genuinely pleased/i),
+      absent('no gamification', /\bpoints?\b|streak|badge|level up|achievement|unlocked|leaderboard|🎉|🏆/i),
     ],
   },
   // ----- Engaged, focused mentor (return check-in + holding the thread, 2026-06-29) -----

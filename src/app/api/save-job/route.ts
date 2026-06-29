@@ -44,7 +44,14 @@ export async function DELETE(request: Request) {
   const { user, supabase } = await getAuthedUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
-  const { jobId } = await request.json();
+  let jobId: unknown;
+  try {
+    ({ jobId } = await request.json());
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+  }
+  if (!jobId) return NextResponse.json({ error: 'jobId required' }, { status: 400 });
+
   const { error } = await supabase
     .from('saved_jobs')
     .delete()

@@ -13,6 +13,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getProfile, patchProfile, addMemory, addOpenThread, resolveOpenThread, type ProfileData } from '@/lib/profile';
 import { callClaude } from '@/lib/anthropic';
 import { stripDashes } from '@/lib/sanitize';
+import { ADVISOR_SURFACES, isAdvisorSurface } from '@/lib/surfaces';
 
 // ── Tool schemas sent to Claude ───────────────────────────────────────────────
 // Prescriptive descriptions: state WHEN to call, not just what it does. Recent
@@ -126,7 +127,7 @@ export const ADVISOR_TOOLS = [
   {
     name: 'set_application_stage',
     description:
-      "Move one of this person's saved applications to a new stage when they tell you where it's got to. Call this when they say they've applied, got an interview, received an offer, or want to set one aside. Match the role by its title (and company if they say it).",
+      "Move one of this person's saved applications to a new stage when they tell you where it's got to. Call this when they say they've applied, got an interview, received an offer, or want to set one aside. Match the role by its title (and company if they say it). Updating the stage does NOT move them to another screen — you simply acknowledge the change in conversation; they stay where they are.",
     input_schema: {
       type: 'object',
       properties: {
@@ -134,6 +135,22 @@ export const ADVISOR_TOOLS = [
         stage: { type: 'string', enum: ['saved', 'preparing', 'applied', 'interview', 'offer', 'archive'], description: 'The new stage.' },
       },
       required: ['jobTitle', 'stage'],
+    },
+  },
+  {
+    name: 'open_surface',
+    description:
+      "Open one of the product's surfaces for this person — their Applications, Roles, Direction, Documents, or Profile. ONLY call this when they explicitly ask to see, open, go to, or be taken to one of these (\"show me my applications\", \"open my CV\", \"take me to my roles\"). NEVER call it off your own back as a side-effect of doing something else — changing a stage, saving a job, or tailoring a CV must never yank them to another screen. If you're unsure whether they want to move, don't; just tell them where the thing lives and let them go themselves.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        surface: {
+          type: 'string',
+          enum: ['applications', 'roles', 'direction', 'documents', 'profile'],
+          description: 'Which surface they asked to open.',
+        },
+      },
+      required: ['surface'],
     },
   },
   {
@@ -347,6 +364,10 @@ export async function executeAdvisorTool(
           url: typeof input.url === 'string' ? input.url : undefined,
           note: typeof input.note === 'string' ? input.note : undefined,
           source: 'advisor',
+          // Match the shape a UI save writes (SidePanel "I'm interested"): the left-nav
+          // Recent/count reads saved_jobs filtered on status === 'interested', so without
+          // this an advisor-saved role would never show in the nav.
+          status: 'interested',
         };
         const { error: jErr } = await supabase
           .from('saved_jobs')
@@ -359,6 +380,7 @@ export async function executeAdvisorTool(
         return {
           content: `Saved "${title}"${company ? ` at ${company}` : ''} and added it to their applications (saved — not applied yet).`,
           action: `Saved "${title}"${company ? ` at ${company}` : ''}`,
+          signal: 'application-changed',
         };
       }
 
@@ -373,8 +395,14 @@ export async function executeAdvisorTool(
           .eq('user_id', userId);
         const match = (apps ?? []).find((a) => {
           const jd = a.job_data as { title?: string; company?: string };
-          const hay = `${jd?.title ?? ''} ${jd?.company ?? ''}`.toLowerCase();
-          return hay.includes(query) || query.includes((jd?.title ?? '').toLowerCase());
+          const title = (jd?.title ?? '').toLowerCase();
+          const hay = `${title} ${(jd?.company ?? '').toLowerCase()}`.trim();
+          if (!hay) return false; // a blank-titled row must never be a fallback match
+          // Forward: the advisor's query appears in the stored title+company.
+          // Reverse: the stored title appears in a longer query ("interview at bravo"),
+          // but only for a title substantial enough that it isn't matching on noise —
+          // `query.includes('')` (empty title) would otherwise match everything.
+          return hay.includes(query) || (title.length > 2 && query.includes(title));
         });
         if (!match)
           return { content: `No saved application matches "${input.jobTitle}". Save the role first.`, isError: true };
@@ -385,7 +413,38 @@ export async function executeAdvisorTool(
           .eq('job_id', match.job_id);
         if (error) return { content: `Couldn't update the stage: ${error.message}`, isError: true };
         const title = (match.job_data as { title?: string })?.title ?? 'that application';
-        return { content: `Moved "${title}" to ${stage}.`, action: `Moved "${title}" → ${stage}` };
+        // Emotional weight per stage (research/rejection-care-and-navigation-research.md §A2):
+        // speak to the moment, never gamify (no points/streaks/confetti — feedback_no_gamification).
+        // The change happens in the background; never tell them to switch screens for it.
+        const WEIGHT: Record<string, string> = {
+          offer:
+            "This is a genuine win — congratulate them warmly and specifically, in your own voice. Not gamified, not over the top; a real human well done. If it's an offer they now have to weigh, offer to help them think it through.",
+          interview:
+            "Getting an interview is real progress — acknowledge it encouragingly, then offer to prep them (what the company does, likely questions, the gaps worth getting ahead of) when they're ready.",
+          applied:
+            "They've applied — steady them. The silence that follows is the hard part; let them know you'll help them with what comes next rather than leaving them refreshing an inbox.",
+          archive:
+            "They're setting this one aside. Keep it light and unjudged — no drama about closing it.",
+        };
+        const weight = WEIGHT[stage] ?? '';
+        return {
+          content: `Moved "${title}" to ${stage} in their applications (in the background — they stay in the conversation, don't tell them to go to another screen).${weight ? ` ${weight}` : ''}`,
+          action: `Moved "${title}" → ${stage}`,
+          signal: 'application-changed',
+        };
+      }
+
+      case 'open_surface': {
+        const surface = String(input.surface ?? '').trim().toLowerCase();
+        if (!isAdvisorSurface(surface))
+          return { content: `Can't open "${input.surface}". Valid surfaces: ${ADVISOR_SURFACES.join(', ')}.`, isError: true };
+        const label = surface[0].toUpperCase() + surface.slice(1);
+        return {
+          content: `Opened their ${label} for them. Tell them you've brought it up; keep talking to them as normal.`,
+          action: `Opened ${label}`,
+          signal: 'open-surface',
+          data: { surface },
+        };
       }
 
       case 'revise_directions': {

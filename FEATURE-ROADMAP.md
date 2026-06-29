@@ -175,6 +175,26 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
     (below). A full DATED stage-move activity timeline (needs stored events) is a separate feature. Minor: the
     role-detail "✓ Interested — tracked in Applications" wording vs the card's "✓ In Applications" (left as-is).
 
+- **✅ THEME A + cheap ride-alongs — SHIPPED 2026-06-29 (Session 42; research-grounded; tsc/lint/build/19 tests/eval
+  all green; 3-agent code review + fixes applied).** "The advisor drives state + holds you through it."
+  - ✅ **A1 — advisor drives Applications from conversation, live.** `save_job` + `set_application_stage` now emit a
+    `application-changed` signal; the Applications list, the saved-role detail, AND the left-nav count/Recent all
+    re-read live (no close-and-reopen). Verified the write already worked; the gap was UI reflection + nav. Also:
+    advisor `save_job` now writes `status:'interested'` so chat-saved roles count in the nav (they never did before).
+  - ✅ **Navigation bridge (Lexi's refinement) — user-requested only.** New `open_surface` advisor tool: the advisor
+    opens a surface ONLY when the user asks ("show me my applications"); a state change NEVER yanks them to a tab
+    (Nielsen User-Control; `research/rejection-care-and-navigation-research.md` §3). Shared `src/lib/surfaces.ts` so
+    the tool + workspace can't drift.
+  - ✅ **A2 — outcome acknowledgement.** Stage moves carry emotional weight (Offer = genuine, specific well done, never
+    gamified; Interview = encouragement + prep; Applied = a steadying word), via the tool result + persona/prompt.
+  - ✅ **A3 — rejection / didn't-get-it care.** Light fixed arc (acknowledge → normalise → *ask if they got any
+    feedback*, never "paste the email" since ~83% get none → turn forward). Distress still escalates via §5. Grounded
+    in the research note; +2 eval personas (rejection-no-feedback, offer-no-gamification).
+  - ✅ **Ride-alongs:** #4 unsave/remove a role (two-step, reuses danger pattern, clears both tables) · #11 direction
+    #1 highlight → equal weight (honest-matching) · #13 dead "don't scroll endlessly" hint removed (+ dead CSS/icon).
+  - **Still open from the themes (NOT this batch):** B-#5 filter by stage · B-#6 offer/decline sections · B-#7 fuller
+    per-application hub · C-#8 overlay scrollbar · C-#9 collapsible sidebar · C-#10 click-a-direction-opens · C-#12 per-day feed.
+
 - **▶ NEXT-SESSION CANDIDATES — Lexi end-of-session idea dump (2026-06-29).** Captured verbatim; grill +
   group into batches next session. Several cluster into themes (noted). ⚠️ A few already partly exist — verify
   before rebuilding.
