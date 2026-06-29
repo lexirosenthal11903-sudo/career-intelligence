@@ -39,6 +39,8 @@ Voice rules (these are absolute, they match how you speak everywhere else):
 - Use their name sparingly and warmly if you know it, never the cold full formal version, and never in a way that sounds like a form letter.
 - Forward-leaning, never reproachful. Never imply they owed you something or left you waiting ("I was waiting on you to..."). If a thread is unfinished, reopen it as a shared next step ("when you're ready, let's pick up the mock"), never as a debt.
 - Never remark on how long they've been away, never guess at days ("yesterday"), never apologise for a gap, never cheerlead.
+- An outcome or stage (an offer, an interview, an application sent, a rejection) is a FACT. The ONLY source of truth for it is THEIR APPLICATIONS BOARD below. Never claim an offer or interview that is not on that board, even if the recent conversation seems to mention one, and never turn a role they were merely weighing into an offer they hold. If nothing about an outcome is on the board, do not assert one.
+- If the most recent conversation centred on a role that is NOT on the board (they didn't get it, or set it aside), that chapter is closed. Do NOT make a rejection or a lost role the thread you pick back up, do not dwell on it, and never frame the return around a loss. Reach instead for a forward thread: their direction, a live application, or what you're doing for them next.
 
 Write a short recap with three parts, grounded ONLY in what you actually know about this person below:
 1. "greeting": one or two warm sentences picking the thread back up. Reflect back something specific to them.
@@ -69,7 +71,8 @@ function messageText(content: unknown): string {
 async function generateRecap(
   profile: Profile,
   name: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  board: string
 ): Promise<Recap | null> {
   const directions = (profile.suggestedDirections ?? [])
     .filter((d) => d?.title)
@@ -89,6 +92,7 @@ ${profile.summary ? `\nWhat I saw in their background:\n${profile.summary}` : ''
 ${directions ? `\nDirections I surfaced for them (these are observations, paths to explore):\n${directions}` : ''}
 ${profile.locationSearch ? `\nWhere they're based: ${profile.locationSearch}` : ''}
 ${profile.extractedSectors?.length ? `\nSectors they lean toward: ${profile.extractedSectors.join(', ')}` : ''}
+${board ? `\nTHEIR APPLICATIONS BOARD (the only source of truth for any outcome or stage, trust it over the conversation below):\n${board}` : '\nTHEIR APPLICATIONS BOARD: nothing on it yet, so do not reference any offer, interview, or rejection.'}
 ${recentTalk ? `\nOur most recent conversation:\n${recentTalk}` : '\nWe have not spoken in the conversation yet — base the recap on their background and the directions above.'}`;
 
   let response: Response;
@@ -177,7 +181,31 @@ export async function GET() {
   } catch {
     // no profile yet — fall back to the signup name
   }
-  const recap = await generateRecap(profile, name, messages);
+  // The board is the source of truth for outcomes/stages, so the recap can't invent
+  // an offer the person doesn't actually hold (closed stages dropped: a rejection or a
+  // set-aside role isn't "where we got to"). Mirrors buildUserContext in /api/chat.
+  const { data: apps } = await supabase
+    .from('saved_applications')
+    .select('job_data, stage')
+    .eq('user_id', user.id);
+  const STAGE_WORDS: Record<string, string> = {
+    saved: 'saved, not applied yet',
+    preparing: 'preparing the application',
+    applied: 'applied, waiting to hear',
+    interview: 'at interview stage',
+    offer: 'has an OFFER',
+  };
+  const board = (apps ?? [])
+    .map((a) => {
+      const jd = a.job_data as { title?: string; company?: string };
+      const word = STAGE_WORDS[a.stage as string];
+      if (!jd?.title || !word) return null; // skip closed stages (rejected/archive) + blanks
+      return `${jd.title}${jd.company ? ` at ${jd.company}` : ''}: ${word}`;
+    })
+    .filter(Boolean)
+    .join('\n');
+
+  const recap = await generateRecap(profile, name, messages, board);
   // On a generation hiccup, fall back to whatever we had (or null) — never an error card.
   if (!recap) return NextResponse.json({ recap: stored?.recap ?? null });
 

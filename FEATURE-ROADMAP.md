@@ -415,3 +415,36 @@ widen test coverage beyond core flows · a true production env separate from sta
 **Quality:** the roles matching/sourcing review (recommendations are still weak — deferred, but it's the
 thing users judge hardest, so address before sharing widely). Study **JobCopilot + Jobeefy** for *how they
 source and match* jobs; ground our own job data in Step 3 (National Careers Service / LMI). Detail in parking-lot.
+
+---
+
+## Session 44 live-test findings (2026-06-29) — the board must be the single source of truth
+
+Lexi's live test surfaced a cluster: the advisor's *narrative* (recap card, memory, parked threads) drifts
+from the *real board* (`saved_applications`), and surfaces read different tables. Root causes confirmed in code.
+
+- ✓ **Wrong-role stage match** — `set_application_stage` silently picked the first of several substring
+  matches; now tiers by exactness + asks on genuine ambiguity (shared `roleKey` dedup). _(fixed S44)_
+- ✓ **Error + green action-log race** — a committed stage change behind a cold error; now any committed
+  action returns a warm line (logged for monitoring), and non-JSON upstream bodies no longer crash. _(fixed S44)_
+- ✓ **Rejected role still in Live roles + "In Applications" badge** — `set_application_stage` now also syncs
+  `saved_jobs.job_data.status` (closed → 'passed' = drops out of Live roles + badge clears; live → 'interested').
+  Re-reads live on `ci:application-changed`. _(fixed S44)_
+- ✓ **Advisor asserts outcomes not on the board** — added a "the board is the truth about outcomes" rule to the
+  chat prompt; made the recap board-aware (reads `saved_applications`, excludes closed stages, won't re-open a
+  rejected role) and bust the recap cache on any stage change. _(fixed S44)_
+- ○ **Known minor (logged from S44 review, low-risk):** the closed-stage set is duplicated across SidePanel +
+  advisor-tools + recap (centralise into one shared constant); `saved_jobs` sync is a non-atomic read-modify-write
+  (a same-user two-surface race could clobber a field); advisor-saved-only roles aren't in the live feed so their
+  status sync is a no-op there (no symptom, but note it).
+- ▶ **Name shortened to "Alex" then denied** — recap card (separate surface) used "Alex" though her name is
+  Alexandra; chat advisor then denied saying it (true from its view → reads as gaslighting). Need a
+  deterministic name guard on every surface + cross-surface awareness. May also be stale stored `preferredName`.
+- ▶ **Autoscroll on send still broken** — every send needs a manual scroll. Effect keyed on `[allMsgs,
+  isLoading]`; rapid state changes preempt the rAF scroll. Fix to scroll reliably on the user's own send.
+- ○ **Scroll up to read earlier conversation** — no way to see history above the current thread.
+- ○ **Recap "Earlier / Today" framing confusing** — design/copy of where the recap card sits in the timeline.
+- ○ **Advisor forgot prior info** (the master's) — durable facts not always captured; review `remember` reliability.
+- ○ **Career-coaching research** — we researched mentorship, not career coaching; scope what else to consider.
+- ○ **Sycophancy guardrail (voice)** — the line between pleasing the user and genuinely building momentum/
+  productivity. Make it a first-class voice principle + an eval check (belongs in the deferred voice pass).

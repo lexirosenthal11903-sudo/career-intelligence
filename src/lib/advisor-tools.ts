@@ -14,6 +14,7 @@ import { getProfile, patchProfile, addMemory, addOpenThread, resolveOpenThread, 
 import { callClaude } from '@/lib/anthropic';
 import { stripDashes } from '@/lib/sanitize';
 import { ADVISOR_SURFACES, isAdvisorSurface } from '@/lib/surfaces';
+import { roleKey } from '@/lib/role-key';
 
 // ── Tool schemas sent to Claude ───────────────────────────────────────────────
 // Prescriptive descriptions: state WHEN to call, not just what it does. Recent
@@ -127,7 +128,7 @@ export const ADVISOR_TOOLS = [
   {
     name: 'set_application_stage',
     description:
-      "Move one of this person's saved applications to a new stage when they tell you where it's got to. Call this when they say they've applied, got an interview, received an offer, didn't get it, or want to set one aside. Match the role by its title (and company if they say it). Updating the stage does NOT move them to another screen — you simply acknowledge the change in conversation; they stay where they are.",
+      "Move one of this person's saved applications to a new stage when they tell you where it's got to. Call this when they say they've applied, got an interview, received an offer, didn't get it, or want to set one aside. Match the role by its title (and company if they say it). If they refer to a role ambiguously (\"the analyst one\") and more than one of their saved applications could be it, ASK which one they mean before moving anything, never guess a specific role on their behalf. Updating the stage does NOT move them to another screen. You simply acknowledge the change in conversation; they stay where they are.",
     input_schema: {
       type: 'object',
       properties: {
@@ -407,19 +408,58 @@ export async function executeAdvisorTool(
           .from('saved_applications')
           .select('job_id, job_data')
           .eq('user_id', userId);
-        const match = (apps ?? []).find((a) => {
-          const jd = a.job_data as { title?: string; company?: string };
-          const title = (jd?.title ?? '').toLowerCase();
-          const hay = `${title} ${(jd?.company ?? '').toLowerCase()}`.trim();
-          if (!hay) return false; // a blank-titled row must never be a fallback match
-          // Forward: the advisor's query appears in the stored title+company.
-          // Reverse: the stored title appears in a longer query ("interview at bravo"),
-          // but only for a title substantial enough that it isn't matching on noise —
-          // `query.includes('')` (empty title) would otherwise match everything.
-          return hay.includes(query) || (title.length > 2 && query.includes(title));
-        });
-        if (!match)
+        // Score each saved application against the query and keep only the strongest
+        // tier, so an exact title beats an incidental substring, and a short, generic
+        // query ("analyst") that hits two roles ("Trainee Business Analyst" + "Data
+        // Analyst") never silently lands on whichever happened to come back first.
+        // 3 = exact title (or title+company); 2 = stored title fully inside a longer
+        // query ("the marketing coordinator role"); 1 = query is a substring of the
+        // stored title+company; 0 = no match. Normalise via the shared role-key helper
+        // so whitespace ("Data  Analyst") can't split a match. Empty titles never match.
+        const norm = (s?: string) => (s ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+        const nQuery = query.replace(/\s+/g, ' ');
+        const score = (jd: { title?: string; company?: string }): number => {
+          const title = norm(jd?.title);
+          const company = norm(jd?.company);
+          const hay = `${title} ${company}`.trim();
+          if (!title) return 0;
+          if (nQuery === title || nQuery === hay || nQuery === `${title} at ${company}`.trim()) return 3;
+          if (title.length > 2 && nQuery.includes(title)) return 2;
+          if (hay.includes(nQuery)) return 1;
+          return 0;
+        };
+        const scored = (apps ?? [])
+          .map((a) => ({ app: a, s: score(a.job_data as { title?: string; company?: string }) }))
+          .filter((x) => x.s > 0);
+        const top = scored.length ? Math.max(...scored.map((x) => x.s)) : 0;
+        const best = scored.filter((x) => x.s === top);
+        if (best.length === 0)
           return { content: `No saved application matches "${input.jobTitle}". Save the role first.`, isError: true };
+        // Collapse candidates that are the SAME logical role (identical title+company,
+        // e.g. a role saved twice across the two-table drift) by their canonical key.
+        // Only genuinely DIFFERENT roles are real ambiguity; otherwise "ask which one
+        // by company" would be unanswerable when the companies are identical.
+        const distinctKeys = new Set(
+          best.map((x) => {
+            const jd = x.app.job_data as { title?: string; company?: string };
+            return roleKey(jd?.title, jd?.company);
+          })
+        );
+        if (distinctKeys.size > 1) {
+          // Genuine ambiguity: ask, never guess. List the candidates so the advisor
+          // can clarify by company in conversation before moving a stage.
+          const names = best
+            .map((x) => {
+              const jd = x.app.job_data as { title?: string; company?: string };
+              return `${jd?.title ?? 'a saved role'}${jd?.company ? ` at ${jd.company}` : ''}`;
+            })
+            .join('; ');
+          return {
+            content: `More than one saved application matches "${input.jobTitle}": ${names}. Ask them which one they mean (by company) before you move its stage, do NOT guess.`,
+            isError: true,
+          };
+        }
+        const match = best[0].app;
         // When closing (rejected/archive), store a short why-it-closed note against the
         // role so the user can remind themselves later (Lexi, 2026-06-29). Merged into
         // job_data so it travels with the role; never clobbers their own notes field.
@@ -434,6 +474,40 @@ export async function executeAdvisorTool(
           .eq('user_id', userId)
           .eq('job_id', match.job_id);
         if (error) return { content: `Couldn't update the stage: ${error.message}`, isError: true };
+        // Keep saved_jobs in step with the board. Live roles AND the "In Applications"
+        // badge read saved_jobs.job_data.status (not the board), so without this a role
+        // closed here would still show in Live roles wearing the badge. A closed stage
+        // (rejected/archive) becomes 'passed' (drops out of Live roles, badge clears); any
+        // live stage becomes 'interested' (shown, badged) so re-opening one brings it back.
+        // Best-effort: a sync miss must never fail the stage move the user just asked for.
+        try {
+          const closed = stage === 'rejected' || stage === 'archive';
+          const desiredStatus = closed ? 'passed' : 'interested';
+          const { data: sjRow } = await supabase
+            .from('saved_jobs')
+            .select('job_data')
+            .eq('user_id', userId)
+            .eq('job_id', match.job_id)
+            .maybeSingle();
+          const sjData = sjRow?.job_data as Record<string, unknown> | undefined;
+          if (sjData && sjData.status !== desiredStatus) {
+            await supabase
+              .from('saved_jobs')
+              .update({ job_data: { ...sjData, status: desiredStatus } })
+              .eq('user_id', userId)
+              .eq('job_id', match.job_id);
+          }
+        } catch {
+          // saved_jobs sync is best-effort; the board move above already succeeded.
+        }
+        // The "Where we got to" recap is cached and reads the board for outcome truth.
+        // A stage change can make a cached recap stale (e.g. it would still narrate an
+        // offer that's now a rejection), so drop the cache to force a fresh, true recap.
+        try {
+          await supabase.from('recaps').delete().eq('user_id', userId);
+        } catch {
+          // best-effort cache bust; the recap will also refresh when the chat advances.
+        }
         const title = (match.job_data as { title?: string })?.title ?? 'that application';
         // Emotional weight per stage (research/rejection-care-and-navigation-research.md §A2):
         // speak to the moment, never gamify (no points/streaks/confetti — feedback_no_gamification).

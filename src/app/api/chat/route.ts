@@ -229,6 +229,22 @@ type ApiMessage = { role: 'user' | 'assistant'; content: string | unknown[] };
 // bounds cost and prevents a runaway loop if the model keeps calling tools.
 const MAX_TOOL_ROUNDS = 5;
 
+// The one warm line we fall back to when something already committed this turn but
+// generating the final reply failed. Kept in one place so the two recovery paths
+// (upstream error, thrown exception) can never drift apart.
+const HOLDING_LINE = "I'm here. Give me a second, then tell me a little more.";
+
+// Parse a response body without letting a non-JSON error page (e.g. a 502 HTML page
+// from the edge) throw before we've even checked the status. Returns null on failure
+// so the status-based handling below can still run (and the transient retry can fire).
+async function safeJson(response: Response): Promise<Record<string, unknown> | null> {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   const { user, supabase } = await getAuthedUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
@@ -320,36 +336,48 @@ export async function POST(request: Request) {
         messages,
         tools: ADVISOR_TOOLS,
       };
+      // Acknowledge warmly and hand back whatever already committed this turn. Used by
+      // both recovery paths so the holding line + signal set stay identical.
+      const warmHolding = () =>
+        NextResponse.json(
+          { content: [{ type: 'text', text: HOLDING_LINE }], meridianActions, meridianSignals, meridianData },
+          { status: 200 }
+        );
+
       let response = await callClaude(callBody);
-      let data = await response.json();
+      let data = await safeJson(response);
       // A transient upstream failure (5xx / 429) mid-tool-loop must never strand a tool
       // side effect that already committed earlier this turn (e.g. a stage move) behind a
       // cold error with no acknowledgement. Retry once on a transient (after a short pause
       // so a rate-limit window has a chance to clear) before giving up.
-      let transient = !response.ok && (response.status >= 500 || response.status === 429);
+      const transient = !response.ok && (response.status >= 500 || response.status === 429);
       if (transient) {
         await new Promise((r) => setTimeout(r, 400));
         response = await callClaude(callBody);
-        data = await response.json();
-        transient = !response.ok && (response.status >= 500 || response.status === 429);
+        data = await safeJson(response);
       }
       if (!response.ok) {
-        // Only swallow a TRANSIENT failure into a warm holding line — and only if we've
-        // already changed something this turn, so they're not left on a cold error after a
-        // state change. A non-transient error (auth, bad request) must still surface so it's
-        // visible to the client and monitoring rather than masked as success.
-        if (transient && meridianActions.length > 0) {
-          return NextResponse.json(
-            {
-              content: [{ type: 'text', text: "I'm here. Give me a second, then tell me a little more." }],
-              meridianActions,
-              meridianSignals,
-              meridianData,
-            },
-            { status: 200 }
+        // If a tool ALREADY committed a real change this turn (e.g. a stage move), a
+        // failure now generating the reply must never strand that change behind a cold
+        // error: the user would see "something went wrong" while their board silently
+        // updated. So whenever something has committed, acknowledge warmly and return the
+        // committed actions, transient or not. We still log the upstream error so Sentry
+        // sees it: it's hidden from the user, not from us. Only a failure with NOTHING
+        // committed surfaces to the client (transient retry was already attempted above).
+        if (meridianActions.length > 0) {
+          console.error(
+            `[chat] upstream ${response.status} after ${meridianActions.length} committed action(s), returning a warm holding line:`,
+            data?.error ?? data
           );
+          return warmHolding();
         }
-        return NextResponse.json(data, { status: response.status });
+        return NextResponse.json(data ?? { error: `Upstream error (${response.status}).` }, { status: response.status });
+      }
+      if (!data) {
+        // A 2xx with an unparseable body (very rare). Don't strand a committed change;
+        // otherwise surface a clean error rather than crashing on a null deref below.
+        if (meridianActions.length > 0) return warmHolding();
+        return NextResponse.json({ error: 'Unreadable response from the model.' }, { status: 502 });
       }
 
       if (data.stop_reason !== 'tool_use') {
@@ -397,12 +425,12 @@ export async function POST(request: Request) {
       messages.push({ role: 'user', content: toolResults });
     }
 
-    // Exhausted the round budget while still calling tools — return a graceful
+    // Exhausted the round budget while still calling tools: return a graceful
     // close in Arlo's own voice rather than an error or an empty turn.
     return NextResponse.json(
       {
         content: [
-          { type: 'text', text: "I've done what you asked — what would you like to look at next?" },
+          { type: 'text', text: "I've done what you asked. What would you like to look at next?" },
         ],
         meridianActions,
         meridianSignals,
@@ -412,6 +440,16 @@ export async function POST(request: Request) {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
+    // Same guard as the upstream-error branch: an exception thrown after a tool already
+    // committed (e.g. a network throw on a later round) must not strand that change behind
+    // a cold 500. Acknowledge warmly, return the committed actions, and log for monitoring.
+    if (meridianActions.length > 0) {
+      console.error(`[chat] exception after ${meridianActions.length} committed action(s):`, message);
+      return NextResponse.json(
+        { content: [{ type: 'text', text: HOLDING_LINE }], meridianActions, meridianSignals, meridianData },
+        { status: 200 }
+      );
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

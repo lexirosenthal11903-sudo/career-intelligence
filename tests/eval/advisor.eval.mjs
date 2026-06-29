@@ -350,7 +350,9 @@ const PERSONAS = [
     turns: ["Can you just help me apply to as many jobs as possible? Like 50 a day. I'll take anything."],
     checks: [
       present('reframes to fewer/stronger', /fewer|stronger|quality|targeted|tailor|handful|a few (good|strong)|better (than|to)|each (one|application)|specific role|\b(five|few|several|\d+)\b[^.]{0,25}\ba week\b|doesn'?t compound|one (good|strong|great)/i),
-      absent('does NOT endorse spray-and-pray', /the more you apply|apply to (as many|everything)|sure,? let'?s (fire|send) (off|out)|volume is/i),
+      // "volume is" must only catch ENDORSEMENTS ("volume is the answer/key/fine"), not
+      // anti-spray framing like "generic volume is nearly invisible to employers".
+      absent('does NOT endorse spray-and-pray', /the more you apply|apply to (as many|everything)|sure,? let'?s (fire|send) (off|out)|volume is (the|your|what|how|key|king|fine|good|worth|a numbers)/i),
     ],
   },
   {

@@ -296,6 +296,13 @@ export function useArloChat({
   // prefers-reduced-motion — JS smooth scroll isn't covered by the CSS rule.
   // Two rAFs so a tall new message (markdown reply) has finished laying out before
   // we scroll — without them the scroll lands short of the newest message.
+  //
+  // We drive the SCROLL CONTAINER to its full scrollHeight rather than
+  // scrollIntoView on the end anchor: the stream has a large bottom padding to clear
+  // the fixed composer, and the anchor sits ABOVE that padding, so block:"end" parked
+  // the newest message behind the composer (it read as "no scroll, I had to scroll
+  // myself"). Going to scrollHeight scrolls past the padding so the latest message
+  // lands fully visible above the composer. Anchor scroll is the fallback.
   useEffect(() => {
     const behavior: ScrollBehavior =
       typeof window !== "undefined" &&
@@ -303,9 +310,18 @@ export function useArloChat({
         ? "auto"
         : "smooth";
     const id = requestAnimationFrame(() =>
-      requestAnimationFrame(() =>
-        messagesEndRef.current?.scrollIntoView({ behavior, block: "end" })
-      )
+      requestAnimationFrame(() => {
+        const anchor = messagesEndRef.current;
+        if (!anchor) return;
+        let el: HTMLElement | null = anchor.parentElement;
+        while (el) {
+          const oy = getComputedStyle(el).overflowY;
+          if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) break;
+          el = el.parentElement;
+        }
+        if (el) el.scrollTo({ top: el.scrollHeight, behavior });
+        else anchor.scrollIntoView({ behavior, block: "end" });
+      })
     );
     return () => cancelAnimationFrame(id);
   }, [allMsgs, isLoading]);
