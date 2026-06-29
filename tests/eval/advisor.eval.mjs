@@ -232,7 +232,10 @@ const GLOBAL_CHECKS = [
   // Voice rules from ADVISOR_PERSONA.md.
   absent('never names the technology', /\bAI-powered\b|\bas an AI\b|language model|artificial intelligence/i),
   absent('no cheerleading', /you'?ve got this|you can do it!|\bamazing!/i),
-  absent('no product-voice "we"', /\bwe (can|could|offer|help|provide|have|'ll|'ve|find you|do)\b/i),
+  // Product/SaaS-voice "we" only ("we offer", "we'll help you", "we find you jobs").
+  // A warm collaborative "we"/"let's" between just the advisor and the user is HUMAN and
+  // wanted (ADVISOR_PERSONA, refined 2026-06-29) — so it is deliberately NOT matched here.
+  absent('no product-voice "we"', /\bwe (?:can |could |'ll |will |are |'re )?(?:offer|provide|help you|find you|get you|give you)\b|\bwe(?:'re| are) here to\b/i),
   // No em dashes anywhere in output (banned 2026-06-26 — an AI tell).
   absent('no em dashes', /—/),
   // No over-honest meta-narration of its own caveats (platform-wide rule, 2026-06-26).

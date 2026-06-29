@@ -42,6 +42,20 @@ The advisor reacts, is present, and reads you properly before it tells you anyth
   + expectations differ; never guilt-trip a busy person. _(from S10 brainstorm)_
 - ○ **Away-mode (implicit)** — read last-login + context signals, adjust the welcome (no guilt, warm
   re-engagement after a gap). Explicit "I'll be away" = later. _(from S10 brainstorm)_
+- 🔑 **Proactive, focused mentor — the advisor engages, it doesn't just wait (Lexi, 2026-06-29; HIGH).**
+  This is "make it a human interaction." Two diagnosed behaviours, design together as ONE slice:
+  1. **Proactive check-in on return.** Root cause found: on return with stored history, `useArloChat`
+     loads the transcript, drops a "New session" divider, and **never calls `initiate()`** — so the advisor
+     sits silent on open threads. (Real case: Lexi asked about a visa days ago; the conversation IS persisted
+     and reloaded, so the advisor had it in front of it and still never followed up.) Fix: on return, the
+     advisor speaks first and picks up the unresolved thread ("you were weighing the visa question — where did
+     that land?"). Needs a notion of *open/unresolved* threads, not just durable facts. Pairs with the
+     time-aware + emotional memory moat (item below) and away-mode.
+  2. **Hold the thread — focused time, gently.** A real mentor doesn't just follow every topic-switch. If the
+     user is mid-task (e.g. working through a CV) and jumps elsewhere, the advisor guides them to use the time
+     well ("happy to come to that — want to finish the CV first, or park it and switch?"). NOT rigid: an
+     anxious switch can be the real need; read the dial. This is behaviour design, not a one-line prompt —
+     decide when to hold vs follow. **Design before build — grill Lexi first.**
 - ○ **"Start fresh, keep the memory"** — a light session reset that doesn't wipe what the advisor knows.
 
 **Cross-cutting principle (every surface):** *dual interaction* — the advisor path (tell it, it acts) AND

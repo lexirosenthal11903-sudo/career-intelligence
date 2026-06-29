@@ -18,14 +18,14 @@ export interface ApiMsg {
 // Single source of truth: ChatPane renders these AND they become the transcript,
 // so the conversation history matches what the user actually saw. (VOICE-IN-UI §1/§2a.)
 export const OPENER =
-  "I'm here to help you work out what you actually want — and then go and get it. We start with the direction that fits you; the right roles come after, once they're worth your time. No forms, no quiz — just tell me where you're at, or drop your CV in.";
+  "I'm here to help you work out what you actually want, and then go and get it. I'll start with the direction that fits you; the right roles come after, once they're worth your time. No forms, no quiz. Just tell me where you're at, or drop your CV in.";
 
 // ONE warm message after the reveal (not a stack). Invites a reaction, explicitly
 // permits not-knowing, offers to explore together, reassures memory — never a demand
 // to decide on the spot, never a separate "here's your homework" close. (Lexi, 2026-06-24.)
 export function explorationInvite(clarity: Clarity | null): string {
   const base =
-    "Do any of these feel like you — or not quite? You don't have to decide now. We can dig into any of them together, and I'll remember everything as we go.";
+    "Do any of these feel like you, or not quite? You don't have to decide now. We can dig into any of them together, and I'll remember everything as we go.";
   return clarity === "directed"
     ? `${base} And when you want, I can show you what these look like as real roles.`
     : base;
@@ -41,7 +41,7 @@ export function revealText(
   if (summary) lines.push(summary);
   if (directions.length) {
     lines.push("Directions worth exploring:");
-    for (const d of directions) lines.push(`- ${d.title}${d.why ? ` — ${d.why}` : ""}`);
+    for (const d of directions) lines.push(`- ${d.title}${d.why ? `: ${d.why}` : ""}`);
   }
   return lines.join("\n");
 }
