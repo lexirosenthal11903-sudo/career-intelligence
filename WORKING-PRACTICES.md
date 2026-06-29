@@ -26,6 +26,44 @@ itself, plan with it, push it, and keep the context clean._
 | **Check prior art first** | The moment a task is a common/solved problem (auth, social login, CV/coaching conventions) | Claude prompts |
 | **Research-grounded building** | Before building ANY feature whose quality rests on real-world facts (advice, matching, diagnosis, outreach, salaries, timing) | Claude (auto) |
 | **`/voice`** | Lexi's choice — already in use | Lexi |
+| **Batch cadence** (agree batch → build all → one review; a receipt on every raised item) | Start of every session; and the instant Lexi raises anything (confirm it's logged) | Claude (auto) |
+
+---
+
+## The session cadence — batch, build, one review (set 2026-06-29 with Lexi)
+
+_Why: one-thing-at-a-time was too slow to keep up with new ideas, and Lexi lost track of whether her
+corrections were captured (so she re-checked and re-raised, losing trust in the list). The fix is NOT to drop
+quality gates — it's to move them to BATCH boundaries and give every raised item a visible receipt._
+
+**The core insight (this is the whole point):** speed without quality loss comes from changing the *cadence*
+of the quality gates, not removing them. Grill once for the whole batch, build the whole batch, verify the
+whole batch, review once. The stop/start tax on every micro-item is what was slow, not the gates. Grill-me,
+spec, and self-verify all STAY — they just happen at batch edges, not per item.
+
+**Three phases per session:**
+1. **Agree the batch (start).** Claude pulls a defined set of *related* items from `FEATURE-ROADMAP.md` and
+   posts them as "▶ THIS SESSION". Lexi approves or swaps. That set is the contract: nothing outside it gets
+   built, nothing inside it gets dropped. If the batch needs design decisions, Claude grills Lexi ONCE here,
+   for the whole batch, and writes/updates the spec — not per item.
+2. **Build the whole batch autonomously + self-verify each (middle).** No mid-batch check-ins. Claude builds,
+   runs close-the-loop (`/code-review` + `/simplify` + build/lint/eval/`shot.js`) on each slice, and uses
+   subagents to build independent slices in parallel where that speeds things up. One push at the end.
+3. **One review pass (end).** Claude hands Lexi a numbered "test this → expect this" checklist for the whole
+   batch. Lexi reviews once. Anything new she spots is captured WITH A RECEIPT and rolled into the next batch.
+
+**Receipts — the rule that kills "is this already on the list?":** every single thing Lexi raises, Claude
+confirms in the moment — **"Logged ✓ — [doc], [where in the queue]."** No exceptions. Lexi can say "show me
+the queue" any time and Claude shows exactly what's captured and which batch it's in. Verbal-only capture is
+banned (already the rule; this makes it visible).
+
+**Two guardrails that keep bundling safe:**
+- **One KIND of work per batch.** All foundation/correctness fixes together, OR one feature end-to-end — never
+  build mixed with voice/copy fine-tuning. This is the "never interleave build and fine-tune" rule; it's what
+  stops a batch sliding into the endless-polish loop.
+- **Milestone-test, not micro-test.** Lexi reviews one whole walkable slice. Target ~4–6 related items; if the
+  review is exhausting, the batch was too big — right-size the next one. Claude owns calling the boundaries and
+  defining "done for this batch" objectively (against the spec) up front, so a batch can't quietly expand.
 
 ---
 
