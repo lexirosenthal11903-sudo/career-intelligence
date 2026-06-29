@@ -45,7 +45,7 @@ export async function PATCH(request: Request) {
 
   const update: { stage?: string; notes?: string } = {};
   if (stage !== undefined) {
-    const VALID_STAGES = ['saved', 'preparing', 'applied', 'interview', 'offer', 'archive'];
+    const VALID_STAGES = ['saved', 'preparing', 'applied', 'interview', 'offer', 'rejected', 'archive'];
     if (!VALID_STAGES.includes(stage)) {
       return NextResponse.json({ error: 'Invalid stage' }, { status: 400 });
     }

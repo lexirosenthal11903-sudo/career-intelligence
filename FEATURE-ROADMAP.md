@@ -195,7 +195,14 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
   - **Still open from the themes (NOT this batch):** B-#5 filter by stage · B-#6 offer/decline sections · B-#7 fuller
     per-application hub · C-#8 overlay scrollbar · C-#9 collapsible sidebar · C-#10 click-a-direction-opens · C-#12 per-day feed.
 
-- **▶ SESSION 42 LIVE-TEST FINDINGS (Claude-in-Chrome, 2026-06-29) — 5/6 passed; rolled to next batch.**
+- **✅ SESSION 43 (2026-06-29) — addressed the Session-42 findings below (built, awaiting Lexi's live test).**
+  Real `rejected` stage + quiet Closed area (soft "Not this time" label, archive mislabel fixed); transient-failure
+  robustness in the tool loop (the rejection bug's root cause); conversational ask-why on remove + reason-routed
+  Live-roles hide (`hide_role_from_live`, item-level only); stale "In Applications" badge; chat auto-scroll; the "Alex"
+  name slip. Grounded in `research/rejection-state-model-research.md`. Deferred: down-weight-similar + funnel stat (Step
+  3), outcomes VOICE tuning (separate beat). Full receipts in REBUILD.md "BUILT 2026-06-29 (Session 43)".
+
+- **▶ SESSION 42 LIVE-TEST FINDINGS (Claude-in-Chrome, 2026-06-29) — 5/6 passed; ADDRESSED in Session 43 (above).**
   The live test caught what the headless gate could not. Receipts:
   - 🔴 **BUG (priority) — rejection path.** "I didn't get that role, they didn't say why" → advisor returned a
     generic error ("Something went wrong on my end") with NO care, AND underneath still acted: archived the role and
@@ -313,6 +320,7 @@ Make the facts real so the product is credible, not guessing. Plan: [GROUNDED-KN
 - ○ Niche-industry coverage — serve users in small / non-standard fields well.
 - ○ "What makes a good mentor" research — credibility grounding for the advisor.
 - ○ **Employment rights & work law (curated, never AI-generated)** — the advisor will brush against legal questions (unpaid internships that are actually unlawful, worker status & minimum wage, contract types, probation, what an employer can/can't ask). AI-generating this is a liability + a safety risk for an anxious user. Source from **gov.uk + ACAS** primary pages (start: https://www.gov.uk/employment-rights-for-interns), store as facts the advisor retrieves, never invents. Protective, honest register — on-mission and a differentiator. See GROUNDED-KNOWLEDGE-PLAN.md item 8. _(Lexi, 2026-06-26 — from a LinkedIn post on intern pay)_
+- ○ **RESEARCH/ARCHITECTURE — widen live-job sources beyond Adzuna + Reed (£0).** From a LinkedIn post Lexi flagged (2026-06-29; most of it was affiliate spam — Kickresume, "$68–80/hr", a ChatGPT book — ignored). The one real signal: several remote-job boards expose free JSON/RSS feeds we could aggregate to broaden listings at zero cost — **Remote OK** (`remoteok.com/api`, public JSON), **We Work Remotely** (per-category RSS), **Remotive** (`remotive.com/api/remote-jobs`, public JSON), **Himalayas** (`himalayas.app/jobs/api`). Investigation only — verify each feed is live, ToS-permitted, and dedupes cleanly against Adzuna/Reed; assess fit (these skew remote/tech, our users are broader UK early-career). **Does NOT change positioning** — the advisor is the product; listings are a utility ([[project_mission_northstar]]). Lower priority than Step 2; logged so it isn't lost. _(Lexi, 2026-06-29)_
 
 ## Step 4 — B2B (universities first, only after the candidate loop works)
 

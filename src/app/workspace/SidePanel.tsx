@@ -11,6 +11,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
 import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, ChevronIcon, ApplicationsIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
+import { roleKey, normRolePart } from "@/lib/role-key";
 export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile" | "applications";
 
 const LOGO_TOKENS = ["--logo-1", "--logo-2", "--logo-3", "--logo-4", "--logo-5", "--logo-6"];
@@ -26,6 +27,7 @@ function logoColour(name: string) {
 function askAdvisor(prompt: string) {
   window.dispatchEvent(new CustomEvent("ci:ask-advisor", { detail: prompt }));
 }
+
 
 const TAB = {
   roles: { icon: RolesIcon, label: "Roles for you", title: "Roles for you" },
@@ -54,6 +56,11 @@ export default function SidePanel({
   const [selected, setSelected] = useState<PanelJob | null>(null);
   const [interested, setInterested] = useState<Set<string>>(new Set());
   const [passed, setPassed] = useState<Set<string>>(new Set());
+  // Roles the user told the advisor aren't for them. Two sets: exact title+company,
+  // and title-only for hides where the advisor didn't capture a company (so they
+  // still match the live job, which always carries one). Item-level only.
+  const [hiddenKeys, setHiddenKeys] = useState<Set<string>>(new Set());
+  const [hiddenTitles, setHiddenTitles] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState<Set<string>>(new Set());
   const [tailoring, setTailoring] = useState(false);
 
@@ -61,20 +68,33 @@ export default function SidePanel({
     supabase.auth.getUser().then(({ data: { user } }) => setUserId(user?.id ?? null));
   }, [supabase]);
 
-  // Load saved interested/passed state once signed in.
+  // Load saved interested/passed state + roles the advisor was told aren't for them.
+  const loadSavedState = useCallback(async () => {
+    try {
+      const res = await fetch("/api/save-job");
+      if (!res.ok) return;
+      const data = await res.json();
+      const saved: Array<{ id: string | number; status?: string }> = data.jobs || [];
+      setInterested(new Set(saved.filter((j) => j.status === "interested").map((j) => String(j.id))));
+      setPassed(new Set(saved.filter((j) => j.status === "passed").map((j) => String(j.id))));
+      const hidden: Array<{ title?: string; company?: string }> = data.hiddenRoles || [];
+      setHiddenKeys(new Set(hidden.filter((h) => normRolePart(h.company)).map((h) => roleKey(h.title, h.company))));
+      setHiddenTitles(new Set(hidden.filter((h) => !normRolePart(h.company)).map((h) => normRolePart(h.title))));
+    } catch { /* ignore */ }
+  }, []);
+
+  // Reload on sign-in AND whenever the advisor changes application state — so the
+  // "✓ In Applications" badge and the Live-roles hide stay in step with the board
+  // (e.g. a removed role's badge clears; a "not for me" role drops out of Live roles).
   useEffect(() => {
     if (!userId) return;
-    (async () => {
-      try {
-        const res = await fetch("/api/save-job");
-        if (!res.ok) return;
-        const data = await res.json();
-        const saved: Array<{ id: string | number; status?: string }> = data.jobs || [];
-        setInterested(new Set(saved.filter((j) => j.status === "interested").map((j) => String(j.id))));
-        setPassed(new Set(saved.filter((j) => j.status === "passed").map((j) => String(j.id))));
-      } catch { /* ignore */ }
-    })();
-  }, [userId]);
+    let cancelled = false;
+    // Initial load deferred past an await (workspace lint rule); the event listener
+    // is the accepted subscribe case — it re-reads when the advisor changes state.
+    (async () => { await Promise.resolve(); if (!cancelled) loadSavedState(); })();
+    window.addEventListener("ci:application-changed", loadSavedState);
+    return () => { cancelled = true; window.removeEventListener("ci:application-changed", loadSavedState); };
+  }, [userId, loadSavedState]);
 
   // Switching surface clears any open role — adjusted during render (React docs
   // "storing information from previous renders"), not in an effect.
@@ -127,6 +147,8 @@ export default function SidePanel({
             jobsError={jobsError}
             passed={passed}
             interested={interested}
+            hiddenKeys={hiddenKeys}
+            hiddenTitles={hiddenTitles}
             onRetry={retry}
             onReview={setSelected}
           />
@@ -236,7 +258,7 @@ export default function SidePanel({
 const INITIAL_VISIBLE = 8; // show a focused set first, not a wall (Lexi feedback 2026-06-22)
 
 function RolesList({
-  hasResult, jobs, jobsLoading, jobsError, passed, interested, onRetry, onReview,
+  hasResult, jobs, jobsLoading, jobsError, passed, interested, hiddenKeys, hiddenTitles, onRetry, onReview,
 }: {
   hasResult: boolean | null;
   jobs: PanelJob[];
@@ -244,6 +266,8 @@ function RolesList({
   jobsError: boolean;
   passed: Set<string>;
   interested: Set<string>;
+  hiddenKeys: Set<string>;
+  hiddenTitles: Set<string>;
   onRetry: () => void;
   onReview: (job: PanelJob) => void;
 }) {
@@ -254,6 +278,9 @@ function RolesList({
   const ranked = jobs
     .filter((j) => !j.relevanceScore || j.relevanceScore >= 4)
     .filter((j) => !passed.has(String(j.id)) || interested.has(String(j.id)))
+    // Drop roles the user told the advisor aren't for them — exact title+company, or
+    // title-only when the advisor didn't capture a company.
+    .filter((j) => !hiddenKeys.has(roleKey(j.title, j.company)) && !hiddenTitles.has(normRolePart(j.title)))
     .sort((a, b) =>
       (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0) ||
       (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0)
@@ -606,6 +633,13 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
       onOpenRoles?.(); // unmount this detail first → back to the Applications list
       if (typeof window !== "undefined")
         window.dispatchEvent(new CustomEvent("ci:application-changed"));
+      // Non-blocking: the remove has already happened. Let the advisor ask why in
+      // conversation (optional) — a genuine "not for me" sharpens future matches and
+      // hides the role from Live roles; "just tidying" changes nothing. (Research:
+      // rejection-state-model-research.md fork 2 — ask, but never block the action.)
+      const jd = app.job_data;
+      const roleName = jd.title ? `the ${jd.title} role${jd.company ? ` at ${jd.company}` : ""}` : "a role";
+      askAdvisor(`I've taken ${roleName} off my applications.`);
     } catch {
       setRemoving(false);
     }
@@ -684,7 +718,9 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
         <div className={s.rdLabel}>Activity</div>
         <p className={s.rdText}>Saved · {relativeTime(app.created_at)}</p>
         {stage !== "saved" && (
-          <p className={s.rdText}>Now: {STAGES.find((st) => st.key === stage)?.label ?? stage}</p>
+          // Closed outcomes (rejected/archive) aren't forward chips in STAGES, so fall
+          // back to the soft STAGE_LABELS ("Not this time") — never leak the raw word.
+          <p className={s.rdText}>Now: {STAGES.find((st) => st.key === stage)?.label ?? STAGE_LABELS[stage] ?? stage}</p>
         )}
       </div>
 
@@ -1085,7 +1121,12 @@ const STAGE_LABELS: Record<string, string> = {
   applied: "Applied",
   interview: "Interview",
   offer: "Offer",
+  // Closed outcomes — kept as real records, shown quietly below the active board.
+  // Soft labels by design (rejection-fatigue research): never the bare word "Rejected".
+  rejected: "Not this time",
+  archive: "Set aside",
 };
+const CLOSED_STAGES = new Set(["rejected", "archive"]);
 
 function ApplicationsView({ initialJobId = null }: { initialJobId?: string | null }) {
   const [apps, setApps] = useState<ApplicationListItem[]>([]);
@@ -1126,6 +1167,44 @@ function ApplicationsView({ initialJobId = null }: { initialJobId?: string | nul
     );
   }
 
+  // Active pipeline stays on the board; closed outcomes (didn't get it / set aside)
+  // drop into a quiet collapsed group below — present and on record, never a wall.
+  const active = apps.filter((a) => !CLOSED_STAGES.has(a.stage));
+  const closed = apps.filter((a) => CLOSED_STAGES.has(a.stage));
+
+  const renderCard = (app: ApplicationListItem) => {
+    const job = app.job_data;
+    const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
+    const stageLabel = STAGE_LABELS[app.stage] ?? "Saved";
+    // Saved reads quietest; once you've actually applied it carries more weight; an
+    // offer is the win (success token); a closed outcome reads quietest of all.
+    const stageClass =
+      app.stage === "offer" ? s.appStageOffer
+      : CLOSED_STAGES.has(app.stage) ? s.appStageClosed
+      : app.stage === "saved" ? s.appStageSaved
+      : s.appStageLive;
+    return (
+      <button
+        key={app.job_id}
+        className={s.job}
+        type="button"
+        onClick={() => setSelectedId(app.job_id)}
+      >
+        <CompanyLogo
+          company={job.company || job.title || "?"}
+          fallbackColor={logoColour(job.company || job.title || "?")}
+          initial={initial}
+          className={s.jlogo}
+        />
+        <div className={s.jmid}>
+          <div className={s.jt}>{job.title}</div>
+          <div className={s.jc}>{job.company}{job.location ? ` · ${job.location}` : ""}</div>
+        </div>
+        <span className={`${s.appStage} ${stageClass}`}>{stageLabel}</span>
+      </button>
+    );
+  };
+
   return (
     <>
       <div className={s.sideH}>
@@ -1143,38 +1222,14 @@ function ApplicationsView({ initialJobId = null }: { initialJobId?: string | nul
           </div>
         )}
 
-        {!loading && apps.map((app) => {
-          const job = app.job_data;
-          const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
-          const stageLabel = STAGE_LABELS[app.stage] ?? "Saved";
-          // Saved reads quietest; once you've actually applied it carries more weight;
-          // an offer is the win, so it gets the success token. (Evidence: anxious
-          // low-volume users shouldn't see "saved" and "applied" at the same weight.)
-          const stageClass =
-            app.stage === "offer" ? s.appStageOffer
-            : app.stage === "saved" ? s.appStageSaved
-            : s.appStageLive;
-          return (
-            <button
-              key={app.job_id}
-              className={s.job}
-              type="button"
-              onClick={() => setSelectedId(app.job_id)}
-            >
-              <CompanyLogo
-                company={job.company || job.title || "?"}
-                fallbackColor={logoColour(job.company || job.title || "?")}
-                initial={initial}
-                className={s.jlogo}
-              />
-              <div className={s.jmid}>
-                <div className={s.jt}>{job.title}</div>
-                <div className={s.jc}>{job.company}{job.location ? ` · ${job.location}` : ""}</div>
-              </div>
-              <span className={`${s.appStage} ${stageClass}`}>{stageLabel}</span>
-            </button>
-          );
-        })}
+        {!loading && active.map(renderCard)}
+
+        {!loading && closed.length > 0 && (
+          <details className={s.closedGroup}>
+            <summary className={s.closedSummary}>Closed · {closed.length}</summary>
+            {closed.map(renderCard)}
+          </details>
+        )}
       </div>
     </>
   );

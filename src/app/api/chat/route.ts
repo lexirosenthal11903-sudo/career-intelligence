@@ -35,7 +35,7 @@ async function buildUserContext(
   // signup name (the signup name is often a formal full first name like "Alexandra"
   // when they go by "Lexi"). (Lexi, 2026-06-29.)
   let nameLine = signupFirst
-    ? `Their name is ${signupFirst} — use their first name naturally and warmly (a greeting, the odd moment), but NOT in every message.`
+    ? `Their name is ${signupFirst} — use it naturally and warmly (a greeting, the odd moment), but NOT in every message. Use it EXACTLY as written: never shorten it to a nickname or alter it in any way (e.g. never turn a formal name into a casual one) until they tell you what they go by.`
     : '';
   // Things worth knowing that we don't have yet — so the advisor can fill them in
   // casually, in conversation, rather than a second cold intake (Lexi, 2026-06-23).
@@ -277,15 +277,44 @@ export async function POST(request: Request) {
 
   try {
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const response = await callClaude({
+      const callBody = {
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         system,
         messages,
         tools: ADVISOR_TOOLS,
-      });
-      const data = await response.json();
-      if (!response.ok) return NextResponse.json(data, { status: response.status });
+      };
+      let response = await callClaude(callBody);
+      let data = await response.json();
+      // A transient upstream failure (5xx / 429) mid-tool-loop must never strand a tool
+      // side effect that already committed earlier this turn (e.g. a stage move) behind a
+      // cold error with no acknowledgement. Retry once on a transient (after a short pause
+      // so a rate-limit window has a chance to clear) before giving up.
+      let transient = !response.ok && (response.status >= 500 || response.status === 429);
+      if (transient) {
+        await new Promise((r) => setTimeout(r, 400));
+        response = await callClaude(callBody);
+        data = await response.json();
+        transient = !response.ok && (response.status >= 500 || response.status === 429);
+      }
+      if (!response.ok) {
+        // Only swallow a TRANSIENT failure into a warm holding line — and only if we've
+        // already changed something this turn, so they're not left on a cold error after a
+        // state change. A non-transient error (auth, bad request) must still surface so it's
+        // visible to the client and monitoring rather than masked as success.
+        if (transient && meridianActions.length > 0) {
+          return NextResponse.json(
+            {
+              content: [{ type: 'text', text: "I'm here. Give me a second, then tell me a little more." }],
+              meridianActions,
+              meridianSignals,
+              meridianData,
+            },
+            { status: 200 }
+          );
+        }
+        return NextResponse.json(data, { status: response.status });
+      }
 
       if (data.stop_reason !== 'tool_use') {
         // Deterministic backstops for voice rules the model keeps breaking: strip em

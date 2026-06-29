@@ -25,6 +25,31 @@ real data layer, error visibility) were both skipped. Everything else is a sympt
 
 ---
 
+## ✅ BUILT 2026-06-29 (Session 43) — the rejection moment, done properly (state model + bugs)
+
+Fixes the rejection path the Session-42 live test caught, grounded in `research/rejection-state-model-research.md`
+(three forks researched, Lexi decided each). Verified: tsc + lint + production build green; 19/19 unit tests;
+`eval:advisor` all hard rules held; one 3-agent `/code-review` (8 findings, all fixed). **Awaiting Lexi's go to push.**
+- **Real `rejected` outcome.** New stage `rejected` (kept as a real record, never auto-deleted). Advisor sets it on a
+  definite no (prompt: NOT `archive`; the human reply and the stage change go together in one turn). Added to the
+  `set_application_stage` enum + the `/api/applications` PATCH `VALID_STAGES` (was out of sync) + advisor-tools VALID.
+- **Quiet Closed area.** `ApplicationsView` splits the active board from a collapsed "Closed" group (`CLOSED_STAGES`
+  = rejected + archive). `STAGE_LABELS` gained both (fixes the bug where archive mislabelled as "Saved"); soft labels
+  ("Not this time" / "Set aside") — never the bare word "Rejected". Legacy `/dashboard/applications` softened to match.
+- **Transient-failure robustness** (`/api/chat`): the tool loop now retries once (400ms backoff) on a 5xx/429, and
+  only swallows a TRANSIENT failure into a warm holding line when an action already committed this turn — a non-transient
+  4xx still surfaces. Fixes the root cause: a committed stage move stranded behind a cold error with no acknowledgement.
+- **Ask-why on remove + reason-routed Live-roles hide.** Removing a saved role nudges the advisor (`askAdvisor`) to ask
+  once, conversationally, why (non-blocking — the remove already happened). A genuine "not for me" → `hide_role_from_live`
+  (new tool) → `profiles.data.hiddenRoles[]` → the Live-roles feed drops it (exact title+company, or title-only when the
+  advisor didn't capture a company). "Just tidying" → nothing changes. Item-level ONLY; down-weighting similar roles +
+  the aggregate funnel stat are deferred to Step 3 (a single negative carrying more weight is the filter-bubble harm).
+  Shared `lib/role-key.ts` canonicaliser (server + client can't drift).
+- **Ride-alongs:** stale "✓ In Applications" badge now re-reads on `ci:application-changed`; chat auto-scroll wrapped in
+  double-rAF so a tall new reply doesn't land short; name-shortening tightened (never invent a nickname like "Alex").
+- **Deferred (logged):** down-weight similar roles + aggregate funnel stat (Step 3); pre-existing em-dash UI copy sweep
+  (several `—` in unchanged empty-state strings — not introduced here); the outcomes VOICE tuning (separate beat).
+
 ## ✅ SHIPPED 2026-06-29 (Session 42) — Theme A: the advisor drives state + holds you through it
 
 The advisor now changes the user's application state from conversation and the whole UI reflects it live, holds

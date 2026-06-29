@@ -294,13 +294,20 @@ export function useArloChat({
 
   // Auto-scroll when messages change or loading state changes. Honour
   // prefers-reduced-motion — JS smooth scroll isn't covered by the CSS rule.
+  // Two rAFs so a tall new message (markdown reply) has finished laying out before
+  // we scroll — without them the scroll lands short of the newest message.
   useEffect(() => {
     const behavior: ScrollBehavior =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
         ? "auto"
         : "smooth";
-    messagesEndRef.current?.scrollIntoView({ behavior, block: "end" });
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() =>
+        messagesEndRef.current?.scrollIntoView({ behavior, block: "end" })
+      )
+    );
+    return () => cancelAnimationFrame(id);
   }, [allMsgs, isLoading]);
 
   // Split at divider: messages before it are "previous session", after are current

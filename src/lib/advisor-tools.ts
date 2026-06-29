@@ -10,7 +10,7 @@
 // back next turn (see chat/route.ts + lib/profile.ts).
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getProfile, patchProfile, addMemory, addOpenThread, resolveOpenThread, type ProfileData } from '@/lib/profile';
+import { getProfile, patchProfile, addMemory, addOpenThread, resolveOpenThread, addHiddenRole, type ProfileData } from '@/lib/profile';
 import { callClaude } from '@/lib/anthropic';
 import { stripDashes } from '@/lib/sanitize';
 import { ADVISOR_SURFACES, isAdvisorSurface } from '@/lib/surfaces';
@@ -127,14 +127,27 @@ export const ADVISOR_TOOLS = [
   {
     name: 'set_application_stage',
     description:
-      "Move one of this person's saved applications to a new stage when they tell you where it's got to. Call this when they say they've applied, got an interview, received an offer, or want to set one aside. Match the role by its title (and company if they say it). Updating the stage does NOT move them to another screen — you simply acknowledge the change in conversation; they stay where they are.",
+      "Move one of this person's saved applications to a new stage when they tell you where it's got to. Call this when they say they've applied, got an interview, received an offer, didn't get it, or want to set one aside. Match the role by its title (and company if they say it). Updating the stage does NOT move them to another screen — you simply acknowledge the change in conversation; they stay where they are.",
     input_schema: {
       type: 'object',
       properties: {
         jobTitle: { type: 'string', description: 'The title (and optionally company) of the saved application to move.' },
-        stage: { type: 'string', enum: ['saved', 'preparing', 'applied', 'interview', 'offer', 'archive'], description: 'The new stage.' },
+        stage: { type: 'string', enum: ['saved', 'preparing', 'applied', 'interview', 'offer', 'rejected', 'archive'], description: "The new stage. Use 'rejected' when they got a definite no (applied/interviewed then turned down) — this keeps the application as a real record, it does NOT delete it. Use 'archive' only when they're quietly setting one aside, not a rejection." },
       },
       required: ['jobTitle', 'stage'],
+    },
+  },
+  {
+    name: 'hide_role_from_live',
+    description:
+      "Stop showing a specific role in this person's Live roles, because they've told you it genuinely isn't for them (not just that they're tidying their list). Call this ONLY when, after they removed or dropped a saved role, they confirm it's not the right kind of role / company / field for them. Do NOT call it if they just say they're tidying up, already applied elsewhere, or give no real reason — an administrative removal carries no preference signal and the role should keep appearing. This hides only that exact role; it does not change anything else they see.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        jobTitle: { type: 'string', description: 'The title of the role to stop showing.' },
+        company: { type: 'string', description: 'The company for that role, if known (helps match it exactly).' },
+      },
+      required: ['jobTitle'],
     },
   },
   {
@@ -387,7 +400,7 @@ export async function executeAdvisorTool(
       case 'set_application_stage': {
         const query = String(input.jobTitle ?? '').trim().toLowerCase();
         const stage = String(input.stage ?? '').trim();
-        const VALID = ['saved', 'preparing', 'applied', 'interview', 'offer', 'archive'];
+        const VALID = ['saved', 'preparing', 'applied', 'interview', 'offer', 'rejected', 'archive'];
         if (!query || !VALID.includes(stage)) return { content: 'Need a job to match and a valid stage.', isError: true };
         const { data: apps } = await supabase
           .from('saved_applications')
@@ -423,6 +436,8 @@ export async function executeAdvisorTool(
             "Getting an interview is real progress — acknowledge it encouragingly, then offer to prep them (what the company does, likely questions, the gaps worth getting ahead of) when they're ready.",
           applied:
             "They've applied — steady them. The silence that follows is the hard part; let them know you'll help them with what comes next rather than leaving them refreshing an inbox.",
+          rejected:
+            "This is a no, and it stings — hold them through it the way your rejection guidance says (acknowledge genuinely first, normalise that a no here is the competitive process not a verdict, then ask whether they got any actual feedback, never make them paste the email). The role stays on record as a real part of their search — you are not deleting it. Turn forward on one concrete thing only when they're ready.",
           archive:
             "They're setting this one aside. Keep it light and unjudged — no drama about closing it.",
         };
@@ -430,6 +445,18 @@ export async function executeAdvisorTool(
         return {
           content: `Moved "${title}" to ${stage} in their applications (in the background — they stay in the conversation, don't tell them to go to another screen).${weight ? ` ${weight}` : ''}`,
           action: `Moved "${title}" → ${stage}`,
+          signal: 'application-changed',
+        };
+      }
+
+      case 'hide_role_from_live': {
+        const jobTitle = String(input.jobTitle ?? '').trim();
+        const company = String(input.company ?? '').trim();
+        if (!jobTitle) return { content: 'Need the role title to hide it.', isError: true };
+        await addHiddenRole(supabase, userId, jobTitle, company);
+        // The Live-roles feed re-reads hidden roles on this signal, like the other surfaces.
+        return {
+          content: `Won't show "${jobTitle}"${company ? ` at ${company}` : ''} in their Live roles again (item-level only — similar roles still appear).`,
           signal: 'application-changed',
         };
       }

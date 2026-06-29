@@ -8,6 +8,7 @@
 // user_id/data drift is exactly the bug Step 1 exists to kill.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { roleKey } from '@/lib/role-key';
 
 export interface MemoryNote {
   note: string; // a durable, specific fact about the user, in the user's terms
@@ -25,6 +26,19 @@ export interface MemoryNote {
 export interface OpenThread {
   thread: string; // what's unresolved, phrased so it makes sense later
   at: string; // ISO timestamp it was opened
+}
+
+// A live role the user has explicitly said isn't for them (when removing it from
+// their applications, they told the advisor it wasn't right — not just tidying).
+// Item-level suppression ONLY: this hides the matching role from the Live-roles
+// feed by exact title+company. We deliberately do NOT down-weight "similar" roles
+// here — a single negative carrying that much weight is the documented filter-bubble
+// harm; broader matching belongs in the grounded-knowledge layer, not one removal.
+// (rejection-state-model-research.md, fork 3.)
+export interface HiddenRole {
+  title: string;
+  company: string;
+  at: string; // ISO timestamp it was hidden
 }
 
 export interface ProfileData {
@@ -48,6 +62,8 @@ export interface ProfileData {
   memory?: MemoryNote[];
   // Unresolved threads to pick back up — see OpenThread. Invisible, advisor-managed.
   openThreads?: OpenThread[];
+  // Roles the user explicitly said aren't for them — see HiddenRole. Hidden from Live roles.
+  hiddenRoles?: HiddenRole[];
   profileCompleteness?: number;
   // The user's CV on file — its source identity lives in Profile (decided 2026-06-22).
   // Tailored CVs / cover letters go to Documents later.
@@ -153,6 +169,31 @@ export async function addOpenThread(
 
   threads.push({ thread: trimmed, at: new Date().toISOString() });
   return patchProfile(supabase, userId, { openThreads: threads.slice(-12) });
+}
+
+/**
+ * Hide a role from the Live-roles feed because the user explicitly said it wasn't for
+ * them. Keyed by exact title+company (de-duplicated), kept to a recent window. Used
+ * ONLY on a genuine "not for me" — never on a tidying/administrative removal.
+ */
+export async function addHiddenRole(
+  supabase: SupabaseClient,
+  userId: string,
+  title: string,
+  company: string
+): Promise<ProfileData> {
+  const t = title.trim();
+  if (!t) return getProfile(supabase, userId);
+  const c = company.trim();
+
+  const existing = await getProfile(supabase, userId);
+  const hidden = Array.isArray(existing.hiddenRoles) ? [...existing.hiddenRoles] : [];
+
+  // Shared canonicaliser (lib/role-key) — must match the client hide filter exactly.
+  if (hidden.some((h) => roleKey(h.title, h.company) === roleKey(t, c))) return existing;
+
+  hidden.push({ title: t, company: c, at: new Date().toISOString() });
+  return patchProfile(supabase, userId, { hiddenRoles: hidden.slice(-100) });
 }
 
 /**

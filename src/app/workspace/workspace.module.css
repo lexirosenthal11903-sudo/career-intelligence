@@ -826,6 +826,33 @@
 .appStageSaved { color: var(--ink-3); background: transparent; border: 1px solid var(--line); }
 .appStageLive { color: var(--ink-2); background: var(--panel-2); }
 .appStageOffer { color: var(--green); background: var(--green-soft); }
+.appStageClosed { color: var(--ink-3); background: transparent; border: 1px solid var(--line); }
+
+/* Closed applications — rejected / set aside. Quiet, collapsed by default so an
+   anxious user never opens to a wall of "didn't get it". The outcome stays as a
+   real record (intelligence + an honest history); it just doesn't sit on the
+   active board. Soft label, never the bare word "Rejected". */
+.closedGroup { margin-top: 14px; border-top: 1px solid var(--line); }
+.closedSummary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 2px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.closedSummary::-webkit-details-marker { display: none; }
+.closedSummary::after {
+  content: "›";
+  margin-left: auto;
+  transition: transform 0.15s ease;
+  font-size: 15px;
+}
+.closedGroup[open] .closedSummary::after { transform: rotate(90deg); }
+.closedGroup .job { opacity: 0.72; }
 .jrev {
   flex-shrink: 0;
   font-size: 12.5px;

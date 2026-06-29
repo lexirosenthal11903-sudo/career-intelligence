@@ -18,7 +18,7 @@ const sendIcon = (
   </svg>
 );
 
-type Stage = "preparing" | "applied" | "interview" | "offer" | "archive";
+type Stage = "preparing" | "applied" | "interview" | "offer" | "rejected" | "archive";
 
 const NEXT_STAGE: Partial<Record<Stage, Stage>> = {
   preparing: "applied",
@@ -58,7 +58,14 @@ const STAGE_BADGE: Record<Stage, string> = {
   applied: s.badgeApplied,
   interview: s.badgeInterview,
   offer: s.badgeOffer,
+  rejected: s.badgeArchive,
   archive: s.badgeArchive,
+};
+
+// Soft display labels — never the bare word "Rejected" (rejection-fatigue research).
+const STAGE_DISPLAY: Partial<Record<Stage, string>> = {
+  rejected: "Not this time",
+  archive: "Set aside",
 };
 
 export default function ApplicationsPage() {
@@ -186,12 +193,14 @@ export default function ApplicationsPage() {
     return acc;
   }, {} as Record<string, number>);
 
-  const activeCount = applications.filter((a) => (stages[a.job_id] ?? a.stage) !== "archive").length;
+  // Closed outcomes (rejected/archive) don't count as active and sit under "archive".
+  const isClosed = (stage: string) => stage === "archive" || stage === "rejected";
+  const activeCount = applications.filter((a) => !isClosed(stages[a.job_id] ?? a.stage)).length;
 
   const visible = applications.filter((app) => {
     const stage = stages[app.job_id] ?? app.stage;
-    if (activeFilter === "archive") return stage === "archive";
-    if (activeFilter === "all") return stage !== "archive";
+    if (activeFilter === "archive") return isClosed(stage);
+    if (activeFilter === "all") return !isClosed(stage);
     return stage === activeFilter;
   });
 
@@ -345,7 +354,7 @@ export default function ApplicationsPage() {
                         </div>
                       </div>
                       <span className={`${s.stageBadge} ${STAGE_BADGE[currentStage]}`}>
-                        {currentStage.charAt(0).toUpperCase() + currentStage.slice(1)}
+                        {STAGE_DISPLAY[currentStage] ?? currentStage.charAt(0).toUpperCase() + currentStage.slice(1)}
                       </span>
                     </div>
 
