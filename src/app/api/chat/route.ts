@@ -98,6 +98,12 @@ async function buildUserContext(
     else missing.push("what they wouldn't accept (their deal-breakers)");
     if (p.aspiration) parts.push(`Their 2-year aspiration: ${p.aspiration}`);
     else missing.push('where they want to be in a couple of years');
+    // Salary — surfaced so the advisor never re-asks something it already holds.
+    if (p.salaryFloor || p.salaryCeiling) {
+      const floor = p.salaryFloor ? `from ${p.salaryFloor}` : '';
+      const ceiling = p.salaryCeiling ? `up to ${p.salaryCeiling}` : '';
+      parts.push(`What they're looking for on salary: ${[floor, ceiling].filter(Boolean).join(' ')} — you already know this, don't ask them for it again.`);
+    } else missing.push('what they need / want on salary');
     const ws = p.workStyle;
     if (!(ws?.preference || ws?.teamSize || ws?.companyStage))
       missing.push('how they like to work (team size, company stage, pace)');
@@ -131,6 +137,36 @@ async function buildUserContext(
           .map((j) => `${j.title}${j.company ? ` at ${j.company}` : ''}`)
           .join('; ');
         parts.push(`Roles they've saved to their applications (this list updates the instant they save one — some may have been saved seconds ago, in this very conversation): ${titles}. If they tell you they're interested in one of these, they are confirming it to you right now — engage with that fresh decision and help them with it; never tell them they've "already done that".`);
+        // The real board, WITH each role's stage — this is the source of truth, more
+        // current than your memory of the conversation. Aligns what you say with what
+        // the user actually sees on their Applications board (Lexi, 2026-06-29).
+        try {
+          const { data: apps } = await supabase
+            .from('saved_applications')
+            .select('job_data, stage')
+            .eq('user_id', userId);
+          const STAGE_WORDS: Record<string, string> = {
+            saved: 'saved, not applied yet',
+            preparing: 'preparing the application',
+            applied: 'applied, waiting to hear',
+            interview: 'at interview stage',
+            offer: 'has an OFFER',
+            rejected: "didn't get it (a no)",
+            archive: 'set aside',
+          };
+          const board = (apps ?? [])
+            .map((a) => {
+              const jd = a.job_data as { title?: string; company?: string };
+              if (!jd?.title) return null;
+              return `${jd.title}${jd.company ? ` at ${jd.company}` : ''} — ${STAGE_WORDS[a.stage as string] ?? a.stage}`;
+            })
+            .filter(Boolean);
+          if (board.length) {
+            parts.push(`Where each of their applications ACTUALLY stands right now — this is their real board, trust it over your memory of the conversation: ${board.join('; ')}. Never tell them they have an offer or an interview that isn't on this board; if they tell you an application moved, call set_application_stage so the board stays true. If something here looks out of date versus what they just said, update it rather than contradicting them.`);
+          }
+        } catch {
+          // board read is best-effort — the saved list above still stands
+        }
         // The 3 most recent carry their detail so you already hold the listing —
         // never re-ask the user for a job description you've been given here.
         const recent = saved.slice(0, 3).filter((j) => j.description || j.relevanceReason);

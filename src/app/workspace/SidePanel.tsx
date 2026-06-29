@@ -724,6 +724,15 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
         )}
       </div>
 
+      {/* Why this closed — the note captured from the conversation when it was closed,
+          so they can remind themselves later. Only on a closed role, only if we have one. */}
+      {CLOSED_STAGES.has(stage) && (job as { closeReason?: string }).closeReason && (
+        <div className={s.rdSection}>
+          <div className={s.rdLabel}>Why this closed</div>
+          <p className={s.rdText}>{(job as { closeReason?: string }).closeReason}</p>
+        </div>
+      )}
+
       {job.relevanceReason && (
         <div className={s.rdSection}>
           <div className={s.rdLabel}>Why this fits you</div>

@@ -195,6 +195,20 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
   - **Still open from the themes (NOT this batch):** B-#5 filter by stage · B-#6 offer/decline sections · B-#7 fuller
     per-application hub · C-#8 overlay scrollbar · C-#9 collapsible sidebar · C-#10 click-a-direction-opens · C-#12 per-day feed.
 
+- **▶ SESSION 43 LIVE-TEST FINDINGS (Lexi + Claude-in-Chrome, 2026-06-29) — 5/6 again; rejection MESSAGE path still weak.**
+  The state model (Closed area, ask-why x2, hide, no-tab-yank, auto-scroll, name) all PASS. Root cause of the rest =
+  **two tables drift:** `saved_jobs` (advisor context + nav count read this) has no `stage`; `saved_applications` (the
+  board) does. Addressed in the **alignment batch** (advisor reads the real board stages + salary; nav count = live
+  apps only; why-closed note). **DEFERRED to the rejection-path stability + voice beat (next):**
+  - 🔴 **Rejection care mistimed/garbled** — on a definite no, the care landed two turns late, pivoted to an offer
+    first, and leaked instruction text ("acknowledge the IT Career Switch no properly"). The arc exists but isn't
+    sequenced first; the long WEIGHT guidance in the tool result is being parroted. Needs prompt-stability work + logs.
+  - 🔴 **Wrong-role stage match** — saving "Event Content Coordinator" threw a spurious "Moved 'Trainee Business
+    Analyst' → rejected". `set_application_stage` fuzzy substring matcher hit the wrong saved row (or the model
+    mis-fired the tool). Tighten matching + investigate with real logs.
+  - 🔴 **"Something went wrong" + a green action log together** — the error path and a committed action shown at once.
+    Transient retry helped but didn't fully close it; reproduce with logs (likely a non-transient mid-loop error).
+
 - **✅ SESSION 43 (2026-06-29) — addressed the Session-42 findings below (built, awaiting Lexi's live test).**
   Real `rejected` stage + quiet Closed area (soft "Not this time" label, archive mislabel fixed); transient-failure
   robustness in the tool loop (the rejection bug's root cause); conversational ask-why on remove + reason-routed

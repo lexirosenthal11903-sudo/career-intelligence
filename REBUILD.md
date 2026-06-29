@@ -25,6 +25,24 @@ real data layer, error visibility) were both skipped. Everything else is a sympt
 
 ---
 
+## ✅ BUILT 2026-06-29 (Session 43b) — advisor↔board alignment (Lexi's live-test findings)
+
+Root cause Lexi spotted: two tables drift. `saved_jobs` (advisor context + nav count read it) has no `stage`;
+`saved_applications` (the board) does. Verified: tsc + lint + build green; 19/19 tests; `eval:advisor` all hard
+rules held (29 personas); one review agent (zero findings). **Pushed to staging.**
+- **Advisor reads the real board.** `buildUserContext` (`/api/chat`) now also reads `saved_applications` and tells the
+  advisor where each application ACTUALLY stands (offer / interview / "didn't get it" / set aside), as the source of
+  truth over its memory — so it stops confabulating an offer that isn't on the board. Salary (`salaryFloor/Ceiling`)
+  now surfaced too, so it never re-asks what it already holds.
+- **Nav count = live applications only.** `useNavProgress` count + Recent now read `/api/applications` and exclude
+  closed stages (rejected/archive) — a closed role drops out of the badge and Recent, matching the board.
+- **Why-closed note.** `set_application_stage` gained an optional `reason`; for rejected/archive it merges
+  `closeReason` into `job_data` (never clobbers the user's notes). The saved-role detail shows a "Why this closed"
+  section so the user can remind themselves. Prep (tailored CV / cover letter) is already retained for closed roles —
+  only Remove deletes it.
+- **STILL DEFERRED (rejection-path stability + voice beat, next):** mistimed/garbled rejection care, the wrong-role
+  `set_application_stage` fuzzy match, and the "error + green action log" race. Needs systematic debugging with logs.
+
 ## ✅ BUILT 2026-06-29 (Session 43) — the rejection moment, done properly (state model + bugs)
 
 Fixes the rejection path the Session-42 live test caught, grounded in `research/rejection-state-model-research.md`

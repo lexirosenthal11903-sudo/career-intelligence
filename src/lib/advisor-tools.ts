@@ -133,6 +133,7 @@ export const ADVISOR_TOOLS = [
       properties: {
         jobTitle: { type: 'string', description: 'The title (and optionally company) of the saved application to move.' },
         stage: { type: 'string', enum: ['saved', 'preparing', 'applied', 'interview', 'offer', 'rejected', 'archive'], description: "The new stage. Use 'rejected' when they got a definite no (applied/interviewed then turned down) — this keeps the application as a real record, it does NOT delete it. Use 'archive' only when they're quietly setting one aside, not a rejection." },
+        reason: { type: 'string', description: "When moving to 'rejected' or 'archive', a short note on WHY it closed, in their terms — the feedback they got, or 'no feedback given', or why they set it aside. Stored against the role so they can remind themselves later. Keep it brief and factual; omit for other stages." },
       },
       required: ['jobTitle', 'stage'],
     },
@@ -419,9 +420,17 @@ export async function executeAdvisorTool(
         });
         if (!match)
           return { content: `No saved application matches "${input.jobTitle}". Save the role first.`, isError: true };
+        // When closing (rejected/archive), store a short why-it-closed note against the
+        // role so the user can remind themselves later (Lexi, 2026-06-29). Merged into
+        // job_data so it travels with the role; never clobbers their own notes field.
+        const reason = String(input.reason ?? '').trim().slice(0, 500);
+        const update: { stage: string; job_data?: Record<string, unknown> } = { stage };
+        if (reason && (stage === 'rejected' || stage === 'archive')) {
+          update.job_data = { ...(match.job_data as Record<string, unknown>), closeReason: reason };
+        }
         const { error } = await supabase
           .from('saved_applications')
-          .update({ stage })
+          .update(update)
           .eq('user_id', userId)
           .eq('job_id', match.job_id);
         if (error) return { content: `Couldn't update the stage: ${error.message}`, isError: true };

@@ -22,13 +22,6 @@ export interface RecentRole {
   title: string;
 }
 
-interface SavedJob {
-  id?: string | number;
-  status?: string;
-  title?: string;
-  company?: string;
-}
-
 export function useNavProgress() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [user, setUser] = useState<NavUser | null>(null);
@@ -52,26 +45,33 @@ export function useNavProgress() {
     return () => { cancelled = true; };
   }, [supabase]);
 
-  // Recent = flagged-interested roles, newest first. Refetch on change.
+  // Recent + count come from the real Applications board (saved_applications), so the
+  // nav reflects LIVE applications only — a closed/rejected role drops out of both the
+  // count and Recent, matching what the user sees on the board. Newest first.
   useEffect(() => {
     let cancelled = false;
+    const CLOSED = new Set(["rejected", "archive"]);
     async function load() {
       try {
-        const res = await fetch("/api/save-job");
+        const res = await fetch("/api/applications");
         if (!res.ok) return;
         const data = await res.json();
-        const saved: SavedJob[] = data.jobs || [];
-        const interested = saved
-          .filter((j) => j.status === "interested" && (j.company || j.title))
-          .map((j) => ({
-            id: String(j.id ?? `${j.company}-${j.title}`),
-            company: j.company || j.title || "",
-            title: j.company ? j.title || "" : "",
-          }))
-          .reverse();
+        type AppRow = { job_id?: string | number; stage?: string; job_data?: { company?: string; title?: string } };
+        const apps: AppRow[] = data.applications || [];
+        const live = apps
+          .filter((a) => !CLOSED.has(a.stage ?? "saved"))
+          .map((a) => {
+            const jd = a.job_data ?? {};
+            return {
+              id: String(a.job_id ?? `${jd.company}-${jd.title}`),
+              company: jd.company || jd.title || "",
+              title: jd.company ? jd.title || "" : "",
+            };
+          })
+          .filter((r) => r.company || r.title);
         if (!cancelled) {
-          setApplicationsCount(interested.length);
-          setRecent(interested.slice(0, 3));
+          setApplicationsCount(live.length);
+          setRecent(live.slice(0, 3));
         }
       } catch {
         /* nav "Recent" simply stays empty */
