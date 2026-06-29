@@ -195,6 +195,33 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
   - **Still open from the themes (NOT this batch):** B-#5 filter by stage · B-#6 offer/decline sections · B-#7 fuller
     per-application hub · C-#8 overlay scrollbar · C-#9 collapsible sidebar · C-#10 click-a-direction-opens · C-#12 per-day feed.
 
+- **▶ SESSION 42 LIVE-TEST FINDINGS (Claude-in-Chrome, 2026-06-29) — 5/6 passed; rolled to next batch.**
+  The live test caught what the headless gate could not. Receipts:
+  - 🔴 **BUG (priority) — rejection path.** "I didn't get that role, they didn't say why" → advisor returned a
+    generic error ("Something went wrong on my end") with NO care, AND underneath still acted: archived the role and
+    the pill reset from "Interview" to "Saved". Two causes: (1) **likely a transient Anthropic API error mid-tool-loop**
+    — an earlier round's `set_application_stage('archive')` had already committed, then a later `callClaude` round
+    returned non-OK, so the side effect persisted while the user got an error and no acknowledgement (robustness flaw:
+    a partial tool action with no caring reply). (2) **`STAGE_LABELS` has no `archive` entry**, so an archived role's
+    pill falls back to "Saved" (confirmed in `SidePanel.tsx`). Plus a design gap: rejection auto-maps to `archive`,
+    which DISCARDS the "applied/interviewed then rejected" signal — we may need a real `rejected`/`unsuccessful`
+    stage, not archive (intelligence value — see below). FIRST item of the next batch.
+  - 🔴 **BUG — advisor called Lexi "Alex"** unprompted (she never said so; likely shortened a formal account name, or
+    hallucinated). Prompt already says ask before shortening — adherence/voice gap.
+  - 🔴 **BUG — chat does not auto-scroll** to the newest message when she types (pre-existing; reconfirmed live).
+  - 🔴 **BUG — stale "✓ In Applications" badge in Live roles.** After removing a role from Applications, its Live-roles
+    card still shows "✓ In Applications" (the RolesList `inApps`/interested set loads once, doesn't listen for
+    `ci:application-changed`). Fix: refresh it on the event, like the other surfaces.
+  - 🟡 **FEATURE (intelligence) — ask WHY on remove/reject.** When a user removes an application or doesn't get a role,
+    the mentor should (gently) ask why — that's exactly the data that sharpens what roles it puts forward next.
+    Compounding-intelligence principle: every action feeds the platform's understanding. Pairs with the rejection fix.
+  - 🟡 **DESIGN Q — should removing from Applications also remove/flag it in Live roles?** Circumstantial (they may
+    just be tracking-tidying, or genuinely not interested). Lexi: "assuming it has to be circumstantial." Decide with
+    the ask-why data — a "not interested" reason could hide it from Live roles; a "tidying" reason keeps it.
+  - 🟣 **VOICE (fine-tune pass) — offer enthusiasm too flat.** On the offer, the mentor was measured but "did not
+    express much enthusiasm." Pairs with the rejection-voice tuning as one "outcomes voice" beat (build vs fine-tune:
+    do the voice tuning in a deliberate pass, not interleaved).
+
 - **▶ NEXT-SESSION CANDIDATES — Lexi end-of-session idea dump (2026-06-29).** Captured verbatim; grill +
   group into batches next session. Several cluster into themes (noted). ⚠️ A few already partly exist — verify
   before rebuilding.
