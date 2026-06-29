@@ -69,15 +69,18 @@
 .nitem.on svg { color: var(--accent); }
 .nitem.locked { opacity: 0.42; cursor: default; }
 .nitem.locked:hover { background: transparent; }
+/* Count badges are NEUTRAL, never amber — amber is reserved for primary button,
+   user chat bubbles, and active nav only (locked design rule). */
 .nitem .ct {
   margin-left: auto;
   font-size: 11px;
   font-weight: 600;
-  color: #fff;
-  background: var(--accent);
+  color: var(--ink-2);
+  background: var(--panel-2);
   border-radius: 99px;
   padding: 1px 7px;
 }
+.nitem.on .ct { color: var(--accent); background: var(--surface); }
 .nitem .new {
   margin-left: auto;
   font-size: 10px;
@@ -809,6 +812,35 @@
   border-radius: 99px;
 }
 .jfit.good { color: var(--ink-3); background: var(--panel-2); }
+
+/* "In Applications" status on a live-role card — quiet success, never amber. */
+.jInApps {
+  margin-top: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  background: var(--green-soft);
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+
+/* Application stage pill (Applications list). Saved reads quietest (ghost); the
+   live stages carry weight (filled neutral); an offer is the win (success token). */
+.appStage {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+.appStageSaved { color: var(--ink-3); background: transparent; border: 1px solid var(--line); }
+.appStageLive { color: var(--ink-2); background: var(--panel-2); }
+.appStageOffer { color: var(--green); background: var(--green-soft); }
 .jrev {
   flex-shrink: 0;
   font-size: 12.5px;

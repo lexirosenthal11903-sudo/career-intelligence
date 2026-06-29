@@ -33,6 +33,8 @@ export function useNavProgress() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [user, setUser] = useState<NavUser | null>(null);
   const [recent, setRecent] = useState<RecentRole[]>([]);
+  // Total roles the user has taken into Applications — drives the nav count badge.
+  const [applicationsCount, setApplicationsCount] = useState(0);
 
   // Who's here.
   useEffect(() => {
@@ -66,9 +68,11 @@ export function useNavProgress() {
             company: j.company || j.title || "",
             title: j.company ? j.title || "" : "",
           }))
-          .reverse()
-          .slice(0, 3);
-        if (!cancelled) setRecent(interested);
+          .reverse();
+        if (!cancelled) {
+          setApplicationsCount(interested.length);
+          setRecent(interested.slice(0, 3));
+        }
       } catch {
         /* nav "Recent" simply stays empty */
       }
@@ -81,5 +85,5 @@ export function useNavProgress() {
     };
   }, []);
 
-  return { user, recent };
+  return { user, recent, applicationsCount };
 }

@@ -36,7 +36,7 @@ export default function LeftNav({
   rolesCount?: number;
 }) {
   const first = variant === "first";
-  const { user, recent } = useNavProgress();
+  const { user, recent, applicationsCount } = useNavProgress();
   const cls = (view: PanelView) => `${s.nitem} ${activeView === view ? s.on : ""}`;
 
   const initial = first ? "" : user?.initial ?? "";
@@ -76,7 +76,7 @@ export default function LeftNav({
       </button>
 
       <button className={cls("roles")} type="button" onClick={() => onNavigate?.("roles")}>
-        <RolesIcon /> Roles
+        <RolesIcon /> Live roles
         {first ? (
           <span className={s.new}>new</span>
         ) : rolesCount != null && rolesCount > 0 ? (
@@ -91,6 +91,7 @@ export default function LeftNav({
         onClick={() => onNavigate?.("applications")}
       >
         <ApplicationsIcon /> Applications
+        {!first && applicationsCount > 0 && <span className={s.ct}>{applicationsCount}</span>}
       </button>
 
       <button

@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   const { error } = await supabase
     .from('saved_applications')
     .upsert(
-      { user_id: user.id, job_id: jobId, job_data: jobData, stage: 'preparing' },
+      { user_id: user.id, job_id: jobId, job_data: jobData, stage: 'saved' },
       { onConflict: 'user_id,job_id' }
     );
 
@@ -45,7 +45,7 @@ export async function PATCH(request: Request) {
 
   const update: { stage?: string; notes?: string } = {};
   if (stage !== undefined) {
-    const VALID_STAGES = ['preparing', 'applied', 'interview', 'offer', 'archive'];
+    const VALID_STAGES = ['saved', 'preparing', 'applied', 'interview', 'offer', 'archive'];
     if (!VALID_STAGES.includes(stage)) {
       return NextResponse.json({ error: 'Invalid stage' }, { status: 400 });
     }

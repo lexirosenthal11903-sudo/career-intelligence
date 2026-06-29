@@ -111,7 +111,7 @@ export const ADVISOR_TOOLS = [
   {
     name: 'save_job',
     description:
-      "Save a specific role for this person so it's waiting in their applications when they're ready. Call this when they express genuine interest in a particular role you've discussed — not speculatively. It also starts that role in their application tracker at the 'preparing' stage.",
+      "Save a specific role for this person so it's waiting in their applications when they're ready. Call this when they express genuine interest in a particular role you've discussed — not speculatively. It also starts that role in their application tracker at the 'saved' stage (they haven't applied yet).",
     input_schema: {
       type: 'object',
       properties: {
@@ -131,7 +131,7 @@ export const ADVISOR_TOOLS = [
       type: 'object',
       properties: {
         jobTitle: { type: 'string', description: 'The title (and optionally company) of the saved application to move.' },
-        stage: { type: 'string', enum: ['preparing', 'applied', 'interview', 'offer', 'archive'], description: 'The new stage.' },
+        stage: { type: 'string', enum: ['saved', 'preparing', 'applied', 'interview', 'offer', 'archive'], description: 'The new stage.' },
       },
       required: ['jobTitle', 'stage'],
     },
@@ -352,12 +352,12 @@ export async function executeAdvisorTool(
           .from('saved_jobs')
           .upsert({ user_id: userId, job_id: jobId, job_data: jobData }, { onConflict: 'user_id,job_id' });
         if (jErr) return { content: `Couldn't save the job: ${jErr.message}`, isError: true };
-        // Mirror into the application tracker at 'preparing', matching the save-job route.
+        // Mirror into the application tracker at 'saved', matching the save-job route.
         await supabase
           .from('saved_applications')
-          .upsert({ user_id: userId, job_id: jobId, job_data: jobData, stage: 'preparing' }, { onConflict: 'user_id,job_id' });
+          .upsert({ user_id: userId, job_id: jobId, job_data: jobData, stage: 'saved' }, { onConflict: 'user_id,job_id' });
         return {
-          content: `Saved "${title}"${company ? ` at ${company}` : ''} and started it in the tracker (preparing).`,
+          content: `Saved "${title}"${company ? ` at ${company}` : ''} and added it to their applications (saved — not applied yet).`,
           action: `Saved "${title}"${company ? ` at ${company}` : ''}`,
         };
       }
@@ -365,7 +365,7 @@ export async function executeAdvisorTool(
       case 'set_application_stage': {
         const query = String(input.jobTitle ?? '').trim().toLowerCase();
         const stage = String(input.stage ?? '').trim();
-        const VALID = ['preparing', 'applied', 'interview', 'offer', 'archive'];
+        const VALID = ['saved', 'preparing', 'applied', 'interview', 'offer', 'archive'];
         if (!query || !VALID.includes(stage)) return { content: 'Need a job to match and a valid stage.', isError: true };
         const { data: apps } = await supabase
           .from('saved_applications')

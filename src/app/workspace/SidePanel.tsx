@@ -41,13 +41,11 @@ export default function SidePanel({
   savedJobId,
   data,
   onClose,
-  onOpenRoles,
 }: {
   view: PanelView;
   savedJobId?: string | null;
   data: ReturnType<typeof usePanelJobs>;
   onClose: () => void;
-  onOpenRoles?: () => void;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const { profile, hasResult, jobs, jobsLoading, jobsError, retry, markSeen } = data;
@@ -137,9 +135,13 @@ export default function SidePanel({
 
       {view === "direction" && <DirectionView profile={profile} hasResult={hasResult} />}
       {view === "documents" && <DocumentsView />}
-      {view === "saved" && <SavedJobDetail jobId={savedJobId ?? null} onOpenRoles={onOpenRoles} />}
       {view === "profile" && <ProfileView analysisProfile={profile} />}
-      {view === "applications" && <ApplicationsView />}
+      {/* A saved role IS an application — opening one from "Recent" lands inside
+          Applications (preselected), never a separate surface. Keyed so changing the
+          target role while already on Applications re-opens the right one. */}
+      {view === "applications" && (
+        <ApplicationsView key={savedJobId ?? "list"} initialJobId={savedJobId ?? null} />
+      )}
 
     </aside>
   );
@@ -310,9 +312,9 @@ function RolesList({
         {!jobsLoading && !jobsError && total > 0 && (
           <>
             {strong.length > 0 && <div className={s.grp}>Strong fit</div>}
-            {strong.map((j) => <JobRow key={String(j.id)} job={j} strong onReview={onReview} />)}
+            {strong.map((j) => <JobRow key={String(j.id)} job={j} strong inApps={interested.has(String(j.id))} onReview={onReview} />)}
             {good.length > 0 && <div className={s.grp}>Good fit</div>}
-            {good.map((j) => <JobRow key={String(j.id)} job={j} strong={false} onReview={onReview} />)}
+            {good.map((j) => <JobRow key={String(j.id)} job={j} strong={false} inApps={interested.has(String(j.id))} onReview={onReview} />)}
             {hasMore && (
               <button className={s.showMore} type="button" onClick={() => setVisible((v) => v + INITIAL_VISIBLE)}>
                 Show me more roles ({total - visible} more)
@@ -325,7 +327,7 @@ function RolesList({
   );
 }
 
-function JobRow({ job, strong, onReview }: { job: PanelJob; strong: boolean; onReview: (j: PanelJob) => void }) {
+function JobRow({ job, strong, inApps, onReview }: { job: PanelJob; strong: boolean; inApps: boolean; onReview: (j: PanelJob) => void }) {
   const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
   const meta = [job.company, job.location, job.salary].filter((x) => x && x !== "Not listed").join(" · ");
   return (
@@ -343,7 +345,11 @@ function JobRow({ job, strong, onReview }: { job: PanelJob; strong: boolean; onR
           {job.isNew && <span className={s.newPill}>New</span>}
         </div>
         <div className={s.jc}>{meta}</div>
-        <span className={`${s.jfit} ${strong ? "" : s.good}`}>{strong ? "Strong fit" : "Good fit"}</span>
+        {/* Once a role is in Applications, say so on the card so it never reads as
+            "not yet acted on" — the fit label gives way to the status. */}
+        {inApps
+          ? <span className={s.jInApps}>✓ In Applications</span>
+          : <span className={`${s.jfit} ${strong ? "" : s.good}`}>{strong ? "Strong fit" : "Good fit"}</span>}
       </div>
       <span className={s.jrev}>View <ChevronIcon /></span>
     </button>
@@ -468,6 +474,7 @@ interface SavedApplication {
 }
 
 const STAGES: Array<{ key: string; label: string }> = [
+  { key: "saved", label: "Saved" },
   { key: "preparing", label: "Preparing" },
   { key: "applied", label: "Applied" },
   { key: "interview", label: "Interview" },
@@ -489,7 +496,7 @@ function relativeTime(iso: string): string {
 function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { jobId: string | null; onOpenRoles?: () => void; backLabel?: string }) {
   const [app, setApp] = useState<SavedApplication | null>(null);
   const [loading, setLoading] = useState(true);
-  const [stage, setStage] = useState<string>("preparing");
+  const [stage, setStage] = useState<string>("saved");
   const [note, setNote] = useState("");
   const [noteSaved, setNoteSaved] = useState(false);
   const [jobDocs, setJobDocs] = useState<DocumentRecord[]>([]);
@@ -510,7 +517,7 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
         );
         if (cancelled) return;
         setApp(found ?? null);
-        if (found) { setStage(found.stage || "preparing"); setNote(found.notes || ""); }
+        if (found) { setStage(found.stage || "saved"); setNote(found.notes || ""); }
       } catch {
         if (!cancelled) setApp(null);
       } finally {
@@ -577,7 +584,7 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles" }: { job
       <div className={s.sideB}>
         {backBtn}
         <div className={s.panelEmpty}>
-          <p>I couldn&rsquo;t find that saved role — it may have been removed. Your saved roles are all in Roles.</p>
+          <p>I couldn&rsquo;t find that role — it may have been removed. Everything you&rsquo;ve saved lives in Applications.</p>
         </div>
       </div>
     );
@@ -993,16 +1000,17 @@ interface ApplicationListItem {
 }
 
 const STAGE_LABELS: Record<string, string> = {
+  saved: "Saved",
   preparing: "Preparing",
   applied: "Applied",
   interview: "Interview",
   offer: "Offer",
 };
 
-function ApplicationsView() {
+function ApplicationsView({ initialJobId = null }: { initialJobId?: string | null }) {
   const [apps, setApps] = useState<ApplicationListItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(initialJobId);
 
   useEffect(() => {
     let cancelled = false;
@@ -1048,7 +1056,14 @@ function ApplicationsView() {
         {!loading && apps.map((app) => {
           const job = app.job_data;
           const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
-          const stageLabel = STAGE_LABELS[app.stage] ?? "Preparing";
+          const stageLabel = STAGE_LABELS[app.stage] ?? "Saved";
+          // Saved reads quietest; once you've actually applied it carries more weight;
+          // an offer is the win, so it gets the success token. (Evidence: anxious
+          // low-volume users shouldn't see "saved" and "applied" at the same weight.)
+          const stageClass =
+            app.stage === "offer" ? s.appStageOffer
+            : app.stage === "saved" ? s.appStageSaved
+            : s.appStageLive;
           return (
             <button
               key={app.job_id}
@@ -1062,11 +1077,11 @@ function ApplicationsView() {
                 initial={initial}
                 className={s.jlogo}
               />
-              <div className={s.jinfo}>
-                <div className={s.jtitle}>{job.title}</div>
-                <div className={s.jmeta}>{job.company}{job.location ? ` · ${job.location}` : ""}</div>
+              <div className={s.jmid}>
+                <div className={s.jt}>{job.title}</div>
+                <div className={s.jc}>{job.company}{job.location ? ` · ${job.location}` : ""}</div>
               </div>
-              <span className={`${s.jfit} ${s.good}`} style={{ flexShrink: 0 }}>{stageLabel}</span>
+              <span className={`${s.appStage} ${stageClass}`}>{stageLabel}</span>
             </button>
           );
         })}
@@ -1145,31 +1160,38 @@ function DocumentsView() {
     return () => window.removeEventListener("ci:open-documents", load);
   }, []);
 
-  const tailoredCvs = docs.filter((d) => d.type === "cv_tailored");
+  // The library is the all-files view: every tailored CV AND cover letter, newest first.
+  // (Cover letters also live under their job in Applications — this is the cross-job home.)
+  const files = docs.filter((d) => d.type === "cv_tailored" || d.type === "cover_letter");
 
   return (
     <>
       <div className={s.sideH}>
         <div className={s.ti}><h3>Documents</h3></div>
-        <div className={s.sub}>Tailored CVs and drafts — always here to find again</div>
+        <div className={s.sub}>Every tailored CV and cover letter — always here to find again</div>
       </div>
       <div className={s.sideB}>
         {loading && [0, 1].map((i) => (
           <div key={i} className={`${s.job} ${s.skeleton}`} style={{ height: "66px" }} />
         ))}
 
-        {!loading && tailoredCvs.length === 0 && (
+        {!loading && files.length === 0 && (
           <div className={s.panelEmpty}>
-            <p>Nothing here yet. Ask me to tailor your CV for a role and it&rsquo;ll live here — always findable, never lost.</p>
+            <p>Nothing here yet. Ask me to tailor your CV or write a cover letter for a role and it&rsquo;ll live here — always findable, never lost.</p>
           </div>
         )}
 
-        {!loading && tailoredCvs.map((doc) => {
+        {!loading && files.map((doc) => {
+          const isCover = doc.type === "cover_letter";
+          const kind = isCover ? "Cover letter" : "CV";
           const title = doc.metadata?.jobTitle
-            ? `CV — ${doc.metadata.jobTitle}${doc.metadata.jobCompany ? ` at ${doc.metadata.jobCompany}` : ""}`
-            : "Tailored CV";
+            ? `${kind} — ${doc.metadata.jobTitle}${doc.metadata.jobCompany ? ` at ${doc.metadata.jobCompany}` : ""}`
+            : isCover ? "Cover letter" : "Tailored CV";
           const isOpen = expanded === doc.id;
-          const changes = doc.metadata?.changes ?? [];
+          const points = isCover
+            ? ((doc.metadata as { notes?: string[] })?.notes ?? [])
+            : (doc.metadata?.changes ?? []);
+          const pointsLabel = isCover ? "What I emphasised and why" : "What I changed and why";
 
           return (
             <div key={doc.id} className={s.docCard}>
@@ -1195,11 +1217,11 @@ function DocumentsView() {
 
               {isOpen && (
                 <>
-                  {changes.length > 0 && (
+                  {points.length > 0 && (
                     <div className={s.docChanges}>
-                      <div className={s.rdLabel}>What I changed and why</div>
+                      <div className={s.rdLabel}>{pointsLabel}</div>
                       <ul className={s.rlist}>
-                        {changes.map((c, i) => <li key={i}>{c}</li>)}
+                        {points.map((c, i) => <li key={i}>{c}</li>)}
                       </ul>
                     </div>
                   )}

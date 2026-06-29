@@ -130,10 +130,11 @@ function ReturningWorkspace() {
     setPanelOpen(true);
   }
 
-  // Opening a saved role from "Recent" → the saved-job detail view.
+  // Opening a saved role from "Recent" → its hub inside Applications (a saved role
+  // IS an application, so it lands in the one place, never a separate "saved" surface).
   function openSaved(id: string) {
     setSavedJobId(id);
-    setPanelView("saved");
+    setPanelView("applications");
     setPanelOpen(true);
   }
 
@@ -162,7 +163,7 @@ function ReturningWorkspace() {
             {split && <Separator className={s.divider} />}
             {split && (
               <Panel id="side" defaultSize="48%" minSize="340px" className={s.pane}>
-                <SidePanel view={panelView} savedJobId={savedJobId} data={panelJobs} onClose={() => setPanelOpen(false)} onOpenRoles={() => openSurface("roles")} />
+                <SidePanel view={panelView} savedJobId={savedJobId} data={panelJobs} onClose={() => setPanelOpen(false)} />
               </Panel>
             )}
           </Group>
