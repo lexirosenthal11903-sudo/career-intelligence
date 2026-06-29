@@ -129,7 +129,7 @@ as abstract texture. Final name + advisor identity deferred to a dedicated ident
 - `main` — production. Never push directly. Never merge without explicit instruction from Lexi.
 - `staging` — all work happens here, and is the production branch (every push updates `career-intelligence-xi.vercel.app`). Workflow: commit → push → Lexi tests on the live URL at flow milestones → Lexi confirms before any merge to main.
 - **Before any merge discussion:** run `/deploy-check`. Always.
-- GitHub token was exposed in a session — needs rotation. Lexi deferred (on the pre-launch list).
+- GitHub token was exposed in a session; rotated (new PAT) and the OLD token revoked (Lexi reports done 2026-06-29).
 
 ## Orientation — read at session start
 
@@ -169,10 +169,12 @@ people who don't know yet. **The advisor is the product; job listings are a util
 you jobs."** Evolution: B2C self-discovery → university partnerships (Phase 4) → employer network (Phase 5+).
 Don't build for universities yet — have ONE conversation first. B2C must prove itself before B2B.
 
-**Pre-launch non-negotiables (Lexi to handle — not deferred to build sessions):**
+**Pre-launch non-negotiables (Lexi to handle — not deferred to build sessions).** These are LAUNCH-time
+tasks: do NOT proactively nag Lexi about them between now and launch prep — she'll signal when she's
+launching. Only resurface this list when Lexi raises launch.
 - ⬜ Add `REED_API_KEY` to Vercel Production + Preview env vars
-- ⬜ ICO registration (ico.org.uk/registration, £40/year)
-- 🔶 GitHub token: new PAT in keychain; **still TODO: revoke the OLD exposed token** at github.com/settings/tokens
+- ⏸ ICO registration (ico.org.uk/registration, £40/year) — **not yet; Lexi isn't launching.** Do at launch.
+- ✅ GitHub token: new PAT in keychain; **OLD exposed token revoked (Lexi reports done 2026-06-29).**
 - ⬜ Real privacy policy + terms of service · wire actual user deletion in Profile tab
 - ⬜ Sentry error tracking + Vercel Analytics
 - ⬜ Email: verify a real Resend sending domain (test-mode now sends only to the owner's inbox); tie to naming session
