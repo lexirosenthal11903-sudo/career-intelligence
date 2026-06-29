@@ -27,6 +27,7 @@ itself, plan with it, push it, and keep the context clean._
 | **Research-grounded building** | Before building ANY feature whose quality rests on real-world facts (advice, matching, diagnosis, outreach, salaries, timing) | Claude (auto) |
 | **`/voice`** | Lexi's choice — already in use | Lexi |
 | **Batch cadence** (agree batch → build all → one review; a receipt on every raised item) | Start of every session; and the instant Lexi raises anything (confirm it's logged) | Claude (auto) |
+| **Claude-in-Chrome live test** (browser test prompt at handoff) | End of every build session — IF Claude judges a live test is warranted (esp. browser-only integration paths automation can't reach). Claude hands Lexi a ready-to-paste prompt for Claude in Chrome unprompted | Claude (auto) |
 
 ---
 
@@ -51,6 +52,14 @@ spec, and self-verify all STAY — they just happen at batch edges, not per item
    subagents to build independent slices in parallel where that speeds things up. One push at the end.
 3. **One review pass (end).** Claude hands Lexi a numbered "test this → expect this" checklist for the whole
    batch. Lexi reviews once. Anything new she spots is captured WITH A RECEIPT and rolled into the next batch.
+   **Live test via Claude in Chrome (set 2026-06-29, standing rule).** Automated gates (tsc/lint/build/tests/eval/
+   code-review) prove everything provable headlessly — but they cannot exercise browser-only integration paths
+   (e.g. advisor tool → signal → window event → UI re-fetch). So at handoff, whenever Claude judges a live test
+   is genuinely warranted, it hands Lexi a **ready-to-paste prompt for Claude in Chrome** as part of the handoff,
+   WITHOUT being asked. Claude owns this judgement call and the prompt every time; Lexi never has to request it.
+   The prompt must be self-contained: the URL, the precondition (signed in), each step, the expected result, a
+   flag on any destructive step, and "report back pass/fail per step". If a live test genuinely isn't needed,
+   Claude says so explicitly rather than staying silent.
 
 **Receipts — the rule that kills "is this already on the list?":** every single thing Lexi raises, Claude
 confirms in the moment — **"Logged ✓ — [doc], [where in the queue]."** No exceptions. Lexi can say "show me
