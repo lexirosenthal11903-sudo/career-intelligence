@@ -5,7 +5,8 @@ import { getAuthedUser } from '@/lib/supabase/server';
 import { checkChatRateLimit } from '@/lib/ratelimit';
 import { getProfile } from '@/lib/profile';
 import { ADVISOR_TOOLS, executeAdvisorTool } from '@/lib/advisor-tools';
-import { stripDashes, stripGapRemarks } from '@/lib/sanitize';
+import { stripDashes, stripGapRemarks, stripTimeOfDay } from '@/lib/sanitize';
+import { assembleBoard, formatBoardForAdvisor } from '@/lib/user-state';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const maxDuration = 60;
@@ -137,36 +138,6 @@ async function buildUserContext(
           .map((j) => `${j.title}${j.company ? ` at ${j.company}` : ''}`)
           .join('; ');
         parts.push(`Roles they've saved to their applications (this list updates the instant they save one — some may have been saved seconds ago, in this very conversation): ${titles}. If they tell you they're interested in one of these, they are confirming it to you right now — engage with that fresh decision and help them with it; never tell them they've "already done that".`);
-        // The real board, WITH each role's stage — this is the source of truth, more
-        // current than your memory of the conversation. Aligns what you say with what
-        // the user actually sees on their Applications board (Lexi, 2026-06-29).
-        try {
-          const { data: apps } = await supabase
-            .from('saved_applications')
-            .select('job_data, stage')
-            .eq('user_id', userId);
-          const STAGE_WORDS: Record<string, string> = {
-            saved: 'saved, not applied yet',
-            preparing: 'preparing the application',
-            applied: 'applied, waiting to hear',
-            interview: 'at interview stage',
-            offer: 'has an OFFER',
-            rejected: "didn't get it (a no)",
-            archive: 'set aside',
-          };
-          const board = (apps ?? [])
-            .map((a) => {
-              const jd = a.job_data as { title?: string; company?: string };
-              if (!jd?.title) return null;
-              return `${jd.title}${jd.company ? ` at ${jd.company}` : ''} — ${STAGE_WORDS[a.stage as string] ?? a.stage}`;
-            })
-            .filter(Boolean);
-          if (board.length) {
-            parts.push(`Where each of their applications ACTUALLY stands right now — this is their real board, trust it over your memory of the conversation: ${board.join('; ')}. Never tell them they have an offer or an interview that isn't on this board; if they tell you an application moved, call set_application_stage so the board stays true. If something here looks out of date versus what they just said, update it rather than contradicting them.`);
-          }
-        } catch {
-          // board read is best-effort — the saved list above still stands
-        }
         // The 3 most recent carry their detail so you already hold the listing —
         // never re-ask the user for a job description you've been given here.
         const recent = saved.slice(0, 3).filter((j) => j.description || j.relevanceReason);
@@ -188,6 +159,14 @@ async function buildUserContext(
   } catch {
     // no saved jobs — fine
   }
+
+  // The real board (saved_applications) is the SINGLE source of truth for where each
+  // application stands. Assembled UNCONDITIONALLY (not nested under saved_jobs above):
+  // a user can have applications on the board with an empty saved_jobs list, and if the
+  // board were hidden in that case the advisor would confabulate freely. See
+  // src/lib/user-state.ts + STATE-SYNC-AUDIT.md.
+  const boardLine = formatBoardForAdvisor(await assembleBoard(supabase, userId));
+  if (boardLine) parts.push(boardLine);
 
   if (!parts.length) {
     const intro = nameLine ? `\n\n${nameLine}` : '';
@@ -387,7 +366,7 @@ export async function POST(request: Request) {
         if (Array.isArray(data.content)) {
           data.content = data.content.map((b: { type?: string; text?: string }) => {
             if (b?.type !== 'text' || typeof b.text !== 'string') return b;
-            let text = stripDashes(b.text);
+            let text = stripTimeOfDay(stripDashes(b.text));
             if (isInitiate) text = stripGapRemarks(text);
             return { ...b, text };
           });

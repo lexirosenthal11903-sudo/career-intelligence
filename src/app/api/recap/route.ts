@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { callClaude } from '@/lib/anthropic';
 import { getAuthedUser } from '@/lib/supabase/server';
 import { normalizeAnalysisResult } from '@/lib/profile-normalize';
-import { stripDashes } from '@/lib/sanitize';
+import { stripDashes, stripTimeOfDay } from '@/lib/sanitize';
 import { getProfile } from '@/lib/profile';
+import { assembleBoard, formatBoardForRecap } from '@/lib/user-state';
 
 export const maxDuration = 30;
 
@@ -122,12 +123,13 @@ ${recentTalk ? `\nOur most recent conversation:\n${recentTalk}` : '\nWe have not
     const parsed = JSON.parse(match[0]) as Partial<Recap>;
     // Deterministic guardrail: strip any em dash the model slips in, matching the
     // chat route. The prompt also bans them, but this is the run-time safety net.
-    const greeting = typeof parsed.greeting === 'string' ? stripDashes(parsed.greeting.trim()) : '';
+    const clean = (s: string) => stripTimeOfDay(stripDashes(s));
+    const greeting = typeof parsed.greeting === 'string' ? clean(parsed.greeting.trim()) : '';
     const becomingClear = Array.isArray(parsed.becomingClear)
-      ? parsed.becomingClear.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map(stripDashes)
+      ? parsed.becomingClear.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map(clean)
       : [];
     const doingNext = Array.isArray(parsed.doingNext)
-      ? parsed.doingNext.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map(stripDashes)
+      ? parsed.doingNext.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map(clean)
       : [];
     if (!greeting || becomingClear.length === 0) return null;
     return { greeting, becomingClear, doingNext };
@@ -182,29 +184,11 @@ export async function GET() {
   } catch {
     // no profile yet — fall back to the signup name
   }
-  // The board is the source of truth for outcomes/stages, so the recap can't invent
-  // an offer the person doesn't actually hold (closed stages dropped: a rejection or a
-  // set-aside role isn't "where we got to"). Mirrors buildUserContext in /api/chat.
-  const { data: apps } = await supabase
-    .from('saved_applications')
-    .select('job_data, stage')
-    .eq('user_id', user.id);
-  const STAGE_WORDS: Record<string, string> = {
-    saved: 'saved, not applied yet',
-    preparing: 'preparing the application',
-    applied: 'applied, waiting to hear',
-    interview: 'at interview stage',
-    offer: 'has an OFFER',
-  };
-  const board = (apps ?? [])
-    .map((a) => {
-      const jd = a.job_data as { title?: string; company?: string };
-      const word = STAGE_WORDS[a.stage as string];
-      if (!jd?.title || !word) return null; // skip closed stages (rejected/archive) + blanks
-      return `${jd.title}${jd.company ? ` at ${jd.company}` : ''}: ${word}`;
-    })
-    .filter(Boolean)
-    .join('\n');
+  // The board is the source of truth for outcomes/stages, so the recap can't invent an
+  // offer the person doesn't actually hold. Shared with /api/chat via src/lib/user-state.ts
+  // so the two can't drift; the recap formatter drops closed stages (a rejection or a
+  // set-aside role isn't "where we got to").
+  const board = formatBoardForRecap(await assembleBoard(supabase, user.id));
 
   const recap = await generateRecap(profile, name, messages, board);
   // On a generation hiccup, fall back to whatever we had (or null) — never an error card.

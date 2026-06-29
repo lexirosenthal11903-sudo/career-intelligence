@@ -32,6 +32,21 @@ export function stripDashes(text: string): string {
 const GAP_REMARK =
   /it'?s been (a while|ages|some time|a bit|so long|too long)|since (we|you) last (spoke|talked|met|chatted)|you'?ve been (away|gone)|long time no|welcome back|good to (see|have) you back/i;
 
+// The advisor has no clock, so it must never assume the time of day (it told someone to
+// "start it this morning" at 10pm). The prompt bans it, but Sonnet still slips, so this is
+// the deterministic backstop (the time twin of stripDashes): neutralise time-of-day
+// phrases in the advisor's OWN output to "today" / "hello". A neutral phrasing is always
+// safe; a wrong one ("this morning" at night) breaks trust. Applied to every chat reply.
+export function stripTimeOfDay(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/\bthis (?:morning|afternoon|evening)\b/gi, 'today')
+    .replace(/\btonight\b/gi, 'today')
+    .replace(/\bgood (?:morning|afternoon|evening)\b/gi, 'hello')
+    // Restore sentence-start capitalisation the lowercase replacement may have flattened.
+    .replace(/(^|[.!?]\s+|\n\s*)(today|hello)\b/g, (_m, p, w) => p + w[0].toUpperCase() + w.slice(1));
+}
+
 /** Drop any sentence that remarks on the time away; keep the rest of the opener. */
 export function stripGapRemarks(text: string): string {
   if (!text) return text;
