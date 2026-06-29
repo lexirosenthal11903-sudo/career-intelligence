@@ -156,18 +156,24 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
 
 Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2026-06-23 review.
 
-- **▶ TAB / IA CLEANUP — a dedicated foundation pass (Lexi, 2026-06-29; HIGH).** The workspace nav tabs need
-  a structural cleanup of content, formatting, AND how they behave — walk each tab individually. This is the
-  tail of the 2026-06-27 foundation-first decision. Concrete observations to resolve (grill + design before
-  building, it changes the mental model):
-  1. **Applications nav needs a count badge** — one saved role should show "1". (Neutral token, NOT amber — locked rule.)
-  2. **"Saved role" and "Applications" are the same thing shown in two places** — a saved role under Applications and
-     the "saved role" entry under Recent are identical; they should open as one unified surface, not two tabs.
-  3. **Rename "Roles" → "Live roles"** (clearer that these are live listings, not saved).
-  4. **Where does the tailored CV live** — likely under the job inside Applications, not only the standalone Documents
-     tab. Decide the IA: Documents-as-folder vs per-application docs (probably both, with the application as the hub).
-  - Bundle with the open audit items it overlaps: account menu (below), "interested → Applications" clarity (audit #8),
-    archive the dead `/dashboard/*` (below). _Run as its own session; grill first._
+- **✅ TAB / IA CLEANUP — SHIPPED 2026-06-29 (research-grounded; verified by live QA).** The "make the
+  candidate-strength loop walkable" batch. Grounded in a Teal/Huntr/Simplify/LinkedIn prior-art sweep
+  (saved = first stage of one pipeline; list-with-stage-pill beats Kanban at 1–5 applications; per-job doc
+  hub + global library). All four observations done:
+  1. ✅ **Applications count badge** — neutral, not amber. Also fixed: ALL count badges were amber (locked-rule
+     violation) → now neutral. `--accent` reserved for primary button / user bubbles / active nav only.
+  2. ✅ **Saved = Applications unified** — one stage-based board. Interested lands at a new first stage **"Saved"**
+     ("hasn't started until you start it"). Stages: Saved → Preparing → Applied → Interview → Offer, aligned across
+     the API, `save_job` and `set_application_stage` advisor tools. "Recent" opens a role INSIDE Applications
+     (preselected), never a separate "saved" surface. Stage pill per row (Saved = ghost, live = filled, Offer = green).
+  3. ✅ **"Roles" → "Live roles".**
+  4. ✅ **CV/cover-letter home** — per-job hub primary + Documents as the all-files library (now shows cover letters
+     too, was CVs-only). Both surfaces read the same `documents` rows.
+  - Also fixed in-batch: Applications rows were rendering unstyled; stage changes now propagate from the detail
+    view to the list pill + a present-tense "Now: <stage>" activity line.
+  - **Still open (logged, NOT done this batch):** account menu popover (below), archive the dead `/dashboard/*`
+    (below). A full DATED stage-move activity timeline (needs stored events) is a separate feature. Minor: the
+    role-detail "✓ Interested — tracked in Applications" wording vs the card's "✓ In Applications" (left as-is).
 - ○ **Documents-blank after Tailor CV — BUG (Lexi, 2026-06-29; fixed this session).** Two tailor-CV writers
   disagreed: the chat/advisor path saved `type:'tailored_cv'` (+ a `changes` column); the side-panel button saved
   `type:'cv_tailored'` (+ `metadata`); DocumentsView only read `cv_tailored`/`metadata`. Tailoring via chat was
