@@ -174,6 +174,40 @@ Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2
   - **Still open (logged, NOT done this batch):** account menu popover (below), archive the dead `/dashboard/*`
     (below). A full DATED stage-move activity timeline (needs stored events) is a separate feature. Minor: the
     role-detail "✓ Interested — tracked in Applications" wording vs the card's "✓ In Applications" (left as-is).
+
+- **▶ NEXT-SESSION CANDIDATES — Lexi end-of-session idea dump (2026-06-29).** Captured verbatim; grill +
+  group into batches next session. Several cluster into themes (noted). ⚠️ A few already partly exist — verify
+  before rebuilding.
+  - **THEME A — the advisor drives state + holds you through it (on-mission; the advisor IS the product):**
+    1. **Advisor updates Applications from conversation** — tell the mentor "I got an interview for X" and it
+       moves the stage for you, no manual click. ⚠️ **`set_application_stage` tool ALREADY EXISTS** — likely
+       already works; VERIFY live first, then make it reliable. Generalises to EVERYTHING: confirm something in
+       chat → the advisor updates the right place AND/OR navigates you to the correct tab to show you. (The
+       advisor→navigation bridge does NOT exist yet — that's the build.)
+    2. **Advisor acknowledges stage changes** — on moving to Applied/Interview/Offer the mentor reacts
+       (esp. Offer = genuine "well done", not gamified). Warm, earned, never streaky ([[feedback_no_gamification]]).
+    3. **Rejection / didn't-get-it care** — mentor offers to read the rejection email, comforts, and turns it
+       into prep for the next one. Maps to the emotional arc "hard days — never guilt". High-value differentiator.
+  - **THEME B — Applications IA depth:**
+    4. **Unsave / remove a saved role** — currently NO way to remove one, it's there forever. (DELETE APIs exist;
+       needs UI.) Real gap, probably first.
+    5. **Filter applications by stage** — "all Preparing", "all Applied", etc.
+    6. **Offer / Decline sections** — once a role is an offer or a rejection it moves into its own area within
+       Applications (one for offers, maybe one for declines). Open Q: does the user even need to see declines, or
+       quietly archive? (Lexi unsure — lean: don't dwell on failure, per the arc.)
+    7. **Fuller per-application hub** — rethink the format so EVERYTHING for a role lives under its application
+       (the tailored CV done for that role stored there, etc.). Extends the per-job hub shipped today.
+  - **THEME C — nav / direction / polish:**
+    8. **Scrollbar always visible** — it should appear on scroll, not sit there permanently (overlay-scrollbar behaviour).
+    9. **Collapsible left sidebar** (Jack & Jill pattern) — an icon to collapse/reopen the left nav.
+    10. **Click a suggested direction → it opens** (direction detail / filtered roles). _Existed in the superseded
+        platform; already logged as "Direction detail view + click a direction" (audit Batch C) — reinforced._
+    11. **Direction #1 black highlight → make all directions equal weight.** Supports [[feedback_honest_matching]]
+        (don't assert an unearned "clearest fit"). Lexi unsure — settle in a design beat.
+    12. **Daily roles arrive as a per-day feed** (Jack & Jill) — see new roles "come in on that day". Pairs with
+        the already-logged real per-day new-roles detection.
+    13. **Dead "don't scroll endlessly" hint under Live roles** — it's static and does nothing; make it functional or remove.
+
 - ○ **Documents-blank after Tailor CV — BUG (Lexi, 2026-06-29; fixed this session).** Two tailor-CV writers
   disagreed: the chat/advisor path saved `type:'tailored_cv'` (+ a `changes` column); the side-panel button saved
   `type:'cv_tailored'` (+ `metadata`); DocumentsView only read `cv_tailored`/`metadata`. Tailoring via chat was
