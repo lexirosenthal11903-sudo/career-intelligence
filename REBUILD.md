@@ -25,6 +25,24 @@ real data layer, error visibility) were both skipped. Everything else is a sympt
 
 ---
 
+## ✅ BUILT 2026-06-29 (Session 44) — board-truth cluster + rejection-path stability (pushed `3cb3a26`)
+
+Reproduction-first debugging (a harness drove the real tool loop with logging). The canonical rejection path
+was already good post-S43, so no blind voice edits. Lexi live-tested mid-session and surfaced a board-drift
+cluster. Verified: tsc + lint + build green; 19/19 tests; `eval:advisor` all hard rules held (one false
+positive fixed); two `/code-review` passes. **Pushed to staging.**
+- **Wrong-role stage match** — `set_application_stage` scores by exactness + ASKS on genuine ambiguity (shared
+  `roleKey` dedup), no longer grabs the first substring hit.
+- **Error + green-log race** — a committed action never strands behind a cold error (warm line, logged for
+  Sentry, transient or not); non-JSON upstream bodies (502 HTML) no longer crash the turn (`safeJson`).
+- **Closed role leaves Live roles + loses the badge** — `set_application_stage` syncs `saved_jobs.job_data.status`
+  (closed → 'passed', live → 'interested'); Live roles + the badge read `saved_jobs`, re-read on `ci:application-changed`.
+- **Board is the only truth for outcomes** — chat prompt rule + recap card now board-aware (`/api/recap` reads
+  `saved_applications`, excludes closed stages, won't re-open a rejected role) + recap cache busted on stage change.
+- **Autoscroll** — drives the scroll container to `scrollHeight` so the newest message clears the fixed composer.
+- **STILL OPEN (next):** the name "Alex"/Alexandra bug (recap shortened it, chat denied it) — needs a name guard
+  + a read of her real stored `preferredName` (prod read was correctly blocked). Plus smaller logged items.
+
 ## ✅ BUILT 2026-06-29 (Session 43b) — advisor↔board alignment (Lexi's live-test findings)
 
 Root cause Lexi spotted: two tables drift. `saved_jobs` (advisor context + nav count read it) has no `stage`;
