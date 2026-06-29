@@ -156,6 +156,25 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
 
 Source: [AUDIT-REPORT-2026-06-22.md](AUDIT-REPORT-2026-06-22.md) batches + the 2026-06-23 review.
 
+- **▶ TAB / IA CLEANUP — a dedicated foundation pass (Lexi, 2026-06-29; HIGH).** The workspace nav tabs need
+  a structural cleanup of content, formatting, AND how they behave — walk each tab individually. This is the
+  tail of the 2026-06-27 foundation-first decision. Concrete observations to resolve (grill + design before
+  building, it changes the mental model):
+  1. **Applications nav needs a count badge** — one saved role should show "1". (Neutral token, NOT amber — locked rule.)
+  2. **"Saved role" and "Applications" are the same thing shown in two places** — a saved role under Applications and
+     the "saved role" entry under Recent are identical; they should open as one unified surface, not two tabs.
+  3. **Rename "Roles" → "Live roles"** (clearer that these are live listings, not saved).
+  4. **Where does the tailored CV live** — likely under the job inside Applications, not only the standalone Documents
+     tab. Decide the IA: Documents-as-folder vs per-application docs (probably both, with the application as the hub).
+  - Bundle with the open audit items it overlaps: account menu (below), "interested → Applications" clarity (audit #8),
+    archive the dead `/dashboard/*` (below). _Run as its own session; grill first._
+- ○ **Documents-blank after Tailor CV — BUG (Lexi, 2026-06-29; fixed this session).** Two tailor-CV writers
+  disagreed: the chat/advisor path saved `type:'tailored_cv'` (+ a `changes` column); the side-panel button saved
+  `type:'cv_tailored'` (+ `metadata`); DocumentsView only read `cv_tailored`/`metadata`. Tailoring via chat was
+  invisible. Unified the type + column shape.
+- ○ **Preferred name — advisor asks what to call you (Lexi, 2026-06-29; small build this session).** The account
+  name from signup ("Alexandra") was leaking as a cold formal address. The advisor should ask early ("what should
+  I call you?"), store it, and recap + chat should use the preferred name over the signup name.
 - ○ **Profile edit pass** — directly editable Profile (the "mirror"), mentor-primary but never trapping a
   fact: **replace CV on file** (simple swap, not the whole input flow) · **change registered email** ·
   edit preferences / deal-breakers.
