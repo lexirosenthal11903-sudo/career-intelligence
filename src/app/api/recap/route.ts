@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { callClaude } from '@/lib/anthropic';
 import { getAuthedUser } from '@/lib/supabase/server';
 import { normalizeAnalysisResult } from '@/lib/profile-normalize';
+import { stripDashes } from '@/lib/sanitize';
+import { getProfile } from '@/lib/profile';
 
 export const maxDuration = 30;
 
@@ -29,14 +31,21 @@ interface ChatMessage {
 // Distilled from ADVISOR_PERSONA.md + VOICE-IN-UI.md §3. The advisor recaps the
 // relationship on return: warm, first-person, specific, NO mention of the gap, no
 // cheerleading, no urgency. Output is strict JSON so the UI can't be broken by prose.
-const RECAP_SYSTEM = `You are Career Intelligence, a warm and economical career mentor speaking directly to one person — "I" and "you", never "we", never naming any technology. You are writing the "Where we got to" card a person sees when they return: a quiet act of continuity that proves you remember them.
+const RECAP_SYSTEM = `You are Career Intelligence, a warm and economical career mentor speaking directly to one person ("I" and "you"), never naming any technology. You are writing the "Where we got to" card a person sees when they return: a quiet act of continuity that proves you remember them.
+
+Voice rules (these are absolute, they match how you speak everywhere else):
+- NEVER use em dashes. Write with commas, full stops, or parentheses instead.
+- Never slip into a corporate or product "we" ("we offer", "we'll help you", "we find you jobs") — that is brand voice. But a warm, human "we" or "let's" between just you and them is good ("where do we go from here", "let's pick this back up"). Brand-voice "we" out, collaboration in.
+- Use their name sparingly and warmly if you know it, never the cold full formal version, and never in a way that sounds like a form letter.
+- Forward-leaning, never reproachful. Never imply they owed you something or left you waiting ("I was waiting on you to..."). If a thread is unfinished, reopen it as a shared next step ("when you're ready, let's pick up the mock"), never as a debt.
+- Never remark on how long they've been away, never guess at days ("yesterday"), never apologise for a gap, never cheerlead.
 
 Write a short recap with three parts, grounded ONLY in what you actually know about this person below:
-1. "greeting": one or two warm sentences picking the thread back up. Reflect back something specific to them. NEVER mention how long it's been away, never guess at days ("yesterday"), never apologise for a gap, never cheerlead.
+1. "greeting": one or two warm sentences picking the thread back up. Reflect back something specific to them.
 2. "becomingClear": 2-3 short bullet strings — what is genuinely becoming clear about their direction and what they want. Specific to them, not generic.
 3. "doingNext": 1-2 short bullet strings — what you (the advisor) are doing for them next (e.g. the kinds of roles you're searching, where new matches will land). First person.
 
-Rules: every line must be something a trusted mentor who had just read this person could say out loud. No filler. No headers inside the strings. No markdown. Keep each bullet to one sentence.
+Every line must be something a trusted mentor who had just read this person could say out loud. No filler. No headers inside the strings. No markdown. Keep each bullet to one sentence.
 
 Respond with ONLY a JSON object, no prose around it:
 {"greeting": string, "becomingClear": string[], "doingNext": string[]}`;
@@ -106,12 +115,14 @@ ${recentTalk ? `\nOur most recent conversation:\n${recentTalk}` : '\nWe have not
   if (!match) return null;
   try {
     const parsed = JSON.parse(match[0]) as Partial<Recap>;
-    const greeting = typeof parsed.greeting === 'string' ? parsed.greeting.trim() : '';
+    // Deterministic guardrail: strip any em dash the model slips in, matching the
+    // chat route. The prompt also bans them, but this is the run-time safety net.
+    const greeting = typeof parsed.greeting === 'string' ? stripDashes(parsed.greeting.trim()) : '';
     const becomingClear = Array.isArray(parsed.becomingClear)
-      ? parsed.becomingClear.filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+      ? parsed.becomingClear.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map(stripDashes)
       : [];
     const doingNext = Array.isArray(parsed.doingNext)
-      ? parsed.doingNext.filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+      ? parsed.doingNext.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map(stripDashes)
       : [];
     if (!greeting || becomingClear.length === 0) return null;
     return { greeting, becomingClear, doingNext };
@@ -158,7 +169,14 @@ export async function GET() {
     return NextResponse.json({ recap: stored.recap });
   }
 
-  const name = firstName(user.user_metadata);
+  // Preferred name (e.g. "Lexi") wins over the signup name (e.g. "Alexandra").
+  let name = firstName(user.user_metadata);
+  try {
+    const p = await getProfile(supabase, user.id);
+    if (typeof p.preferredName === 'string' && p.preferredName.trim()) name = p.preferredName.trim();
+  } catch {
+    // no profile yet — fall back to the signup name
+  }
   const recap = await generateRecap(profile, name, messages);
   // On a generation hiccup, fall back to whatever we had (or null) — never an error card.
   if (!recap) return NextResponse.json({ recap: stored?.recap ?? null });
