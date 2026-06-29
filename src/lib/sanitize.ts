@@ -22,3 +22,24 @@ export function stripDashes(text: string): string {
     .replace(/,\s*,/g, ', ')                 // ",," → ","
     .replace(/(^|\n)\s*,\s*/g, '$1');        // comma stranded at line start
 }
+
+// The advisor must NEVER remark on how long someone's been away (ADVISOR_PERSONA
+// "never remark on the gap"). Sonnet still slips on the return-opener in a real
+// share of cases ("it's been a while", "welcome back"). This is the deterministic
+// backstop, the gap twin of stripDashes — but applied ONLY to the opener of a
+// returning visit, where these phrases are unambiguously about the absence (so no
+// false positives on normal chat like "it's been a while since you studied X").
+const GAP_REMARK =
+  /it'?s been (a while|ages|some time|a bit|so long|too long)|since (we|you) last (spoke|talked|met|chatted)|you'?ve been (away|gone)|long time no|welcome back|good to (see|have) you back/i;
+
+/** Drop any sentence that remarks on the time away; keep the rest of the opener. */
+export function stripGapRemarks(text: string): string {
+  if (!text) return text;
+  const sentences = text.match(/[^.!?\n]+[.!?]*\n?|\n/g);
+  if (!sentences) return text;
+  const kept = sentences.filter((s) => !GAP_REMARK.test(s));
+  const result = kept.join('').replace(/[ \t]{2,}/g, ' ').trim();
+  // If stripping emptied the whole opener (it was nothing but a gap remark), keep
+  // the original rather than send a blank message — a rare, lesser evil.
+  return result || text;
+}

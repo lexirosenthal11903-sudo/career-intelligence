@@ -5,7 +5,7 @@ import { getAuthedUser } from '@/lib/supabase/server';
 import { checkChatRateLimit } from '@/lib/ratelimit';
 import { getProfile } from '@/lib/profile';
 import { ADVISOR_TOOLS, executeAdvisorTool } from '@/lib/advisor-tools';
-import { stripDashes } from '@/lib/sanitize';
+import { stripDashes, stripGapRemarks } from '@/lib/sanitize';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const maxDuration = 60;
@@ -236,7 +236,7 @@ export async function POST(request: Request) {
         {
           role: 'user',
           content:
-            '[The person has just come back and reopened this conversation — you have the history above, this is not a fresh start. Open by speaking first, briefly and warmly, following your returning-visit guidance. If a genuinely unresolved thread is live (above or in your OPEN THREADS), pick up the single most significant one specifically; if you last left things on a clean note, keep it short or simply make yourself available — do not manufacture a thread. Obey your regulated-topic and distress guardrails when reopening. Speak directly to them.]',
+            "[The person has just come back and reopened this conversation — you have the history above, this is not a fresh start. Open by speaking first, briefly and warmly, following your returning-visit guidance. If a genuinely unresolved thread is live (above or in your OPEN THREADS), pick up the single most significant one specifically; if you last left things on a clean note, keep it short or simply make yourself available — do not manufacture a thread. Obey your regulated-topic and distress guardrails when reopening. CRITICAL: do NOT remark on the time away or that they've returned — no 'welcome back', 'it's been a while', 'good to see you again', 'since we last spoke'. Pick the thread up as if mid-conversation, not as a reunion. Speak directly to them.]",
         },
       ];
     } else {
@@ -288,12 +288,16 @@ export async function POST(request: Request) {
       if (!response.ok) return NextResponse.json(data, { status: response.status });
 
       if (data.stop_reason !== 'tool_use') {
-        // Deterministic backstop for the "no em dashes" voice rule the model keeps
-        // breaking — strip them from every text block before it reaches the user.
+        // Deterministic backstops for voice rules the model keeps breaking: strip em
+        // dashes from EVERY reply, and (on a returning-visit opener only) strip any
+        // remark on the time away. Scoped to the opener so it can't touch normal chat.
         if (Array.isArray(data.content)) {
-          data.content = data.content.map((b: { type?: string; text?: string }) =>
-            b?.type === 'text' && typeof b.text === 'string' ? { ...b, text: stripDashes(b.text) } : b
-          );
+          data.content = data.content.map((b: { type?: string; text?: string }) => {
+            if (b?.type !== 'text' || typeof b.text !== 'string') return b;
+            let text = stripDashes(b.text);
+            if (isInitiate) text = stripGapRemarks(text);
+            return { ...b, text };
+          });
         }
         data.meridianActions = meridianActions;
         data.meridianSignals = meridianSignals;

@@ -25,7 +25,7 @@
  * broken", not "great answer". Read the printed replies, not just the ticks.
  */
 import { ARLO_SYSTEM_PROMPT } from '../../src/lib/advisor-prompt.ts';
-import { stripDashes } from '../../src/lib/sanitize.ts';
+import { stripDashes, stripGapRemarks } from '../../src/lib/sanitize.ts';
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!API_KEY) {
@@ -370,6 +370,7 @@ const PERSONAS = [
   {
     name: 'Return — two open threads (picks up ONE, no backlog, no gap mention)',
     context: CONTEXTS.returnTwoThreads,
+    initiate: true,
     turns: ['Hey, I\'m back.'],
     checks: [
       present('picks up a specific parked thread', /visa|bristol|cv|tailor|logistics/i),
@@ -380,6 +381,7 @@ const PERSONAS = [
   {
     name: 'Return — clean close (does NOT manufacture a loose end)',
     context: CONTEXTS.returnCleanClose,
+    initiate: true,
     turns: ['Hey, good to be back.'],
     checks: [
       absent('never mentions the length of the gap', /it'?s been (a while|ages|some time)|since (we|you) last (spoke|talked|met)|you'?ve been (away|gone)|long time no/i),
@@ -511,7 +513,9 @@ for (const persona of PERSONAS) {
   let reply;
   try {
     const result = await askAdvisor(persona.turns, persona.context);
-    reply = result.text;
+    // A returning-visit opener passes through stripGapRemarks in production
+    // (chat route, isInitiate), so grade the same guarded text the user sees.
+    reply = persona.initiate ? stripGapRemarks(result.text) : result.text;
     tallyUsage(result.usage);
   } catch (err) {
     console.log(`  ${RED}✗ API call failed: ${err.message}${RESET}`);
