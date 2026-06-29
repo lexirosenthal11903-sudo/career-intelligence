@@ -437,6 +437,16 @@ from the *real board* (`saved_applications`), and surfaces read different tables
   advisor-tools + recap (centralise into one shared constant); `saved_jobs` sync is a non-atomic read-modify-write
   (a same-user two-surface race could clobber a field); advisor-saved-only roles aren't in the live feed so their
   status sync is a no-op there (no symptom, but note it).
+- ✓ **Advisor assumed time of day ("start it this morning" at 10pm)** — it has no clock; prompt rule added to
+  chat + recap: never say morning/tonight/good evening unless the user stated the time, say "today" instead. _(fixed S44)_
+- ✓ **Closed role STILL in Live roles for pre-existing data** — the S44 write-side `saved_jobs` sync only covered
+  future closes; `/api/save-job` now also reconciles on READ (forces 'passed' for any closed application), so roles
+  closed before the fix self-heal. _(fixed S44)_
+- ○ **New live jobs over time (the return mechanic) — NOT built yet.** Suggest fresh matched roles as time passes so
+  there's a reason to come back (value, not gamification). Core to "daily companion". Step 2/return mechanics.
+- ○ **Live jobs expiring / closed to applications — NOT handled.** Adzuna/Reed listings go stale. Need to detect
+  expired or no-longer-accepting listings and stop surfacing them (or mark them clearly), so we never send someone
+  to a dead advert. Consider on the Roles/Live-listings layer (Step 3 sourcing).
 - ▶ **Name shortened to "Alex" then denied** — recap card (separate surface) used "Alex" though her name is
   Alexandra; chat advisor then denied saying it (true from its view → reads as gaslighting). Need a
   deterministic name guard on every surface + cross-surface awareness. May also be stale stored `preferredName`.
