@@ -17,6 +17,18 @@ const SIGN_IN_PROMPT =
 const ERROR_MSG =
   "Something went wrong on my end — say that again?";
 
+// A "meaningful return" = a new calendar day, or a gap of at least ~6 hours since
+// the last activity. The advisor speaks first only on these — not on same-session
+// navigation (which would be overbearing). `updated_at` tracks the last write, so
+// firing the opener (which writes) also stops it re-firing within the same return.
+function isMeaningfulReturn(updatedAt?: string | null): boolean {
+  if (!updatedAt) return false;
+  const lastMs = new Date(updatedAt).getTime();
+  if (Number.isNaN(lastMs)) return false;
+  if ((Date.now() - lastMs) / 3.6e6 >= 6) return true;
+  return new Date(updatedAt).toDateString() !== new Date().toDateString();
+}
+
 export function useArloChat({
   page,
   supabase,
@@ -46,19 +58,30 @@ export function useArloChat({
   const [isLoading, setIsLoading] = useState(false);
   const apiHistoryRef = useRef<ApiMsg[]>([]);
   const loadedRef = useRef(false);
+  // Set once the user sends a message. Used to suppress a proactive opener that's
+  // still in flight when the user has already started the conversation themselves —
+  // silence beats talking over them.
+  const userEngagedRef = useRef(false);
   // Attach to a <div> at the end of the messages list; auto-scrolls on new messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Arlo initiates: open the conversation with something specific instead of
-  // waiting to be asked. One API call, only when there's no prior conversation.
-  const initiate = useCallback(async () => {
+  // waiting to be asked. One API call. Two modes:
+  //  - cold open (no `resume`): brand-new conversation, no history.
+  //  - resume: pass the recent transcript so the advisor picks up an unresolved
+  //    thread on a meaningful return rather than cold-opening blind.
+  const initiate = useCallback(async (resume?: ApiMsg[]) => {
     if (!userId) return;
     setIsLoading(true);
     try {
+      const body =
+        resume && resume.length
+          ? { initiate: true, resume: true, messages: resume }
+          : { initiate: true };
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initiate: true }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) return;
       const data = await res.json();
@@ -68,8 +91,10 @@ export function useArloChat({
           .map((b) => b.text ?? "")
           .join("") || "";
       if (!text) return;
+      // If the user started talking while this was in flight, don't talk over them.
+      if (userEngagedRef.current) return;
       setAllMsgs((prev) => [...prev, { role: "arlo", text }]);
-      // Persist the opener so it isn't regenerated on the next load.
+      // Persist the opener (appended to any history) so it isn't regenerated next load.
       const opener: ApiMsg = { role: "assistant", content: text };
       apiHistoryRef.current = [...apiHistoryRef.current, opener];
       if (supabase) {
@@ -98,7 +123,7 @@ export function useArloChat({
 
     supabase
       .from("conversations")
-      .select("messages")
+      .select("messages, updated_at")
       .eq("user_id", userId)
       .eq("page", page)
       .maybeSingle()
@@ -114,6 +139,13 @@ export function useArloChat({
             })),
             { role: "divider" as const, text: "New session" },
           ]);
+          // On a meaningful return (new day / real gap), the advisor speaks first,
+          // picking up an unresolved thread from the transcript it now holds. Stays
+          // quiet on same-session navigation, and never talks over a user who's
+          // already started (guarded inside initiate via userEngagedRef).
+          if (isMeaningfulReturn(data.updated_at as string | null) && !userEngagedRef.current) {
+            initiate(stored);
+          }
         } else {
           // No history on this page yet — Arlo opens the conversation.
           initiate();
@@ -125,6 +157,9 @@ export function useArloChat({
     async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || isLoading) return;
+
+      // The user is driving now — suppress any proactive opener still in flight.
+      userEngagedRef.current = true;
 
       // Add user message to display immediately
       setAllMsgs((prev) => [...prev, { role: "user", text: trimmed }]);

@@ -40,6 +40,8 @@ async function buildUserContext(
   // The dial position — prefer the advisor's live read (profiles), fall back to the
   // initial read baked into the analysis. Drives the directive↔non-directive balance.
   let directionClarity: 'lost' | 'mixed' | 'directed' | undefined;
+  // Unresolved/parked threads to pick back up on return (newest first when shown).
+  let openThreads: { thread: string; at: string }[] = [];
 
   try {
     const { data: resultRow } = await supabase
@@ -91,6 +93,12 @@ async function buildUserContext(
     if (Array.isArray(p.memory) && p.memory.length) {
       const notes = p.memory.map((m) => `- ${m.note}`).join('\n');
       parts.push(`What I've learned about them over time:\n${notes}`);
+    }
+    // Unresolved threads — surfaced separately below with their own guidance.
+    if (Array.isArray(p.openThreads) && p.openThreads.length) {
+      openThreads = [...p.openThreads]
+        .filter((t) => t && typeof t.thread === 'string')
+        .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''));
     }
   } catch {
     // no profile yet — fine
@@ -157,6 +165,11 @@ async function buildUserContext(
     context += `\n\nTHE DIAL — how settled they are right now: ${dial} If your read changes during the conversation, call set_direction_clarity. The rule of thumb: coach the direction, advise the execution.`;
   }
 
+  if (openThreads.length) {
+    const list = openThreads.map((t) => `- ${t.thread}`).join('\n');
+    context += `\n\nOPEN THREADS (things left unresolved with them — your own private notes, never shown to them as a list):\n${list}\nIf you are opening the conversation on a return visit and one of these is genuinely still live, pick up the SINGLE most significant or most recent one, specifically and warmly ("you were weighing the visa — where did that land?"). Never read the whole list back at them — an anxious person met with a backlog of unfinished things feels worse, not held. The others stay held; raise another only at a natural moment later, or when they go near it. When a thread reaches a real resolution, call resolve_open_thread so you stop re-raising it. Reopening a regulated or distressing thread follows the same rules as everywhere else: inform and point them on, never advise on their specific situation; never reopen real distress breezily.`;
+  }
+
   return context;
 }
 
@@ -175,7 +188,7 @@ export async function POST(request: Request) {
   const rateLimitResponse = await checkChatRateLimit(user.id);
   if (rateLimitResponse) return rateLimitResponse;
 
-  let body: { messages?: unknown; initiate?: unknown };
+  let body: { messages?: unknown; initiate?: unknown; resume?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -184,17 +197,45 @@ export async function POST(request: Request) {
 
   const isInitiate = body.initiate === true;
 
+  // Only valid user/assistant turns with string content go onward.
+  const isValidTurn = (m: unknown): m is ChatMessage =>
+    !!m &&
+    typeof m === 'object' &&
+    ((m as ChatMessage).role === 'user' || (m as ChatMessage).role === 'assistant') &&
+    typeof (m as ChatMessage).content === 'string' &&
+    (m as ChatMessage).content.trim().length > 0;
+
   let messages: ApiMessage[];
   if (isInitiate) {
-    // Advisor opens the conversation — no user turn yet. The system prompt's
-    // OPENING guidance + the user's context produce a specific, earned opener.
-    messages = [
-      {
-        role: 'user',
-        content:
-          '[The person just opened this page and has not spoken yet. Open the conversation now, following your opening guidance. Speak directly to them.]',
-      },
-    ];
+    // Advisor opens the conversation. Two cases:
+    // (1) RESUME (returning visit): the client sends the recent transcript so the
+    //     advisor can pick up an unresolved thread instead of cold-opening blind.
+    // (2) Cold open (brand-new conversation): no history, just the opening guidance.
+    const recent: ApiMessage[] = body.resume === true && Array.isArray(body.messages)
+      ? (body.messages.filter(isValidTurn) as ChatMessage[]).slice(-18)
+      : [];
+    // The Messages API requires the first turn to be 'user'; the stored transcript
+    // begins with the advisor's opener (assistant), so trim leading assistant turns.
+    while (recent.length && recent[0].role !== 'user') recent.shift();
+
+    if (recent.length) {
+      messages = [
+        ...recent,
+        {
+          role: 'user',
+          content:
+            '[The person has just come back and reopened this conversation — you have the history above, this is not a fresh start. Open by speaking first, briefly and warmly, following your returning-visit guidance. If a genuinely unresolved thread is live (above or in your OPEN THREADS), pick up the single most significant one specifically; if you last left things on a clean note, keep it short or simply make yourself available — do not manufacture a thread. Obey your regulated-topic and distress guardrails when reopening. Speak directly to them.]',
+        },
+      ];
+    } else {
+      messages = [
+        {
+          role: 'user',
+          content:
+            '[The person just opened this page and has not spoken yet. Open the conversation now, following your opening guidance. Speak directly to them.]',
+        },
+      ];
+    }
   } else {
     const rawMessages = body.messages;
     if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
@@ -202,16 +243,7 @@ export async function POST(request: Request) {
     }
     // Sanitise to the only shape we send onward — the client never controls model,
     // system prompt, tools, or token budget. Keep the last 20 turns to bound cost.
-    messages = rawMessages
-      .filter(
-        (m): m is ChatMessage =>
-          !!m &&
-          typeof m === 'object' &&
-          (m.role === 'user' || m.role === 'assistant') &&
-          typeof m.content === 'string' &&
-          m.content.trim().length > 0
-      )
-      .slice(-20);
+    messages = (rawMessages.filter(isValidTurn) as ChatMessage[]).slice(-20);
     if (!messages.length) {
       return NextResponse.json({ error: 'A valid message is required.' }, { status: 400 });
     }

@@ -42,20 +42,21 @@ The advisor reacts, is present, and reads you properly before it tells you anyth
   + expectations differ; never guilt-trip a busy person. _(from S10 brainstorm)_
 - ○ **Away-mode (implicit)** — read last-login + context signals, adjust the welcome (no guilt, warm
   re-engagement after a gap). Explicit "I'll be away" = later. _(from S10 brainstorm)_
-- 🔑 **Proactive, focused mentor — the advisor engages, it doesn't just wait (Lexi, 2026-06-29; HIGH).**
-  This is "make it a human interaction." Two diagnosed behaviours, design together as ONE slice:
-  1. **Proactive check-in on return.** Root cause found: on return with stored history, `useArloChat`
-     loads the transcript, drops a "New session" divider, and **never calls `initiate()`** — so the advisor
-     sits silent on open threads. (Real case: Lexi asked about a visa days ago; the conversation IS persisted
-     and reloaded, so the advisor had it in front of it and still never followed up.) Fix: on return, the
-     advisor speaks first and picks up the unresolved thread ("you were weighing the visa question — where did
-     that land?"). Needs a notion of *open/unresolved* threads, not just durable facts. Pairs with the
-     time-aware + emotional memory moat (item below) and away-mode.
-  2. **Hold the thread — focused time, gently.** A real mentor doesn't just follow every topic-switch. If the
-     user is mid-task (e.g. working through a CV) and jumps elsewhere, the advisor guides them to use the time
-     well ("happy to come to that — want to finish the CV first, or park it and switch?"). NOT rigid: an
-     anxious switch can be the real need; read the dial. This is behaviour design, not a one-line prompt —
-     decide when to hold vs follow. **Design before build — grill Lexi first.**
+- ✅ **Proactive, focused mentor — the advisor engages, it doesn't just wait (Lexi, 2026-06-29; HIGH). BUILT 2026-06-29.**
+  Grilled + research-grounded (`research/task-focus-and-switching-research.md`), specced in
+  `brainstorms/engaged-focused-mentor.md`, behaviour in `ADVISOR_PERSONA.md` ("The engaged, focused mentor").
+  Two behaviours, one loop (holding a thread creates the parked thread the return-opener reopens):
+  1. **Proactive check-in on return.** On a meaningful return (new day / ~6h+ gap, not every login), the advisor
+     speaks first, reading the recent transcript + durable open threads, and picks up the SINGLE most significant
+     unresolved one (never a backlog, never mentions the gap). `useArloChat` now fires a resume-opener;
+     `chat/route.ts` initiate path receives the transcript; suppressed if the user's already typing.
+  2. **Hold the thread.** On a mid-task topic-switch the advisor holds relationally — acknowledge, offer a choice,
+     follow their lead; reads avoidance-vs-need; closes on a specific next action; follows up "how did it go" not
+     "did you do it". Parked threads stored in `profiles.data.openThreads` (invisible, clearable) via two new
+     tools (`note_open_thread` / `resolve_open_thread`). Eval personas added (return / clean-close / topic-switch).
+  - **Future (NOT built — practitioner-gated):** surfacing a cross-session *avoidance pattern* to the user
+    ("I notice this comes up when we hit a commitment"). High value but needs a qualified practitioner to advise
+    on framing for an anxious cohort before building (`task-focus-and-switching-research.md` gap 7).
 - ○ **"Start fresh, keep the memory"** — a light session reset that doesn't wipe what the advisor knows.
 
 **Cross-cutting principle (every surface):** *dual interaction* — the advisor path (tell it, it acts) AND

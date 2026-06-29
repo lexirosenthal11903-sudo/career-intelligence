@@ -10,7 +10,7 @@
 // back next turn (see chat/route.ts + lib/profile.ts).
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getProfile, patchProfile, addMemory, type ProfileData } from '@/lib/profile';
+import { getProfile, patchProfile, addMemory, addOpenThread, resolveOpenThread, type ProfileData } from '@/lib/profile';
 import { callClaude } from '@/lib/anthropic';
 import { stripDashes } from '@/lib/sanitize';
 
@@ -32,6 +32,37 @@ export const ADVISOR_TOOLS = [
         },
       },
       required: ['note'],
+    },
+  },
+  {
+    name: 'note_open_thread',
+    description:
+      "Park an unresolved thread so you pick it back up next time, even after it scrolls out of the conversation. Call this when something is left genuinely hanging: a question they were weighing (a visa, whether to relocate), a task you started together but didn't finish (a CV half-tailored), a decision they haven't landed. This is NOT for durable facts (use remember for those) and NOT a to-do list you show them — it's your own private note so you can re-open the thread warmly when they return. Phrase it so it makes sense to you later. Keep it to things that genuinely matter; don't park trivia.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        thread: {
+          type: 'string',
+          description:
+            'The unresolved thread, phrased to make sense later. E.g. "Was weighing whether her visa lets her take the Bristol role — pointed her to gov.uk + an OISC adviser, not yet resolved" or "Started tailoring his CV for the Deloitte scheme, didn\'t finish".',
+        },
+      },
+      required: ['thread'],
+    },
+  },
+  {
+    name: 'resolve_open_thread',
+    description:
+      "Close an open thread once it's genuinely been picked up and dealt with, so you don't keep re-raising something that's already settled. Call this the moment a parked thread reaches a real resolution (they decided, you finished the task, the question is answered). Match it loosely by describing the thread — you don't need to quote it exactly.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        thread: {
+          type: 'string',
+          description: 'A short description of the thread that\'s now resolved, e.g. "the visa question" or "tailoring the Deloitte CV".',
+        },
+      },
+      required: ['thread'],
     },
   },
   {
@@ -241,6 +272,26 @@ export async function executeAdvisorTool(
         if (!note) return { content: 'No note provided; nothing saved.', isError: true };
         await addMemory(supabase, userId, note);
         return { content: `Saved to memory: "${note}"`, action: 'Noted that' };
+      }
+
+      case 'note_open_thread': {
+        const thread = String(input.thread ?? '').trim();
+        if (!thread) return { content: 'No thread provided; nothing parked.', isError: true };
+        await addOpenThread(supabase, userId, thread);
+        // Silent bookkeeping — no user-facing echo (this is the advisor's private note,
+        // never a visible to-do item).
+        return { content: `Parked open thread: "${thread}"` };
+      }
+
+      case 'resolve_open_thread': {
+        const thread = String(input.thread ?? '').trim();
+        if (!thread) return { content: 'No thread provided; nothing resolved.', isError: true };
+        const { resolved } = await resolveOpenThread(supabase, userId, thread);
+        return {
+          content: resolved
+            ? `Closed open thread matching: "${thread}"`
+            : `No open thread matched "${thread}"; nothing to close.`,
+        };
       }
 
       case 'update_profile': {

@@ -11,12 +11,32 @@
 | **Ongoing fixes** ([AUDIT-REPORT](AUDIT-REPORT-2026-06-22.md)) | Saved/applications board + remove + per-role actions (Batch B) · direction detail view · click-a-direction→filtered roles / role filter (Batch C) · logo coverage (clean company name) · J&J UI patterns as reference |
 | **3. Grounded knowledge layer** | Niche-industry coverage · "what makes a good mentor" research · credibility/verification of AI advice |
 | **4. B2B (universities first)** | LinkedIn OAuth import · application-tracker export · offer evaluation · progress-data-for-employers (GDPR-safe) |
-| **Strategy/research sessions** (run when you signal — not builds) | **Mentorship market + business model + credibility** (the big one) · Jack & Jill teardown · niche-industry-users discussion |
+| **Strategy/research sessions** (run when you signal — not builds) | **Mentorship market + business model + credibility** (the big one) · Jack & Jill teardown · niche-industry-users discussion · **Platform reach: web-only vs native desktop / iPhone app, and when** (parked 2026-06-29 — see note below) |
 | **Process / how-we-work sessions** | **Adopt working-practice tips from the "How Anthropic's Own Team Uses Claude Code" PDF** (recommend next-session-start, before build) |
 | **Design sessions** (deferred) | Advisor identity / visual register + the product's final name ("Meridian" dropped; speaks as "Career Intelligence" for now) · homepage redesign |
 | **✅ Already done** | advisor actually changes directions/roles · jobs stable per login + daily-new · fewer jobs shown · CV→Profile · "already interested" bug · seniority ceiling · discovery conversation |
 
 ---
+
+## 🅿️ Parked 2026-06-29 — Platform reach: web app vs desktop / iPhone app
+
+**Idea (Lexi):** should this stay a web platform, or also become a desktop app and/or an iPhone app — and when?
+
+**Where it falls / my read (to discuss, not decided):**
+- **Now: stays web, desktop-first.** CLAUDE.md already locks "Mobile: deferred — desktop first." The job today is
+  to prove the product works at all (the candidate-strength loop) for the first 100 users. A native app is
+  distribution, not product — it doesn't make the advisor better, and it multiplies build/maintenance surface
+  (App Store review, separate codebases or a wrapper, push infra) before the thing is even proven.
+- **The honest sequencing:** (1) make a responsive **mobile web** experience good — most early users will open a
+  link on their phone long before they'd install anything; that's a near-term UX win with no app-store cost.
+  (2) A real **iPhone/desktop app** is a *post-traction* decision (around Phase 4, alongside identity/branding) —
+  worth it once daily-companion return behaviour is proven and "always in my pocket / a real notification" would
+  genuinely deepen the habit (note: must still clear our **no-gamification** line — presence, not nagging).
+- **Cheapest path when the time comes:** the stack is Next.js, so a **PWA** (installable web app, home-screen icon,
+  offline shell, push) gets ~80% of "feels like an app" with near-zero extra code, before any native build.
+
+**Trigger to pick this up:** a dedicated strategy session once the candidate-strength loop is proven with real
+users — not a build session, and not before. Flagged so it's captured, not to act on now.
 
 ## ✅ DONE 2026-06-26 — Process session: adopted working-practice tips from the Anthropic Claude Code PDF
 

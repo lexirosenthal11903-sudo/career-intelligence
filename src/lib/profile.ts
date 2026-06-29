@@ -14,6 +14,19 @@ export interface MemoryNote {
   at: string; // ISO timestamp it was learned
 }
 
+// An unresolved/parked thread — something the user was mid-way through or left
+// hanging (a visa question they were weighing, a half-finished CV). Distinct from
+// MemoryNote: memory is durable facts that never expire; an open thread is a loop
+// to CLOSE — the advisor adds it when something is parked and resolves it once it's
+// genuinely addressed. Stored in the same profile doc (same read/write path), kept
+// invisible and advisor-managed — never a user-facing to-do list. It survives the
+// chat transcript window, so the proactive return-opener can pick it up even when
+// the thread scrolled out of the last ~20 turns. (Engaged-mentor build, 2026-06-29.)
+export interface OpenThread {
+  thread: string; // what's unresolved, phrased so it makes sense later
+  at: string; // ISO timestamp it was opened
+}
+
 export interface ProfileData {
   values?: string[];
   selfKnowledge?: Record<string, string>;
@@ -29,6 +42,8 @@ export interface ProfileData {
   // one-time label, never shown to the user as a label.
   directionClarity?: 'lost' | 'mixed' | 'directed';
   memory?: MemoryNote[];
+  // Unresolved threads to pick back up — see OpenThread. Invisible, advisor-managed.
+  openThreads?: OpenThread[];
   profileCompleteness?: number;
   // The user's CV on file — its source identity lives in Profile (decided 2026-06-22).
   // Tailored CVs / cover letters go to Documents later.
@@ -111,4 +126,53 @@ export async function addMemory(
 
   memory.push({ note: trimmed, at: new Date().toISOString() });
   return patchProfile(supabase, userId, { memory: memory.slice(-50) });
+}
+
+const normThread = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+
+/**
+ * Open (park) an unresolved thread, de-duplicating near-identical ones and keeping
+ * the most recent 12. These are loops to close, not durable facts — kept few on
+ * purpose so the return-opener is never met with a backlog.
+ */
+export async function addOpenThread(
+  supabase: SupabaseClient,
+  userId: string,
+  thread: string
+): Promise<ProfileData> {
+  const trimmed = thread.trim();
+  if (!trimmed) return getProfile(supabase, userId);
+
+  const existing = await getProfile(supabase, userId);
+  const threads = Array.isArray(existing.openThreads) ? [...existing.openThreads] : [];
+  if (threads.some((t) => normThread(t.thread) === normThread(trimmed))) return existing;
+
+  threads.push({ thread: trimmed, at: new Date().toISOString() });
+  return patchProfile(supabase, userId, { openThreads: threads.slice(-12) });
+}
+
+/**
+ * Resolve (close) an open thread once it's genuinely been picked up and dealt with.
+ * Fuzzy match: removes any thread whose text overlaps the query either way, so the
+ * advisor doesn't have to quote it verbatim. Returns whether anything was removed.
+ */
+export async function resolveOpenThread(
+  supabase: SupabaseClient,
+  userId: string,
+  query: string
+): Promise<{ profile: ProfileData; resolved: boolean }> {
+  const q = normThread(query);
+  if (!q) {
+    const profile = await getProfile(supabase, userId);
+    return { profile, resolved: false };
+  }
+  const existing = await getProfile(supabase, userId);
+  const threads = Array.isArray(existing.openThreads) ? existing.openThreads : [];
+  const next = threads.filter((t) => {
+    const n = normThread(t.thread);
+    return !(n.includes(q) || q.includes(n));
+  });
+  if (next.length === threads.length) return { profile: existing, resolved: false };
+  const profile = await patchProfile(supabase, userId, { openThreads: next });
+  return { profile, resolved: true };
 }

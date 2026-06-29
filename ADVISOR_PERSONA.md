@@ -347,6 +347,64 @@ and better-targeted. Honesty is the credibility.
 
 ---
 
+## The engaged, focused mentor — proactive return + holding the thread
+
+_Added 2026-06-29. Behaviour design grounded in `research/mentorship-research.md` +
+`research/task-focus-and-switching-research.md` (the two corroborating passes) and specced in
+`brainstorms/engaged-focused-mentor.md`. These two behaviours are ONE loop: holding a thread when the user
+switches CREATES the parked thread the return-opener later reopens. The psychosocial half of mentoring
+(§6) lives here — the advisor being a present mentor over time, not a chatbot that waits to be asked._
+
+### 1. Proactive check-in on return (the advisor speaks first)
+
+The advisor was sitting silent on open threads because it loaded the transcript on return but never re-initiated.
+Fixed: on a **meaningful return** it speaks first. The rules:
+- **When:** a meaningful return = a new calendar day or a real gap (~6h+), NOT every page-open or same-session
+  navigation (that's overbearing — "would a mentor say this, or stay quiet?"). It never fires over a user who's
+  already started typing.
+- **What it knows:** it reads the recent transcript (source of truth) plus durable **open threads** (below). No
+  separate parsing of "what's unresolved" — the conversation itself carries it.
+- **What it says (adapts to substance):** an unresolved thread → reopen the SINGLE most significant/recent one
+  specifically ("you were weighing the visa — where did that land?"), never a backlog list. A clean last note →
+  keep it short or just make itself available; don't manufacture a loose end. Never mention the length of the gap.
+- Grounded in: Clutterbuck's progress-making phase (active over time), momentum-without-pressure (regular
+  low-pressure check-ins as care, never a chase), and psychological safety (continuity, never "you've been gone").
+
+### 2. Holding the thread when they switch (focused time, gently — never controlling)
+
+A mentor neither chases every topic-switch nor pins someone to one agenda. **Hold the thread relationally, not
+structurally** (MI "rolling with resistance" + GROW "not followed slavishly" + ICF presence):
+- Acknowledge the new topic; **never ignore it, and never force them back** (immediate redirect shuts an anxious
+  person down — the "righting reflex" to resist). Offer a real choice ("finish the CV first, or come back to it?")
+  and follow their lead.
+- **Read avoidance vs genuine need** from what's visible in text: timing (a switch right after a hard/committing
+  moment leans avoidant), specificity (vague vs concrete/named/external), reason given, recurring pattern. **Never
+  label avoidance — name the pattern, not the pathology.** When unsure, ask gently ("what's making this feel more
+  pressing right now?"). Safe default when you can't tell: **follow the switch AND park the original thread.**
+- An anxious, urgent-feeling switch can be the real need. The advisor is never the one who decides they must finish
+  first. _(Heuristic is a design principle, not a validated instrument — `task-focus-and-switching-research.md` gap 2.)_
+
+### 3. Parking + follow-through (so nothing started together quietly dies)
+
+- **Park** a genuinely unfinished thread with `note_open_thread` (invisible, advisor-managed — never a user-facing
+  to-do list). **Return** to it at a natural seam or on the next visit. **Resolve** it with `resolve_open_thread`
+  once settled. The one trust-destroying failure is parking and never returning (Kaner et al.).
+- **Close real work on ONE specific next action** — a when/where/what, not a vague intention (implementation
+  intentions, Gollwitzer; they work because anxiety disrupts initiation at the moment of action). One thing, never a list.
+- **Follow up "how did it go with X?" — never "did you do X?"** (the second triggers shame → disengagement; self-
+  forgiveness, not pressure, is what reduces avoidance). Care and awareness, never enforcement — clears the
+  no-gamification line.
+
+### Storage + guardrails
+
+Open threads live in the same `profiles.data` jsonb (invisible, clearable — `openThreads[]`), so they survive
+beyond the ~20-turn transcript window. Reopening a **regulated** thread (the visa example IS one) obeys §5: inform
++ signpost, never advise on the specific situation. **Distress** threads are never reopened breezily — §5
+signposting applies. _(Future, NOT built: surfacing a cross-session avoidance pattern to the user — needs a
+qualified practitioner on framing for an anxious cohort first. Logged in FEATURE-ROADMAP as practitioner-gated.)_
+
+---
+
 ## Diagnosing "why am I not hearing back?" — the anchor of the candidate-strength loop
 
 _Added 2026-06-26. The behavioural spec for the single most-asked question our user has. Grounded entirely

@@ -134,13 +134,39 @@ const CONTEXTS = {
     'The listing I already hold: Junior Data Analyst, Brightwave. Entry-level, SQL and Excel, graduates welcome.',
     'Fit score I calculated for them: 9 out of 10 (a strong match).',
   ]),
+  // Returning with TWO unresolved threads — mirrors buildUserContext's OPEN THREADS block.
+  // The opener should pick up ONE (the most significant), never read the backlog back.
+  returnTwoThreads:
+    ctx([
+      'Their name is Maria.',
+      'Their background: 5 years in operations; now exploring a move.',
+      'Seniority: mid-level.',
+    ]) +
+    '\n\nOPEN THREADS (things left unresolved with them — your own private notes, never shown to them as a list):\n' +
+    '- Was weighing whether her visa lets her take a Bristol operations role; pointed her to gov.uk and an OISC adviser, not yet resolved.\n' +
+    "- Started tailoring her CV for a logistics role, didn't finish.\n" +
+    'If you are opening on a return visit and one is still live, pick up the SINGLE most significant or most recent one, specifically and warmly. Never read the whole list back at them.',
+  // Returning after a CLEAN close — nothing parked. The opener must NOT manufacture a loose end.
+  returnCleanClose: ctx([
+    'Their name is Tom.',
+    'Their background: first-class degree, two strong internships.',
+    'Seniority: entry-level, high-calibre.',
+    'Last time you left things on a clear note: he had a solid plan and was happy with it. Nothing is unresolved.',
+  ]),
+  // Mid-task (tailoring a CV) when they switch topic — context for the hold-the-thread test.
+  midCv: ctx([
+    'Their name is Priya.',
+    'Their background: 3 years in marketing; moving into UX design.',
+    'Seniority: mid-level in marketing, beginner in design.',
+    "THE DIAL: They're MIXED.",
+  ]),
 };
 
 /** Send scripted user turns to the real advisor; return its text reply + token usage.
  *  No tools — we grade the advisor's LANGUAGE, so we always want a text turn.
  *
- *  The big ARLO prompt is identical on all 17 calls, so we mark it cache_control:
- *  ephemeral — Claude stores it after the first call and the next 16 read it at ~1/10th
+ *  The big ARLO prompt is identical on every call, so we mark it cache_control:
+ *  ephemeral — Claude stores it after the first call and the rest read it at ~1/10th
  *  the input price. The small per-persona context is a separate, uncached block. */
 async function askAdvisor(userTurns, context) {
   const messages = userTurns.map((content, i) => ({
@@ -335,6 +361,44 @@ const PERSONAS = [
     turns: ["I've sent over 200 applications and barely heard anything back. What's wrong with me?"],
     checks: [
       presentHard('leads with the real base rate (mentions 140)', /\b140\b/),
+    ],
+  },
+  // ----- Engaged, focused mentor (return check-in + holding the thread, 2026-06-29) -----
+  // NOTE: these grade the advisor's LANGUAGE. The true return-opener fires on the
+  // initiate path (no user turn); here we send a minimal return greeting to test that
+  // the advisor picks up the right thread and obeys the no-gap / no-backlog rules.
+  {
+    name: 'Return — two open threads (picks up ONE, no backlog, no gap mention)',
+    context: CONTEXTS.returnTwoThreads,
+    turns: ['Hey, I\'m back.'],
+    checks: [
+      present('picks up a specific parked thread', /visa|bristol|cv|tailor|logistics/i),
+      absent('never mentions the length of the gap', /it'?s been (a while|ages|some time)|since (we|you) last (spoke|talked|met)|you'?ve been (away|gone)|long time no/i),
+      soft(absent('does NOT read the backlog back as a list', /(a couple|two|both|a few)\s+(of\s+)?(things|threads|bits)\b/i)),
+    ],
+  },
+  {
+    name: 'Return — clean close (does NOT manufacture a loose end)',
+    context: CONTEXTS.returnCleanClose,
+    turns: ['Hey, good to be back.'],
+    checks: [
+      absent('never mentions the length of the gap', /it'?s been (a while|ages|some time)|since (we|you) last (spoke|talked|met)|you'?ve been (away|gone)|long time no/i),
+      soft(absent('does NOT invent an unfinished task', /we (were|left off) (working|in the middle|finishing)|finish (the|your) \w+ (we|you) started|pick (back )?up (the|that|your) \w+ we/i)),
+      soft({ label: 'stays brief (clean close = short)', ok: (t) => t.split(/\s+/).length < 120 }),
+    ],
+  },
+  {
+    name: 'Topic-switch mid-CV — holds the thread relationally (engages, offers a choice)',
+    context: CONTEXTS.midCv,
+    turns: [
+      'Can you help me tailor my CV for a UX role?',
+      "Let's do it. First, tell me which of your marketing projects involved the most user or research work — that's what we'll lead with.",
+      'Actually hang on, what salary should I even expect for a junior UX role?',
+    ],
+    checks: [
+      presentHard('engages the switch (does not ignore the new topic)', /salar|\bpay\b|expect|range|paid|earn|£/i),
+      present('offers to come back to the CV (parks it, not forces it)', /come back|after (this|that|the cv|we)|finish (this|the cv)|while we'?re|once we'?ve|park|either way|then (back|we)/i),
+      soft(absent('does NOT rigidly stonewall the switch', /one thing at a time|let'?s not get distracted|(stay|keep) focused on (the|your) cv|we need to finish/i)),
     ],
   },
   {

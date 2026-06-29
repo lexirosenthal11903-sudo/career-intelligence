@@ -25,6 +25,25 @@ real data layer, error visibility) were both skipped. Everything else is a sympt
 
 ---
 
+## ✅ SHIPPED 2026-06-29 — Engaged, focused mentor (proactive return + holding the thread)
+
+The advisor now initiates on a meaningful return and holds the thread when the user switches mid-task.
+Grilled + research-grounded (`research/task-focus-and-switching-research.md`), specced in
+`brainstorms/engaged-focused-mentor.md`, behaviour in `ADVISOR_PERSONA.md` → "The engaged, focused mentor".
+- **`profiles.data.openThreads[]`** (new, invisible, clearable) — parked unresolved threads that survive the
+  ~20-turn transcript window. Helpers `addOpenThread` / `resolveOpenThread` (`lib/profile.ts`). No migration —
+  it's another key in the existing `profiles.data` jsonb.
+- **Two new advisor tools** (`lib/advisor-tools.ts`): `note_open_thread`, `resolve_open_thread` (silent, no
+  user-facing echo). Surfaced in `buildUserContext` as an OPEN THREADS block with pick-one / never-list-back guidance.
+- **Return-opener:** `chat/route.ts` initiate path now accepts `resume:true` + the recent transcript (was
+  profile-facts-only — the root cause it couldn't see the visa thread). `useArloChat.ts` fires the resume-opener
+  on a meaningful return (`isMeaningfulReturn`: new day or ~6h+ gap via `conversations.updated_at`), suppressed
+  if the user has already started typing (`userEngagedRef`).
+- **Prompt + persona:** returning-visit opening rules, hold-the-thread (relational, avoidance-read, "how did it
+  go" not "did you do it"), parking discipline. Regulated/distress reopens obey the existing §5 rules.
+- **Verified:** tsc + lint clean; 3 new eval personas (return-two-threads / clean-close / topic-switch);
+  `eval:advisor` run after the prompt change. **Not built (practitioner-gated):** cross-session avoidance-pattern surfacing.
+
 ## ▶ CURRENT BUILD QUEUE — Session 41+ (graduated from parking-lot 2026-06-22, Lexi signed off)
 
 _After the first live test. Step 1 spine items above are largely done; these are the post-live-test
