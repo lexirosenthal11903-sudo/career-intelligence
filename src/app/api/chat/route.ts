@@ -30,10 +30,13 @@ async function buildUserContext(
   // separate from `parts` so it doesn't count as "we know them" (which would skip the
   // new-user welcome). First name only, used naturally — not in every line.
   const rawFirst = displayName?.trim().split(/\s+/)[0];
-  const nameLine =
-    rawFirst && !rawFirst.includes('@')
-      ? `Their name is ${rawFirst} — use their first name naturally and warmly (a greeting, the odd moment), but NOT in every message.`
-      : '';
+  const signupFirst = rawFirst && !rawFirst.includes('@') ? rawFirst : '';
+  // Recomputed after the profile loads: a stored preferredName always wins over the
+  // signup name (the signup name is often a formal full first name like "Alexandra"
+  // when they go by "Lexi"). (Lexi, 2026-06-29.)
+  let nameLine = signupFirst
+    ? `Their name is ${signupFirst} — use their first name naturally and warmly (a greeting, the odd moment), but NOT in every message.`
+    : '';
   // Things worth knowing that we don't have yet — so the advisor can fill them in
   // casually, in conversation, rather than a second cold intake (Lexi, 2026-06-23).
   const missing: string[] = [];
@@ -75,6 +78,15 @@ async function buildUserContext(
 
   try {
     const p = await getProfile(supabase, userId);
+    // Preferred name wins over the signup name. If we don't have one yet but we do
+    // have a signup name, nudge the advisor to check what they'd like to be called
+    // (a warm early mentor move, and it fixes "Alexandra" when they go by "Lexi").
+    const preferred = typeof p.preferredName === 'string' ? p.preferredName.trim() : '';
+    if (preferred) {
+      nameLine = `They go by ${preferred} — use it naturally and warmly (a greeting, the odd moment), but NOT in every message.`;
+    } else if (signupFirst) {
+      missing.push(`what they'd like to be called (their account name is "${signupFirst}", which may be a formal version of a name they go by — ask once, early and lightly, then save it with update_profile)`);
+    }
     // The advisor's live read overrides the analysis's initial one.
     if (p.directionClarity === 'lost' || p.directionClarity === 'mixed' || p.directionClarity === 'directed')
       directionClarity = p.directionClarity;

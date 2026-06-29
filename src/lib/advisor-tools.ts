@@ -68,10 +68,11 @@ export const ADVISOR_TOOLS = [
   {
     name: 'update_profile',
     description:
-      "Update what you know about this person's values, deal-breakers, aspiration, salary needs, or working style. Call this when they tell you something concrete about what they want or won't accept — it updates their profile everywhere in the product, so you only ever have to be told once.",
+      "Update what you know about this person's preferred name, values, deal-breakers, aspiration, salary needs, or working style. Call this when they tell you something concrete about what they want or won't accept — it updates their profile everywhere in the product, so you only ever have to be told once. In particular, when they tell you what they'd like to be called, save it as preferredName so you (and the whole product) use it from then on.",
     input_schema: {
       type: 'object',
       properties: {
+        preferredName: { type: 'string', description: "What they want to be called (e.g. \"Lexi\" when the account name is \"Alexandra\"). Save it the moment they tell you, or confirm a shortening they use." },
         values: { type: 'array', items: { type: 'string' }, description: 'What matters to them in work (replaces the current list).' },
         dealBreakers: { type: 'array', items: { type: 'string' }, description: "Things they won't accept (replaces the current list)." },
         aspiration: { type: 'string', description: 'Their 2-year aspiration, in their words.' },
@@ -296,6 +297,8 @@ export async function executeAdvisorTool(
 
       case 'update_profile': {
         const updates: ProfileData = {};
+        if (typeof input.preferredName === 'string' && input.preferredName.trim())
+          updates.preferredName = input.preferredName.trim().slice(0, 60);
         if (Array.isArray(input.values)) updates.values = (input.values as unknown[]).map(String);
         if (Array.isArray(input.dealBreakers)) updates.dealBreakers = (input.dealBreakers as unknown[]).map(String);
         if (typeof input.aspiration === 'string') updates.aspiration = input.aspiration;
@@ -590,14 +593,18 @@ export async function executeAdvisorTool(
 
         tailoredCv = stripDashes(tailoredCv);
         if (tailoredCv) {
+          // Must match the schema the Documents view reads (SidePanel DocumentsView):
+          // type 'cv_tailored' and changes/jobTitle/jobCompany inside `metadata`.
+          // The side-panel /api/tailor-cv writer already uses this shape — the chat
+          // path had drifted (type 'tailored_cv' + a top-level `changes` column), so
+          // CVs tailored in conversation never appeared in Documents.
           await supabase.from('documents').upsert(
             {
               user_id: userId,
               job_id: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
-              type: 'tailored_cv',
+              type: 'cv_tailored',
               content: tailoredCv,
-              changes,
-              updated_at: new Date().toISOString(),
+              metadata: { changes, jobTitle: roleTitle, jobCompany: company || undefined },
             },
             { onConflict: 'user_id,job_id,type' }
           );

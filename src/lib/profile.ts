@@ -28,6 +28,10 @@ export interface OpenThread {
 }
 
 export interface ProfileData {
+  // What this person actually wants to be called (e.g. "Lexi" when the account name
+  // is "Alexandra"). Set by the advisor asking early; preferred over the signup name
+  // everywhere the name is used (chat, recap). (Lexi, 2026-06-29.)
+  preferredName?: string;
   values?: string[];
   selfKnowledge?: Record<string, string>;
   dealBreakers?: string[];
