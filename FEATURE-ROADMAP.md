@@ -498,3 +498,12 @@ One observation to fix:
   went silent AND an action committed this turn; real replies + genuinely empty (nothing committed) turns are
   untouched. Reproduced first with `tests/chat-reply.test.mjs` (6 unit tests modelling the client reduction);
   56/56 green, tsc 0, lint 0, £0. _(logged S45, fixed S46)_
+
+### Session 46 — found while shipping the fix
+- ○ **Flaky e2e: `state-sync.spec.ts:50` (rejected-direction drop).** Intermittently fails: SidePanel renders a
+  rejected direction (Consulting) even though the rejection was PATCHed before navigation, because the
+  `/api/profile` GET it makes on mount occasionally returns stale profile data (no `Cache-Control: no-store`, so a
+  prior cached GET can be served). Passes on retry; not a regression (the `activeDirections` unit test is green and
+  the user-facing path usually loads fresh). But it randomly blocks the pre-commit e2e hook. Likely fix: add
+  `no-store` to the `/api/profile` GET response (and audit other GET API routes the surfaces read live). Small,
+  worth doing before it wastes more commit cycles. _(logged S46)_
