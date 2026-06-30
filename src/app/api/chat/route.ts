@@ -6,6 +6,7 @@ import { checkChatRateLimit } from '@/lib/ratelimit';
 import { getProfile } from '@/lib/profile';
 import { ADVISOR_TOOLS, executeAdvisorTool } from '@/lib/advisor-tools';
 import { stripDashes, stripGapRemarks, stripTimeOfDay } from '@/lib/sanitize';
+import { ackForSilentCommit } from '@/lib/chat-reply';
 import { assembleBoard, formatBoardForAdvisor } from '@/lib/user-state';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -213,6 +214,11 @@ const MAX_TOOL_ROUNDS = 5;
 // (upstream error, thrown exception) can never drift apart.
 const HOLDING_LINE = "I'm here. Give me a second, then tell me a little more.";
 
+// Spoken when an action committed this turn but the model's final reply came back
+// with no words. The "✓ …" action echo already names the specific change, so this
+// just has to be a warm acknowledgement — never the cold ERROR_MSG over a success.
+const COMMITTED_ACK = "Done, I've got that for you.";
+
 // Parse a response body without letting a non-JSON error page (e.g. a 502 HTML page
 // from the edge) throw before we've even checked the status. Returns null on failure
 // so the status-based handling below can still run (and the transient retry can fire).
@@ -371,6 +377,13 @@ export async function POST(request: Request) {
             return { ...b, text };
           });
         }
+        // If the model ended this turn with no words but an action already committed
+        // (e.g. update_profile saved, "✓ Updated your profile" echoed), speak a warm
+        // acknowledgement rather than leaving empty content the client renders as the
+        // cold ERROR_MSG. A normal reply, or a genuinely empty turn with nothing
+        // committed, is left untouched. (Session 45 live-test find.)
+        const ack = ackForSilentCommit(data.content, meridianActions.length, COMMITTED_ACK);
+        if (ack) data.content = ack;
         data.meridianActions = meridianActions;
         data.meridianSignals = meridianSignals;
         data.meridianData = meridianData;
