@@ -478,5 +478,21 @@ visible. FAILs + fixes:
 - ○ **Autoscroll: own message scrolls off the top** — scroll-to-bottom hides the start of a long user message;
   it's also briefly behind the suggestion chips. Needs a careful pass (anchor the new user message near the top of
   the viewport on send), verified against scroll positions. Deferred so it isn't rushed and regressed again.
-- ○ **Count mismatch** — nav badge says "15" live roles, panel header says "13 live". The nav count isn't applying
-  the same filters (score/hidden/closed) as the panel. Small, align them.
+- ✓ **Autoscroll: own message scrolls off the top** — FIXED S45. A user turn now anchors the new message's start
+  near the viewport top (clamped so short messages still land above the composer). Pure `anchorScrollTop` +
+  deterministic Playwright scroll-position test. _(fixed S45)_
+- ✓ **Count mismatch** — FIXED S45. Nav count + panel now derive from ONE `liveRoles` set in `usePanelJobs`
+  (passed/hidden/score filters applied once); removed SidePanel's duplicate saved-state loader. _(fixed S45)_
+
+### Session 45 — live walk-through QA findings (2026-06-30)
+Full QA pass (Claude-in-Chrome). **All 5 PASS**: nav-count-matches-panel, pass-a-role-both-counts-drop,
+saved-role-badge-once, autoscroll-long-message-readable, update_profile-doesn't-drop-values (the #13 merge fix).
+One observation to fix:
+- ○ **Cold error shown on a SUCCESSFUL tool action.** Telling the advisor a second value: it saved correctly
+  (the value persisted AND "✓ Updated your profile" echoed), but the chat reply was the cold fallback "Something
+  went wrong on my end, say that again?". Hypothesis: the tool COMMITTED, but the follow-up text generation (the
+  second model call after the tool result) failed/returned empty, so the route fell back to ERROR_MSG while the
+  committed action's echo + signal still came through. Same class as the S44 "a committed action is never stranded
+  behind a cold error" rule, on a path it didn't fully cover. Fix: when actions were committed this turn, show a
+  warm acknowledgement of what was done ("Done, I've noted that") instead of the cold error. **Reproduce first**
+  (a harness driving the real tool loop with a forced post-tool failure) before patching. _(logged S45)_
