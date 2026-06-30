@@ -488,11 +488,13 @@ visible. FAILs + fixes:
 Full QA pass (Claude-in-Chrome). **All 5 PASS**: nav-count-matches-panel, pass-a-role-both-counts-drop,
 saved-role-badge-once, autoscroll-long-message-readable, update_profile-doesn't-drop-values (the #13 merge fix).
 One observation to fix:
-- ○ **Cold error shown on a SUCCESSFUL tool action.** Telling the advisor a second value: it saved correctly
+- ✓ **Cold error shown on a SUCCESSFUL tool action.** Telling the advisor a second value: it saved correctly
   (the value persisted AND "✓ Updated your profile" echoed), but the chat reply was the cold fallback "Something
-  went wrong on my end, say that again?". Hypothesis: the tool COMMITTED, but the follow-up text generation (the
-  second model call after the tool result) failed/returned empty, so the route fell back to ERROR_MSG while the
-  committed action's echo + signal still came through. Same class as the S44 "a committed action is never stranded
-  behind a cold error" rule, on a path it didn't fully cover. Fix: when actions were committed this turn, show a
-  warm acknowledgement of what was done ("Done, I've noted that") instead of the cold error. **Reproduce first**
-  (a harness driving the real tool loop with a forced post-tool failure) before patching. _(logged S45)_
+  went wrong on my end". Root cause confirmed: the tool COMMITTED, then the model's final turn ended with no
+  usable text (empty / whitespace), and the route returned that empty content as a clean 200 — the client's
+  `join("") || ERROR_MSG` then rendered the cold error next to the success echo. The route's warm-recovery
+  guards only covered `!response.ok` + thrown exceptions, never an empty 200. Fixed S46 (51b77cf):
+  `src/lib/chat-reply.ts` `ackForSilentCommit` returns a warm "Done, I've got that for you." only when the model
+  went silent AND an action committed this turn; real replies + genuinely empty (nothing committed) turns are
+  untouched. Reproduced first with `tests/chat-reply.test.mjs` (6 unit tests modelling the client reduction);
+  56/56 green, tsc 0, lint 0, £0. _(logged S45, fixed S46)_
