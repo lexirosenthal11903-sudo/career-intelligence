@@ -458,3 +458,19 @@ from the *real board* (`saved_applications`), and surfaces read different tables
 - ○ **Career-coaching research** — we researched mentorship, not career coaching; scope what else to consider.
 - ○ **Sycophancy guardrail (voice)** — the line between pleasing the user and genuinely building momentum/
   productivity. Make it a first-class voice principle + an eval check (belongs in the deferred voice pass).
+
+### Session 44e — live walk-through QA findings (2026-06-30)
+Full QA pass (Claude-in-Chrome). PASS: no-phantom-outcomes, closed-role-leaves-Live-roles, time-of-day, salary
+visible. FAILs + fixes:
+- ✓ **Rejected direction did nothing** (the QA's #1: a broken core-loop promise). Root cause: the advisor didn't
+  call `update_direction`, and even when it does the tool emitted no client signal. Fixed: prompt now records the
+  reaction the moment they say it (then explores why); `update_direction` emits `profile-changed`; DirectionView
+  re-reads live. e2e proves the rejected direction drops off without a reload. _(fixed S44e)_
+- ✓ **Name sync stale** — Profile showed "You go by Lexi" but the nav + recap card still said "Alexandra" mid-
+  session. Fixed: `update_profile` emits `profile-changed` (nav + Profile re-read live) and busts the recap cache;
+  prompt now acknowledges the name in the reply instead of silently saving it. _(fixed S44e)_
+- ○ **Autoscroll: own message scrolls off the top** — scroll-to-bottom hides the start of a long user message;
+  it's also briefly behind the suggestion chips. Needs a careful pass (anchor the new user message near the top of
+  the viewport on send), verified against scroll positions. Deferred so it isn't rushed and regressed again.
+- ○ **Count mismatch** — nav badge says "15" live roles, panel header says "13 live". The nav count isn't applying
+  the same filters (score/hidden/closed) as the panel. Small, align them.

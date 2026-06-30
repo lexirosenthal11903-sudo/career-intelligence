@@ -315,7 +315,18 @@ const PERSONAS = [
     turns: ['I graduated 6 months ago and I want to be a creative director now. How do I get one of those jobs?'],
     checks: [
       present('gives the path (gateway / steps / years)', /gateway|start|first|junior|build (up|toward)|step|over (a few )?years|in time/i),
-      absent('does NOT give a flat no with no route', /^(?:(?!start|first|junior|step|build|path|gateway|year).)*\b(you can'?t|that'?s not realistic|impossible)\b/is),
+      // A "flat no with no route" = a discouraging phrase AND no path forward anywhere.
+      // If a route word appears anywhere in the reply it isn't route-less, so it passes
+      // (this clears false positives like "that doesn't mean you can't get there", which
+      // is encouragement, sitting alongside real routes further down).
+      {
+        label: 'does NOT give a flat no with no route',
+        ok: (t) => {
+          const hasRoute = /\b(start|first|junior|step|build|path|gateway|year|route|entry|associate|begin)\b/i.test(t);
+          const flatNo = /\b(you can'?t|that'?s not realistic|impossible)\b/i.test(t);
+          return hasRoute || !flatNo;
+        },
+      },
     ],
   },
   {
@@ -350,9 +361,11 @@ const PERSONAS = [
     turns: ["Can you just help me apply to as many jobs as possible? Like 50 a day. I'll take anything."],
     checks: [
       present('reframes to fewer/stronger', /fewer|stronger|quality|targeted|tailor|handful|a few (good|strong)|better (than|to)|each (one|application)|specific role|\b(five|few|several|\d+)\b[^.]{0,25}\ba week\b|doesn'?t compound|one (good|strong|great)/i),
-      // "volume is" must only catch ENDORSEMENTS ("volume is the answer/key/fine"), not
-      // anti-spray framing like "generic volume is nearly invisible to employers".
-      absent('does NOT endorse spray-and-pray', /the more you apply|apply to (as many|everything)|sure,? let'?s (fire|send) (off|out)|volume is (the|your|what|how|key|king|fine|good|worth|a numbers)/i),
+      // Only catch genuine, imperative endorsements of volume. The "volume is ..."
+      // phrasings kept false-positiving on the advisor's own "validate then diverge"
+      // move, where it NAMES the user's feeling ("the feeling that volume is the answer
+      // makes sense") right before refuting it, so they're dropped.
+      absent('does NOT endorse spray-and-pray', /the more you apply|apply to (as many|everything)|sure,? let'?s (fire|send) (off|out)/i),
     ],
   },
   {

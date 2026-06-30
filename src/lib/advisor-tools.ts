@@ -339,7 +339,18 @@ export async function executeAdvisorTool(
         if (Object.keys(updates).length === 0)
           return { content: 'No recognised profile fields to update.', isError: true };
         await patchProfile(supabase, userId, updates);
-        return { content: `Profile updated: ${Object.keys(updates).join(', ')}.`, action: 'Updated your profile' };
+        // A preferred name changes what the nav + the recap card greet them as. Bust the
+        // cached recap so it regenerates with the new name instead of the formal one.
+        if (updates.preferredName) {
+          try { await supabase.from('recaps').delete().eq('user_id', userId); } catch { /* best-effort */ }
+        }
+        // Signal the client so the nav, Profile, and Direction surfaces re-read live
+        // (otherwise a name/salary set mid-conversation only shows after a reload).
+        return {
+          content: `Profile updated: ${Object.keys(updates).join(', ')}.`,
+          action: 'Updated your profile',
+          signal: 'profile-changed',
+        };
       }
 
       case 'update_direction': {
@@ -355,7 +366,9 @@ export async function executeAdvisorTool(
         next.push({ direction, status, note: input.note ?? null, at: new Date().toISOString() });
         await patchProfile(supabase, userId, { directionFeedback: next });
         const verb = status === 'rejected' ? 'set aside' : status === 'preferred' ? 'starred' : 'refined';
-        return { content: `Direction "${direction}" marked ${status}.`, action: `${verb} "${direction}"` };
+        // Signal so the Direction page re-reads and a rejected direction actually drops
+        // off it (otherwise the user says "not for me" and the screen ignores them).
+        return { content: `Direction "${direction}" marked ${status}.`, action: `${verb} "${direction}"`, signal: 'profile-changed' };
       }
 
       case 'set_direction_clarity': {

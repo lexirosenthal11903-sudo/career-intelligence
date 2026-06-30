@@ -215,6 +215,12 @@ export function useArloChat({
         if (signals.includes("application-changed") && typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("ci:application-changed"));
         }
+        // The advisor changed a profile fact (preferred name, salary, a direction
+        // reaction). Tell the nav, Profile and Direction surfaces to re-read so they
+        // can't show stale info while the advisor says it's updated.
+        if (signals.includes("profile-changed") && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("ci:profile-changed"));
+        }
         // The user explicitly asked to be taken to a surface — open it. Only ever
         // fires because the advisor chose the open_surface tool in response to a
         // direct request; never a side-effect of another change.

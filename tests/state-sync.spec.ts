@@ -79,3 +79,35 @@ test('Profile + Direction + nav reflect the preferred name, salary, and a reject
 
   await context.close();
 });
+
+test('advisor changes propagate LIVE via ci:profile-changed (no reload)', async ({ browser }) => {
+  test.skip(!ready, 'Needs Supabase creds in .env.local (seeds the e2e test user).');
+  const context = await browser.newContext();
+  await context.addCookies(cookies);
+
+  // Start with NO direction feedback, so both directions show.
+  await context.request.patch('/api/profile', { data: { directionFeedback: [], preferredName: 'Sam' } });
+
+  const page = await context.newPage();
+  await page.goto('/workspace');
+  await page.getByRole('button', { name: 'Your direction' }).click();
+  const side = page.getByTestId('side');
+  await expect(side.getByText('Consulting')).toBeVisible({ timeout: 20_000 });
+
+  // The advisor rejects a direction + sets a new preferred name (what update_direction /
+  // update_profile write), then the same signal those tools now emit fires.
+  await context.request.patch('/api/profile', {
+    data: {
+      preferredName: 'Lexi',
+      directionFeedback: [{ direction: 'Consulting', status: 'rejected', at: new Date().toISOString() }],
+    },
+  });
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('ci:profile-changed')));
+
+  // The rejected direction drops off WITHOUT a reload, and the nav name updates live.
+  await expect(side.getByText('Consulting')).toHaveCount(0, { timeout: 10_000 });
+  await expect(side.getByText('Behavioural research')).toBeVisible();
+  await expect(page.getByText('Lexi').first()).toBeVisible({ timeout: 10_000 });
+
+  await context.close();
+});

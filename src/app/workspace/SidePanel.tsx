@@ -918,8 +918,15 @@ function DirectionView({ profile, hasResult }: { profile: AnalysisProfile | null
       } catch { /* ignore, show all directions */ }
     };
     load();
+    // Re-read when the advisor records a direction reaction (profile-changed) or revises
+    // the direction set (analysis-changed), so a rejected direction drops off live.
+    window.addEventListener("ci:profile-changed", load);
     window.addEventListener("ci:analysis-changed", load);
-    return () => { cancelled = true; window.removeEventListener("ci:analysis-changed", load); };
+    return () => {
+      cancelled = true;
+      window.removeEventListener("ci:profile-changed", load);
+      window.removeEventListener("ci:analysis-changed", load);
+    };
   }, []);
   const directions = activeDirections(all, feedback);
 
@@ -982,7 +989,7 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       const [{ data: { user } }, res] = await Promise.all([
         supabase.auth.getUser(),
         fetch("/api/profile").catch(() => null),
@@ -998,8 +1005,12 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
         try { const d = await res.json(); if (!cancelled) setP(d.profile ?? {}); } catch { /* ignore */ }
       }
       if (!cancelled) setLoading(false);
-    })();
-    return () => { cancelled = true; };
+    };
+    load();
+    // Re-read when the advisor updates a profile fact (name, salary), so the mirror
+    // doesn't show stale info while the advisor says it saved.
+    window.addEventListener("ci:profile-changed", load);
+    return () => { cancelled = true; window.removeEventListener("ci:profile-changed", load); };
   }, [supabase]);
 
   async function signOut() {

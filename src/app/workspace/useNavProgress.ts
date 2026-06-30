@@ -32,10 +32,12 @@ export function useNavProgress() {
 
   // Who's here. The name a stored preferredName ("Lexi") always wins over the formal
   // signup name ("Alexandra"), so the nav can't say one thing while the advisor says
-  // another (STATE-SYNC-AUDIT #3). Falls back to the full name, then email.
+  // another (STATE-SYNC-AUDIT #3). Falls back to the full name, then email. Re-reads on
+  // ci:profile-changed so telling the advisor "call me Lexi" updates the nav live, not
+  // only after a reload.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const loadUser = async () => {
       const [{ data: { user } }, res] = await Promise.all([
         supabase.auth.getUser(),
         fetch("/api/profile").catch(() => null),
@@ -57,8 +59,10 @@ export function useNavProgress() {
         email: user.email ?? "",
         initial: source.trim()[0]?.toUpperCase() ?? "Y",
       });
-    })();
-    return () => { cancelled = true; };
+    };
+    loadUser();
+    window.addEventListener("ci:profile-changed", loadUser);
+    return () => { cancelled = true; window.removeEventListener("ci:profile-changed", loadUser); };
   }, [supabase]);
 
   // Recent + count come from the real Applications board (saved_applications), so the
