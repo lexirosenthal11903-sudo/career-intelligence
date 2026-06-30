@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "node --test tests/*.test.mjs",
     "eval:advisor": "node --env-file=.env.local tests/eval/advisor.eval.mjs",
+    "eval:advisor:quick": "node --env-file=.env.local tests/eval/advisor.eval.mjs --quick",
     "test:e2e": "playwright test",
     "test:e2e:prod": "NEXT_PUBLIC_ENABLE_CRASH_TEST=1 playwright test --config=playwright.prod.config.ts",
     "test:e2e:live": "playwright test --config=playwright.live.config.ts"

@@ -16,6 +16,8 @@
    Returns jobs ranked by fit; grouping into Strong/Good fit happens in the panel. */
 import { useCallback, useEffect, useState } from "react";
 import { loadAnalysisResult } from "@/lib/analysisResult";
+import { roleKey, normRolePart, isInApplications } from "@/lib/role-key";
+import { keywordHash } from "@/lib/job-set";
 
 export interface PanelJob {
   id: string | number;
@@ -51,25 +53,26 @@ interface AnalysisResult {
 const CACHE_KEY = "cached-jobs"; // unauthenticated fallback only
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/* Stable hash of the inputs that define a job set. When any of these change the
-   stored set is rebuilt; otherwise it is reused verbatim (the stability guarantee). */
-function keywordHash(p: AnalysisProfile): string {
-  const basis = [
-    [...(p.searchKeywords || [])].map((k) => k.toLowerCase().trim()).sort().join("|"),
-    (p.locationSearch || "").toLowerCase().trim(),
-    (p.seniorityLevel || "").toLowerCase().trim(),
-  ].join("::");
-  let h = 5381;
-  for (let i = 0; i < basis.length; i++) h = ((h << 5) + h + basis.charCodeAt(i)) | 0;
-  return (h >>> 0).toString(36);
-}
-
 export function usePanelJobs() {
   const [profile, setProfile] = useState<AnalysisProfile | null>(null);
   const [hasResult, setHasResult] = useState<boolean | null>(null); // null = still loading
   const [jobs, setJobs] = useState<PanelJob[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState(false);
+
+  // Saved-role state lives HERE, in the one shared hook, so the left-nav count and the
+  // side-panel list derive from a SINGLE filtered set — they can no longer drift (the
+  // "15 vs 13 live" mismatch: the nav counted passed/hidden roles the panel had dropped.
+  // STATE-SYNC-AUDIT single-source principle).
+  const [interested, setInterested] = useState<Set<string>>(new Set());
+  // roleKey(title,company) of every interested role, so an advisor-saved role (whose
+  // synthetic id never equals a live listing id) still counts as "in applications".
+  const [interestedKeys, setInterestedKeys] = useState<Set<string>>(new Set());
+  const [passed, setPassed] = useState<Set<string>>(new Set());
+  // Roles the user told the advisor aren't for them: exact title+company, and title-only
+  // for hides the advisor captured without a company.
+  const [hiddenKeys, setHiddenKeys] = useState<Set<string>>(new Set());
+  const [hiddenTitles, setHiddenTitles] = useState<Set<string>>(new Set());
 
   // ── Pure fetch + score for a profile (no state writes) ─────────────────────
   const fetchAndScore = useCallback(async (p: AnalysisProfile): Promise<PanelJob[]> => {
@@ -251,6 +254,38 @@ export function usePanelJobs() {
 
   const retry = useCallback(() => { if (profile) loadPersisted(profile); }, [profile, loadPersisted]);
 
+  // ── Saved interested/passed/hidden state (the join with the live job set) ──────
+  const loadSavedState = useCallback(async () => {
+    try {
+      const res = await fetch("/api/save-job");
+      if (!res.ok) return; // 401 when signed out — leave the sets empty
+      const data = await res.json();
+      const saved: Array<{ id: string | number; status?: string; title?: string; company?: string }> = data.jobs || [];
+      const interestedRoles = saved.filter((j) => j.status === "interested");
+      setInterested(new Set(interestedRoles.map((j) => String(j.id))));
+      setInterestedKeys(new Set(interestedRoles.map((j) => roleKey(j.title, j.company))));
+      setPassed(new Set(saved.filter((j) => j.status === "passed").map((j) => String(j.id))));
+      const hidden: Array<{ title?: string; company?: string }> = data.hiddenRoles || [];
+      setHiddenKeys(new Set(hidden.filter((h) => normRolePart(h.company)).map((h) => roleKey(h.title, h.company))));
+      setHiddenTitles(new Set(hidden.filter((h) => !normRolePart(h.company)).map((h) => normRolePart(h.title))));
+    } catch { /* ignore — the sets simply stay as they were */ }
+  }, []);
+
+  // Load on mount, and re-read whenever a role is flagged/passed in the panel
+  // (ci:roles-changed) or the advisor changes application state (ci:application-changed),
+  // so the count + the badge stay in step with the board without a reload.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => { await Promise.resolve(); if (!cancelled) loadSavedState(); })();
+    window.addEventListener("ci:roles-changed", loadSavedState);
+    window.addEventListener("ci:application-changed", loadSavedState);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("ci:roles-changed", loadSavedState);
+      window.removeEventListener("ci:application-changed", loadSavedState);
+    };
+  }, [loadSavedState]);
+
   // Only ever surface genuine fits. The scorer deprioritises senior roles (caps
   // them at 2) but they were still appearing at the bottom of the list — and a
   // stored set loads verbatim, so a senior role persisted across logins
@@ -270,5 +305,30 @@ export function usePanelJobs() {
     return true;
   });
 
-  return { profile, hasResult, jobs: visibleJobs, jobsLoading, jobsError, retry, markSeen };
+  // The ACTUAL live-roles set both the nav count and the panel list render from: drop
+  // passed roles (unless they made it into Applications) and roles the user hid. This is
+  // the one place the filter lives now, so nav and panel can never disagree.
+  const liveRoles = visibleJobs.filter(
+    (j) =>
+      (!passed.has(String(j.id)) || isInApplications(j, interested, interestedKeys)) &&
+      !hiddenKeys.has(roleKey(j.title, j.company)) &&
+      !hiddenTitles.has(normRolePart(j.title))
+  );
+
+  return {
+    profile,
+    hasResult,
+    jobs: visibleJobs,
+    liveRoles,
+    jobsLoading,
+    jobsError,
+    retry,
+    markSeen,
+    // Saved-role state + its optimistic setters, consumed by the panel. (`passed`/`hidden`
+    // stay internal — they're only needed for the liveRoles filter computed here.)
+    interested,
+    interestedKeys,
+    setInterested,
+    setPassed,
+  };
 }

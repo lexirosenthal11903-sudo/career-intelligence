@@ -1,5 +1,6 @@
 import { test, expect, type Cookie } from '@playwright/test';
 import { seedAuthCookies, adminClient, getTestUserId } from './helpers/seedAuth';
+import { keywordHash } from '../src/lib/job-set';
 
 /**
  * STATE-SYNC client-surface pass — proves the UI now agrees with what the advisor knows
@@ -112,6 +113,69 @@ test('advisor changes propagate LIVE via ci:profile-changed (no reload)', async 
   await expect(side.getByText('Consulting')).toHaveCount(0, { timeout: 10_000 });
   await expect(side.getByText('Behavioural research')).toBeVisible();
   await expect(page.getByText('Lexi').first()).toBeVisible({ timeout: 10_000 });
+
+  await context.close();
+});
+
+test('#1 badge — an advisor-saved role (synthetic id) shows "In Applications" ONCE on the matching live listing', async ({ browser }) => {
+  test.skip(!ready, 'Needs Supabase creds in .env.local (seeds the e2e test user).');
+  const context = await browser.newContext();
+  await context.addCookies(cookies);
+  const admin = adminClient();
+
+  // A deterministic profile so the persisted matched_jobs set is used VERBATIM (its
+  // keyword hash matches what the client computes) — the test never falls back to a live
+  // Adzuna/Reed fetch. keywordHash is the SAME function the hook uses (shared lib).
+  const profile = {
+    summary: 'A marketing graduate looking for an assistant role.',
+    seniorityLevel: 'entry-level',
+    searchKeywords: ['marketing assistant'],
+    locationSearch: 'london',
+    topRoleTitles: ['Marketing Assistant'],
+  };
+  await admin.from('results').delete().eq('user_id', userId);
+  await admin.from('results').insert({ user_id: userId, data: { profile } });
+
+  // Clean any prior saved/matched rows for this user so the assertion is unambiguous.
+  await admin.from('saved_jobs').delete().eq('user_id', userId);
+  await admin.from('saved_applications').delete().eq('user_id', userId);
+
+  // The LIVE listing as it sits in matched_jobs — a real numeric id.
+  const liveRole = {
+    id: 987654,
+    title: 'Marketing Assistant',
+    company: 'Brightwave',
+    location: 'London',
+    salary: 'Not listed',
+    relevanceScore: 8,
+    description: 'An entry-level marketing assistant role.',
+    applyUrl: 'https://example.com/jobs/987654',
+  };
+  const replace = await context.request.post('/api/matched-jobs', {
+    data: { action: 'replace', keywordHash: keywordHash(profile), jobs: [liveRole] },
+  });
+  expect(replace.ok(), `matched-jobs replace failed: ${replace.status()} ${await replace.text()}`).toBeTruthy();
+
+  // The SAME role saved by the advisor with a SYNTHETIC id (chat-<slug>), which never
+  // equals the live numeric id. The badge must still match it — via roleKey, not id
+  // (STATE-SYNC-AUDIT #1). This is the exact mismatch that used to break the badge.
+  const save = await context.request.post('/api/save-job', {
+    data: {
+      jobId: 'chat-marketing-assistant',
+      jobData: { id: 'chat-marketing-assistant', title: 'Marketing Assistant', company: 'Brightwave', status: 'interested' },
+    },
+  });
+  expect(save.ok(), `save-job failed: ${save.status()} ${await save.text()}`).toBeTruthy();
+
+  const page = await context.newPage();
+  await page.goto('/workspace');
+  await page.getByRole('button', { name: 'Live roles' }).click();
+  const side = page.getByTestId('side');
+
+  // The live Brightwave row appears exactly once, and carries the "In Applications" badge
+  // (matched across the synthetic/live id gap). Once = no phantom duplicate of the saved role.
+  await expect(side.getByText('Marketing Assistant')).toHaveCount(1, { timeout: 20_000 });
+  await expect(side.getByText('✓ In Applications')).toHaveCount(1);
 
   await context.close();
 });

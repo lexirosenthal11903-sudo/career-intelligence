@@ -26,6 +26,7 @@
  */
 import { ARLO_SYSTEM_PROMPT } from '../../src/lib/advisor-prompt.ts';
 import { stripDashes, stripGapRemarks } from '../../src/lib/sanitize.ts';
+import { formatBoardForAdvisor } from '../../src/lib/user-state.ts';
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!API_KEY) {
@@ -169,6 +170,22 @@ const CONTEXTS = {
     'Seniority: entry-level, high-calibre.',
     'Last time you left things on a clear note: he had a solid plan and was happy with it. Nothing is unresolved.',
   ]),
+  // A KNOWN board (one offer, one rejection, one in-flight application — and NO
+  // interview) plus a set preferredName, formatted by the SAME formatBoardForAdvisor the
+  // live chat route uses. This is the state-sync "board-truth" guard: the advisor must
+  // read its outcomes off the board (name the real offer, use the real name) and must NOT
+  // confabulate an interview that isn't there (the S44 "phantom offer" class of bug).
+  boardTruth:
+    ctx([
+      'Their name is Jordan — use their first name naturally.',
+      'Seniority: entry-level.',
+    ]) +
+    '\n\n' +
+    formatBoardForAdvisor([
+      { title: 'Junior Account Executive', company: 'Northwind', stage: 'offer' },
+      { title: 'Graduate Scheme', company: 'Lumen Group', stage: 'rejected' },
+      { title: 'Marketing Assistant', company: 'Brightwave', stage: 'applied' },
+    ]),
   // Mid-task (tailoring a CV) when they switch topic — context for the hold-the-thread test.
   midCv: ctx([
     'Their name is Priya.',
@@ -293,6 +310,7 @@ const PERSONAS = [
   // ----- Rule-bearing (have situational hard checks) -----
   {
     name: 'Lost grad — no idea what they want',
+    quick: true,
     context: CONTEXTS.lostGrad,
     turns: ["I just graduated and honestly I have no idea what I want to do with my life."],
     checks: [
@@ -357,6 +375,7 @@ const PERSONAS = [
   },
   {
     name: 'Wants volume — "help me apply to 50 a day" (thesis test)',
+    quick: true,
     context: CONTEXTS.lostGrad,
     turns: ["Can you just help me apply to as many jobs as possible? Like 50 a day. I'll take anything."],
     checks: [
@@ -388,6 +407,7 @@ const PERSONAS = [
   },
   {
     name: 'Diagnosis — "200 applications, no response, what is wrong with me?"',
+    quick: true,
     context: CONTEXTS.psychGrad,
     turns: ["I've sent over 200 applications and barely heard anything back. What's wrong with me?"],
     checks: [
@@ -397,6 +417,7 @@ const PERSONAS = [
   // ----- Outcomes — rejection / offer (Session 42, research-grounded) -----
   {
     name: 'Rejection — final interview, no feedback given (acknowledge, normalise, no email-mining)',
+    quick: true,
     context: CONTEXTS.rejectedNoFeedback,
     turns: ["I just found out I didn't get the Lumen grad scheme. I made it to the final interview and they didn't even tell me why."],
     checks: [
@@ -408,11 +429,31 @@ const PERSONAS = [
   },
   {
     name: 'Offer — genuine well done, no gamification',
+    quick: true,
     context: CONTEXTS.offerToWeigh,
     turns: ["I got the offer for the Northwind job! They emailed this morning."],
     checks: [
       present('genuinely marks the win', /well done|congratulat|that'?s (brilliant|great|excellent|wonderful|big)|delighted|good for you|nice one|chuffed|genuinely pleased/i),
       absent('no gamification', /\bpoints?\b|streak|badge|level up|achievement|unlocked|leaderboard|🎉|🏆/i),
+    ],
+  },
+  // ----- Board-truth: reads outcomes + name off the real board, never confabulates -----
+  {
+    name: 'Board-truth — "do I have any offers? what\'s my name?" (no phantom interview)',
+    context: CONTEXTS.boardTruth,
+    turns: ['Quick check — do I have any offers right now? And what name do you have for me?'],
+    checks: [
+      presentHard('names the real offer on the board (Northwind)', /northwind/i),
+      presentHard('uses the name on the board (Jordan)', /jordan/i),
+      // The board has NO interview. Asserting one is the phantom-outcome bug (negation-aware:
+      // "you don't have any interviews" / "no interviews yet" is correct and allowed).
+      {
+        label: 'does NOT confabulate an interview not on the board',
+        ok: (t) =>
+          t
+            .split(/[.!?\n]+/)
+            .every((s) => !/\b(you (have|'ve got|are at|reached|'re at)|your|there'?s|got an?)\b[^.]*\binterview\b/i.test(s) || NEGATION.test(s)),
+      },
     ],
   },
   // ----- Engaged, focused mentor (return check-in + holding the thread, 2026-06-29) -----
@@ -555,12 +596,21 @@ const PERSONAS = [
 // ── Run ───────────────────────────────────────────────────────────────────────
 const GREEN = '\x1b[32m', RED = '\x1b[31m', YEL = '\x1b[33m', DIM = '\x1b[2m', RESET = '\x1b[0m';
 
+// --quick = a ~5-persona spot-check (~$0.03) instead of the full suite (~$0.20).
+// Use it for routine sanity checks; run the FULL suite ONLY on a material advisor-
+// prompt change (CLAUDE.md rule 2 — the API is real money). The 5 quick personas
+// carry the highest-value bright lines (non-directive, the 140 base rate, the
+// fewer-stronger thesis, rejection care, offer/no-gamification); every GLOBAL_CHECK
+// (em dashes, product-voice "we", cheerleading, myths…) runs on each regardless.
+const QUICK = process.argv.includes('--quick');
+const personasToRun = QUICK ? PERSONAS.filter((p) => p.quick) : PERSONAS;
+
 let hardFailures = 0;
 let softWarnings = 0;
-console.log(`\nAdvisor eval — ${MODEL} — ${new Date().toISOString()}`);
-console.log(`${PERSONAS.length} personas · ✓/✗ = hard rule · ⚠ = soft heuristic (never fails the run)\n`);
+console.log(`\nAdvisor eval${QUICK ? ' (--quick subset)' : ''} — ${MODEL} — ${new Date().toISOString()}`);
+console.log(`${personasToRun.length} personas · ✓/✗ = hard rule · ⚠ = soft heuristic (never fails the run)\n`);
 
-for (const persona of PERSONAS) {
+for (const persona of personasToRun) {
   console.log(`\n${persona.qualityOnly ? `${DIM}[quality-only]${RESET} ` : ''}${persona.name}`);
   let reply;
   try {

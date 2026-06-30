@@ -12,7 +12,7 @@
    the SAME source. The first session deliberately renders its own lightweight tree
    (no jobs fetch, no nav progress) — the analysis is still streaming in the chat. */
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import s from "./workspace.module.css";
 import LeftNav from "./LeftNav";
@@ -133,12 +133,11 @@ function ReturningWorkspace() {
   // it to their Profile (the CV's home). No-op if there's nothing stashed.
   useEffect(() => { flushPendingCv(); }, []);
 
-  // The nav "Roles" count = the roles that survive the same score filter the list
-  // uses (low-scoring/senior results are dropped). Real progress, not a hard-coded 8.
-  const rolesCount = useMemo(
-    () => panelJobs.jobs.filter((j) => !j.relevanceScore || j.relevanceScore >= 4).length,
-    [panelJobs.jobs]
-  );
+  // The nav "Roles" count IS the panel's live-roles set (the hook's single source), so
+  // the badge and the "N live" header can never disagree — passed and hidden roles are
+  // already dropped upstream. (Was: a separate score-only filter that double-counted
+  // passed/hidden roles → the "15 vs 13 live" drift.)
+  const rolesCount = panelJobs.liveRoles.length;
 
   // Nav drives what the panel shows; selecting a surface also opens the panel.
   function openSurface(view: PanelView) {

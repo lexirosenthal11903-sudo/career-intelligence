@@ -84,6 +84,29 @@ offer, one rejected, one applied), a `preferredName`, one rejected direction, on
 
 **Fix-first order:** #1, #2, #3 (pure structural single-source), then #4, #5, #11, then #6 (needs new data).
 
+---
+
+## Progress log
+
+**Session 45 (2026-06-30):**
+- **#1 badge — now has an e2e (DONE).** `tests/state-sync.spec.ts` seeds a `matched_jobs` live role
+  (numeric id) + an advisor-saved role with the same title and a synthetic `chat-<slug>` id, then asserts the
+  "✓ In Applications" badge shows exactly ONCE on the live listing (matched by `roleKey`, not id). Passing.
+  `keywordHash` extracted to `src/lib/job-set.ts` so the test seeds a deterministic stored set (no live fetch).
+- **Nav "15 vs 13 live" drift — FIXED (single-source).** The nav count counted passed/hidden roles the panel had
+  already dropped. Root: two filters (nav: relevance-only; panel: relevance + passed + hidden) over two copies of
+  the saved-state. Fix: saved-role state (interested/passed/hidden) + the `liveRoles` filter now live ONCE in
+  `usePanelJobs`; both the nav count and the panel render from `liveRoles`. Removed SidePanel's duplicate
+  `/api/save-job` loader. (This is the single-source principle applied locally, ahead of the full `assembleUserState`.)
+- **Board-truth eval persona — ADDED (B.2).** A persona with a seeded board (one offer, one rejected, one applied,
+  NO interview) formatted by the real `formatBoardForAdvisor`; grades that the reply names the real offer, uses the
+  real name, and never confabulates an interview. Runs in the FULL suite (not `--quick`). Also added an
+  `eval:advisor --quick` 5-persona subset (~$0.03) for cheap spot-checks per the cost rule.
+
+**Still LEFT:** autoscroll (user message off the top on send) · #6 expired listings (needs new data — Opus) ·
+B.1/B.3 (the `assembleUserState` consolidation + snapshot test) · the smaller logged extras (#10, #13, account menu,
+archive `/dashboard/*`, recap name backstop).
+
 **Files of record:** `src/app/api/chat/route.ts`, `src/app/api/recap/route.ts`, `src/lib/advisor-tools.ts`,
 `src/lib/profile.ts`, `src/lib/role-key.ts`, `src/app/api/applications/route.ts`, `src/app/api/save-job/route.ts`,
 `src/app/api/matched-jobs/route.ts`, `src/app/api/documents/route.ts`, `src/app/workspace/SidePanel.tsx`,
