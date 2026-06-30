@@ -302,3 +302,33 @@ we build ourselves (Twilio/WhatsApp Business API) per the FEATURE-ROADMAP "Whats
 everything else waits for launch. Do NOT build agent infrastructure pre-product. Research stays current via
 honest review dates now; the proper run-time freshness fix is the Step 3 retrieval/grounded-knowledge layer,
 not a swarm of refresh agents.
+
+---
+
+## Cost discipline — the Anthropic API is real money (added 2026-06-30)
+
+**Why this exists:** Lexi added $10 of API credit and it burned through in under a week with ZERO users. Root
+cause: development overhead, dominated by Claude re-running the paid advisor eval. The API is pay-as-you-go and
+is **NOT** covered by Lexi's Claude Max subscription (Max powers Claude Code / claude.ai; a deployed app's
+backend always uses API credits). At 0 users the product costs ~nothing when we're not testing — the burn is us.
+
+**Real numbers (Sonnet 4.6 = advisor + eval: $3/M in, $15/M out, cache read $0.30/M; Haiku 4.5 sub-tasks: $1/$5):**
+- Full `eval:advisor` (29 personas) = **~$0.20 per run**. Run ~15-20×/week = ~$3-4 of the $10.
+- Onboarding analysis pipeline (Sonnet) ≈ $0.05-0.08 each. Live chat ≈ 1-2¢ per advisor message.
+
+**The rules (Claude owns these — Lexi should never have to police spend):**
+1. **Run the FULL `eval:advisor` ONLY when the advisor prompt/persona MATERIALLY changes.** Never twice in a
+   session. Never "re-run to be safe." A known false-positive in a check is fixed in the harness + verified
+   against the exact reply text (no re-run needed to prove a check fix).
+2. **Use a cheap subset for spot-checks.** Build a `eval:advisor --quick` (≈5 key personas, ~$0.03) and use it
+   for quick confidence; reserve the full 29-persona run for real prompt changes. (Subset flag = a next-session task.)
+3. **Lean on the £0 tests first.** 36 unit tests + the e2e drift test cost nothing and catch most regressions.
+   Reach for the paid eval last, not first.
+4. **Never re-run the analysis pipeline speculatively.** It's one of the more expensive single calls.
+5. **Keep the advisor on Sonnet, sub-tasks on Haiku.** Don't downgrade the advisor to save pennies at 0 users —
+   it IS the product. Cost-optimise the plumbing, never the core experience.
+6. **A dry balance takes the LIVE advisor down** (every chat 400s) and blocks the eval. Keep a buffer; a
+   low-balance alert + a graceful "advisor briefly unavailable" product state are logged in FEATURE-ROADMAP.
+
+Set a monthly usage cap in the Anthropic console so spend can never run away. Compute real costs, show the
+maths, tag confidence (per `feedback_compute_dont_handwave_costs`); never wave it away as "a few pennies."

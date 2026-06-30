@@ -51,23 +51,21 @@ docs to `archive/`, never leave them cluttering the root, never lose git history
 
 **Never run more than one build thread at a time. Never guess at what needs changing** — ask for a screenshot or specific feedback first.
 
-## Claude Code Workflow Rules — Standing Instructions
-_Full context: `INSIGHTS.md` — read before any complex session._
+## Claude Code Workflow Rules — Standing Instructions (full context: `INSIGHTS.md`)
 
-1. **Start in plan mode.** Shift+Tab before touching any file. Read, reason, get approval — then execute.
-   (Skip planning only for genuine one-sentence changes; plan hard when it touches multiple files.)
-2. **Haiku for sub-tasks.** Sub-agents, `/goal` tasks, research — all default to Haiku unless reasoning demands Sonnet.
+1. **Start in plan mode.** Shift+Tab before touching any file. Read, reason, get approval, then execute. (Skip only for genuine one-sentence changes.)
+2. **Cost discipline (the API is real money, NOT Lexi's Max plan).** Haiku for sub-tasks. Run the FULL
+   `eval:advisor` (~$0.20) ONLY on a material advisor-prompt change — never twice a session, never "to be safe";
+   quick ~5-persona subset + £0 unit/e2e tests otherwise. Keep the advisor on Sonnet. Numbers: `WORKING-PRACTICES.md`.
 3. **`/goal` for bug fixes.** Specify: what to fix, what done looks like (objective criteria), which files not to touch.
 4. **Never skip `/deploy-check`.** Required before any merge discussion. No exceptions.
-5. **Close the loop — run `/code-review` + `/simplify` after any code slice, before Lexi tests.** `/code-review`
-   for bugs, `/simplify` for tightness. Give me a pass/fail to run (tests, lint, shot.js) so I self-correct
-   rather than stopping at "looks done". (Adopted 2026-06-26 from the Anthropic best-practices guide.)
-6. **Compact at 60% context.** `/compact` with: "keep all API integration and design token decisions from SESSION_DECISIONS.md."
+5. **Close the loop — `/code-review` (bugs) + `/simplify` (tightness) after any code slice, before Lexi tests.**
+   Give me a pass/fail (tests, lint, shot.js) so I self-correct rather than stopping at "looks done".
+6. **Compact at 60% context.** `/compact`: "keep API integration + design token decisions from SESSION_DECISIONS.md."
 7. **Run `/session-handoff` at end of every session.** Compact first if context >60%. `/clear` between unrelated threads.
-8. **Don't switch models mid-session.** Model switches break the cache entirely.
-9. **Sessions idle >1 hour break the cache.** If stepping away: session handoff → `/clear` → paste summary into new session.
-10. **CLAUDE.md max 200 lines — prune in the SAME edit whenever you add. Never let it pass 200; never make Lexi remind you.**
-11. **Own the timing of every working practice.** Lexi won't know when to do these — you call the moment, every time, proactively ("now's a good subagent job"; "before we merge, let me run a fresh review"; "natural `/clear` point"; "let's grill this first"). Full set + triggers: `WORKING-PRACTICES.md`.
+8. **Protect the cache.** Don't switch models mid-session (breaks it entirely); a session idle >1h also breaks it — if stepping away, `/session-handoff` → `/clear` → paste the summary into a new session.
+9. **CLAUDE.md max 200 lines — prune in the SAME edit whenever you add. Never let it pass 200; never make Lexi remind you.**
+10. **Own the timing of every working practice.** Lexi won't know when — you call the moment proactively (subagent job, fresh review before merge, natural `/clear` point, grill it first). Full set + triggers: `WORKING-PRACTICES.md`.
 
 ## The Product
 
