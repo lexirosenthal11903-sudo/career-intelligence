@@ -110,8 +110,16 @@ offer, one rejected, one applied), a `preferredName`, one rejected direction, on
   scrollable content). The clamp math is a pure `anchorScrollTop` (`src/lib/chat-scroll.ts`, unit-tested), and a
   deterministic Playwright test (`/api/chat` + `/api/recap` mocked, reduced-motion) asserts the scroll POSITION.
 
+- **#13 update_profile data-loss — FIXED.** `values`/`dealBreakers` now MERGE with what's held (case-insensitive
+  union, capped) instead of replacing, so the advisor naming one new value can't silently drop the rest. Pure
+  `mergeList` (`src/lib/merge-list.ts`, 5 unit tests); tool description updated to "added, never replacing".
+- **Recap name backstop (#3 completion) — DONE.** The recap prompt now writes a `{NAME}` token that `applyName`
+  (`src/lib/sanitize.ts`) substitutes with the RESOLVED display name, so the card can never emit a model-invented
+  shortening ("Alexandra → Alex" gaslighting). Deterministic, like stripDashes; 4 unit tests. (Recap isn't in the
+  paid eval, so verified via the unit-tested substitution + the prompt instruction, not a generated recap.)
+
 **Still LEFT:** #6 expired listings (needs new data — Opus) · B.1/B.3 (the `assembleUserState` consolidation +
-snapshot test) · the smaller logged extras (#10, #13, account menu, archive `/dashboard/*`, recap name backstop).
+snapshot test) · #10 (edit/delete advisor memory notes) · account menu · archive `/dashboard/*`.
 
 **Files of record:** `src/app/api/chat/route.ts`, `src/app/api/recap/route.ts`, `src/lib/advisor-tools.ts`,
 `src/lib/profile.ts`, `src/lib/role-key.ts`, `src/app/api/applications/route.ts`, `src/app/api/save-job/route.ts`,

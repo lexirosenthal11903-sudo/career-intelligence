@@ -58,3 +58,28 @@ export function stripGapRemarks(text: string): string {
   // the original rather than send a blank message — a rare, lesser evil.
   return result || text;
 }
+
+/**
+ * Substitute the `{NAME}` placeholder with the user's RESOLVED display name. The recap
+ * model is told to write `{NAME}` wherever it addresses the person, so the rendered name is
+ * always exactly what we resolved (preferredName, else the signup first name) and can never
+ * be a shortening the model invented (the "Alexandra → Alex" gaslighting bug,
+ * STATE-SYNC-AUDIT #3). Deterministic, like stripDashes. If we have no name, the token is
+ * removed and the surrounding address punctuation tidied so it doesn't read as "Hi ,".
+ */
+export function applyName(text: string, name?: string | null): string {
+  if (!text || !text.includes('{NAME}')) return text;
+  const n = (name ?? '').trim();
+  if (n) return text.replace(/\{NAME\}/g, n);
+  // No name: drop the token AND tidy the address punctuation around it, on either side.
+  const cleaned = text
+    // Token at the very start, with its trailing comma/colon: "{NAME}, welcome" -> "welcome".
+    .replace(/^\s*\{NAME\}\s*[,:]?\s*/, '')
+    // Token elsewhere, with its leading comma/colon + space: "Hi {NAME}, good" -> "Hi, good".
+    .replace(/[,:]?\s*\{NAME\}/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([,.!?])/g, '$1')
+    .trim();
+  // Restore a sentence-start capital the stripped leading token may have removed.
+  return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : cleaned;
+}

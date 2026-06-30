@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { callClaude } from '@/lib/anthropic';
 import { getAuthedUser } from '@/lib/supabase/server';
 import { normalizeAnalysisResult } from '@/lib/profile-normalize';
-import { stripDashes, stripTimeOfDay } from '@/lib/sanitize';
+import { stripDashes, stripTimeOfDay, applyName } from '@/lib/sanitize';
 import { getProfile } from '@/lib/profile';
 import { assembleBoard, formatBoardForRecap } from '@/lib/user-state';
 
@@ -37,7 +37,7 @@ const RECAP_SYSTEM = `You are Career Intelligence, a warm and economical career 
 Voice rules (these are absolute, they match how you speak everywhere else):
 - NEVER use em dashes. Write with commas, full stops, or parentheses instead.
 - Never slip into a corporate or product "we" ("we offer", "we'll help you", "we find you jobs") — that is brand voice. But a warm, human "we" or "let's" between just you and them is good ("where do we go from here", "let's pick this back up"). Brand-voice "we" out, collaboration in.
-- Use their name sparingly and warmly if you know it, never the cold full formal version, and never in a way that sounds like a form letter.
+- Use their name sparingly and warmly. When you address them by name, write the exact token {NAME} where the name goes (we insert the right name for you). Never write a name yourself, and never shorten or formalise it. If you are told you do not know their name, do not use {NAME} at all.
 - Forward-leaning, never reproachful. Never imply they owed you something or left you waiting ("I was waiting on you to..."). If a thread is unfinished, reopen it as a shared next step ("when you're ready, let's pick up the mock"), never as a debt.
 - Never remark on how long they've been away, never guess at days ("yesterday"), never apologise for a gap, never cheerlead.
 - Never assume the time of day (you don't know if it's morning or night for them): no "this morning", "tonight", "good morning". Say "today" or "when you get a chance".
@@ -89,7 +89,7 @@ async function generateRecap(
     .join('\n');
 
   const context = `WHAT I KNOW ABOUT THIS PERSON
-${name ? `Their name: ${name}` : 'I do not know their name.'}
+${name ? `You know their name. When you address them by name, write the token {NAME} (never the name itself, never a shortened or formal version).` : 'I do not know their name, so do not address them by name (do not use {NAME}).'}
 ${profile.summary ? `\nWhat I saw in their background:\n${profile.summary}` : ''}
 ${directions ? `\nDirections I surfaced for them (these are observations, paths to explore):\n${directions}` : ''}
 ${profile.locationSearch ? `\nWhere they're based: ${profile.locationSearch}` : ''}
@@ -121,9 +121,11 @@ ${recentTalk ? `\nOur most recent conversation:\n${recentTalk}` : '\nWe have not
   if (!match) return null;
   try {
     const parsed = JSON.parse(match[0]) as Partial<Recap>;
-    // Deterministic guardrail: strip any em dash the model slips in, matching the
-    // chat route. The prompt also bans them, but this is the run-time safety net.
-    const clean = (s: string) => stripTimeOfDay(stripDashes(s));
+    // Deterministic guardrails: strip em dashes + time-of-day (matching the chat route),
+    // and substitute the {NAME} placeholder with the resolved name so the card can never
+    // emit a shortened name the user didn't choose (STATE-SYNC-AUDIT #3). The prompt also
+    // sets these rules, but this is the run-time safety net.
+    const clean = (s: string) => applyName(stripTimeOfDay(stripDashes(s)), name);
     const greeting = typeof parsed.greeting === 'string' ? clean(parsed.greeting.trim()) : '';
     const becomingClear = Array.isArray(parsed.becomingClear)
       ? parsed.becomingClear.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map(clean)

@@ -5,10 +5,32 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { stripDashes, stripTimeOfDay } from "../src/lib/sanitize.ts";
+import { stripDashes, stripTimeOfDay, applyName } from "../src/lib/sanitize.ts";
 
 test("stripTimeOfDay: 'this morning' becomes 'today' (the reported 10pm bug)", () => {
   assert.equal(stripTimeOfDay("Can you start it this morning?"), "Can you start it today?");
+});
+
+test("applyName: substitutes the {NAME} token with the resolved name", () => {
+  assert.equal(applyName("Welcome back, {NAME}.", "Alexandra"), "Welcome back, Alexandra.");
+});
+
+test("applyName: a preferred name (Lexi) renders verbatim, never shortened by the model", () => {
+  assert.equal(applyName("Good to see you, {NAME}.", "Lexi"), "Good to see you, Lexi.");
+});
+
+test("applyName: no name -> the token and its address punctuation are tidied away", () => {
+  assert.equal(applyName("Welcome back, {NAME}.", ""), "Welcome back.");
+  assert.equal(applyName("Hi {NAME}, good to see you.", null), "Hi, good to see you.");
+});
+
+test("applyName: no name, token at the START -> no stranded leading comma/colon", () => {
+  assert.equal(applyName("{NAME}, welcome back.", ""), "Welcome back.");
+  assert.equal(applyName("{NAME}: here is where we are.", null), "Here is where we are.");
+});
+
+test("applyName: text without the token is returned untouched", () => {
+  assert.equal(applyName("Good to see you again.", "Alexandra"), "Good to see you again.");
 });
 
 test("stripTimeOfDay: tonight/this evening/this afternoon all neutralise to today", () => {

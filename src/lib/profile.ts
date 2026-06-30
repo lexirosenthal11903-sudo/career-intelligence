@@ -9,6 +9,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { roleKey } from '@/lib/role-key';
+export { mergeList } from '@/lib/merge-list';
 
 export interface MemoryNote {
   note: string; // a durable, specific fact about the user, in the user's terms

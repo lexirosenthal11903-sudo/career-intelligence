@@ -10,7 +10,7 @@
 // back next turn (see chat/route.ts + lib/profile.ts).
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getProfile, patchProfile, addMemory, addOpenThread, resolveOpenThread, addHiddenRole, type ProfileData } from '@/lib/profile';
+import { getProfile, patchProfile, mergeList, addMemory, addOpenThread, resolveOpenThread, addHiddenRole, type ProfileData } from '@/lib/profile';
 import { callClaude } from '@/lib/anthropic';
 import { stripDashes } from '@/lib/sanitize';
 import { ADVISOR_SURFACES, isAdvisorSurface } from '@/lib/surfaces';
@@ -75,8 +75,8 @@ export const ADVISOR_TOOLS = [
       type: 'object',
       properties: {
         preferredName: { type: 'string', description: "What they want to be called (e.g. \"Lexi\" when the account name is \"Alexandra\"). Save it the moment they tell you, or confirm a shortening they use." },
-        values: { type: 'array', items: { type: 'string' }, description: 'What matters to them in work (replaces the current list).' },
-        dealBreakers: { type: 'array', items: { type: 'string' }, description: "Things they won't accept (replaces the current list)." },
+        values: { type: 'array', items: { type: 'string' }, description: 'What matters to them in work. Pass only the NEW one(s) they just mentioned — these are ADDED to what you already hold, never replacing it.' },
+        dealBreakers: { type: 'array', items: { type: 'string' }, description: "Things they won't accept. Pass only the NEW one(s) they just mentioned — these are ADDED to what you already hold, never replacing it." },
         aspiration: { type: 'string', description: 'Their 2-year aspiration, in their words.' },
         salaryFloor: { type: 'number', description: 'Minimum acceptable salary (GBP).' },
         salaryCeiling: { type: 'number', description: 'Top of their expected range (GBP).' },
@@ -331,8 +331,22 @@ export async function executeAdvisorTool(
         const updates: ProfileData = {};
         if (typeof input.preferredName === 'string' && input.preferredName.trim())
           updates.preferredName = input.preferredName.trim().slice(0, 60);
-        if (Array.isArray(input.values)) updates.values = (input.values as unknown[]).map(String);
-        if (Array.isArray(input.dealBreakers)) updates.dealBreakers = (input.dealBreakers as unknown[]).map(String);
+        // values/dealBreakers MERGE with what's already held (case-insensitive union) — a
+        // partial call (the advisor naming one new value) must never drop the rest
+        // (STATE-SYNC-AUDIT #13). Read the current lists once, only if a list field is set.
+        const hasValues = Array.isArray(input.values);
+        const hasDealBreakers = Array.isArray(input.dealBreakers);
+        if (hasValues || hasDealBreakers) {
+          const current = await getProfile(supabase, userId);
+          if (hasValues) {
+            const existing = Array.isArray(current.values) ? (current.values as unknown[]).map(String) : [];
+            updates.values = mergeList(existing, (input.values as unknown[]).map(String));
+          }
+          if (hasDealBreakers) {
+            const existing = Array.isArray(current.dealBreakers) ? (current.dealBreakers as unknown[]).map(String) : [];
+            updates.dealBreakers = mergeList(existing, (input.dealBreakers as unknown[]).map(String));
+          }
+        }
         if (typeof input.aspiration === 'string') updates.aspiration = input.aspiration;
         if (typeof input.salaryFloor === 'number') updates.salaryFloor = input.salaryFloor;
         if (typeof input.salaryCeiling === 'number') updates.salaryCeiling = input.salaryCeiling;
