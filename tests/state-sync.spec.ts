@@ -12,6 +12,10 @@ import { seedAuthCookies, adminClient, getTestUserId } from './helpers/seedAuth'
  * creds from .env.local, no Anthropic spend.
  */
 
+// Both tests seed the SAME e2e test user (preferredName, directionFeedback), so they must
+// NOT run in parallel or they clobber each other's state mid-assertion. Serial = correct.
+test.describe.configure({ mode: 'serial' });
+
 let cookies: Cookie[];
 let userId: string;
 let ready = false; // skip gracefully where Supabase creds / .env.local aren't present (CI)

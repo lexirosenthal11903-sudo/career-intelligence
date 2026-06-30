@@ -407,6 +407,12 @@ _Real users mean real CVs = real personal data, so the legal + safety floor is n
 **Legal / data:** ICO registration · privacy policy + terms · working account deletion in Profile ·
 GitHub token rotation (live security risk) · safeguarding/distress-signpost surface + terms line.
 **Config:** REED_API_KEY in Vercel · Logo.dev keys in Vercel · run the recap + matched_jobs SQL migrations.
+**⚠ Anthropic API billing (operational, exposed 2026-06-30):** the API credit balance ran dry mid-session, which
+takes the LIVE advisor down (every chat call 400s "credit balance too low") AND blocks the eval. Two gaps to close:
+(1) keep a credit buffer + turn on a low-balance alert in the Anthropic console; (2) the product should detect this
+specific billing error and show a calm "the advisor's briefly unavailable, back shortly" state, not a generic
+"say that again" that implies retrying will work. Top up at console.anthropic.com → Plans & Billing (no redeploy needed).
+
 **Observability + maturity (the "more professional" items):** Sentry — client DSN IS set in Production
 (client errors captured); still to do: alert/email rules + `SENTRY_AUTH_TOKEN` (sourcemaps) + confirm
 server-side capture (note: 429s/handled responses aren't exceptions, so they never alert) · Vercel
