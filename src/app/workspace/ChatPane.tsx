@@ -442,10 +442,13 @@ function LiveThread({
   userInitial: string;
   onSignIn?: () => void;
 }) {
-  const { extraMsgs, isLoading, messagesEndRef } = chat;
+  const { extraMsgs, isLoading, messagesEndRef, lastMsgRef } = chat;
   return (
     <>
       {extraMsgs.map((m, i) => {
+        // The last bubble is the anchor: on a new message the view brings ITS start near
+        // the top, so a long just-sent message reads from the start (see useArloChat).
+        const isLast = i === extraMsgs.length - 1;
         if (m.role === "divider") {
           return (
             <div key={i} className={s.stamp}>
@@ -455,14 +458,14 @@ function LiveThread({
         }
         if (m.role === "user") {
           return (
-            <div key={i} className={`${s.msg} ${s.me}`}>
+            <div key={i} ref={isLast ? lastMsgRef : undefined} className={`${s.msg} ${s.me}`}>
               <div className={s.av}>{userInitial}</div>
               <div className={s.bub}>{m.text}</div>
             </div>
           );
         }
         return (
-          <div key={i} className={s.msg}>
+          <div key={i} ref={isLast ? lastMsgRef : undefined} className={s.msg}>
             <div className={s.av}>
               <RadiantAvatar />
             </div>

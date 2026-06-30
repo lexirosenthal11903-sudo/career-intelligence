@@ -103,9 +103,15 @@ offer, one rejected, one applied), a `preferredName`, one rejected direction, on
   real name, and never confabulates an interview. Runs in the FULL suite (not `--quick`). Also added an
   `eval:advisor --quick` 5-persona subset (~$0.03) for cheap spot-checks per the cost rule.
 
-**Still LEFT:** autoscroll (user message off the top on send) · #6 expired listings (needs new data — Opus) ·
-B.1/B.3 (the `assembleUserState` consolidation + snapshot test) · the smaller logged extras (#10, #13, account menu,
-archive `/dashboard/*`, recap name backstop).
+- **Autoscroll (long user message off the top) — FIXED.** On a USER TURN the view now brings the new message's
+  START near the viewport top (clamped so short messages still land above the composer), instead of always
+  scrolling to the bottom (which hid a long message's start). Keyed off a `anchorNextRef` SOURCE signal set by
+  `sendMessage` (not "is the list scrollable yet", which misfired when a long first message was the first
+  scrollable content). The clamp math is a pure `anchorScrollTop` (`src/lib/chat-scroll.ts`, unit-tested), and a
+  deterministic Playwright test (`/api/chat` + `/api/recap` mocked, reduced-motion) asserts the scroll POSITION.
+
+**Still LEFT:** #6 expired listings (needs new data — Opus) · B.1/B.3 (the `assembleUserState` consolidation +
+snapshot test) · the smaller logged extras (#10, #13, account menu, archive `/dashboard/*`, recap name backstop).
 
 **Files of record:** `src/app/api/chat/route.ts`, `src/app/api/recap/route.ts`, `src/lib/advisor-tools.ts`,
 `src/lib/profile.ts`, `src/lib/role-key.ts`, `src/app/api/applications/route.ts`, `src/app/api/save-job/route.ts`,

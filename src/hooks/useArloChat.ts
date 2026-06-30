@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { anchorScrollTop } from "@/lib/chat-scroll";
 
 export type ChatMsg = {
   role: "arlo" | "user" | "divider";
@@ -64,6 +65,19 @@ export function useArloChat({
   const userEngagedRef = useRef(false);
   // Attach to a <div> at the end of the messages list; auto-scrolls on new messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Attach to the LAST message bubble. On a new message we bring ITS start near the top
+  // (not the conversation's bottom), so a long just-sent message is readable from the
+  // start and the reply appends below it. Optional: consumers that don't set it fall back
+  // to the old bottom-scroll. Tracks message count so we only scroll on genuine growth,
+  // never when isLoading toggles (which would yank the just-anchored message away).
+  const lastMsgRef = useRef<HTMLDivElement>(null);
+  const prevMsgCountRef = useRef(0);
+  const didInitialScrollRef = useRef(false);
+  // Set by a USER TURN (the user's message + its reply) to mean "anchor this new message
+  // near the top". Left false for history/opener loads, which land at the bottom instead.
+  // This is the SOURCE signal — keying off it (not "is the list scrollable yet") is what
+  // stops a long first message being mistaken for an initial load and sent to the bottom.
+  const anchorNextRef = useRef(false);
 
   // Arlo initiates: open the conversation with something specific instead of
   // waiting to be asked. One API call. Two modes:
@@ -161,11 +175,13 @@ export function useArloChat({
       // The user is driving now — suppress any proactive opener still in flight.
       userEngagedRef.current = true;
 
-      // Add user message to display immediately
+      // Add user message to display immediately — and anchor it near the top (their turn).
+      anchorNextRef.current = true;
       setAllMsgs((prev) => [...prev, { role: "user", text: trimmed }]);
 
       // Unauthenticated — warm sign-in prompt, no API call
       if (!userId) {
+        anchorNextRef.current = true;
         setAllMsgs((prev) => [...prev, { role: "arlo", text: SIGN_IN_PROMPT, action: "sign-in" as const }]);
         return;
       }
@@ -184,6 +200,7 @@ export function useArloChat({
         });
 
         if (!res.ok) {
+          anchorNextRef.current = true;
           setAllMsgs((prev) => [...prev, { role: "arlo", text: ERROR_MSG }]);
           apiHistoryRef.current = apiHistoryRef.current.slice(0, -1);
           return;
@@ -230,6 +247,7 @@ export function useArloChat({
           if (surface) window.dispatchEvent(new CustomEvent("ci:open-surface", { detail: surface }));
         }
 
+        anchorNextRef.current = true;
         setAllMsgs((prev) => [...prev, { role: "arlo", text: arloText, actions }]);
 
         const newArloMsg: ApiMsg = { role: "assistant", content: arloText };
@@ -252,6 +270,7 @@ export function useArloChat({
             .then(() => {});
         }
       } catch {
+        anchorNextRef.current = true;
         setAllMsgs((prev) => [...prev, { role: "arlo", text: ERROR_MSG }]);
         apiHistoryRef.current = apiHistoryRef.current.slice(0, -1);
       } finally {
@@ -298,18 +317,27 @@ export function useArloChat({
     })();
   }, [seedThread, autoSend, userId, supabase, page, sendMessage, hideSeed]);
 
-  // Auto-scroll when messages change or loading state changes. Honour
-  // prefers-reduced-motion — JS smooth scroll isn't covered by the CSS rule.
-  // Two rAFs so a tall new message (markdown reply) has finished laying out before
-  // we scroll — without them the scroll lands short of the newest message.
+  // Auto-scroll on new messages. Honour prefers-reduced-motion — JS smooth scroll isn't
+  // covered by the CSS rule. Two rAFs so a tall new message (markdown reply) has finished
+  // laying out before we measure and scroll.
   //
-  // We drive the SCROLL CONTAINER to its full scrollHeight rather than
-  // scrollIntoView on the end anchor: the stream has a large bottom padding to clear
-  // the fixed composer, and the anchor sits ABOVE that padding, so block:"end" parked
-  // the newest message behind the composer (it read as "no scroll, I had to scroll
-  // myself"). Going to scrollHeight scrolls past the padding so the latest message
-  // lands fully visible above the composer. Anchor scroll is the fallback.
+  // The rule (intent set 2026-06-24: "the user message stays put, the reply appends
+  // below"): bring the START of the newest message near the viewport TOP, but never scroll
+  // PAST the bottom — so a short message still lands above the composer, while a long one
+  // is anchored top-first instead of having its start scrolled off the top. We only act on
+  // genuine message GROWTH (not on isLoading toggles, which would yank the anchored message
+  // away while the reply is fetched). First load lands at the bottom (caught up).
   useEffect(() => {
+    const grew = allMsgs.length > prevMsgCountRef.current;
+    prevMsgCountRef.current = allMsgs.length;
+    const anchorNew = anchorNextRef.current;
+    anchorNextRef.current = false;
+    // Act only on a real new message or an explicit anchor request — never on a bare
+    // isLoading toggle (it would yank the just-anchored message away mid-fetch).
+    if (!grew && !anchorNew) return;
+
+    const wasFirstScroll = !didInitialScrollRef.current;
+    didInitialScrollRef.current = true;
     const behavior: ScrollBehavior =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -325,8 +353,26 @@ export function useArloChat({
           if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) break;
           el = el.parentElement;
         }
-        if (el) el.scrollTo({ top: el.scrollHeight, behavior });
-        else anchor.scrollIntoView({ behavior, block: "end" });
+        if (!el) {
+          anchor.scrollIntoView({ behavior, block: "end" });
+          return;
+        }
+        const maxTop = el.scrollHeight - el.clientHeight;
+        const target = anchorNew ? lastMsgRef.current : null;
+        if (target) {
+          // A user turn: bring the new message's START near the top (clamped to the
+          // bottom, so a short message still lands above the composer).
+          const top = anchorScrollTop({
+            scrollTop: el.scrollTop,
+            containerTop: el.getBoundingClientRect().top,
+            targetTop: target.getBoundingClientRect().top,
+            maxTop,
+          });
+          el.scrollTo({ top, behavior });
+        } else {
+          // History / opener load (or no anchor target): land at the bottom, caught up.
+          el.scrollTo({ top: maxTop, behavior: wasFirstScroll ? "auto" : behavior });
+        }
       })
     );
     return () => cancelAnimationFrame(id);
@@ -339,5 +385,5 @@ export function useArloChat({
 
   const togglePrevious = useCallback(() => setShowPrevious((v) => !v), []);
 
-  return { extraMsgs, sendMessage, isLoading, messagesEndRef, hasPrevious, showPrevious, togglePrevious };
+  return { extraMsgs, sendMessage, isLoading, messagesEndRef, lastMsgRef, hasPrevious, showPrevious, togglePrevious };
 }
