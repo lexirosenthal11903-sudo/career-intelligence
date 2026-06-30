@@ -11,7 +11,8 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
 import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, ChevronIcon, ApplicationsIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
-import { roleKey, normRolePart } from "@/lib/role-key";
+import { roleKey, normRolePart, isInApplications } from "@/lib/role-key";
+import { activeDirections } from "@/lib/user-state";
 export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile" | "applications";
 
 const LOGO_TOKENS = ["--logo-1", "--logo-2", "--logo-3", "--logo-4", "--logo-5", "--logo-6"];
@@ -55,6 +56,10 @@ export default function SidePanel({
   const [userId, setUserId] = useState<string | null>(null);
   const [selected, setSelected] = useState<PanelJob | null>(null);
   const [interested, setInterested] = useState<Set<string>>(new Set());
+  // roleKey(title,company) of every interested role, so the "In Applications" badge also
+  // matches advisor-saved roles whose synthetic id never equals a live listing id
+  // (STATE-SYNC-AUDIT #1).
+  const [interestedKeys, setInterestedKeys] = useState<Set<string>>(new Set());
   const [passed, setPassed] = useState<Set<string>>(new Set());
   // Roles the user told the advisor aren't for them. Two sets: exact title+company,
   // and title-only for hides where the advisor didn't capture a company (so they
@@ -74,8 +79,10 @@ export default function SidePanel({
       const res = await fetch("/api/save-job");
       if (!res.ok) return;
       const data = await res.json();
-      const saved: Array<{ id: string | number; status?: string }> = data.jobs || [];
-      setInterested(new Set(saved.filter((j) => j.status === "interested").map((j) => String(j.id))));
+      const saved: Array<{ id: string | number; status?: string; title?: string; company?: string }> = data.jobs || [];
+      const interestedRoles = saved.filter((j) => j.status === "interested");
+      setInterested(new Set(interestedRoles.map((j) => String(j.id))));
+      setInterestedKeys(new Set(interestedRoles.map((j) => roleKey(j.title, j.company))));
       setPassed(new Set(saved.filter((j) => j.status === "passed").map((j) => String(j.id))));
       const hidden: Array<{ title?: string; company?: string }> = data.hiddenRoles || [];
       setHiddenKeys(new Set(hidden.filter((h) => normRolePart(h.company)).map((h) => roleKey(h.title, h.company))));
@@ -131,7 +138,7 @@ export default function SidePanel({
           <RoleDetail
             job={selected}
             skills={profile?.extractedSkills ?? []}
-            interested={interested.has(String(selected.id))}
+            interested={isInApplications(selected, interested, interestedKeys)}
             saving={saving.has(String(selected.id))}
             onBack={() => setSelected(null)}
             onInterested={() => handleInterested(selected)}
@@ -147,6 +154,7 @@ export default function SidePanel({
             jobsError={jobsError}
             passed={passed}
             interested={interested}
+            interestedKeys={interestedKeys}
             hiddenKeys={hiddenKeys}
             hiddenTitles={hiddenTitles}
             onRetry={retry}
@@ -258,7 +266,7 @@ export default function SidePanel({
 const INITIAL_VISIBLE = 8; // show a focused set first, not a wall (Lexi feedback 2026-06-22)
 
 function RolesList({
-  hasResult, jobs, jobsLoading, jobsError, passed, interested, hiddenKeys, hiddenTitles, onRetry, onReview,
+  hasResult, jobs, jobsLoading, jobsError, passed, interested, interestedKeys, hiddenKeys, hiddenTitles, onRetry, onReview,
 }: {
   hasResult: boolean | null;
   jobs: PanelJob[];
@@ -266,6 +274,7 @@ function RolesList({
   jobsError: boolean;
   passed: Set<string>;
   interested: Set<string>;
+  interestedKeys: Set<string>;
   hiddenKeys: Set<string>;
   hiddenTitles: Set<string>;
   onRetry: () => void;
@@ -277,7 +286,7 @@ function RolesList({
   // Rank new-today first, then by fit, so the cap keeps the most relevant.
   const ranked = jobs
     .filter((j) => !j.relevanceScore || j.relevanceScore >= 4)
-    .filter((j) => !passed.has(String(j.id)) || interested.has(String(j.id)))
+    .filter((j) => !passed.has(String(j.id)) || isInApplications(j, interested, interestedKeys))
     // Drop roles the user told the advisor aren't for them — exact title+company, or
     // title-only when the advisor didn't capture a company.
     .filter((j) => !hiddenKeys.has(roleKey(j.title, j.company)) && !hiddenTitles.has(normRolePart(j.title)))
@@ -336,9 +345,9 @@ function RolesList({
         {!jobsLoading && !jobsError && total > 0 && (
           <>
             {strong.length > 0 && <div className={s.grp}>Strong fit</div>}
-            {strong.map((j) => <JobRow key={String(j.id)} job={j} strong inApps={interested.has(String(j.id))} onReview={onReview} />)}
+            {strong.map((j) => <JobRow key={String(j.id)} job={j} strong inApps={isInApplications(j, interested, interestedKeys)} onReview={onReview} />)}
             {good.length > 0 && <div className={s.grp}>Good fit</div>}
-            {good.map((j) => <JobRow key={String(j.id)} job={j} strong={false} inApps={interested.has(String(j.id))} onReview={onReview} />)}
+            {good.map((j) => <JobRow key={String(j.id)} job={j} strong={false} inApps={isInApplications(j, interested, interestedKeys)} onReview={onReview} />)}
             {hasMore && (
               <button className={s.showMore} type="button" onClick={() => setVisible((v) => v + INITIAL_VISIBLE)}>
                 Show me more roles ({total - visible} more)
@@ -893,7 +902,26 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
 
 /* ===== Direction view ====================================================== */
 function DirectionView({ profile, hasResult }: { profile: AnalysisProfile | null; hasResult: boolean | null }) {
-  const directions = Array.isArray(profile?.suggestedDirections) ? profile.suggestedDirections : [];
+  const all = Array.isArray(profile?.suggestedDirections) ? profile.suggestedDirections : [];
+  // A direction the user rejected must drop off this page (STATE-SYNC-AUDIT #2): the
+  // advisor says it's set aside, so the screen must agree. directionFeedback lives in the
+  // structured profile, so fetch it and filter. Re-reads when the advisor changes state.
+  const [feedback, setFeedback] = useState<Array<{ direction?: string; status?: string }>>([]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        if (!res.ok) return;
+        const d = await res.json();
+        if (!cancelled) setFeedback(Array.isArray(d?.profile?.directionFeedback) ? d.profile.directionFeedback : []);
+      } catch { /* ignore, show all directions */ }
+    };
+    load();
+    window.addEventListener("ci:analysis-changed", load);
+    return () => { cancelled = true; window.removeEventListener("ci:analysis-changed", load); };
+  }, []);
+  const directions = activeDirections(all, feedback);
 
   return (
     <>
@@ -932,9 +960,12 @@ function DirectionView({ profile, hasResult }: { profile: AnalysisProfile | null
 
 /* ===== Profile view — the "what I know about you" mirror =================== */
 interface StructuredProfile {
+  preferredName?: string;
   values?: string[];
   dealBreakers?: string[];
   aspiration?: string;
+  salaryFloor?: number;
+  salaryCeiling?: number;
   memory?: Array<{ note: string; at: string }>;
   cvFileName?: string;
   cvUpdatedAt?: string;
@@ -996,7 +1027,20 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
   const values = p?.values ?? [];
   const dealBreakers = p?.dealBreakers ?? [];
   const memory = p?.memory ?? [];
-  const knowsSomething = !!summary || !!seniority || values.length > 0 || dealBreakers.length > 0 || !!p?.aspiration;
+  // Salary the advisor holds, shown here so what it "knows" is visible to the user and
+  // they can correct it, instead of it being invisible while the advisor quotes it
+  // (STATE-SYNC-AUDIT #5). GBP, rendered as a range / floor / ceiling depending on what's set.
+  const gbp = (n: number) => `£${Math.round(n).toLocaleString("en-GB")}`;
+  const salary =
+    p?.salaryFloor && p?.salaryCeiling
+      ? `${gbp(p.salaryFloor)} to ${gbp(p.salaryCeiling)}`
+      : p?.salaryFloor
+        ? `From ${gbp(p.salaryFloor)}`
+        : p?.salaryCeiling
+          ? `Up to ${gbp(p.salaryCeiling)}`
+          : "";
+  const knowsSomething =
+    !!summary || !!seniority || values.length > 0 || dealBreakers.length > 0 || !!p?.aspiration || !!salary;
 
   return (
     <>
@@ -1046,6 +1090,12 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
                     <div className={s.rdSkills}>{dealBreakers.map((v) => <span key={v} className={s.rdSkill}>{v}</span>)}</div>
                   </div>
                 )}
+                {salary && (
+                  <div className={s.rdSection}>
+                    <div className={s.rdLabel}>What you&rsquo;re looking for on pay</div>
+                    <p className={s.rdText}>{salary}</p>
+                  </div>
+                )}
               </>
             ) : (
               <div className={s.panelEmpty}>
@@ -1076,6 +1126,7 @@ function ProfileView({ analysisProfile }: { analysisProfile: AnalysisProfile | n
             {/* Account */}
             <div className={s.rdSection}>
               <div className={s.rdLabel}>Account</div>
+              {p?.preferredName && <p className={s.rdText}>You go by {p.preferredName}</p>}
               {account.name && <p className={s.rdText}>{account.name}</p>}
               {account.email && <p className={s.rdText}>{account.email}</p>}
               <div className={s.acctActions}>

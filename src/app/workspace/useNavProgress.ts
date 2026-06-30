@@ -9,6 +9,7 @@
    content yet simply doesn't appear — the section earns its place. */
 import { useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { displayNameForUI } from "@/lib/user-state";
 
 export interface NavUser {
   name: string;
@@ -29,19 +30,34 @@ export function useNavProgress() {
   // Total roles the user has taken into Applications — drives the nav count badge.
   const [applicationsCount, setApplicationsCount] = useState(0);
 
-  // Who's here.
+  // Who's here. The name a stored preferredName ("Lexi") always wins over the formal
+  // signup name ("Alexandra"), so the nav can't say one thing while the advisor says
+  // another (STATE-SYNC-AUDIT #3). Falls back to the full name, then email.
   useEffect(() => {
     let cancelled = false;
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    (async () => {
+      const [{ data: { user } }, res] = await Promise.all([
+        supabase.auth.getUser(),
+        fetch("/api/profile").catch(() => null),
+      ]);
       if (cancelled || !user) return;
-      const name = (user.user_metadata?.full_name as string) || user.email || "You";
+      let preferredName = "";
+      if (res && res.ok) {
+        try {
+          const d = await res.json();
+          preferredName = typeof d?.profile?.preferredName === "string" ? d.profile.preferredName : "";
+        } catch { /* ignore, fall back to the signup name */ }
+      }
+      const fullName = (user.user_metadata?.full_name as string) || "";
+      const name = displayNameForUI(preferredName, fullName) || user.email || "You";
       const source = name || user.email || "Y";
+      if (cancelled) return;
       setUser({
         name,
         email: user.email ?? "",
         initial: source.trim()[0]?.toUpperCase() ?? "Y",
       });
-    });
+    })();
     return () => { cancelled = true; };
   }, [supabase]);
 

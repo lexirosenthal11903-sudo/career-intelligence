@@ -8,11 +8,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   resolveDisplayName,
+  displayNameForUI,
   firstName,
   isClosedStage,
   formatBoardForAdvisor,
   formatBoardForRecap,
+  activeDirections,
 } from "../src/lib/user-state.ts";
+import { roleKey, isInApplications } from "../src/lib/role-key.ts";
 
 test("resolveDisplayName: preferredName always wins over the formal signup name", () => {
   assert.equal(resolveDisplayName("Lexi", "Alexandra Rosenthal"), "Lexi");
@@ -62,4 +65,37 @@ test("formatBoardForRecap: drops closed stages so a rejection isn't 'where we go
   assert.match(out, /Data Analyst at Acme: at interview stage/);
   assert.doesNotMatch(out, /Marketing Coordinator/); // rejected, excluded
   assert.doesNotMatch(out, /Ops Associate/);          // archived, excluded
+});
+
+test("displayNameForUI: preferred wins, else full name kept (not just first name)", () => {
+  assert.equal(displayNameForUI("Lexi", "Alexandra Rosenthal"), "Lexi");
+  assert.equal(displayNameForUI("", "Alexandra Rosenthal"), "Alexandra Rosenthal");
+  assert.equal(displayNameForUI(null, ""), "");
+});
+
+test("activeDirections: a rejected direction drops off the page", () => {
+  const dirs = [{ title: "Behavioural research" }, { title: "Consulting" }, { title: "UX research" }];
+  const feedback = [{ direction: "consulting", status: "rejected" }, { direction: "UX research", status: "preferred" }];
+  const out = activeDirections(dirs, feedback).map((d) => d.title);
+  assert.deepEqual(out, ["Behavioural research", "UX research"]);
+});
+
+test("activeDirections: no feedback returns all (and same array)", () => {
+  const dirs = [{ title: "A" }, { title: "B" }];
+  assert.deepEqual(activeDirections(dirs, []).map((d) => d.title), ["A", "B"]);
+  assert.deepEqual(activeDirections(dirs, undefined).map((d) => d.title), ["A", "B"]);
+});
+
+test("isInApplications: matches a UI-saved role by live id", () => {
+  const ids = new Set(["12345"]);
+  assert.equal(isInApplications({ id: 12345, title: "Data Analyst", company: "Acme" }, ids, new Set()), true);
+  assert.equal(isInApplications({ id: 99999, title: "Other", company: "X" }, ids, new Set()), false);
+});
+
+test("isInApplications: matches an advisor-saved role by roleKey when ids differ", () => {
+  // Advisor saved 'Data Analyst at Acme' under a synthetic chat-<slug> id; the live
+  // listing has a numeric id, so only the roleKey can connect them.
+  const keys = new Set([roleKey("Data Analyst", "Acme")]);
+  assert.equal(isInApplications({ id: 555, title: "Data Analyst", company: "Acme" }, new Set(), keys), true);
+  assert.equal(isInApplications({ id: 555, title: "Data Analyst", company: "Beta" }, new Set(), keys), false);
 });

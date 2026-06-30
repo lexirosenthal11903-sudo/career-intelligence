@@ -95,3 +95,39 @@ export function resolveDisplayName(preferredName?: string | null, fullName?: str
   if (preferred) return preferred;
   return firstName(fullName);
 }
+
+/**
+ * The name to SHOW in the UI (nav, profile): a stored preferredName wins, otherwise the
+ * full signup name as-is (the nav has always shown the full name, so we keep it when
+ * there's no preferred one). This is what fixes "the advisor says Lexi while the screen
+ * says Alexandra" (STATE-SYNC-AUDIT #3): every surface should call this.
+ */
+export function displayNameForUI(preferredName?: string | null, fullName?: string | null): string {
+  const preferred = (preferredName ?? '').trim();
+  return preferred || (fullName ?? '').trim();
+}
+
+export interface DirectionFeedbackEntry {
+  direction?: string;
+  status?: string;
+}
+
+/**
+ * The directions the user should actually SEE on their Direction page: the ones the
+ * advisor surfaced, minus any they've rejected (directionFeedback.status === 'rejected').
+ * Before this, a rejected direction stayed on screen at equal weight while the advisor
+ * said it had set it aside (STATE-SYNC-AUDIT #2). Matched by title, case-insensitive.
+ */
+export function activeDirections<T extends { title?: string }>(
+  directions: T[],
+  feedback: DirectionFeedbackEntry[] | undefined | null
+): T[] {
+  const rejected = new Set(
+    (feedback ?? [])
+      .filter((f) => f?.status === 'rejected')
+      .map((f) => (f.direction ?? '').toLowerCase().trim())
+      .filter(Boolean)
+  );
+  if (!rejected.size) return directions;
+  return directions.filter((d) => !rejected.has((d.title ?? '').toLowerCase().trim()));
+}
