@@ -500,10 +500,11 @@ One observation to fix:
   56/56 green, tsc 0, lint 0, £0. _(logged S45, fixed S46)_
 
 ### Session 46 — found while shipping the fix
-- ○ **Flaky e2e: `state-sync.spec.ts:50` (rejected-direction drop).** Intermittently fails: SidePanel renders a
-  rejected direction (Consulting) even though the rejection was PATCHed before navigation, because the
-  `/api/profile` GET it makes on mount occasionally returns stale profile data (no `Cache-Control: no-store`, so a
-  prior cached GET can be served). Passes on retry; not a regression (the `activeDirections` unit test is green and
-  the user-facing path usually loads fresh). But it randomly blocks the pre-commit e2e hook. Likely fix: add
-  `no-store` to the `/api/profile` GET response (and audit other GET API routes the surfaces read live). Small,
-  worth doing before it wastes more commit cycles. _(logged S46)_
+- ✓ **Flaky e2e: `state-sync.spec.ts:50` (rejected-direction drop) — was a real cache bug.** SidePanel
+  intermittently rendered a rejected direction because the `/api/profile` GET it makes had no `Cache-Control`, so
+  the browser's heuristic cache could serve a stale copy of the user's profile (and it leaked private data into a
+  cache). Not test noise — the exact "advisor says done, screen shows the old thing" drift the state-sync work
+  targets. Fixed S46 (fcc2b6b): `src/lib/api-response.ts` `jsonNoStore` applied to every authenticated per-user GET
+  (profile, results, applications, documents, matched-jobs, save-job, recap). Per-route helper chosen over a
+  middleware header so each route keeps its own auth semantics. Previously-intermittent suite now 4/4 green on
+  repeat runs; 56/56 unit, tsc 0, lint 0, £0. _(logged + fixed S46)_
