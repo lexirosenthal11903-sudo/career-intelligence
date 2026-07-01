@@ -1,113 +1,118 @@
-# SPEC — Role-Interest Mentoring Flow
+# SPEC — Roles-vs-Applications IA ("one record, two lenses")
 
-_Agreed 2026-06-27 (Lexi + Claude), after a grilled design session. This is the contract for the next build:
-what we build, the best-in-class baseline it matches, the bar that makes it ours, and the objective "done"
-criteria Claude self-verifies against (close-the-loop). **No code was written this session — this spec is
-the thing the build is measured against.** Touches the advisor prompt → `npm run eval:advisor` must pass
-before any merge to main._
+_Agreed 2026-07-01 (Lexi + Claude, Session 48 design session — Fable 5). This is the contract for the next
+build touching these surfaces: the agreed structure, the evidence behind it, and the objective "done"
+criteria Claude self-verifies against. **No code was written this session.** Previous spec (role-interest
+mentoring, shipped) archived at `archive/SPEC-role-interest-mentoring-2026-06-27.md`._
 
-> Source feature in the roadmap: FEATURE-ROADMAP.md Step 2 "ROLE-INTEREST = a mentoring conversation".
-> Prior-art baseline: PRIOR-ART-MAP.md §2 (advisor), §14 (this flow), §11/memory. Voice: ADVISOR_PERSONA.md.
-
----
-
-## The problem (why this build exists)
-
-Today, marking a role "interested" jumps straight toward "tailor your CV + write a cover letter." That is a
-job-dashboard reflex — the exact thing the product must not be. The advisor is the product; a document is a
-utility. When someone shows interest, a good mentor gets **curious first** and helps build a *plan* before any
-document. That captured thinking is also the compounding moat: it sharpens everything that comes after.
-
-## What "good" looks like (best-in-class baseline we match)
-
-- **Pi / good AI coaching:** questions branch from what the person actually said; warm, never scripted.
-- **BetterUp pattern:** concrete next steps *emerge from the conversation*, not from a menu.
-- **Honest-matching (ours, already a differentiator):** never cheerlead a weak fit.
-These get us to "great" fast. The bar below is what makes it *ours*.
+> Source finding: FEATURE-ROADMAP.md "Session 47 — outreach tracking shipped + IA finding" (Lexi, live QA
+> 2026-07-01). Prior-art baseline: PRIOR-ART-MAP.md §5 (roles matching), §6 (applications), §7 (outreach)
+> + the Session 48 research pass below. Current-state code map confirmed in session (SidePanel.tsx).
 
 ---
 
-## Agreed behaviour (the decisions, locked)
+## The problem (why this exists)
 
-**1. Scope (breadth-first).** Build the **conversation + memory only**. The advisor runs the mentoring
-conversation *in chat* and remembers what matters. **No visible "plan" screen this build** — deferred to a
-later pass (avoids becoming a to-do app; gets the behaviour walkable fastest).
+Two mental modes are bleeding together. The live-role detail ("Roles for you") should answer *"should I go
+for this?"* — company, role, fit. The application detail should answer *"where's my application at?"* —
+stage, CV, cover letter, outreach, notes. Today the split is exactly backwards in one place: outreach
+**tracking** (draft + status chips + follow-up) renders ONLY in the live-role detail
+(`SidePanel.tsx` `OutreachSection`, used by `RoleDetail`), while the application detail (`SavedJobDetail`)
+has **no outreach section at all**. And prep actions (`draft_outreach`, `tailor_cv`) don't touch application
+state — a user can fully prepare for a role that was never saved into Applications.
 
-**2. Entry.** Clicking "I'm interested" **saves the role to Applications immediately** (nothing lost) AND the
-advisor **opens the mentoring conversation**. The save is safe; the conversation begins. (The handoff already
-carries role detail after today's foundation fix, so the advisor starts already holding the listing.)
+## The evidence (Session 48 research pass — Teal, Huntr, Simplify, Otta/WTTJ, LinkedIn, NN/g)
 
-**3. The mentoring conversation — adaptive, never an interrogation.** The advisor opens with **one genuine
-question** ("what drew you to this one?"), then **reads the room** using the existing first-session clarity
-dial:
-- *Lost / anxious* → the full, gentle walk through the plan dimensions, one at a time.
-- *Directed, just wants to apply* → light touch; acknowledge their clarity and move to docs quickly.
-
-The **five plan dimensions are the advisor's mental model, NOT a script shown to the user and NOT a
-checklist**: (1) **why this one** (what appealed — role, company, mission, salary, a stepping stone);
-(2) **honest alignment** (how well it really fits); (3) **gaps** (what they'd need to be competitive);
-(4) **the company** (what they do / value); (5) **the process** (what applying involves, timing). One
-thread at a time, paced to the person. Never fire them as a list.
-
-**4. Honest alignment — kind but plain.** If the fit is weak, the advisor **says so directly before helping**
-("honestly, this one's a stretch because X — want to go for it anyway, or look at closer matches?"). This is
-honest-matching applied to the moment of interest. No dishonest cheerleading.
-
-**5. Documents as steps inside the plan.** The advisor **offers** the CV tailor / cover letter when the
-conversation has covered the why + fit and it's genuinely the right moment ("your CV needs to show X for this
-— want me to tailor it now?"), OR whenever the user asks. **Never the opening move.**
-
-**6. Grounding — real facts only, and signpost the gaps.** For "the company" and "the process," the advisor
-works **only from the actual job listing + what the user tells it**. It **never fabricates** company culture,
-values, process, or timing. When it doesn't know, it says so **and points the user to where to find it** —
-the company's careers page, LinkedIn, Glassdoor, the recruiter — so it's a signpost, not a dead end.
-(Research-grounded + honesty standard. No AI-average guessing.)
-
-**7. Memory payoff — compounding, NOT like-for-like.** The captured "why" is stored (on the role + profile
-memory) and the advisor **uses it to sharpen future recommendations over time** ("you liked the mission-led
-angle of that one — here's a closer match") and to re-engage. **Critical guardrail:** the "why" informs
-**values / direction**, never a "more of this exact job" filter. It must **not narrow to like-for-like
-roles**, or we shrink the funnel and bury good lateral matches. It builds gradually; early on it nudges, it
-doesn't dictate. (Builds on today's partial memory fix — the advisor already holds saved-role detail.)
+- **Dominant tracker pattern: one record per role from the moment of interest**, with "Saved/Bookmarked/
+  Wishlist" as the earliest stage of the same pipeline — not two object types. Evaluation content and
+  management content live on one record, separated by lenses/sections, not duplicated.
+- **No product promotes on preparation.** Teal and Huntr deliberately let heavy prep (CV tailoring, drafts)
+  happen while a job sits pre-application. The only auto-promotion anywhere (Simplify, LinkedIn Easy Apply)
+  is triggered by *actually applying*.
+- **But prep requires the record to exist** (Teal/Huntr both): taking a prep action creates/saves the record
+  without advancing it. This is the precedent for our promotion rule.
+- **Otta/WTTJ** (evaluation-first, our closest "Roles for you" reference): a rich company-evidence job page
+  (salary, culture, funding, team) for deciding; tracking is a separate, thinner surface.
+- **NN/g wishlist-vs-cart:** consideration set vs transactional container; crossing the boundary is a
+  discrete, user-legible intent event.
 
 ---
 
-## The bar that makes it ours (carry into every judgement call)
+## Agreed model (the decisions, locked — Lexi chose both, 2026-07-01)
 
-- **The advisor is the product.** Curiosity and a plan come before any document, always.
-- **Honest over flattering.** A weak fit is named, kindly. Trust is the moat.
-- **Grounded over impressive.** Real facts or an honest signpost — never confident guessing.
-- **Compounding, not narrowing.** Memory widens understanding of the person; it never shrinks their options.
-- **Paced for an anxious user.** One thread at a time. Read the room. Never a form, never a checklist.
+**1. One record, two lenses.** A role has ONE underlying record (`saved_applications` is the source of
+truth for where it stands — never `saved_jobs`). "Roles for you" detail is the **evaluation lens**;
+"Applications" detail is the **management lens**. Same record, two purposes; the same information is never
+shown twice.
+
+**2. Prep auto-saves, never auto-advances.** Taking a preparation action on a live role — drafting outreach,
+tailoring a CV, generating a cover letter — **quietly saves the role into Applications at stage "Saved"** if
+it isn't there yet (the record must exist for the prep to live somewhere). It **never advances an existing
+stage**. Only a real-world event moves stage (user self-report or advisor `set_application_stage`). Quiet
+means quiet: no fanfare, no toast celebration — the advisor may mention it in one natural line.
+
+**3. All tracking lives in the management lens.** The outreach thread (persisted draft, status chips,
+follow-up line), tailored CVs, cover letters, stage, activity, notes — all render in the application detail
+(`SavedJobDetail`). The status chips leave the live-role view entirely.
+
+**4. The evaluation lens keeps the door, not the thread.** The live-role detail stays purely "should I go
+for this?": role header, fit, why-this-fits, description, what you'd bring — **plus the offer to reach out**
+(research: outreach is often the highest-leverage FIRST move, pre-application, so the door stays here).
+Starting a draft from that door triggers the prep auto-save (rule 2) and the thread then lives in
+Applications (rule 3).
+
+**5. After save: evaluate + handoff link.** Once a role is in Applications, its live-role detail shows one
+quiet "In your applications" link to the application detail. No management UI duplicated into the live view.
+
+**6. Known gap, out of scope:** the evaluation lens is thin on real COMPANY evidence (only the listing).
+That's the grounded-knowledge track (Step 3) — logged, not this build.
+
+---
+
+## The bar that makes it ours
+
+- **Quality over quantity.** Auto-saving on prep must never feel like "pipeline filling" — it's the product
+  keeping the user's work safe, framed that way. No counts celebrated, no volume mechanics.
+- **The advisor is the product.** The advisor narrates the moment naturally ("I've kept this with your
+  applications so nothing's lost") — the UI never announces state machinery.
+- **Honest states.** Chips remain self-reported truth; a stale key can never report false success (keep the
+  404-on-zero-row PATCH behaviour).
+- **Paced for an anxious user.** Two clear rooms ("deciding" / "pursuing") reduce load; a merged mega-card
+  (Teal-style) was considered and rejected for exactly this reason.
 
 ---
 
 ## Technical shape (Claude's call — for the build, not this session)
 
-- **Advisor prompt (`advisor-prompt.ts`):** add the role-interest behaviour — curious-first, the 5 dimensions
-  as a mental model, adaptive to the dial, honest-fit, docs-as-steps, grounding+signpost rules.
-- **Handoff (`SidePanel.handleInterested`):** the dispatched opener becomes a natural trigger for the
-  mentoring open rather than "what should we do about it?"; role detail already flows via context.
-- **Memory of the "why":** capture per-role (extend `saved_jobs.job_data` with a `why` field and/or the
-  `remember`/profile `memory[]` path) + feed it into `buildUserContext` as a values/direction signal — NOT a
-  similarity filter on listings.
-- **Recommendation sharpening:** the "why" adjusts direction/values weighting in scoring over time; explicitly
-  preserve breadth (guard against like-for-like narrowing).
+- **`draft_outreach` + `tailor_cv` (+ cover letter path):** upsert into `saved_applications` at stage
+  `saved` when no row exists (mirror the existing "Interested" dual-write, including `saved_jobs` for feed
+  status), then emit `application-changed` so list + detail + nav count re-read live.
+- **SidePanel:** move `OutreachSection` from `RoleDetail` into `SavedJobDetail`; `RoleDetail` gets the
+  reach-out offer CTA and, when a matching application exists, the "In your applications" handoff link
+  (opens `SavedJobDetail` via the existing `initialJobId` path).
+- **Key alignment risk:** `outreach` is keyed by role_key (title+company), applications by `job_id`. The
+  handoff link and the SavedJobDetail outreach section need a reliable join — decide in the build whether to
+  add `job_id` to `outreach` (likely) or join on the key; keep the existing ambiguity guard either way.
+- **Advisor context/prompt:** reflect the model — outreach status lines belong with the application context;
+  the draft confirmation says where it now lives. Prompt change here is contextual, not behavioural — quick
+  subset check, NOT the full eval (cost rule 2).
 
 ## Done criteria (objective — Claude self-verifies against these)
 
-1. Clicking "interested" saves the role AND opens a conversation that does **not** jump to documents.
-2. The advisor's **first move is a genuine question**, not an offer to tailor a CV.
-3. Behaviour **adapts to the clarity dial** (lost = fuller walk; directed = light touch → docs faster).
-4. On a **weak-fit** role, the advisor **names it kindly before helping** (verifiable in the eval personas).
-5. The advisor **never fabricates** company/process facts; when unknown it **signposts a real source**.
-6. The captured "why" **persists** and shows up in later context **without** narrowing future roles to
-   like-for-like.
-7. The five dimensions **never appear as a visible list/checklist** to the user.
-8. `npm run eval:advisor` (17 personas) **passes** before any merge; add/extend a persona that exercises the
-   interested → mentoring → honest-fit path.
+1. Drafting outreach (or tailoring a CV) for an unsaved live role creates the application at stage **Saved**
+   — visible in the Applications list and nav count without reload (`application-changed` fires).
+2. The same prep actions on an already-saved role **never change its stage** (unit + e2e).
+3. The outreach thread (draft, chips, follow-up line) renders in the **application detail**; the live-role
+   detail contains **no status chips**.
+4. The live-role detail of a saved role shows the "In your applications" link, and it opens the right
+   application detail; an unsaved role shows the reach-out offer instead.
+5. No piece of management information renders in both lenses.
+6. All green before Lexi sees it: unit, e2e (pre-commit hook), tsc 0, lint 0, shot.js pass on both lenses.
 
 ## Explicitly out of scope (this build)
-- A visible "plan" / "working through" surface (deferred — see roadmap agenda item).
-- Cross-role outreach log, stalled-application nudge (separate roadmap items in the same memory system).
-- Interview prep (planned, needs its own grounding research).
+
+- Company-evidence enrichment of the evaluation lens (grounded knowledge, Step 3).
+- Interview prep (next candidate-loop step — own research + spec).
+- Any board/stage redesign — the stage model shipped in S43/S45 stands.
+- Collapsing the `saved_jobs`/`saved_applications` dual-table into one (known drift risk, tracked
+  separately — this build only reuses the existing dual-write).

@@ -507,17 +507,17 @@ One observation to fix:
   advisor tool; advisor context surfaces the ONE follow-up due after 5 business days (research §5). Prior-art
   grounded (Teal/Huntr/folk/Clay): per-role not cross-role CRM, honest self-report (no inbox), one gentle
   follow-up owned by the advisor. Live QA (Data Analyst · Sagacity): all 4 steps PASS, no bugs.
-- 🔶 **IA finding (Lexi, live QA 2026-07-01): "Roles for you" detail vs "Applications" detail must be
-  differentiated — DESIGN SESSION, not a build.** Two mental modes are bleeding together: the live-role view
-  should be *"should I go for this?"* (company, role, fit) while the application view is *"where's my application
-  at?"* (status, CV, cover letter, outreach tracking, notes). Outreach *tracking* (the status chips) is an
-  application concern and currently sits in the live-role view. Tension to resolve: *offering* to reach out fits
-  the live view (research: outreach is often the highest-leverage FIRST move, pre-application), but *tracking* it
-  belongs in Applications. Claude's proposed logic: drafting outreach for a role quietly promotes it into
-  Applications (where chips/CV/cover-letter/status live together), and the live view becomes purely about the
-  company + fit. Surfaces a real gap: the live-role view is thin on actual COMPANY info (only the listing) — ties
-  to the grounded-knowledge track (Step 3). Run as a focused IA/design session (Fable 5 candidate); do not build
-  until the model is decided.
+- ✅ **IA finding → DECIDED (Session 48 design session, 2026-07-01): "one record, two lenses" — build pending,
+  contract in `SPEC.md`.** Evidence pass (Teal/Huntr/Simplify/Otta/LinkedIn + codebase map) showed the industry
+  invariant: one record per role from the moment of interest; preparation never advances stage, but prep requires
+  the record to exist. Lexi locked both forks: (1) **prep auto-saves, never auto-advances** — drafting outreach /
+  tailoring a CV quietly saves the role into Applications at stage "Saved" if absent, never moves an existing
+  stage; (2) **evaluate + handoff link** — after save the live-role detail keeps company/fit/description + the
+  reach-out door and one quiet "In your applications" link; ALL tracking (outreach thread + chips, CV, cover
+  letter, notes, stage) lives in the application detail. Status chips leave the live-role view entirely.
+  Rejected: hard promotion, merged mega-card, no-promotion templates. Known gap logged, out of scope: live-role
+  view thin on real COMPANY info → grounded-knowledge track (Step 3). Done criteria in SPEC.md; the superseded
+  role-interest spec moved to `archive/SPEC-role-interest-mentoring-2026-06-27.md`.
 
 ### Session 46 — found while shipping the fix
 - ✓ **Flaky e2e: `state-sync.spec.ts:50` (rejected-direction drop) — was a real cache bug.** SidePanel

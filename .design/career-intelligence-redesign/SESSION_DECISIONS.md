@@ -543,3 +543,22 @@ Retry icon in State 1 button left as plain text. SVG arc approach failed at smal
 - All error voice copy final in `ADVISOR_PERSONA.md` (error messages section)
 - Engineering must ensure user input is never lost on API failure (Phase 1 requirement)
 - Phase 2 QA: test analysis across diverse CV types (sparse, non-English, career changers, unusual paths)
+
+---
+
+## Session 48 — 2026-07-01 — Roles-vs-Applications IA ("one record, two lenses") — LOCKED ✓
+
+**Full contract: `SPEC.md` (repo root).** Evidence: Teal/Huntr/Simplify/Otta/LinkedIn research pass +
+codebase map, both in-session. Lexi chose both forks explicitly.
+
+**The model:**
+- One underlying record per role (`saved_applications` = source of truth). Two lenses: "Roles for you"
+  detail = evaluation ("should I go for this?" — company, fit, description, reach-out DOOR); "Applications"
+  detail = management ("where's my application at?" — stage, CV, cover letter, outreach THREAD, notes).
+- **Prep auto-saves, never auto-advances:** drafting outreach / tailoring a CV quietly saves the role into
+  Applications at stage "Saved" if absent; never moves an existing stage. Only real events move stage.
+- **Outreach status chips leave the live-role view entirely** — the thread renders in application detail.
+- After save, live-role detail shows one quiet "In your applications" handoff link. Nothing managed twice.
+- Rejected alternatives: hard promotion (punishes exploration), merged Teal-style mega-card (too heavy for
+  an anxious user), separate templates with no promotion (leaves the mode-bleed unfixed).
+- Known gap logged, out of scope: live-role view is thin on real company evidence → grounded knowledge (Step 3).
