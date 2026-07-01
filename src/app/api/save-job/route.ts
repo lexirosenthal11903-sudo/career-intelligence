@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthedUser } from '@/lib/supabase/server';
 import { getProfile } from '@/lib/profile';
+import { jsonNoStore } from '@/lib/api-response';
 
 export async function GET() {
   const { user, supabase } = await getAuthedUser();
@@ -36,7 +37,7 @@ export async function GET() {
   // hiddenRoles: roles the user told the advisor aren't for them — the Live-roles feed
   // filters these out by exact title+company (item-level suppression).
   const profile = await getProfile(supabase, user.id);
-  return NextResponse.json({
+  return jsonNoStore({
     jobs,
     hiddenRoles: Array.isArray(profile.hiddenRoles) ? profile.hiddenRoles : [],
   });

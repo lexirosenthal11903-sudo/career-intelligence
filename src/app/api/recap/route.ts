@@ -5,6 +5,7 @@ import { normalizeAnalysisResult } from '@/lib/profile-normalize';
 import { stripDashes, stripTimeOfDay, applyName } from '@/lib/sanitize';
 import { getProfile } from '@/lib/profile';
 import { assembleBoard, formatBoardForRecap } from '@/lib/user-state';
+import { jsonNoStore } from '@/lib/api-response';
 
 export const maxDuration = 30;
 
@@ -157,7 +158,7 @@ export async function GET() {
   // persisted as a string (pre-boundary-fix data), which would crash `.filter`.
   const normalized = resultRow?.data ? normalizeAnalysisResult(resultRow.data as { profile?: Profile }) : null;
   const profile: Profile | undefined = normalized?.profile;
-  if (!profile) return NextResponse.json({ recap: null });
+  if (!profile) return jsonNoStore({ recap: null });
 
   const { data: convRow } = await supabase
     .from('conversations')
@@ -175,7 +176,7 @@ export async function GET() {
     .eq('user_id', user.id)
     .maybeSingle();
   if (stored?.recap && stored.message_count === messageCount) {
-    return NextResponse.json({ recap: stored.recap });
+    return jsonNoStore({ recap: stored.recap });
   }
 
   // Preferred name (e.g. "Lexi") wins over the signup name (e.g. "Alexandra").
@@ -194,7 +195,7 @@ export async function GET() {
 
   const recap = await generateRecap(profile, name, messages, board);
   // On a generation hiccup, fall back to whatever we had (or null) — never an error card.
-  if (!recap) return NextResponse.json({ recap: stored?.recap ?? null });
+  if (!recap) return jsonNoStore({ recap: stored?.recap ?? null });
 
   await supabase
     .from('recaps')
@@ -203,5 +204,5 @@ export async function GET() {
       { onConflict: 'user_id' }
     );
 
-  return NextResponse.json({ recap });
+  return jsonNoStore({ recap });
 }

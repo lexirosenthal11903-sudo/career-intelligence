@@ -7,6 +7,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthedUser } from '@/lib/supabase/server';
 import { getProfile, patchProfile, type ProfileData } from '@/lib/profile';
+import { jsonNoStore } from '@/lib/api-response';
 
 export async function GET() {
   const { user, supabase } = await getAuthedUser();
@@ -14,7 +15,7 @@ export async function GET() {
 
   try {
     const profile = await getProfile(supabase, user.id);
-    return NextResponse.json({ profile });
+    return jsonNoStore({ profile });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });

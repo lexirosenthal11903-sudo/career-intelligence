@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthedUser } from '@/lib/supabase/server';
+import { jsonNoStore } from '@/lib/api-response';
 
 /**
  * matched_jobs — the user's PERSISTED, scored job set, so listings are STABLE
@@ -40,7 +41,7 @@ export async function GET() {
     isNew: r.is_new ?? false,
   }));
 
-  return NextResponse.json({
+  return jsonNoStore({
     jobs,
     keywordHash: state?.keyword_hash ?? null,
     lastRefreshed: state?.last_refreshed ?? null,

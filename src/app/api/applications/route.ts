@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthedUser } from '@/lib/supabase/server';
+import { jsonNoStore } from '@/lib/api-response';
 
 export async function GET() {
   const { user, supabase } = await getAuthedUser();
@@ -12,7 +13,7 @@ export async function GET() {
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ applications: data ?? [] });
+  return jsonNoStore({ applications: data ?? [] });
 }
 
 export async function POST(request: Request) {

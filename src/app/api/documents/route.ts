@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getAuthedUser } from '@/lib/supabase/server';
+import { jsonNoStore } from '@/lib/api-response';
 
 export async function GET(request: Request) {
   const { user, supabase } = await getAuthedUser();
-  if (!user) return NextResponse.json({ documents: [] });
+  if (!user) return jsonNoStore({ documents: [] });
 
   const { searchParams } = new URL(request.url);
   const jobId = searchParams.get('jobId');
@@ -19,5 +20,5 @@ export async function GET(request: Request) {
   const { data, error } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ documents: data ?? [] });
+  return jsonNoStore({ documents: data ?? [] });
 }

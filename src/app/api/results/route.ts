@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthedUser } from '@/lib/supabase/server';
+import { jsonNoStore } from '@/lib/api-response';
 
 export async function GET() {
   const { user, supabase } = await getAuthedUser();
@@ -14,5 +15,5 @@ export async function GET() {
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ result: data?.data ?? null });
+  return jsonNoStore({ result: data?.data ?? null });
 }
