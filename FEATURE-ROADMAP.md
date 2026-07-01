@@ -499,6 +499,26 @@ One observation to fix:
   untouched. Reproduced first with `tests/chat-reply.test.mjs` (6 unit tests modelling the client reduction);
   56/56 green, tsc 0, lint 0, £0. _(logged S45, fixed S46)_
 
+### Session 47 — outreach tracking shipped + IA finding
+- ✅ **Outreach tracking — SHIPPED & live-QA passed (2026-07-01, commit a3dd545).** The candidate-loop outreach
+  step was one-time (advisor drafted, nothing saved). Now: `outreach` table (migration 20260701, per-role, GDPR
+  posture unchanged — no named third party); draft_outreach persists; `/api/outreach` GET/PATCH; self-report
+  status chips (To send / Sent / They replied / No reply) in the role's "Reaching out" section; `set_outreach_status`
+  advisor tool; advisor context surfaces the ONE follow-up due after 5 business days (research §5). Prior-art
+  grounded (Teal/Huntr/folk/Clay): per-role not cross-role CRM, honest self-report (no inbox), one gentle
+  follow-up owned by the advisor. Live QA (Data Analyst · Sagacity): all 4 steps PASS, no bugs.
+- 🔶 **IA finding (Lexi, live QA 2026-07-01): "Roles for you" detail vs "Applications" detail must be
+  differentiated — DESIGN SESSION, not a build.** Two mental modes are bleeding together: the live-role view
+  should be *"should I go for this?"* (company, role, fit) while the application view is *"where's my application
+  at?"* (status, CV, cover letter, outreach tracking, notes). Outreach *tracking* (the status chips) is an
+  application concern and currently sits in the live-role view. Tension to resolve: *offering* to reach out fits
+  the live view (research: outreach is often the highest-leverage FIRST move, pre-application), but *tracking* it
+  belongs in Applications. Claude's proposed logic: drafting outreach for a role quietly promotes it into
+  Applications (where chips/CV/cover-letter/status live together), and the live view becomes purely about the
+  company + fit. Surfaces a real gap: the live-role view is thin on actual COMPANY info (only the listing) — ties
+  to the grounded-knowledge track (Step 3). Run as a focused IA/design session (Fable 5 candidate); do not build
+  until the model is decided.
+
 ### Session 46 — found while shipping the fix
 - ✓ **Flaky e2e: `state-sync.spec.ts:50` (rejected-direction drop) — was a real cache bug.** SidePanel
   intermittently rendered a rejected direction because the `/api/profile` GET it makes had no `Cache-Control`, so
