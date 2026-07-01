@@ -27,6 +27,8 @@ export async function DELETE() {
     // tailored CVs + cover letters. The FK has on-delete-cascade, but we erase
     // explicitly too so GDPR deletion never depends on the cascade (same rule as above).
     admin.from('documents').delete().eq('user_id', user.id),
+    // drafted outreach messages + their status. Same explicit-erase rule as above.
+    admin.from('outreach').delete().eq('user_id', user.id),
   ]);
 
   const { error } = await admin.auth.admin.deleteUser(user.id);

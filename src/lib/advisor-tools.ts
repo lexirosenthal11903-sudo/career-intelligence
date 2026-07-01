@@ -15,6 +15,7 @@ import { callClaude } from '@/lib/anthropic';
 import { stripDashes } from '@/lib/sanitize';
 import { ADVISOR_SURFACES, isAdvisorSurface } from '@/lib/surfaces';
 import { roleKey } from '@/lib/role-key';
+import { isOutreachStatus } from '@/lib/outreach';
 
 // ── Tool schemas sent to Claude ───────────────────────────────────────────────
 // Prescriptive descriptions: state WHEN to call, not just what it does. Recent
@@ -137,6 +138,20 @@ export const ADVISOR_TOOLS = [
         reason: { type: 'string', description: "When moving to 'rejected' or 'archive', a short note on WHY it closed, in their terms — the feedback they got, or 'no feedback given', or why they set it aside. Stored against the role so they can remind themselves later. Keep it brief and factual; omit for other stages." },
       },
       required: ['jobTitle', 'stage'],
+    },
+  },
+  {
+    name: 'set_outreach_status',
+    description:
+      "Update where a piece of OUTREACH has got to, when the person tells you. This tracks reaching out to a person (a warm intro or cold approach), which is SEPARATE from an application's stage — use this one, not set_application_stage, when they're talking about a message they sent someone. Call it when they say they've sent the outreach message ('sent' — stamps the clock for a single follow-up a working week later), that the person got back to them ('replied' — the good outcome, acknowledge it warmly), or that they never heard back after they'd already followed up once ('no_reply' — a soft close, remind them gently that most outreach goes unanswered and it isn't a verdict on them). Match the outreach by the role title (and company if they say it). Do NOT call this to draft a message — that's draft_outreach.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        roleTitle: { type: 'string', description: 'The role (and optionally company) the outreach was about — matches the drafted message.' },
+        company: { type: 'string', description: 'The company for that role, if known (helps match it exactly).' },
+        status: { type: 'string', enum: ['to_send', 'sent', 'replied', 'no_reply'], description: "'sent' when they've sent the message; 'replied' when the person responded; 'no_reply' only after one follow-up has gone unanswered; 'to_send' if they haven't sent it yet." },
+      },
+      required: ['roleTitle', 'status'],
     },
   },
   {
@@ -559,6 +574,80 @@ export async function executeAdvisorTool(
         };
       }
 
+      case 'set_outreach_status': {
+        const roleTitle = String(input.roleTitle ?? '').trim();
+        const company = String(input.company ?? '').trim();
+        const status = String(input.status ?? '').trim();
+        if (!roleTitle || !isOutreachStatus(status))
+          return { content: 'Need the role the outreach was about and a valid status.', isError: true };
+
+        // Match the outreach row. Prefer the exact role key (title+company); fall back to
+        // a title match among their outreach when they name only the role. Low volume, so
+        // a simple contains-match is enough — no elaborate scoring like applications.
+        const { data: rows } = await supabase
+          .from('outreach')
+          .select('role_key, role_title, company')
+          .eq('user_id', userId);
+        const wantKey = roleKey(roleTitle, company);
+        const norm = (s?: string | null) => (s ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+        const nTitle = norm(roleTitle);
+        const all = rows ?? [];
+        // Prefer an exact key (title+company), then an exact title. Only if neither hits
+        // do we fall back to a loose contains-match, and then ONLY when it's unambiguous:
+        // a stored "Senior Product Manager" must never silently swallow a "Product Manager"
+        // status change. If more than one row could be meant, ask rather than guess
+        // (mirrors set_application_stage's ambiguity guard).
+        let match =
+          all.find((r) => r.role_key === wantKey) ??
+          all.find((r) => norm(r.role_title) === nTitle);
+        if (!match && nTitle.length > 2) {
+          const loose = all.filter(
+            (r) => norm(r.role_title).includes(nTitle) || nTitle.includes(norm(r.role_title))
+          );
+          const distinctKeys = new Set(loose.map((r) => r.role_key));
+          if (distinctKeys.size > 1) {
+            const names = loose
+              .map((r) => `${r.role_title}${r.company ? ` at ${r.company}` : ''}`)
+              .join('; ');
+            return {
+              content: `More than one outreach could match "${roleTitle}": ${names}. Ask them which one they mean (by company) before you change its status, do NOT guess.`,
+              isError: true,
+            };
+          }
+          match = loose[0];
+        }
+        if (!match)
+          return { content: `No outreach on record for "${roleTitle}". Draft one first with draft_outreach.`, isError: true };
+
+        const update: { status: string; updated_at: string; sent_at?: string | null } = {
+          status,
+          updated_at: new Date().toISOString(),
+        };
+        if (status === 'sent') update.sent_at = new Date().toISOString();
+        if (status === 'to_send') update.sent_at = null;
+        const { error } = await supabase
+          .from('outreach')
+          .update(update)
+          .eq('user_id', userId)
+          .eq('role_key', match.role_key);
+        if (error) return { content: `Couldn't update the outreach: ${error.message}`, isError: true };
+
+        const label = `${match.role_title}${match.company ? ` at ${match.company}` : ''}`;
+        // Speak to the moment; never gamify (feedback_no_gamification). 'replied' is the
+        // good outcome; 'no_reply' is a soft close held with care (research §5).
+        const WEIGHT: Record<string, string> = {
+          sent: "Good, the message is out. Let them know you'll help them follow up once, warmly, if a working week goes by with no reply, and that they never need to chase twice.",
+          replied: "They got a reply, which is the whole point of doing it well. Acknowledge it warmly (not over the top) and offer to help them with what to say back.",
+          no_reply: "No reply, even after a follow-up. Hold them gently: most outreach goes unanswered, it's not a verdict on them, and the next message to a different person is the move, not chasing this one again.",
+        };
+        const weight = WEIGHT[status] ?? '';
+        return {
+          content: `Marked the outreach for "${label}" as ${status} (in the background — they stay in the conversation).${weight ? ` ${weight}` : ''}`,
+          action: `Outreach "${label}" → ${status}`,
+          signal: 'outreach-changed',
+        };
+      }
+
       case 'hide_role_from_live': {
         const jobTitle = String(input.jobTitle ?? '').trim();
         const company = String(input.company ?? '').trim();
@@ -957,6 +1046,36 @@ export async function executeAdvisorTool(
             ? `\nRemember: you give them the words; they already have the person and do the sending. Don't claim to have looked anyone up or to hold their contact details.`
             : `\nRemember: you give them the search and the words — they do the finding and the sending. Don't claim to have found a specific person or their contact details.`,
         ].filter(Boolean).join('\n');
+
+        // Persist the draft against the role so it survives the conversation — the
+        // panel's "Reaching out" section reads it back and shows the status chips. One
+        // row per role (drafting again updates it). GDPR: only the user's own message +
+        // a by-role search + a role-descriptor personType — never a named third party.
+        // Preserve an existing status so a re-draft doesn't reset a thread already sent.
+        const outreachKey = roleKey(roleTitle, company);
+        const { data: priorOutreach } = await supabase
+          .from('outreach')
+          .select('status, sent_at')
+          .eq('user_id', userId)
+          .eq('role_key', outreachKey)
+          .maybeSingle();
+        await supabase.from('outreach').upsert(
+          {
+            user_id: userId,
+            role_key: outreachKey,
+            role_title: roleTitle,
+            company: company || null,
+            person_type: personType || null,
+            search_url: searchUrl || null,
+            subject: subject || null,
+            message,
+            follow_up: followUp || null,
+            status: priorOutreach?.status ?? 'to_send',
+            sent_at: priorOutreach?.sent_at ?? null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,role_key' }
+        );
 
         return {
           content: contentForAdvisor,

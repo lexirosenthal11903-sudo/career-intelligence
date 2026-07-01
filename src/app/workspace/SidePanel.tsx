@@ -11,8 +11,9 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { usePanelJobs, type PanelJob, type AnalysisProfile } from "./usePanelJobs";
 import { RolesIcon, DirectionIcon, DocumentsIcon, ProfileIcon, CloseIcon, ChevronIcon, ApplicationsIcon } from "./icons";
 import CompanyLogo from "./CompanyLogo";
-import { isInApplications } from "@/lib/role-key";
+import { isInApplications, roleKey } from "@/lib/role-key";
 import { activeDirections } from "@/lib/user-state";
+import { OUTREACH_LABELS, OUTREACH_STATUSES, type OutreachStatus } from "@/lib/outreach";
 export type PanelView = "roles" | "direction" | "documents" | "saved" | "profile" | "applications";
 
 const LOGO_TOKENS = ["--logo-1", "--logo-2", "--logo-3", "--logo-4", "--logo-5", "--logo-6"];
@@ -341,6 +342,140 @@ function JobRow({ job, strong, inApps, onReview }: { job: PanelJob; strong: bool
   );
 }
 
+/* ===== Reaching out — persisted outreach draft + self-reported status ======== */
+interface OutreachRecord {
+  role_key: string;
+  role_title: string;
+  company: string | null;
+  person_type: string | null;
+  search_url: string | null;
+  subject: string | null;
+  message: string;
+  follow_up: string | null;
+  status: OutreachStatus;
+  sent_at: string | null;
+}
+
+function OutreachSection({ job }: { job: PanelJob }) {
+  const [record, setRecord] = useState<OutreachRecord | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showMessage, setShowMessage] = useState(false);
+  const key = roleKey(job.title, job.company);
+
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const res = await fetch("/api/outreach");
+      if (!res.ok) return;
+      const { outreach } = await res.json();
+      const found: OutreachRecord | undefined = (outreach || []).find(
+        (o: OutreachRecord) => o.role_key === key
+      );
+      setRecord(found ?? null);
+    } catch {
+      /* best-effort; the advisor owns errors in chat */
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, [key]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => { await Promise.resolve(); if (!cancelled) load(); })();
+    // The advisor drafting or restatusing outreach emits ci:outreach-changed — re-read
+    // so the draft appears and the chips update live without a refresh.
+    const onChanged = () => load(true);
+    window.addEventListener("ci:outreach-changed", onChanged);
+    return () => { cancelled = true; window.removeEventListener("ci:outreach-changed", onChanged); };
+  }, [load]);
+
+  async function setStatus(next: OutreachStatus) {
+    if (!record) return;
+    setRecord({ ...record, status: next }); // optimistic
+    try {
+      const res = await fetch("/api/outreach", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roleTitle: record.role_title, company: record.company ?? "", status: next }),
+      });
+      // A non-2xx (e.g. the row didn't match) means the optimistic chip is now lying —
+      // reload server truth so it can't stick showing a status that never saved.
+      if (!res.ok) { await load(true); return; }
+      // Keep the advisor's context in step so it doesn't re-offer a follow-up it just did.
+      if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("ci:outreach-changed"));
+    } catch {
+      // Network throw: revert to whatever the server actually has.
+      await load(true);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={s.rdSection}>
+        <div className={s.rdLabel}>Reaching out</div>
+        <div className={`${s.job} ${s.skeleton}`} style={{ height: "44px" }} />
+      </div>
+    );
+  }
+
+  // No draft yet — hand off to the conversation, where the advisor asks warm-before-cold
+  // and drafts. Contacts are never scraped or stored (GDPR posture, unchanged).
+  if (!record) {
+    return (
+      <div className={s.rdSection}>
+        <div className={s.rdLabel}>Reaching out</div>
+        <p className={s.rdText}>A warm intro or a good message to the right person often beats a cold application. The advisor works out who to approach and drafts it with you. Contacts aren&rsquo;t scraped or stored.</p>
+        <button className={s.chip} type="button" onClick={() => askAdvisor(`Who should I reach out to about the ${job.title} role at ${job.company}, and can you help me draft a message?`)}>
+          Help me reach out
+        </button>
+      </div>
+    );
+  }
+
+  // A draft exists — show it, let them mark where it got to. Chips are the honest,
+  // self-reported status (we have no inbox); the advisor owns the single follow-up.
+  return (
+    <div className={s.rdSection}>
+      <div className={s.rdLabel}>Reaching out</div>
+      {record.person_type && <p className={s.rdText}>Who to approach: {record.person_type}</p>}
+
+      <div className={s.stageRow}>
+        {OUTREACH_STATUSES.map((st) => (
+          <button
+            key={st}
+            type="button"
+            className={`${s.stageChip} ${record.status === st ? s.stageOn : ""}`}
+            onClick={() => setStatus(st)}
+          >
+            {OUTREACH_LABELS[st]}
+          </button>
+        ))}
+      </div>
+
+      <div className={s.rdOutreachActions}>
+        <button className={s.chip} type="button" onClick={() => setShowMessage((v) => !v)}>
+          {showMessage ? "Hide message" : "View message"}
+        </button>
+        {record.search_url && (
+          <a className={s.chip} href={record.search_url} target="_blank" rel="noopener noreferrer">Find them on LinkedIn ↗</a>
+        )}
+        <button className={s.chip} type="button" onClick={() => askAdvisor(`Help me refine my outreach message for the ${job.title} role at ${job.company}.`)}>
+          Refine with the advisor
+        </button>
+      </div>
+
+      {showMessage && (
+        <div className={s.rdOutreachMsg}>
+          {record.subject && <p className={s.rdOutreachSubject}>Subject: {record.subject}</p>}
+          <p className={s.rdOutreachBody}>{record.message}</p>
+          {record.follow_up && (
+            <p className={s.rdOutreachFollow}>If it goes quiet, one gentle follow-up: {record.follow_up}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ===== Single role — contact + outreach + skills INSIDE the role =========== */
 function RoleDetail({
   job, skills, interested, saving, onBack, onInterested, onPass, onTailorCV, tailoring,
@@ -403,24 +538,9 @@ function RoleDetail({
         </div>
       )}
 
-      {/* Contact — sourcing is parked for legal sign-off; the advisor coaches you in the
-          conversation rather than scraping an address. The chip hands off to chat. */}
-      <div className={s.rdSection}>
-        <div className={s.rdLabel}>Reaching out</div>
-        <p className={s.rdText}>Contacts aren&rsquo;t scraped or stored. Who to approach, and how, gets worked out in the conversation.</p>
-        <button className={s.chip} type="button" onClick={() => window.dispatchEvent(new CustomEvent("ci:ask-advisor", { detail: `Who should I reach out to about the ${job.title} role at ${job.company}?` }))}>
-          Help me find the right person
-        </button>
-      </div>
-
-      {/* Outreach — drafted with the advisor (execution being reworked, plan §2). */}
-      <div className={s.rdSection}>
-        <div className={s.rdLabel}>Outreach draft</div>
-        <p className={s.rdText}>Outreach messages get drafted in the conversation and saved here once you&rsquo;re happy with them.</p>
-        <button className={s.chip} type="button" onClick={() => window.dispatchEvent(new CustomEvent("ci:ask-advisor", { detail: `Help me draft an outreach message for the ${job.title} role at ${job.company}.` }))}>
-          Draft an outreach message
-        </button>
-      </div>
+      {/* Reaching out — the advisor drafts in the conversation; the draft is saved here
+          and the user marks where it got to. Contacts are never scraped or stored. */}
+      <OutreachSection job={job} />
 
       <div className={s.rdActions}>
         {interested ? (

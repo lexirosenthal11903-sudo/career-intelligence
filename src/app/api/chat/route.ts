@@ -8,6 +8,7 @@ import { ADVISOR_TOOLS, executeAdvisorTool } from '@/lib/advisor-tools';
 import { stripDashes, stripGapRemarks, stripTimeOfDay } from '@/lib/sanitize';
 import { ackForSilentCommit } from '@/lib/chat-reply';
 import { assembleBoard, formatBoardForAdvisor } from '@/lib/user-state';
+import { formatOutreachForAdvisor, type OutreachStatus } from '@/lib/outreach';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const maxDuration = 60;
@@ -168,6 +169,29 @@ async function buildUserContext(
   // src/lib/user-state.ts + STATE-SYNC-AUDIT.md.
   const boardLine = formatBoardForAdvisor(await assembleBoard(supabase, userId));
   if (boardLine) parts.push(boardLine);
+
+  // Outreach the person has going, so the advisor picks the thread back up rather than
+  // re-drafting, and can offer the SINGLE gentle follow-up when a working week has passed
+  // with no reply (research §5 — one follow-up, then stop). Best-effort: a read miss
+  // must never break the chat. See src/lib/outreach.ts.
+  try {
+    const { data: outreachRows } = await supabase
+      .from('outreach')
+      .select('role_title, company, person_type, status, sent_at')
+      .eq('user_id', userId);
+    const outreachLine = formatOutreachForAdvisor(
+      (outreachRows ?? []).map((r) => ({
+        roleTitle: r.role_title as string,
+        company: r.company as string | null,
+        personType: r.person_type as string | null,
+        status: r.status as OutreachStatus,
+        sentAt: r.sent_at as string | null,
+      }))
+    );
+    if (outreachLine) parts.push(outreachLine);
+  } catch {
+    // no outreach read should break the advisor context
+  }
 
   if (!parts.length) {
     const intro = nameLine ? `\n\n${nameLine}` : '';

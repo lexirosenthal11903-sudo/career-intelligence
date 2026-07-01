@@ -232,6 +232,15 @@ export function useArloChat({
         if (signals.includes("application-changed") && typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("ci:application-changed"));
         }
+        // The advisor drafted outreach or moved its status — tell the role's Reaching-out
+        // section to re-read so the draft appears / the status chips update live. Quiet
+        // by design: refreshes data, never moves the user.
+        if (
+          (signals.includes("outreach-drafted") || signals.includes("outreach-changed")) &&
+          typeof window !== "undefined"
+        ) {
+          window.dispatchEvent(new CustomEvent("ci:outreach-changed"));
+        }
         // The advisor changed a profile fact (preferred name, salary, a direction
         // reaction). Tell the nav, Profile and Direction surfaces to re-read so they
         // can't show stale info while the advisor says it's updated.
