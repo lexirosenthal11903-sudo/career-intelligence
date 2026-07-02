@@ -125,27 +125,25 @@ test.describe('Core routes render without crashing (unauthenticated)', () => {
     await expect(page.getByRole('button', { name: /Profile/ })).toHaveCount(0);
   });
 
-  // Returning recap (pre-share blocker): the "Where we got to" card renders the
-  // real per-user recap from /api/recap (no more hardcoded example copy). The card
-  // is client-rendered from the API response, so mocking /api/recap covers the wiring.
-  test('returning recap card renders real per-user content', async ({ page }) => {
+  // The workspace renders unauthenticated without crashing, and — crucially — the
+  // "Where we got to" recap does NOT show for a visitor with no genuine return. The
+  // recap is now gated on a real return (>=6h away / new day) so a plain load never
+  // reads as "welcome back"; its authenticated genuine-return coverage lives in
+  // state-sync.spec.ts ('recap shows on a genuine return but NOT on a same-session refresh').
+  test('workspace renders unauthenticated with no spurious recap', async ({ page }) => {
+    // Even if /api/recap returns content, the card must stay hidden without a real return.
     await page.route('**/api/recap', (route) =>
       route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          recap: {
-            greeting: 'Good to pick this back up — your direction is coming into focus.',
-            becomingClear: ['You lean toward understanding people, not pure analysis.'],
-            doingNext: ['Searching entry-level research roles, ranked by fit.'],
-          },
+          recap: { greeting: 'Good to pick this back up.', becomingClear: ['x'], doingNext: ['y'] },
         }),
       })
     );
     await page.goto('/workspace');
-    await expect(page.getByText('Where we got to')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText('your direction is coming into focus')).toBeVisible();
-    await expect(page.getByText('What’s becoming clear')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Message Career Intelligence' })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Where we got to')).toHaveCount(0);
   });
 
   for (const route of DASHBOARD_ROUTES) {

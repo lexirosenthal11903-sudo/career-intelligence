@@ -218,9 +218,9 @@ test('autoscroll — a long just-sent message is anchored near the TOP (start vi
   await page.goto('/workspace');
   const composer = page.getByRole('textbox', { name: 'Message Career Intelligence' });
   await expect(composer).toBeVisible({ timeout: 20_000 });
-  // Let the recap card AND the advisor's opener render first, so the conversation is fully
-  // settled before we send + measure (mirrors a real user, who reads the opener then types).
-  await expect(page.getByText('Where we got to')).toBeVisible({ timeout: 10_000 });
+  // This user has NO prior conversation (deleted above), so it's a cold open — the advisor
+  // opens fresh and (correctly) there's no "Where we got to" recap. Wait on the opener as
+  // the settle signal, so the conversation is fully rendered before we send + measure.
   await expect(page.getByText('Hello.', { exact: false })).toBeVisible({ timeout: 10_000 });
 
   // A message taller than the viewport — without the fix, scroll-to-bottom hides its start.
@@ -248,6 +248,52 @@ test('autoscroll — a long just-sent message is anchored near the TOP (start vi
   // Before the fix this delta was a large NEGATIVE (the start scrolled off the top).
   expect(delta).toBeGreaterThanOrEqual(-2);
   expect(delta).toBeLessThan(160);
+
+  await context.close();
+});
+
+// Recap continuity contract: the "Where we got to" recap shows only on a GENUINE return
+// (>=6h away or a new day), never on a same-session page refresh — otherwise a reload reads
+// as a fresh login. Drives the real workspace against a seeded conversation whose updated_at
+// we control. Mocks /api/recap + /api/chat (£0, deterministic).
+test('recap shows on a genuine return but NOT on a same-session refresh', async ({ browser }) => {
+  test.skip(!ready, 'Needs Supabase creds in .env.local (seeds the e2e test user).');
+  const admin = adminClient();
+  await admin.from('recaps').delete().eq('user_id', userId); // no cached recap to interfere
+
+  const context = await browser.newContext();
+  await context.addCookies(cookies);
+  const page = await context.newPage();
+  await page.route('**/api/recap', (route) =>
+    route.fulfill({ json: { recap: { greeting: 'Good to pick this back up.', becomingClear: ['You lean toward people-focused research.'], doingNext: ['Ranking entry-level research roles.'] } } })
+  );
+  // On a meaningful return the advisor opens; mock it so the test is free + deterministic.
+  await page.route('**/api/chat', (route) => route.fulfill({ json: { content: [{ type: 'text', text: 'Welcome back.' }] } }));
+
+  const seedConversation = async (updatedAt: string) => {
+    await admin.from('conversations').delete().eq('user_id', userId);
+    await admin.from('conversations').insert({
+      user_id: userId,
+      page: 'workspace',
+      messages: [
+        { role: 'user', content: 'I think I want research roles.' },
+        { role: 'assistant', content: 'Good instinct — let us map what fits.' },
+      ],
+      updated_at: updatedAt,
+    });
+  };
+
+  // GENUINE return — last active two days ago → recap shows.
+  await seedConversation(new Date(Date.now() - 2 * 24 * 3.6e6).toISOString());
+  await page.goto('/workspace');
+  await expect(page.getByText('Where we got to')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('You lean toward people-focused research.')).toBeVisible();
+
+  // SAME-SESSION refresh — active seconds ago → NO recap; the prior thread restores inline.
+  await seedConversation(new Date().toISOString());
+  await page.goto('/workspace');
+  await expect(page.getByText('I think I want research roles.')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('Where we got to')).toHaveCount(0);
 
   await context.close();
 });

@@ -56,6 +56,11 @@ export function useArloChat({
 }) {
   const [allMsgs, setAllMsgs] = useState<ChatMsg[]>([]);
   const [showPrevious, setShowPrevious] = useState(false);
+  // True only when this load is a GENUINE return (>=6h away or a new day) — drives
+  // whether the "Where we got to" recap + "New session" divider show. A same-session
+  // page refresh must NOT read as a fresh login: it restores the thread inline, no
+  // recap, no divider (standard continuous behaviour). Set after the DB load resolves.
+  const [meaningfulReturn, setMeaningfulReturn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const apiHistoryRef = useRef<ApiMsg[]>([]);
   const loadedRef = useRef(false);
@@ -145,19 +150,22 @@ export function useArloChat({
         if (data?.messages && Array.isArray(data.messages) && data.messages.length > 0) {
           const stored = data.messages as ApiMsg[];
           apiHistoryRef.current = stored;
-          // Convert API format → display format, then mark session boundary
-          setAllMsgs([
-            ...stored.map((m) => ({
-              role: (m.role === "assistant" ? "arlo" : "user") as ChatMsg["role"],
-              text: m.content,
-            })),
-            { role: "divider" as const, text: "New session" },
-          ]);
-          // On a meaningful return (new day / real gap), the advisor speaks first,
-          // picking up an unresolved thread from the transcript it now holds. Stays
-          // quiet on same-session navigation, and never talks over a user who's
-          // already started (guarded inside initiate via userEngagedRef).
-          if (isMeaningfulReturn(data.updated_at as string | null) && !userEngagedRef.current) {
+          const meaningful = isMeaningfulReturn(data.updated_at as string | null);
+          setMeaningfulReturn(meaningful);
+          // Convert API format → display format. Only a GENUINE return gets the
+          // "New session" divider (which collapses the prior thread behind a toggle
+          // and pairs with the recap). A same-session refresh restores the whole
+          // conversation inline — no divider — so it feels continuous, not fresh.
+          const display = stored.map((m) => ({
+            role: (m.role === "assistant" ? "arlo" : "user") as ChatMsg["role"],
+            text: m.content,
+          }));
+          setAllMsgs(meaningful ? [...display, { role: "divider" as const, text: "New session" }] : display);
+          // On a meaningful return the advisor speaks first, picking up an unresolved
+          // thread from the transcript it now holds. Stays quiet on same-session
+          // navigation, and never talks over a user who's already started (guarded
+          // inside initiate via userEngagedRef).
+          if (meaningful && !userEngagedRef.current) {
             initiate(stored);
           }
         } else {
@@ -402,5 +410,5 @@ export function useArloChat({
 
   const togglePrevious = useCallback(() => setShowPrevious((v) => !v), []);
 
-  return { extraMsgs, sendMessage, isLoading, messagesEndRef, lastMsgRef, hasPrevious, showPrevious, togglePrevious };
+  return { extraMsgs, sendMessage, isLoading, messagesEndRef, lastMsgRef, hasPrevious, showPrevious, togglePrevious, meaningfulReturn };
 }

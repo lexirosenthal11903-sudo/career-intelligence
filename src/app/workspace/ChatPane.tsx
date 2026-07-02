@@ -356,7 +356,11 @@ function ReturningSession({
   // Skip the recap when continuing directly from the first session — there's no "earlier"
   // to summarise, and the conversation should feel uninterrupted.
   const { recap, loading } = useRecap();
-  const showRecap = !skipRecap && (loading || !!recap);
+  // Only a GENUINE return (>=6h away or a new day) shows the "Where we got to" recap.
+  // A same-session page refresh restores the conversation inline with no recap, so it
+  // reads as continuous rather than a fresh login (chat.meaningfulReturn, set after the
+  // DB load). Until that resolves it defaults false, so the recap never flashes on a refresh.
+  const showRecap = !skipRecap && chat.meaningfulReturn && (loading || !!recap);
 
   return (
     <>
