@@ -115,6 +115,7 @@ export default function SidePanel({
                 interestedIdByKey.get(roleKey(selected.title, selected.company)) ?? String(selected.id);
               window.dispatchEvent(new CustomEvent("ci:open-application", { detail: appId }));
             }}
+            onReachOut={() => handleReachOut(selected)}
           />
         ) : (
           <RolesList
@@ -144,11 +145,11 @@ export default function SidePanel({
   );
 
   // ── Interested / Pass — same data path as the dashboard Roles tab ──────────
-  async function handleInterested(job: PanelJob) {
-    if (!userId) {
-      window.location.href = "/?signup=required&next=/workspace";
-      return;
-    }
+  // The shared save: mirror-write saved_jobs (feed status) + saved_applications (board
+  // at 'saved'), optimistically flag it, and tell the nav + panels to re-read live.
+  // Used by BOTH "I'm interested" and the reach-out door, so starting outreach reliably
+  // creates the application (SPEC rule 4) without depending on the advisor drafting.
+  async function saveRoleToApplications(job: PanelJob) {
     const id = String(job.id);
     setInterested((prev) => new Set([...prev, id]));
     setPassed((prev) => { const n = new Set(prev); n.delete(id); return n; });
@@ -167,13 +168,37 @@ export default function SidePanel({
       ]);
     } catch { /* surfaced via state; advisor owns errors in chat */ }
     finally { setSaving((prev) => { const n = new Set(prev); n.delete(id); return n; }); }
-    // Let the left-nav "Recent" pick this up without a reload (progressive disclosure).
+    // Left-nav "Recent" (roles-changed) AND the Applications count/board + this panel's
+    // saved-state (application-changed) both re-read without a reload.
     window.dispatchEvent(new CustomEvent("ci:roles-changed"));
+    window.dispatchEvent(new CustomEvent("ci:application-changed"));
+  }
+
+  async function handleInterested(job: PanelJob) {
+    if (!userId) {
+      window.location.href = "/?signup=required&next=/workspace";
+      return;
+    }
+    await saveRoleToApplications(job);
     // A clean interest statement, NOT "what should we do about it" — that biased the
     // advisor toward an action menu (jumping to docs). The role-interest section of the
     // prompt now drives a curious-first response: one genuine question, then a plan,
     // documents only later. The role is already saved above, so the advisor never re-saves.
     askAdvisor(`I'm interested in the ${job.title} role at ${job.company}.`);
+  }
+
+  // The reach-out door: starting outreach IS starting prep, so the role is saved into
+  // Applications on the click (SPEC rule 4) — the app exists even if the advisor decides
+  // an outreach draft already exists and doesn't re-draft. Then hand off to the advisor
+  // to work out who to approach and draft the message; its draft_outreach persists the
+  // thread against the same role.
+  async function handleReachOut(job: PanelJob) {
+    if (!userId) {
+      window.location.href = "/?signup=required&next=/workspace";
+      return;
+    }
+    await saveRoleToApplications(job);
+    askAdvisor(`Who should I reach out to about the ${job.title} role at ${job.company}, and can you help me draft a message?`);
   }
 
   async function handlePass(job: PanelJob) {
@@ -315,12 +340,12 @@ function JobRow({ job, strong, inApps, onReview }: { job: PanelJob; strong: bool
 /* Shown on a live role that isn't in Applications yet. Just the offer + the hand-off
    into the conversation; the moment the advisor drafts, the role auto-saves and the
    full thread (draft, chips, follow-up) lives in the application detail (OutreachSection). */
-function ReachOutDoor({ job }: { job: PanelJob }) {
+function ReachOutDoor({ onReachOut }: { onReachOut: () => void }) {
   return (
     <div className={s.rdSection}>
       <div className={s.rdLabel}>Reaching out</div>
       <p className={s.rdText}>A warm intro or a good message to the right person often beats a cold application. The advisor works out who to approach and drafts it with you. Contacts aren&rsquo;t scraped or stored.</p>
-      <button className={s.chip} type="button" onClick={() => askAdvisor(`Who should I reach out to about the ${job.title} role at ${job.company}, and can you help me draft a message?`)}>
+      <button className={s.chip} type="button" onClick={onReachOut}>
         Help me reach out
       </button>
     </div>
@@ -463,7 +488,7 @@ function OutreachSection({ job }: { job: PanelJob }) {
 
 /* ===== Single role — contact + outreach + skills INSIDE the role =========== */
 function RoleDetail({
-  job, skills, interested, saving, onBack, onInterested, onPass, onOpenApplication,
+  job, skills, interested, saving, onBack, onInterested, onPass, onOpenApplication, onReachOut,
 }: {
   job: PanelJob;
   skills: string[];
@@ -473,6 +498,7 @@ function RoleDetail({
   onInterested: () => void;
   onPass: () => void;
   onOpenApplication: () => void;
+  onReachOut: () => void;
 }) {
   const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
   const strong = (job.relevanceScore ?? 0) >= 7;
@@ -526,7 +552,7 @@ function RoleDetail({
           often the highest-leverage FIRST move, pre-application), but not the thread.
           Starting a draft auto-saves the role, and the thread then lives in Applications
           (SPEC rules 3+4). Once saved, this gives way to the handoff link below. */}
-      {!interested && <ReachOutDoor job={job} />}
+      {!interested && <ReachOutDoor onReachOut={onReachOut} />}
 
       <div className={s.rdActions}>
         {interested ? (
