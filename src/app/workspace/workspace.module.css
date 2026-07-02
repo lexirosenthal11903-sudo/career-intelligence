@@ -1122,6 +1122,25 @@
   font-weight: 600;
   color: var(--green);
 }
+/* The quiet "In your applications" handoff link on a saved role's evaluation view
+   (SPEC — after save the live-role detail shows only this, no management UI). Reads
+   as a clear, tappable link, not a shouty amber button. */
+.rdInApps {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.14s var(--ease);
+}
+.rdInApps:hover { border-color: var(--accent); }
 
 /* ===== KEYBOARD FOCUS (WCAG 2.4.7) =====
    Nothing in the shell had a visible focus state. One consistent amber ring across
@@ -1139,6 +1158,7 @@
 .rdInterestedBtn:focus-visible,
 .rdPassBtn:focus-visible,
 .rdListing:focus-visible,
+.rdInApps:focus-visible,
 .panelRetry:focus-visible,
 .stab .x:focus-visible {
   outline: 2px solid var(--accent);

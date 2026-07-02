@@ -126,6 +126,21 @@ function ReturningWorkspace() {
     return () => window.removeEventListener("ci:open-surface", onOpenSurface);
   }, []);
 
+  // The "In your applications" handoff link on a saved live-role opens that role's
+  // application detail — the same landing "Recent" uses (a saved role IS an
+  // application, so it opens inside Applications, preselected).
+  useEffect(() => {
+    function onOpenApplication(e: Event) {
+      const id = (e as CustomEvent<string>).detail;
+      if (!id) return;
+      setSavedJobId(id);
+      setPanelView("applications");
+      setPanelOpen(true);
+    }
+    window.addEventListener("ci:open-application", onOpenApplication);
+    return () => window.removeEventListener("ci:open-application", onOpenApplication);
+  }, []);
+
   // Shared jobs data — fetched once here so the nav count and the panel agree.
   const panelJobs = usePanelJobs();
 

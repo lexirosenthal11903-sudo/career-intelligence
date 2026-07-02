@@ -16,6 +16,7 @@ import { stripDashes } from '@/lib/sanitize';
 import { ADVISOR_SURFACES, isAdvisorSurface } from '@/lib/surfaces';
 import { roleKey } from '@/lib/role-key';
 import { isOutreachStatus } from '@/lib/outreach';
+import { ensureApplicationSaved } from '@/lib/save-application';
 
 // ── Tool schemas sent to Claude ───────────────────────────────────────────────
 // Prescriptive descriptions: state WHEN to call, not just what it does. Recent
@@ -801,6 +802,15 @@ export async function executeAdvisorTool(
           );
         }
 
+        // Prep auto-saves (SPEC): a cover letter keeps the role safe in Applications
+        // (stage 'saved' if new; never advances). Same chat-<slug> id as the document.
+        await ensureApplicationSaved(supabase, userId, {
+          jobId: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
+          title: roleTitle,
+          company,
+          description: jobDescription || undefined,
+        });
+
         const notesText = notes.length
           ? notes.map((n) => `• ${n}`).join('\n')
           : 'Cover letter written for this role.';
@@ -894,6 +904,16 @@ export async function executeAdvisorTool(
             { onConflict: 'user_id,job_id,type' }
           );
         }
+
+        // Prep auto-saves (SPEC): tailoring a CV keeps the role safe in Applications
+        // (stage 'saved' if new; never advances an existing stage). Same chat-<slug>
+        // id as the document above, so both live under one application record.
+        await ensureApplicationSaved(supabase, userId, {
+          jobId: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
+          title: roleTitle,
+          company,
+          description: jobDescription || undefined,
+        });
 
         const changesText = changes.length
           ? changes.map((c) => `• ${c}`).join('\n')
@@ -1076,6 +1096,16 @@ export async function executeAdvisorTool(
           },
           { onConflict: 'user_id,role_key' }
         );
+
+        // Prep auto-saves (SPEC): starting outreach keeps the role in Applications
+        // (stage 'saved' if new; never advances). The outreach thread itself joins by
+        // roleKey, so the app just needs to exist for the role to have a home; we use
+        // the same chat-<slug> id as any CV/cover letter for this role.
+        await ensureApplicationSaved(supabase, userId, {
+          jobId: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
+          title: roleTitle,
+          company,
+        });
 
         return {
           content: contentForAdvisor,

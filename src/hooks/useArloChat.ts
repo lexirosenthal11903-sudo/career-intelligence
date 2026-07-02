@@ -226,10 +226,18 @@ export function useArloChat({
         if (signals.includes("cv-tailored") && typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("ci:open-documents"));
         }
+        // Prep actions now auto-save the role into Applications (SPEC — "prep
+        // auto-saves, never auto-advances"), so any prep signal must also refresh the
+        // Applications list, nav count and Live-roles badge — the newly-saved role
+        // appears without a reload, and the live-role view flips to its handoff link.
+        const PREP_SIGNALS = ["cv-tailored", "cover-letter-written", "outreach-drafted"];
         // A saved role moved stage (or a new one was saved) — tell the Applications
         // surface to re-read so its pills/list update live. Quiet by design: this
         // refreshes data, it never moves the user (research §3).
-        if (signals.includes("application-changed") && typeof window !== "undefined") {
+        if (
+          (signals.includes("application-changed") || PREP_SIGNALS.some((s) => signals.includes(s))) &&
+          typeof window !== "undefined"
+        ) {
           window.dispatchEvent(new CustomEvent("ci:application-changed"));
         }
         // The advisor drafted outreach or moved its status — tell the role's Reaching-out

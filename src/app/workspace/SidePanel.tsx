@@ -56,13 +56,12 @@ export default function SidePanel({
   // nav count and this panel both read), so the count and the list can't drift.
   const {
     profile, hasResult, liveRoles, jobsLoading, jobsError, retry, markSeen,
-    interested, interestedKeys, setInterested, setPassed,
+    interested, interestedKeys, interestedIdByKey, setInterested, setPassed,
   } = data;
 
   const [userId, setUserId] = useState<string | null>(null);
   const [selected, setSelected] = useState<PanelJob | null>(null);
   const [saving, setSaving] = useState<Set<string>>(new Set());
-  const [tailoring, setTailoring] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUserId(user?.id ?? null));
@@ -108,8 +107,14 @@ export default function SidePanel({
             onBack={() => setSelected(null)}
             onInterested={() => handleInterested(selected)}
             onPass={() => handlePass(selected)}
-            onTailorCV={() => handleTailorCV(selected)}
-            tailoring={tailoring}
+            onOpenApplication={() => {
+              // Resolve the role's real application id (a listing id if UI-saved, a
+              // synthetic chat-<slug> if advisor-saved) and open its detail via the
+              // same path "Recent" uses. Falls back to the listing id.
+              const appId =
+                interestedIdByKey.get(roleKey(selected.title, selected.company)) ?? String(selected.id);
+              window.dispatchEvent(new CustomEvent("ci:open-application", { detail: appId }));
+            }}
           />
         ) : (
           <RolesList
@@ -169,42 +174,6 @@ export default function SidePanel({
     // prompt now drives a curious-first response: one genuine question, then a plan,
     // documents only later. The role is already saved above, so the advisor never re-saves.
     askAdvisor(`I'm interested in the ${job.title} role at ${job.company}.`);
-  }
-
-  async function handleTailorCV(job: PanelJob) {
-    setTailoring(true);
-    try {
-      const res = await fetch("/api/tailor-cv", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobId: job.id,
-          jobTitle: job.title,
-          jobCompany: job.company,
-          jobDescription: job.description,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.error === "no_cv") {
-          window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
-            detail: "I tried to tailor my CV but don't have one on file yet. How do I add my CV?",
-          }));
-        } else {
-          window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
-            detail: `Something went wrong tailoring my CV for the ${job.title} role. Can you help?`,
-          }));
-        }
-        return;
-      }
-      window.dispatchEvent(new CustomEvent("ci:open-documents"));
-    } catch {
-      window.dispatchEvent(new CustomEvent("ci:ask-advisor", {
-        detail: `I had trouble tailoring my CV for the ${job.title} role. Can you help?`,
-      }));
-    } finally {
-      setTailoring(false);
-    }
   }
 
   async function handlePass(job: PanelJob) {
@@ -339,6 +308,22 @@ function JobRow({ job, strong, inApps, onReview }: { job: PanelJob; strong: bool
       </div>
       <span className={s.jrev}>View <ChevronIcon /></span>
     </button>
+  );
+}
+
+/* ===== Reach-out door — the evaluation-lens offer (no thread) =============== */
+/* Shown on a live role that isn't in Applications yet. Just the offer + the hand-off
+   into the conversation; the moment the advisor drafts, the role auto-saves and the
+   full thread (draft, chips, follow-up) lives in the application detail (OutreachSection). */
+function ReachOutDoor({ job }: { job: PanelJob }) {
+  return (
+    <div className={s.rdSection}>
+      <div className={s.rdLabel}>Reaching out</div>
+      <p className={s.rdText}>A warm intro or a good message to the right person often beats a cold application. The advisor works out who to approach and drafts it with you. Contacts aren&rsquo;t scraped or stored.</p>
+      <button className={s.chip} type="button" onClick={() => askAdvisor(`Who should I reach out to about the ${job.title} role at ${job.company}, and can you help me draft a message?`)}>
+        Help me reach out
+      </button>
+    </div>
   );
 }
 
@@ -478,7 +463,7 @@ function OutreachSection({ job }: { job: PanelJob }) {
 
 /* ===== Single role — contact + outreach + skills INSIDE the role =========== */
 function RoleDetail({
-  job, skills, interested, saving, onBack, onInterested, onPass, onTailorCV, tailoring,
+  job, skills, interested, saving, onBack, onInterested, onPass, onOpenApplication,
 }: {
   job: PanelJob;
   skills: string[];
@@ -487,8 +472,7 @@ function RoleDetail({
   onBack: () => void;
   onInterested: () => void;
   onPass: () => void;
-  onTailorCV: () => void;
-  tailoring: boolean;
+  onOpenApplication: () => void;
 }) {
   const initial = (job.company || job.title || "?").trim()[0]?.toUpperCase() ?? "?";
   const strong = (job.relevanceScore ?? 0) >= 7;
@@ -538,23 +522,19 @@ function RoleDetail({
         </div>
       )}
 
-      {/* Reaching out — the advisor drafts in the conversation; the draft is saved here
-          and the user marks where it got to. Contacts are never scraped or stored. */}
-      <OutreachSection job={job} />
+      {/* The reach-out DOOR — the evaluation lens keeps the offer (research: outreach is
+          often the highest-leverage FIRST move, pre-application), but not the thread.
+          Starting a draft auto-saves the role, and the thread then lives in Applications
+          (SPEC rules 3+4). Once saved, this gives way to the handoff link below. */}
+      {!interested && <ReachOutDoor job={job} />}
 
       <div className={s.rdActions}>
         {interested ? (
-          <>
-            <span className={s.rdInterested}>✓ Interested — tracked in Applications</span>
-            <button
-              className={s.rdTailorBtn}
-              type="button"
-              onClick={onTailorCV}
-              disabled={tailoring}
-            >
-              {tailoring ? "Tailoring your CV…" : "Tailor my CV for this role"}
-            </button>
-          </>
+          // Saved: one quiet handoff into the management lens, nothing duplicated here
+          // (SPEC rule 5). The outreach thread, CV, cover letter, stage all live there.
+          <button className={s.rdInApps} type="button" onClick={onOpenApplication}>
+            In your applications →
+          </button>
         ) : (
           <>
             <button className={s.rdInterestedBtn} type="button" onClick={onInterested} disabled={saving}>I&rsquo;m interested</button>
@@ -910,6 +890,11 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
           </>
         )}
       </div>
+
+      {/* Reaching out — the full thread lives HERE, in the management lens (SPEC rule 3):
+          persisted draft, self-reported status chips, and the single advisor-owned
+          follow-up. The evaluation lens keeps only the door (ReachOutDoor). */}
+      <OutreachSection job={job} />
 
       {/* Interview-prep nudge — contextual, hands off to the conversation */}
       <div className={s.rdSection}>

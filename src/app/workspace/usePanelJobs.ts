@@ -68,6 +68,10 @@ export function usePanelJobs() {
   // roleKey(title,company) of every interested role, so an advisor-saved role (whose
   // synthetic id never equals a live listing id) still counts as "in applications".
   const [interestedKeys, setInterestedKeys] = useState<Set<string>>(new Set());
+  // roleKey(title,company) → the role's actual saved job_id (a listing id if UI-saved,
+  // a synthetic chat-<slug> if advisor-saved). Lets the live-role "In your applications"
+  // handoff open the right application detail regardless of which id it lives under.
+  const [interestedIdByKey, setInterestedIdByKey] = useState<Map<string, string>>(new Map());
   const [passed, setPassed] = useState<Set<string>>(new Set());
   // Roles the user told the advisor aren't for them: exact title+company, and title-only
   // for hides the advisor captured without a company.
@@ -264,6 +268,7 @@ export function usePanelJobs() {
       const interestedRoles = saved.filter((j) => j.status === "interested");
       setInterested(new Set(interestedRoles.map((j) => String(j.id))));
       setInterestedKeys(new Set(interestedRoles.map((j) => roleKey(j.title, j.company))));
+      setInterestedIdByKey(new Map(interestedRoles.map((j) => [roleKey(j.title, j.company), String(j.id)])));
       setPassed(new Set(saved.filter((j) => j.status === "passed").map((j) => String(j.id))));
       const hidden: Array<{ title?: string; company?: string }> = data.hiddenRoles || [];
       setHiddenKeys(new Set(hidden.filter((h) => normRolePart(h.company)).map((h) => roleKey(h.title, h.company))));
@@ -328,6 +333,7 @@ export function usePanelJobs() {
     // stay internal — they're only needed for the liveRoles filter computed here.)
     interested,
     interestedKeys,
+    interestedIdByKey,
     setInterested,
     setPassed,
   };

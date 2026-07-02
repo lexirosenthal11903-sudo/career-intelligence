@@ -18,6 +18,25 @@
 
 ---
 
+## Session 48 (build) — 2026-07-01 — KNOWN RESIDUAL from the Roles-vs-Applications IA build
+
+**Dual-id duplicate-row edge (part of the SPEC's explicitly out-of-scope dual-table drift).**
+The IA build made prep actions (tailor CV / cover letter / draft outreach) auto-save the role into
+Applications at stage `saved`. Auto-save creates the row under a synthetic `chat-<slug>` id; the UI
+"I'm interested" save creates it under the live-listing id. `ensureApplicationSaved` dedupes by
+`roleKey` so **prep-after-UI never dups**, and the `isInApplications` roleKey flip hides the "I'm
+interested" button once a role is auto-saved, so **UI-after-prep is closed in the common case too**.
+Two narrow windows remain: (a) a sub-second race before the panel refreshes, and (b) the advisor's
+role title differing enough from the listing title to produce a *different* roleKey. This is the same
+`saved_jobs`/`saved_applications` dual-id drift the advisor's existing `save_job` tool already has —
+the SPEC lists "collapsing the dual-table into one" as out of scope. **Real fix = unify both tables'
+write paths behind one identity-aware helper** (a partial fix to just one route would shift the dup
+into `saved_jobs` and risk double-counting the nav badge). Do this when the dual-table collapse is
+tackled, not before. Not a done-criterion blocker — criterion 2 (prep never changes an existing
+stage) is fully met and unit-tested.
+
+---
+
 ## 🅿️ Parked 2026-06-29 — Platform reach: web app vs desktop / iPhone app
 
 **Idea (Lexi):** should this stay a web platform, or also become a desktop app and/or an iPhone app — and when?
@@ -53,6 +72,29 @@ which to adopt. Output: changes to CLAUDE.md / INSIGHTS.md / our working mode, o
 **Recommended timing:** first thing in the next session, before any build — process changes compound, so
 the sooner the good ones are adopted, the more every later session benefits. Deliberately kept OUT of the
 current Step 2 build thread (don't interleave build and process work).
+
+## 🅿️ Session 48 — 2026-07-01 — Process session: session-friction audit → skills/automations/CLAUDE.md fixes
+
+_Lexi saw an Instagram prompt: "Audit my recent Claude Code sessions with sub-agents. Cluster where I keep
+hitting friction, then propose new skills, automations, and CLAUDE.md fixes." Genuinely useful and we have
+NO one-command version of it — worth doing as its own process session (own slot, not a build bolt-on)._
+
+**What this session is for:** a scoped multi-agent audit of Lexi's ACTUAL recent Claude Code session
+transcripts (not guesses) → cluster the recurring friction points → turn each into a concrete, approvable
+deliverable: a new/edited skill, an automation (hook/settings), or a specific CLAUDE.md / WORKING-PRACTICES
+diff. Output is diffs Lexi approves one by one, not a vague report.
+
+**How to run it (Claude's call):** drive it as a proper workflow — fan-out readers over the transcripts,
+cluster, then a synthesis pass producing the concrete diffs. **Opus, NOT Fable 5** (Fable's free window has
+ended — it now costs 2× Opus and this task doesn't need Fable-tier reasoning). Cheap and scoped.
+
+**Prerequisite:** the sub-agents must be able to READ the past session transcripts — confirm that access
+first, or the audit is guessing. Lexi will run the audit herself first, THEN we do the implement-the-fixes
+session in a fresh session after (her call, 2026-07-01).
+
+**Sibling idea — NOT hand-rolled:** the "hunt this codebase for bugs, fan out, adversarially verify, rank by
+severity" prompt is already `/code-review ultra` (purpose-built, repo-aware). Don't reinvent it — just run
+`/code-review ultra` before a real merge to main. Logged here so the pairing isn't lost.
 
 ---
 
