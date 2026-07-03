@@ -9,10 +9,10 @@
 // saved_applications carries the board stage.
 //
 // Server-only (needs the authed Supabase client); the pure "does it already
-// exist" decision lives in role-key.ts (applicationExistsFor) so it unit-tests.
+// exist" decision lives in role-key.ts (findApplication) so it unit-tests.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { applicationExistsFor } from '@/lib/role-key';
+import { findApplication } from '@/lib/role-key';
 
 export interface EnsureApplicationInput {
   jobId: string;
@@ -24,17 +24,21 @@ export interface EnsureApplicationInput {
 }
 
 /**
- * Ensure a saved application exists for this role, at stage 'saved'. Returns
- * whether a new record was created (false = it was already tracked, untouched).
- * Best-effort: a failure here must never fail the prep action that called it.
+ * Ensure a saved application exists for this role, at stage 'saved'. Returns whether a
+ * new record was created (false = it was already tracked, untouched) AND the canonical
+ * `jobId` the role lives under — the existing application's id when the role is already
+ * tracked (matched by job_id OR title+company), otherwise the id passed in. Callers MUST
+ * file any document (tailored CV, cover letter) under the returned `jobId`, so it lands
+ * on the same id the Applications detail view reads instead of orphaning under a fresh
+ * chat-<slug> (the CV-not-showing bug). Best-effort: a failure never fails the prep action.
  */
 export async function ensureApplicationSaved(
   supabase: SupabaseClient,
   userId: string,
   input: EnsureApplicationInput
-): Promise<{ created: boolean }> {
+): Promise<{ created: boolean; jobId: string }> {
   const { jobId, title } = input;
-  if (!jobId || !title) return { created: false };
+  if (!jobId || !title) return { created: false, jobId };
   const company = input.company?.trim() || '';
 
   try {
@@ -45,8 +49,11 @@ export async function ensureApplicationSaved(
       .from('saved_applications')
       .select('job_id, job_data')
       .eq('user_id', userId);
-    if (applicationExistsFor(apps ?? [], jobId, title, company)) {
-      return { created: false };
+    const existing = findApplication(apps ?? [], jobId, title, company);
+    if (existing) {
+      // Already tracked — don't touch it, but hand back its canonical id so the
+      // caller files the document under the id the detail view actually reads.
+      return { created: false, jobId: String(existing.job_id) };
     }
 
     const jobData = {
@@ -70,9 +77,9 @@ export async function ensureApplicationSaved(
       .from('saved_applications')
       .upsert({ user_id: userId, job_id: jobId, job_data: jobData, stage: 'saved' }, { onConflict: 'user_id,job_id' });
 
-    return { created: true };
+    return { created: true, jobId };
   } catch {
     // A sync miss must never fail the prep action the user actually asked for.
-    return { created: false };
+    return { created: false, jobId };
   }
 }

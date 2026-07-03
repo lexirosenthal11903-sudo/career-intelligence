@@ -8,7 +8,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applicationExistsFor } from "../src/lib/role-key.ts";
+import { applicationExistsFor, resolveApplicationJobId } from "../src/lib/role-key.ts";
 
 test("no applications → does not exist (prep should create)", () => {
   assert.equal(applicationExistsFor([], "chat-analyst-acme", "Analyst", "Acme"), false);
@@ -45,4 +45,38 @@ test("missing company on both sides still matches by title", () => {
 test("null/absent job_data is handled without throwing", () => {
   const apps = [{ job_id: "x", job_data: null }, { job_id: "y" }];
   assert.equal(applicationExistsFor(apps, "z", "Analyst", "Acme"), false);
+});
+
+// ── resolveApplicationJobId — the fix for CVs/cover letters orphaning under a chat-<slug>
+// id. A document must be filed under the id the Applications detail view reads (the
+// existing application's id), not a freshly-minted synthetic one. ─────────────────────────
+
+test("resolve: role already tracked under a real listing id → file under THAT id", () => {
+  // The exact bug: role saved from the UI as "12345"; the advisor tailors with the
+  // chat-<slug> fallback. The CV must be filed under "12345", not "chat-...".
+  const apps = [{ job_id: "12345", job_data: { title: "Data Analyst", company: "Globex" } }];
+  assert.equal(
+    resolveApplicationJobId(apps, "chat-data-analyst-globex", "Data Analyst", "Globex"),
+    "12345"
+  );
+});
+
+test("resolve: genuinely new role → keep the fallback chat-<slug> id", () => {
+  const apps = [{ job_id: "12345", job_data: { title: "Data Analyst", company: "Globex" } }];
+  assert.equal(
+    resolveApplicationJobId(apps, "chat-designer-initech", "Designer", "Initech"),
+    "chat-designer-initech"
+  );
+});
+
+test("resolve: advisor-saved role (chat id) → reuse its own id, no orphan", () => {
+  const apps = [{ job_id: "chat-product-analyst-acme", job_data: { title: "Product Analyst", company: "Acme" } }];
+  assert.equal(
+    resolveApplicationJobId(apps, "chat-product-analyst-acme", "Product Analyst", "Acme"),
+    "chat-product-analyst-acme"
+  );
+});
+
+test("resolve: no applications at all → returns the fallback unchanged", () => {
+  assert.equal(resolveApplicationJobId([], "chat-analyst-acme", "Analyst", "Acme"), "chat-analyst-acme");
 });

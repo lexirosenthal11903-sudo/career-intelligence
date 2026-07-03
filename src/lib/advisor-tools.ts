@@ -14,7 +14,7 @@ import { getProfile, patchProfile, mergeList, addMemory, addOpenThread, resolveO
 import { callClaude } from '@/lib/anthropic';
 import { stripDashes } from '@/lib/sanitize';
 import { ADVISOR_SURFACES, isAdvisorSurface } from '@/lib/surfaces';
-import { roleKey } from '@/lib/role-key';
+import { roleKey, findApplication } from '@/lib/role-key';
 import { isOutreachStatus } from '@/lib/outreach';
 import { ensureApplicationSaved } from '@/lib/save-application';
 
@@ -414,7 +414,17 @@ export async function executeAdvisorTool(
         const title = String(input.title ?? '').trim();
         if (!title) return { content: 'No job title provided.', isError: true };
         const company = typeof input.company === 'string' ? input.company : '';
-        const jobId = `chat-${slug(title)}${company ? `-${slug(company)}` : ''}`;
+        // Reuse the role's canonical id if it's already tracked (under a live-listing id
+        // from a UI save, or a prior chat-<slug>), so saving from chat can never spawn a
+        // duplicate application row for the same role. Only mint a fresh chat-<slug> when
+        // the role is genuinely new.
+        const fallbackId = `chat-${slug(title)}${company ? `-${slug(company)}` : ''}`;
+        const { data: existingApps } = await supabase
+          .from('saved_applications')
+          .select('job_id, job_data')
+          .eq('user_id', userId);
+        const existingApp = findApplication(existingApps ?? [], fallbackId, title, company);
+        const jobId = existingApp ? String(existingApp.job_id) : fallbackId;
         const jobData = {
           job_id: jobId,
           title,
@@ -431,10 +441,14 @@ export async function executeAdvisorTool(
           .from('saved_jobs')
           .upsert({ user_id: userId, job_id: jobId, job_data: jobData }, { onConflict: 'user_id,job_id' });
         if (jErr) return { content: `Couldn't save the job: ${jErr.message}`, isError: true };
-        // Mirror into the application tracker at 'saved', matching the save-job route.
-        await supabase
-          .from('saved_applications')
-          .upsert({ user_id: userId, job_id: jobId, job_data: jobData, stage: 'saved' }, { onConflict: 'user_id,job_id' });
+        // Mirror into the application tracker at 'saved' ONLY when the role is new; never
+        // reset an existing stage (a role already at 'applied'/'interview' must not drop
+        // back to 'saved' just because it was mentioned again).
+        if (!existingApp) {
+          await supabase
+            .from('saved_applications')
+            .upsert({ user_id: userId, job_id: jobId, job_data: jobData, stage: 'saved' }, { onConflict: 'user_id,job_id' });
+        }
         return {
           content: `Saved "${title}"${company ? ` at ${company}` : ''} and added it to their applications (saved — not applied yet).`,
           action: `Saved "${title}"${company ? ` at ${company}` : ''}`,
@@ -789,11 +803,24 @@ export async function executeAdvisorTool(
         }
 
         coverLetter = stripDashes(coverLetter);
+
+        // Prep auto-saves (SPEC): a cover letter keeps the role safe in Applications
+        // (stage 'saved' if new; never advances). Run FIRST to get the role's CANONICAL
+        // id so the letter is filed under the same id its Applications folder reads,
+        // never a fresh chat-<slug> that would orphan it (the CV-not-showing bug).
+        const clFallbackId = `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`;
+        const { jobId: clJobId } = await ensureApplicationSaved(supabase, userId, {
+          jobId: clFallbackId,
+          title: roleTitle,
+          company,
+          description: jobDescription || undefined,
+        });
+
         if (coverLetter) {
           await supabase.from('documents').upsert(
             {
               user_id: userId,
-              job_id: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
+              job_id: clJobId,
               type: 'cover_letter',
               content: coverLetter,
               metadata: { notes, jobTitle: roleTitle, jobCompany: company || undefined },
@@ -801,15 +828,6 @@ export async function executeAdvisorTool(
             { onConflict: 'user_id,job_id,type' }
           );
         }
-
-        // Prep auto-saves (SPEC): a cover letter keeps the role safe in Applications
-        // (stage 'saved' if new; never advances). Same chat-<slug> id as the document.
-        await ensureApplicationSaved(supabase, userId, {
-          jobId: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
-          title: roleTitle,
-          company,
-          description: jobDescription || undefined,
-        });
 
         const notesText = notes.length
           ? notes.map((n) => `• ${n}`).join('\n')
@@ -887,16 +905,29 @@ export async function executeAdvisorTool(
         }
 
         tailoredCv = stripDashes(tailoredCv);
+
+        // Prep auto-saves (SPEC): tailoring a CV keeps the role safe in Applications
+        // (stage 'saved' if new; never advances an existing stage). Run this FIRST so we
+        // get back the role's CANONICAL id: when the role is already tracked under a
+        // live-listing id (UI "I'm interested"), the CV must be filed under THAT id, not
+        // a fresh chat-<slug> the Applications detail view would never find (the
+        // CV-not-showing bug). ensureApplicationSaved resolves the one record for us.
+        const cvFallbackId = `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`;
+        const { jobId: cvJobId } = await ensureApplicationSaved(supabase, userId, {
+          jobId: cvFallbackId,
+          title: roleTitle,
+          company,
+          description: jobDescription || undefined,
+        });
+
         if (tailoredCv) {
           // Must match the schema the Documents view reads (SidePanel DocumentsView):
-          // type 'cv_tailored' and changes/jobTitle/jobCompany inside `metadata`.
-          // The side-panel /api/tailor-cv writer already uses this shape — the chat
-          // path had drifted (type 'tailored_cv' + a top-level `changes` column), so
-          // CVs tailored in conversation never appeared in Documents.
+          // type 'cv_tailored' and changes/jobTitle/jobCompany inside `metadata`. Filed
+          // under the canonical id above so it lands in the role's Applications folder.
           await supabase.from('documents').upsert(
             {
               user_id: userId,
-              job_id: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
+              job_id: cvJobId,
               type: 'cv_tailored',
               content: tailoredCv,
               metadata: { changes, jobTitle: roleTitle, jobCompany: company || undefined },
@@ -904,16 +935,6 @@ export async function executeAdvisorTool(
             { onConflict: 'user_id,job_id,type' }
           );
         }
-
-        // Prep auto-saves (SPEC): tailoring a CV keeps the role safe in Applications
-        // (stage 'saved' if new; never advances an existing stage). Same chat-<slug>
-        // id as the document above, so both live under one application record.
-        await ensureApplicationSaved(supabase, userId, {
-          jobId: `chat-${slug(roleTitle)}${company ? `-${slug(company)}` : ''}`,
-          title: roleTitle,
-          company,
-          description: jobDescription || undefined,
-        });
 
         const changesText = changes.length
           ? changes.map((c) => `• ${c}`).join('\n')
