@@ -486,6 +486,142 @@ function OutreachSection({ job }: { job: PanelJob }) {
   );
 }
 
+/* ===== Interview prep — the durable prep that lives INSIDE the application ==
+   Advisor-seeded likely questions with editable answers + a short focus note. The
+   mock in chat feeds this (ci:prep-changed); the durable thing the user returns to is
+   this short, editable sheet — never a transcript, never a score. */
+interface PrepDoc {
+  id: string;
+  content: string; // the "focus for this interview" note ('' if none yet)
+  metadata: { jobTitle?: string; jobCompany?: string; questions?: Array<{ q: string; a: string }> };
+}
+
+function PrepSection({ job, jobId }: { job: PanelJob; jobId: string }) {
+  const [doc, setDoc] = useState<PrepDoc | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [drafts, setDrafts] = useState<Record<number, string>>({});
+  const [savedIdx, setSavedIdx] = useState<number | null>(null);
+
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const res = await fetch(`/api/documents?jobId=${encodeURIComponent(jobId)}`);
+      if (!res.ok) return;
+      const { documents } = await res.json();
+      const found: PrepDoc | undefined = (documents || []).find((d: { type: string }) => d.type === "interview_prep");
+      setDoc(found ?? null);
+    } catch {
+      /* best-effort; the advisor owns errors in chat */
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, [jobId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => { await Promise.resolve(); if (!cancelled) load(); })();
+    // The advisor saving prep (or a mock's focus note) emits ci:prep-changed — re-read so
+    // the questions + note appear live without a refresh.
+    const onChanged = () => load(true);
+    window.addEventListener("ci:prep-changed", onChanged);
+    return () => { cancelled = true; window.removeEventListener("ci:prep-changed", onChanged); };
+  }, [load]);
+
+  const questions = doc?.metadata?.questions ?? [];
+
+  async function saveAnswer(idx: number) {
+    const answer = drafts[idx] ?? questions[idx]?.a ?? "";
+    setSavedIdx(idx); // optimistic label
+    try {
+      const res = await fetch("/api/documents", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobId, questionIndex: idx, answer }),
+      });
+      if (!res.ok) { await load(true); setSavedIdx(null); return; }
+      // Reflect the saved answer locally so a re-open shows it without a full reload.
+      setDoc((prev) => prev
+        ? { ...prev, metadata: { ...prev.metadata, questions: questions.map((q, i) => i === idx ? { ...q, a: answer } : q) } }
+        : prev);
+    } catch {
+      await load(true); setSavedIdx(null);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={s.rdSection}>
+        <div className={s.rdLabel}>Interview prep</div>
+        <div className={`${s.job} ${s.skeleton}`} style={{ height: "44px" }} />
+      </div>
+    );
+  }
+
+  // No prep yet — a warm, non-pressuring invite (never "add your answers"). Hands to chat.
+  if (!doc || questions.length === 0) {
+    return (
+      <div className={s.rdSection}>
+        <div className={s.rdLabel}>Interview prep</div>
+        <p className={s.rdText}>When you&rsquo;re ready, we&rsquo;ll work out what they&rsquo;re likely to ask and shape your answers together. It all gets saved here, so it&rsquo;s waiting when the interview comes round. We can run a mock out loud too.</p>
+        <button className={s.chip} type="button" onClick={() => askAdvisor(`Help me prepare for the ${job.title} role at ${job.company}.`)}>
+          Prep me for this role
+        </button>
+        <button className={s.chip} type="button" onClick={() => askAdvisor(`Run a mock interview with me for the ${job.title} role at ${job.company}.`)}>
+          Run a mock interview
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className={s.rdSection}>
+      <div className={s.rdLabel}>Interview prep</div>
+
+      {doc.content && (
+        <div className={s.docChanges} style={{ marginBottom: "8px" }}>
+          <div className={s.rdLabel}>Focus for this interview</div>
+          <p className={s.rdText}>{doc.content}</p>
+        </div>
+      )}
+
+      {questions.map((q, idx) => {
+        const isOpen = openIdx === idx;
+        const draft = drafts[idx] ?? q.a ?? "";
+        return (
+          <div key={idx} className={s.docCard} style={{ marginTop: "6px" }}>
+            <div className={s.docHeader}>
+              <div className={s.docTitle}>{q.q}</div>
+              <div className={s.docActions}>
+                <button className={s.chip} type="button" onClick={() => setOpenIdx(isOpen ? null : idx)}>
+                  {isOpen ? "Hide" : q.a ? "View answer" : "Answer"}
+                </button>
+              </div>
+            </div>
+            {isOpen && (
+              <div style={{ marginTop: "6px" }}>
+                <textarea
+                  className={s.noteBox}
+                  rows={4}
+                  value={draft}
+                  onChange={(e) => { setDrafts((d) => ({ ...d, [idx]: e.target.value })); setSavedIdx(null); }}
+                  placeholder="Shape your answer here — build on the draft, make it yours."
+                />
+                <button className={s.chip} type="button" onClick={() => saveAnswer(idx)}>
+                  {savedIdx === idx ? "Saved ✓" : "Save answer"}
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      <button className={s.chip} type="button" style={{ marginTop: "8px" }} onClick={() => askAdvisor(`Run a mock interview with me for the ${job.title} role at ${job.company}.`)}>
+        Run a mock interview
+      </button>
+    </div>
+  );
+}
+
 /* ===== Single role — contact + outreach + skills INSIDE the role =========== */
 function RoleDetail({
   job, skills, interested, saving, onBack, onInterested, onPass, onOpenApplication, onReachOut,
@@ -922,17 +1058,9 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
           follow-up. The evaluation lens keeps only the door (ReachOutDoor). */}
       <OutreachSection job={job} />
 
-      {/* Interview-prep nudge — contextual, hands off to the conversation */}
-      <div className={s.rdSection}>
-        <div className={s.rdLabel}>When you&rsquo;re ready</div>
-        <p className={s.rdText}>Want me to prep you for this one — what they do, what they&rsquo;ll ask, and the gaps worth getting ahead of? Or we can run a mock interview when you&rsquo;re ready to rehearse out loud.</p>
-        <button className={s.chip} type="button" onClick={() => askAdvisor(`Help me prepare for the ${job.title} role at ${job.company}.`)}>
-          Prep me for this role
-        </button>
-        <button className={s.chip} type="button" onClick={() => askAdvisor(`Run a mock interview with me for the ${job.title} role at ${job.company}.`)}>
-          Run a mock interview
-        </button>
-      </div>
+      {/* Interview prep — the durable prep that lives INSIDE the application (questions
+          + editable answers + focus note). The conversational mock feeds it. */}
+      <PrepSection job={job} jobId={app.job_id} />
 
       {/* Write a note */}
       <div className={s.rdSection}>
@@ -966,7 +1094,7 @@ function SavedJobDetail({ jobId, onOpenRoles, backLabel = "Saved roles", onStage
           <div className={s.dangerBox}>
             <p className={s.rdText}>
               This removes {job.title} from your applications, along with anything saved against it —
-              its tailored CV, cover letter and notes. It can&rsquo;t be undone.
+              its tailored CV, cover letter, interview prep and notes. It can&rsquo;t be undone.
             </p>
             <div className={s.acctActions}>
               <button className={s.chip} type="button" onClick={() => setConfirmingRemove(false)} disabled={removing}>

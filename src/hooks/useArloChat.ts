@@ -238,7 +238,7 @@ export function useArloChat({
         // auto-saves, never auto-advances"), so any prep signal must also refresh the
         // Applications list, nav count and Live-roles badge — the newly-saved role
         // appears without a reload, and the live-role view flips to its handoff link.
-        const PREP_SIGNALS = ["cv-tailored", "cover-letter-written", "outreach-drafted"];
+        const PREP_SIGNALS = ["cv-tailored", "cover-letter-written", "outreach-drafted", "prep-saved"];
         // A saved role moved stage (or a new one was saved) — tell the Applications
         // surface to re-read so its pills/list update live. Quiet by design: this
         // refreshes data, it never moves the user (research §3).
@@ -256,6 +256,12 @@ export function useArloChat({
           typeof window !== "undefined"
         ) {
           window.dispatchEvent(new CustomEvent("ci:outreach-changed"));
+        }
+        // The advisor saved interview prep — tell the role's Interview-prep section to
+        // re-read so the questions + focus note appear live. Quiet: refreshes data, never
+        // moves the user.
+        if (signals.includes("prep-saved") && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("ci:prep-changed"));
         }
         // The advisor changed a profile fact (preferred name, salary, a direction
         // reaction). Tell the nav, Profile and Direction surfaces to re-read so they

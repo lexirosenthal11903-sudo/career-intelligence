@@ -111,16 +111,20 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
   under the saved job in Applications. Eval +2 personas (planning / mock) pass. **Still to come (parked, see
   the video-studio sub-bullet above):** the focused mock SURFACE, voice answers, then the webcam record/rewatch
   studio. The conversational mock proves demand first.
-  - **○ GAP — interview prep leaves nothing IN the application (Lexi, 2026-07-03; on the per-application-artifacts
-    principle).** Today prep + the mock are conversational only: the advisor plans and drills in chat, but the
-    prep plan, the likely questions, and the concrete fixes it gave are never saved into the application record.
-    Come back to the job later and there's no trace of the prep. Per the standing rule ("anything we work on for a
-    specific application must be documented within that application" — memory `feedback_per_application_artifacts`,
-    same principle behind the 2026-07-03 CV-orphaning fix), interview prep output should persist under the role's
-    canonical job_id and render in the Applications detail (a "Prep" section alongside CV / cover letter / outreach).
-    Small design decision first: WHAT to save (the prep plan + question list + the mock's takeaways/fixes) and
-    when (advisor writes it as it preps). Store as a `documents` row `type: 'interview_prep'` under the canonical
-    id, reusing the exact path the CV/cover-letter now use. On-mission, on-principle, bounded build.
+  - **✅ SHIPPED (2026-07-03, S50) — interview prep now lives IN the application.** Closes the per-application-
+    artifacts gap: prep is no longer chat-only. Grounded in the 2026-07-03 prior-art scan (Prentus per-role
+    questions, Big Interview saved answers, the "short editable sheet not a transcript/dashboard" pattern) and
+    specced in `brainstorms/interview-prep-artifact.md`. Built all three pieces: (1) 5–8 **likely questions** for
+    the role, (2) the user's **editable answers**, advisor-**seeded** first (never a blank box — the anti-homework
+    rule), (3) a short **"focus for this interview"** note the advisor writes after a mock. New `save_interview_prep`
+    advisor tool files a `documents` row `type: 'interview_prep'` under the role's **canonical** id (reuses the
+    CV/cover-letter path + `ensureApplicationSaved`); merge logic (`lib/interview-prep.ts`, unit-tested) makes
+    re-saving safe — a later focus note never wipes the user's edited answers. `PrepSection` in the app detail
+    renders it live (`ci:prep-changed`); users edit answers via `PATCH /api/documents`. Deliberately NOT saved:
+    transcripts, scores, filler counts (anxiety fuel + gamification). Also fixed in the same slice: **Remove from
+    applications** now deletes the role's documents (CV/cover/prep) instead of orphaning them. Verified: 83/83 unit
+    tests, lint + tsc + build clean, quick advisor eval green (a false-positive gamification regex was tightened).
+    **Fast-follow (○):** none required — saved STAR answers were included in this slice.
   - ◌ **PARK / LATER PHASE — "Focused interview mode": a video mock-interview studio (Lexi, 2026-06-28).**
     A dedicated focused surface (the right panel goes full mock): "Start interview" → a question appears on
     screen → the user answers to their webcam, seeing themselves → it RECORDS each answer → they rewatch their

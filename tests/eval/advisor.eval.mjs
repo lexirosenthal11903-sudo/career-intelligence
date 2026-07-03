@@ -434,7 +434,9 @@ const PERSONAS = [
     turns: ["I got the offer for the Northwind job! They emailed this morning."],
     checks: [
       present('genuinely marks the win', /well done|congratulat|that'?s (brilliant|great|excellent|wonderful|big)|delighted|good for you|nice one|chuffed|genuinely pleased/i),
-      absent('no gamification', /\bpoints?\b|streak|badge|level up|achievement|unlocked|leaderboard|🎉|🏆/i),
+      // "points" (plural) is the game mechanic; the singular "point" is ordinary English
+      // ("starting point", "good point", "at this point") and must not trip this check.
+      absent('no gamification', /\bpoints\b|streak|badge|level up|achievement|unlocked|leaderboard|🎉|🏆/i),
     ],
   },
   // ----- Board-truth: reads outcomes + name off the real board, never confabulates -----

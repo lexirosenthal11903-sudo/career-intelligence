@@ -83,5 +83,18 @@ export async function DELETE(request: Request) {
     .eq('job_id', jobId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Clear the role's documents (tailored CV, cover letter, interview prep) too — they are
+  // keyed by the same job_id and the remove copy promises they go with the application.
+  // Without this they orphan (the exact class of bug the canonical-id fix addressed).
+  // Best-effort: the application is already gone, so a document-cleanup miss must not fail
+  // the removal the user just asked for.
+  const { error: docErr } = await supabase
+    .from('documents')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('job_id', jobId);
+  if (docErr) console.error('[applications:DELETE] document cleanup failed:', docErr.message);
+
   return NextResponse.json({ ok: true });
 }
