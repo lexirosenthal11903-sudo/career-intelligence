@@ -111,6 +111,16 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
   under the saved job in Applications. Eval +2 personas (planning / mock) pass. **Still to come (parked, see
   the video-studio sub-bullet above):** the focused mock SURFACE, voice answers, then the webcam record/rewatch
   studio. The conversational mock proves demand first.
+  - **○ GAP — interview prep leaves nothing IN the application (Lexi, 2026-07-03; on the per-application-artifacts
+    principle).** Today prep + the mock are conversational only: the advisor plans and drills in chat, but the
+    prep plan, the likely questions, and the concrete fixes it gave are never saved into the application record.
+    Come back to the job later and there's no trace of the prep. Per the standing rule ("anything we work on for a
+    specific application must be documented within that application" — memory `feedback_per_application_artifacts`,
+    same principle behind the 2026-07-03 CV-orphaning fix), interview prep output should persist under the role's
+    canonical job_id and render in the Applications detail (a "Prep" section alongside CV / cover letter / outreach).
+    Small design decision first: WHAT to save (the prep plan + question list + the mock's takeaways/fixes) and
+    when (advisor writes it as it preps). Store as a `documents` row `type: 'interview_prep'` under the canonical
+    id, reusing the exact path the CV/cover-letter now use. On-mission, on-principle, bounded build.
   - ◌ **PARK / LATER PHASE — "Focused interview mode": a video mock-interview studio (Lexi, 2026-06-28).**
     A dedicated focused surface (the right panel goes full mock): "Start interview" → a question appears on
     screen → the user answers to their webcam, seeing themselves → it RECORDS each answer → they rewatch their
