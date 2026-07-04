@@ -406,7 +406,7 @@ export async function POST(request: Request) {
         // acknowledgement rather than leaving empty content the client renders as the
         // cold ERROR_MSG. A normal reply, or a genuinely empty turn with nothing
         // committed, is left untouched. (Session 45 live-test find.)
-        const ack = ackForSilentCommit(data.content, meridianActions.length, COMMITTED_ACK);
+        const ack = ackForSilentCommit(data.content, meridianActions, COMMITTED_ACK);
         if (ack) data.content = ack;
         data.meridianActions = meridianActions;
         data.meridianSignals = meridianSignals;

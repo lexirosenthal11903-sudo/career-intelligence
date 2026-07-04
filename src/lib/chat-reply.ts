@@ -36,14 +36,21 @@ export function hasText(content: unknown): boolean {
  * would otherwise show the cold error over a genuine success. When the model spoke
  * normally, or when nothing committed (a genuinely empty turn the client can treat
  * as an error), the model's own content stands and this returns `null`.
+ *
+ * The ack NAMES what was done (from the action echoes, e.g. "Saved interview prep for
+ * X") rather than a generic "Done, I've got that for you." — so it makes sense even when
+ * a restored thread shows it as the first bubble (S50 live-test find). Falls back to the
+ * generic line only if the actions are unusable.
  */
 export function ackForSilentCommit(
   content: unknown,
-  committedActionCount: number,
-  ackLine: string
+  committedActions: string[],
+  fallbackLine: string
 ): { type: 'text'; text: string }[] | null {
-  if (!hasText(content) && committedActionCount > 0) {
-    return [{ type: 'text', text: ackLine }];
-  }
-  return null;
+  if (hasText(content) || committedActions.length === 0) return null;
+  // Action echoes are short phrases, sometimes prefixed with a "✓ " tick. Strip any
+  // leading non-letter (the tick) and trailing full stops, then name what happened.
+  const clean = (a: string) => a.trim().replace(/^[^\p{L}]+/u, '').replace(/\.+$/, '').trim();
+  const phrase = committedActions.map(clean).filter(Boolean).join('; ');
+  return [{ type: 'text', text: phrase ? `Done. ${phrase}.` : fallbackLine }];
 }

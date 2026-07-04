@@ -34,28 +34,42 @@ test("REPRO: empty final content + a committed action would show the cold error"
   );
 });
 
-test("FIX: silent turn after a committed action → warm ack, never the cold error", () => {
-  const replacement = ackForSilentCommit([], 1, ACK);
-  assert.deepEqual(replacement, [{ type: "text", text: ACK }]);
-  assert.equal(clientText(replacement), ACK);
+test("FIX: silent turn after a committed action → warm ack that NAMES the action", () => {
+  const replacement = ackForSilentCommit([], ["Saved interview prep for Data Analyst at Sagacity"], ACK);
+  assert.deepEqual(replacement, [{ type: "text", text: "Done. Saved interview prep for Data Analyst at Sagacity." }]);
   assert.notEqual(clientText(replacement), ERROR_MSG);
 });
 
-test("whitespace-only text also counts as silent", () => {
-  const replacement = ackForSilentCommit([{ type: "text", text: "   \n" }], 2, ACK);
+test("a leading tick and trailing full stop are cleaned before naming", () => {
+  const replacement = ackForSilentCommit([], ["✓ Updated your profile."], ACK);
+  assert.deepEqual(replacement, [{ type: "text", text: "Done. Updated your profile." }]);
+});
+
+test("multiple committed actions are all named", () => {
+  const replacement = ackForSilentCommit([], ["Tailored CV for X", "Saved interview prep for X"], ACK);
+  assert.deepEqual(replacement, [{ type: "text", text: "Done. Tailored CV for X; Saved interview prep for X." }]);
+});
+
+test("actions present but unusable (empty after cleaning) → generic fallback line", () => {
+  const replacement = ackForSilentCommit([], ["✓", "  "], ACK);
   assert.deepEqual(replacement, [{ type: "text", text: ACK }]);
 });
 
+test("whitespace-only text also counts as silent", () => {
+  const replacement = ackForSilentCommit([{ type: "text", text: "   \n" }], ["Saved a role"], ACK);
+  assert.deepEqual(replacement, [{ type: "text", text: "Done. Saved a role." }]);
+});
+
 test("a real reply is never overridden, even with a committed action", () => {
-  const real = [{ type: "text", text: "Saved that — want me to line up roles next?" }];
-  assert.equal(ackForSilentCommit(real, 1, ACK), null);
-  assert.equal(clientText(real), "Saved that — want me to line up roles next?");
+  const real = [{ type: "text", text: "Saved that, want me to line up roles next?" }];
+  assert.equal(ackForSilentCommit(real, ["Saved a role"], ACK), null);
+  assert.equal(clientText(real), "Saved that, want me to line up roles next?");
 });
 
 test("no action committed → not our case; model's own (empty) content stands", () => {
   // A genuinely empty turn with nothing committed is the client's error to surface;
   // we only rescue committed actions.
-  assert.equal(ackForSilentCommit([], 0, ACK), null);
+  assert.equal(ackForSilentCommit([], [], ACK), null);
 });
 
 test("hasText: detects usable text, ignores empty/non-text blocks", () => {

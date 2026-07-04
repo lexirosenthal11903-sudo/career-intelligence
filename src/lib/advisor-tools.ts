@@ -276,25 +276,15 @@ export const ADVISOR_TOOLS = [
   {
     name: 'save_interview_prep',
     description:
-      "Save interview prep INTO a specific application so it is waiting for them when they come back to that role — never left only in the chat. Call this as you prep with them: pass the 5 to 8 questions they are genuinely likely to face for THIS role, and for the ones that matter draft a first-pass ANSWER with them from what you already know about them (their real stories, their CV) so they are always improving a real draft, never facing a blank box. After you run a mock, call it again with a short `focus` note — the one thing to lean on and the one thing to tighten. Calling it again is safe: it merges, so a later focus note never wipes answers they have edited, and a new question set never drops their saved answers. NEVER save a transcript, a score, or a mark of any kind. Do this silently as a natural part of prepping, the same way you tailor a CV.",
+      "Build and save interview prep INTO a specific application so it is waiting for them when they come back to that role — never left only in the chat. Call this the MOMENT you're prepping someone for a role: you pass only the role (and the format if you know it), and it generates the 5 to 8 likely questions for THIS role, each with a first-pass answer drafted from their real background, and files them under the role in their Applications. Passing this tool the role IS how you put the questions together — you do not type the questions out in the chat instead. After you run a mock, call it again with a short `focus` note (the one story to lean on, the one answer to tighten); that merges in without wiping questions or answers they have edited. Set regenerate=true only if the questions need rebuilding because the format changed. NEVER include a transcript or a score. Then tell them their prep is saved under the role and talk a couple of the questions through with them.",
     input_schema: {
       type: 'object',
       properties: {
         roleTitle: { type: 'string', description: 'The job title being prepped for.' },
         company: { type: 'string', description: 'The company, if known.' },
-        questions: {
-          type: 'array',
-          description: 'The 5 to 8 likely questions for this role, each with an optional first-pass answer you drafted with them. Send the whole set you want saved.',
-          items: {
-            type: 'object',
-            properties: {
-              question: { type: 'string', description: 'A question they are likely to be asked.' },
-              answer: { type: 'string', description: "A first-pass answer drafted from their real background — a starting point for them to shape, not a script. Leave empty if there is nothing genuine to seed it with yet." },
-            },
-            required: ['question'],
-          },
-        },
-        focus: { type: 'string', description: 'A short 2 to 3 line "focus for this interview" note, ideally written after a mock: the one story to lean on, the one answer to tighten. Optional.' },
+        format: { type: 'string', description: "The interview stage/type if known (screening call, competency/behavioural, strengths-based, technical, case, panel, assessment centre). If you don't know, leave empty and it prepares for the most likely format for this role." },
+        focus: { type: 'string', description: 'A short 2 to 3 line "focus for this interview" note, ideally after a mock: the one story to lean on, the one answer to tighten. Optional.' },
+        regenerate: { type: 'boolean', description: 'Set true ONLY to rebuild the questions (e.g. the format turned out different). Preserves any answers the user has already edited. Defaults false.' },
       },
       required: ['roleTitle'],
     },
@@ -979,8 +969,9 @@ export async function executeAdvisorTool(
         const roleTitle = String(input.roleTitle ?? '').trim();
         if (!roleTitle) return { content: 'Need a role title to save prep for.', isError: true };
         const company = typeof input.company === 'string' ? input.company.trim() : '';
-        const incomingQs = Array.isArray(input.questions) ? (input.questions as Array<{ question?: unknown; answer?: unknown }>) : [];
+        const format = typeof input.format === 'string' ? input.format.trim() : '';
         const incomingFocus = typeof input.focus === 'string' ? stripDashes(input.focus.trim()) : '';
+        const regenerate = input.regenerate === true;
 
         // Prep auto-saves into Applications and files under the role's CANONICAL id — the
         // same one record the CV/cover letter use, so prep lands in the role's folder and
@@ -992,9 +983,6 @@ export async function executeAdvisorTool(
           company,
         });
 
-        // Merge with any existing prep so calling this again is safe: a later focus-note
-        // write never wipes answers the USER has edited, and a fresh question set never
-        // drops their saved answers. Match questions by normalised text.
         const { data: existingDoc } = await supabase
           .from('documents')
           .select('content, metadata')
@@ -1005,10 +993,51 @@ export async function executeAdvisorTool(
         const existingQs: PrepQuestion[] = Array.isArray((existingDoc?.metadata as { questions?: PrepQuestion[] })?.questions)
           ? (existingDoc!.metadata as { questions: PrepQuestion[] }).questions
           : [];
-        // Merge so calling this again never wipes answers the user has edited, and a
-        // focus-note-only call never drops the question set (pure + unit-tested).
-        const questions = mergePrepQuestions(existingQs, incomingQs, stripDashes);
-        // A focus-note-only call (no questions) must not blank an existing note.
+
+        // Generate the questions server-side (like tailor_cv builds the CV) rather than
+        // having the advisor emit them in the tool call — the main chat loop is capped at
+        // 1024 output tokens, which would truncate 5 to 8 questions + seeded answers and
+        // save an empty set. Generate only when there are none yet, or on an explicit
+        // regenerate (format changed); otherwise keep the existing set so a focus-note
+        // call never rebuilds and the user's edited answers survive.
+        let questions = existingQs;
+        if (!existingQs.length || regenerate) {
+          const profile = await getProfile(supabase, userId);
+          const genPrompt = [
+            `You are an expert UK interview coach preparing an early-career / graduate candidate for a specific role.`,
+            `\nROLE: ${roleTitle}${company ? ` at ${company}` : ''}`,
+            format ? `INTERVIEW FORMAT: ${format}` : `INTERVIEW FORMAT: unknown — prepare for the MOST LIKELY format for this role and stage.`,
+            profile.cvText ? `\nTHEIR CV (draft each answer from THIS real background — never invent experience):\n${profile.cvText}` : `\nNo CV on file — write answers as a genuine skeleton/structure they can fill with their own detail, never invented specifics.`,
+            `\nProduce the 5 to 8 questions they are genuinely most likely to face, calibrated to the format:`,
+            `- Competency/behavioural → STAR-shaped questions; draft each answer as a real STAR starting point from their background (situation, task, action, result), never a script.`,
+            `- Strengths-based → questions about what energises them and how they work; answers are honest self-knowledge prompts, not rehearsed lines.`,
+            `- Technical/case → questions that need structured thinking out loud; answers sketch the approach/structure, not one perfect solution.`,
+            `Rules: real and specific to THIS role, not generic. Draft each answer as a FIRST DRAFT the person will shape — enough that they never face a blank box, never a finished script. No invented experience. Write like a person: no inflated adjectives, no em dashes, no filler.`,
+            `\nRespond with valid JSON only, exactly: {"questions":[{"question":"...","answer":"..."}]}`,
+          ].filter(Boolean).join('\n');
+
+          let generated: Array<{ question?: unknown; answer?: unknown }> = [];
+          try {
+            const res = await callClaude({
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: 3000,
+              messages: [{ role: 'user', content: genPrompt }],
+            });
+            const raw = await res.json();
+            const text: string = raw.content?.[0]?.type === 'text' ? raw.content[0].text : '';
+            const jsonStr = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
+            const parsed = JSON.parse(jsonStr) as { questions?: Array<{ question?: unknown; answer?: unknown }> };
+            generated = Array.isArray(parsed.questions) ? parsed.questions.slice(0, 8) : [];
+          } catch (err) {
+            console.error('[save_interview_prep] question generation failed:', err);
+            return { content: 'I couldn\'t build the questions just now. Ask them to try again in a moment.', isError: true };
+          }
+          if (!generated.length) return { content: 'I couldn\'t build the questions just now. Ask them to try again in a moment.', isError: true };
+          // Preserve any answer the user has already edited when regenerating (pure + unit-tested).
+          questions = mergePrepQuestions(existingQs, generated, stripDashes);
+        }
+
+        // A focus-note-only call must not blank an existing note.
         const focus = incomingFocus || stripDashes(String(existingDoc?.content ?? ''));
 
         const { error: prepErr } = await supabase.from('documents').upsert(
@@ -1024,7 +1053,7 @@ export async function executeAdvisorTool(
         if (prepErr) return { content: `Couldn't save the prep: ${prepErr.message}`, isError: true };
 
         return {
-          content: `Interview prep saved into their ${roleTitle} application: ${questions.length} likely question${questions.length === 1 ? '' : 's'}${focus ? ' plus a focus note' : ''}. It's waiting for them under that role, and they can edit their answers there.`,
+          content: `Interview prep saved into their ${roleTitle} application: ${questions.length} likely question${questions.length === 1 ? '' : 's'}${focus ? ' plus a focus note' : ''}. It's under that role in their Applications, and they can shape their answers there. Now tell them it's saved and talk a couple of the questions through with them.`,
           action: `Saved interview prep for ${roleTitle}${company ? ` at ${company}` : ''}`,
           signal: 'prep-saved',
         };
