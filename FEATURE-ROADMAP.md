@@ -17,6 +17,20 @@ technical build state: [REBUILD.md](REBUILD.md). Supersedes the archived `ROADMA
 **The test for every feature** (from [MISSION.md](MISSION.md)): does it help someone send **fewer,
 stronger applications and actually get a response / a foot in the door**? If not, it's not the priority.
 
+> **⏳ FABLE-WINDOW PRIORITY (set 2026-07-04, Lexi — "do everything that needs Fable while we have it").**
+> Fable 5 = our highest *reasoning* quality; spend it ONLY on design/architecture/research-synthesis where
+> getting the thinking right once saves huge downstream rework — never on mechanical build (Sonnet/Opus).
+> ⚠️ Check the actual access window: notes say the free-on-Pro/Max period ended ~2026-06-22, so it may
+> already be paid — confirm before assuming a free window. **Sequencing rule for each:** `deep-research` skill
+> GATHERS the facts → **Fable** reasons over them + writes the SPEC → build on Sonnet/Opus from the spec.
+> **Order (do these as dedicated Fable design sessions, each after its research):**
+> 1. **Job-role MATCHING quality + CV/cover-letter WIRING** (the research-first item under Step 2 below). Defines
+>    the core of the product; compounds across everything. Research first, then Fable turns it into the design.
+> 2. **The unified memory layer** (time-aware + emotional recall — the "advisor carries a memory" item + the
+>    moat note under Step 2). The differentiator Jack & Jill can't copy; complex, many interdependencies.
+> 3. **Job-persistence + daily-new-roles architecture** ([REBUILD.md](REBUILD.md) build-queue #1). Schema +
+>    refresh-logic design with real trade-offs (this is the "how live jobs are chosen / new each day" question).
+
 ---
 
 ## Step 1 — Make it feel alive (the new-user flow)
