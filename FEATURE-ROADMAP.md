@@ -136,9 +136,19 @@ Turn spray-and-pray into fewer, stronger applications + a foot in the door. _Arc
     re-saving safe — a later focus note never wipes the user's edited answers. `PrepSection` in the app detail
     renders it live (`ci:prep-changed`); users edit answers via `PATCH /api/documents`. Deliberately NOT saved:
     transcripts, scores, filler counts (anxiety fuel + gamification). Also fixed in the same slice: **Remove from
-    applications** now deletes the role's documents (CV/cover/prep) instead of orphaning them. Verified: 83/83 unit
-    tests, lint + tsc + build clean, quick advisor eval green (a false-positive gamification regex was tightened).
-    **Fast-follow (○):** none required — saved STAR answers were included in this slice.
+    applications** now deletes the role's documents (CV/cover/prep) instead of orphaning them.
+    - **⚠️ CORRECTED 2026-07-05 (mentor, not vending machine — CLAUDE.md principle 7):** the first cut had the AI
+      GENERATE the user's answers — the job-tool drift. Rebuilt so the tool produces, per question, the question +
+      **"what they're really asking"** (coaching) + a **STRUCTURE scaffold** (STAR), and the answer box is the
+      **user's own, empty**; the advisor coaches it out via the mock and never authors it. Verified real-API: tool
+      fires on turn 1, generation coaches with ZERO written answers. 87/87 tests green.
+    - **▶ NEXT LAYER (research-first) — company-factual grounding (Lexi, 2026-07-05).** Today the questions are
+      role-calibrated from model knowledge, NOT grounded in the specific employer's real process. Standing rule
+      (`feedback_ground_facts_free`): always as specific + factual to what the user is doing as possible. For a
+      named employer (PwC analyst, Civil Service, Big Four) the prep must reflect THAT employer's published/real
+      process (frameworks + employer pages + Companies House verify, £0), not generic/made-up. Part of the
+      grounded-knowledge layer (Step 3); ADD to the next test as pass/fail. Honest fallback until built: say it's
+      "the general shape for this kind of role", never fake employer specifics.
   - ◌ **PARK / LATER PHASE — "Focused interview mode": a video mock-interview studio (Lexi, 2026-06-28).**
     A dedicated focused surface (the right panel goes full mock): "Start interview" → a question appears on
     screen → the user answers to their webcam, seeing themselves → it RECORDS each answer → they rewatch their

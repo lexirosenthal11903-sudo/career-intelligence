@@ -77,17 +77,33 @@ framework) vs. lighter "what it's testing" plus a blank space.
   small `/api/documents` PATCH or the existing document upsert path, keyed by canonical job_id), and the
   focus note. Editing an answer writes back to the same `interview_prep` document's metadata.
 
+## ▶ KNOWN GAP / NEXT LAYER — company-factual grounding (Lexi, 2026-07-05; research-first)
+
+The current build generates questions *calibrated to the role* from the model's training knowledge. It is NOT
+yet grounded in the SPECIFIC employer's real, sourced interview process. Principle (standing rule
+`feedback_ground_facts_free`): the platform must always be as specific to what the person is actually doing,
+and as factual, as possible. For a **named employer with a known process** (PwC analyst, the Civil Service,
+Amazon, the Big Four) the prep should reflect THAT employer's published/real process — not generic questions.
+Generic-for-the-role is the fallback only when nothing specific exists (e.g. a role pasted from nowhere).
+**Closing it = the company-grounding layer:** published frameworks + employer careers/"what to expect" pages +
+Companies House verify, all £0 (see `GROUNDED-KNOWLEDGE-PLAN.md`). Research-first, its own session; do not
+fake employer specifics in the meantime (honest fallback: "this is the general shape for this kind of role").
+**⏰ Add to the NEXT test (Lexi is not retesting now):** for a named employer, is the prep genuinely specific
+and factual to THAT employer, or generic/made-up? That is now a pass/fail criterion.
+
 ## Done criteria (objective — Claude self-verifies)
 
 1. Advisor prep in chat persists a `Prep` artifact under the role's canonical id; it appears in that role's
    Applications detail (not only in Documents), and NOT under any other role.
-2. Questions render collapsible; each has an advisor-seeded first-pass answer the user can edit and save; the
-   edit survives a refresh.
+2. Each question renders collapsible with (a) "what they're really asking" coaching, (b) a STRUCTURE scaffold,
+   (c) the user's OWN answer box — empty, never an AI-written draft; the saved answer survives a refresh.
 3. The focus note the advisor writes after a mock shows in the Prep section.
-4. No transcript and no score/number is ever persisted or shown.
-5. Empty/seeding states are warm and non-pressuring; all copy passes the persona sanitiser (no em dashes etc.).
-6. Unit tests green (incl. the canonical-id path for prep); tsc + lint clean; quick ~5-persona eval subset
-   confirms the new save behaviour didn't drift the voice (NOT the full $0.20 eval — no material voice change).
+4. No transcript, no score/number, and NO AI-authored answer is ever persisted or shown.
+5. Empty states are warm and non-pressuring; all advisor copy passes the persona sanitiser (no em dashes etc.).
+6. Unit tests green; tsc + lint + build clean; real-API harnesses confirm the advisor calls the tool and the
+   generation coaches (question + testing + scaffold) with ZERO written answers.
+7. **(Next test — company grounding)** for a named employer, the prep is specific + factual to THAT employer,
+   not generic or fabricated.
 
 ## Explicitly out of scope (this build)
 
