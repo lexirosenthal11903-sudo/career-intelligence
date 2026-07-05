@@ -25,30 +25,41 @@ behind the 2026-07-03 CV-orphaning fix.
   transcripts get re-read almost never, and scores are anxiety fuel when saved.
 - **Winning pattern:** a short, *editable* prep doc per role — not a chat log, not a metrics dashboard.
 
-## Agreed model (the decisions — Lexi, 2026-07-03: build all three)
+## ⚠️ CORRECTION (Lexi, 2026-07-05) — MENTOR, not vending machine
 
-One **Prep** artifact per role, on the application hub beside CV / Cover letter / Outreach. It holds:
+The first build (caught before Lexi tested) drifted: it had the AI GENERATE the user's answers to edit. That
+is the job-tool anti-persona we exist to beat, and it removes the learning — an interview answer is a *skill
+the user must own and perform*, not a document we hand over. Standing rule now: `CLAUDE.md` principle 7 +
+memory `feedback-mentor-not-vending-machine`. The corrected model teaches, guides and draws the answer OUT of
+the user; it never authors the substance.
 
-1. **Likely questions for this role** — 5–8, generated from the JD + the honest fit read (reuses the same
-   grounding the conversational prep already uses). Each collapsible.
-2. **The user's own saved answers** to the ones that matter (esp. 2–3 STAR stories). Editable text per
-   question, reusing the existing application-notes edit pattern. **Never a blank box:** the advisor drafts
-   a first-pass answer *with* the user from what it already knows (their CV, their real stories), so they are
-   always editing something real. This is the highest-value durable piece (the Big Interview lesson).
-3. **A short "focus for this interview" note** — 2–3 lines the advisor writes after a mock ("lean on the
-   retail-ops story; tighten the 'why this company' answer"). Replaces the transcript with its one useful line.
+## Agreed model (corrected — one Prep artifact per role, beside CV / Cover letter / Outreach)
 
-**Deliberately NOT saved** (against our principles): full mock transcripts (noise; stay ephemeral in chat) ·
-delivery scores / filler counts / any number (anxiety fuel + gamification — banned).
+1. **Likely questions for this role** — 5 to 8, role-calibrated. Each collapsible.
+2. **"What they're really asking"** — one line of coaching per question: what a strong answer shows. This
+   TEACHES (replaces the old AI-written answer). Generated server-side, grounded in the interview research.
+3. **A structure scaffold, not content** — an empty STAR skeleton (Situation / Task / Action / Result) to
+   think against for competency questions; self-knowledge prompts for strengths; an approach outline for
+   technical/case. Structure only, never a filled-in answer.
+4. **The user's OWN answer** — starts empty with a warm invite. They develop it *with* the advisor through the
+   mock and conversation: the advisor asks the drawing-out questions, they speak, and only THEIR words are
+   saved (the advisor may help shape/structure, never author the substance). They can also type/edit directly.
+5. **A short "focus for this interview" note** — 2 to 3 lines the advisor writes after a mock. Keep.
+
+**Deliberately NOT saved** (against our principles): AI-authored answers · full mock transcripts (noise) ·
+delivery scores / filler counts / any number (anxiety fuel + gamification, banned).
+
+**OPEN (confirm with Lexi):** scaffold depth — explicit STAR-structure prompts (recommended: teaches the
+framework) vs. lighter "what it's testing" plus a blank space.
 
 ## The bar that makes it ours (the feel, not the engineering)
 
-- **Prep must never read like homework.** For an anxious user, "here are 8 questions, now write your answers"
-  is pressure. The answers are seeded by the advisor as a real first draft, then the user edits. Empty state
-  is warm and invitational, never a demand ("When you're ready, we'll shape your answers together" — not
-  "Add your answers").
-- **The mock feeds the artifact, the artifact is the durable thing.** Questions + focus note flow in from the
-  chat prep automatically; the user never has to click "save my prep."
+- **It coaches, it never hands over answers.** The advisor draws the story out and gives the structure; the
+  user supplies and owns the content. No AI-written answer ever lands in the box.
+- **Prep must never read like homework.** Warm, invitational empty state ("When you're ready, we'll shape your
+  answers together"), never "Add your answers". Practice is offered, never demanded.
+- **The mock feeds the artifact, the artifact is the durable thing.** Questions + coaching + focus note flow in
+  from the chat; the user never has to click "save my prep".
 - Voice everywhere obeys `ADVISOR_PERSONA` (no em dashes, warm "we/you", no over-honesty, no numbers/scores).
 
 ## Technical shape (Claude's call — for the build)

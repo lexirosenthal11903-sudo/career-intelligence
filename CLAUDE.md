@@ -1,8 +1,6 @@
 # Career Intelligence — Project Instructions
 
-_Active rules only (2026-06-26 prune) — a bloated CLAUDE.md gets half-ignored. State → `REBUILD.md`; features
-→ `FEATURE-ROADMAP.md`; orientation → `START-HERE.md`; design → `SESSION_DECISIONS.md`; voice →
-`ADVISOR_PERSONA.md`; history → `archive/CLAUDE-historical-detail-2026-06-26.md`. Keep under 200 lines._
+_Active rules only — a bloated CLAUDE.md gets half-ignored. Homes: state `REBUILD.md`; features `FEATURE-ROADMAP.md`; orientation `START-HERE.md`; design `SESSION_DECISIONS.md`; voice `ADVISOR_PERSONA.md`; history `archive/CLAUDE-historical-detail-2026-06-26.md`. Keep ≤200 lines._
 
 ## Role
 
@@ -16,8 +14,7 @@ Claude Code is technical co-founder. Lexi is the non-technical founder. This mea
 
 ## How We Build — Standing Working Mode (set 2026-06-24, non-negotiable)
 
-_Reset after first-session work became an endless test→fix polish loop that killed Lexi's momentum.
-Full context: memory `feedback-build-breadth-first`._
+_Reset after a test→fix polish loop killed Lexi's momentum. Full context: memory `feedback-build-breadth-first`._
 
 1. **Two kinds of work — never interleave them.** *Building* (adding features/flows = progress) vs
    *fine-tuning* (voice, copy, recommendation quality, "does it feel right" = endless + regression-prone).
@@ -33,12 +30,18 @@ Full context: memory `feedback-build-breadth-first`._
    verbal stays only in a transcript — she must be able to open one place and trust nothing is lost.
 6. **The map is a holding pen, not a commitment.** Proactively suggest new features unprompted, AND
    challenge ones that don't earn their place — capture everything, then decide *together, as we go*.
+7. **Mentor, not vending machine — the litmus for EVERY candidate-loop feature (non-negotiable, set 2026-07-05).**
+   Before building, ask: does it TEACH / GUIDE / DRAW OUT / PRACTISE, or hand the user finished substance to edit
+   (the job-tool we exist to beat)? Anything they must OWN and perform — interview answers, their story, their
+   "why" — the advisor coaches them to IN THEIR OWN WORDS and never authors it (a CV/cover letter is a deliverable
+   it may draft-with-explanation; a *skill* is not). MANDATORY at build time: cross-check the feature against
+   `MISSION.md` + the relevant research doc and STATE that check before writing code. We did the research for a
+   reason. Full context: memory `feedback-mentor-not-vending-machine`.
 
-**Single source of truth — don't let it re-scatter.** One home per thing: features → `FEATURE-ROADMAP.md`
-(detail in `parking-lot.md`) · voice → `ADVISOR_PERSONA.md` · tech state → `REBUILD.md` · why → `MISSION.md`
-· lessons → `INSIGHTS.md` · orientation → `START-HERE.md`. Never invent a new top-level doc when one owns
-the topic. Capture during the session; reconcile at `/session-handoff`. Superseded ≠ deleted — move old
-docs to `archive/`, never leave them cluttering the root, never lose git history.
+**Single source of truth — don't re-scatter.** One home per thing: features → `FEATURE-ROADMAP.md` (detail
+`parking-lot.md`) · voice → `ADVISOR_PERSONA.md` · tech → `REBUILD.md` · why → `MISSION.md` · lessons →
+`INSIGHTS.md` · orientation → `START-HERE.md`. Never a new top-level doc when one owns the topic; superseded →
+`archive/` (never delete, never lose git history); reconcile at `/session-handoff`.
 
 ## Session Discipline — Non-Negotiable
 
@@ -54,13 +57,10 @@ docs to `archive/`, never leave them cluttering the root, never lose git history
 ## Claude Code Workflow Rules — Standing Instructions (full context: `INSIGHTS.md`)
 
 1. **Start in plan mode.** Shift+Tab before touching any file. Read, reason, get approval, then execute. (Skip only for genuine one-sentence changes.)
-2. **Cost discipline (the API is real money, NOT Lexi's Max plan).** Haiku for sub-tasks. Run the FULL
-   `eval:advisor` (~$0.20) ONLY on a material advisor-prompt change — never twice a session, never "to be safe";
-   quick ~5-persona subset + £0 unit/e2e tests otherwise. Keep the advisor on Sonnet. Numbers: `WORKING-PRACTICES.md`.
+2. **Cost discipline (the API is real money, NOT the Max plan).** Haiku for sub-tasks; advisor on Sonnet. FULL `eval:advisor` (~$0.20) ONLY on a material advisor-prompt change (never twice/session, never "to be safe"); quick ~5-persona subset + £0 unit/e2e otherwise. Numbers: `WORKING-PRACTICES.md`.
 3. **`/goal` for bug fixes.** Specify: what to fix, what done looks like (objective criteria), which files not to touch.
 4. **Never skip `/deploy-check`.** Required before any merge discussion. No exceptions.
-5. **Close the loop — `/code-review` (bugs) + `/simplify` (tightness) after any code slice, before Lexi tests.**
-   Give me a pass/fail (tests, lint, shot.js) so I self-correct rather than stopping at "looks done".
+5. **Close the loop — `/code-review` + `/simplify` after any code slice, before Lexi tests.** Give a pass/fail (tests, lint, shot.js) so I self-correct rather than stop at "looks done".
 6. **Compact at 60% context.** `/compact`: "keep API integration + design token decisions from SESSION_DECISIONS.md."
 7. **Run `/session-handoff` at end of every session.** Compact first if context >60%. `/clear` between unrelated threads.
 8. **Protect the cache.** Don't switch models mid-session (breaks it entirely); a session idle >1h also breaks it — if stepping away, `/session-handoff` → `/clear` → paste the summary into a new session.

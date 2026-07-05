@@ -13,7 +13,7 @@
 | **4. B2B (universities first)** | LinkedIn OAuth import · application-tracker export · offer evaluation · progress-data-for-employers (GDPR-safe) |
 | **Strategy/research sessions** (run when you signal — not builds) | **Mentorship market + business model + credibility** (the big one) · Jack & Jill teardown · niche-industry-users discussion · **Platform reach: web-only vs native desktop / iPhone app, and when** (parked 2026-06-29 — see note below) |
 | **Process / how-we-work sessions** | **Adopt working-practice tips from the "How Anthropic's Own Team Uses Claude Code" PDF** (recommend next-session-start, before build) |
-| **Design sessions** (deferred) | Advisor identity / visual register + the product's final name ("Meridian" dropped; speaks as "Career Intelligence" for now) · homepage redesign |
+| **Design sessions** (deferred) | Advisor identity / visual register + the product's final name ("Meridian" dropped; speaks as "Career Intelligence" for now) · homepage redesign · **"blind Claude design proposal" (Lexi, 2026-07-05)** — give a fresh Claude ONLY the platform's purpose + features (NOT our colours/layout/locked design) and have it propose the landing page + every tab from scratch, with a hard bar of *genuinely professional, zero AI-design-tells*; then compare against our locked design to see what a fresh eye surfaces. Its own DESIGN session; do not mix with build. |
 | **✅ Already done** | advisor actually changes directions/roles · jobs stable per login + daily-new · fewer jobs shown · CV→Profile · "already interested" bug · seniority ceiling · discovery conversation |
 
 ---
