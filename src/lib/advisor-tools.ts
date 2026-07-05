@@ -276,7 +276,7 @@ export const ADVISOR_TOOLS = [
   {
     name: 'save_interview_prep',
     description:
-      "Build and save interview prep INTO a specific application so it is waiting for them when they come back to that role — never left only in the chat. Call this the MOMENT you're prepping someone for a role: you pass only the role (and the format if you know it), and it generates the 5 to 8 likely questions for THIS role, each with a first-pass answer drafted from their real background, and files them under the role in their Applications. Passing this tool the role IS how you put the questions together — you do not type the questions out in the chat instead. After you run a mock, call it again with a short `focus` note (the one story to lean on, the one answer to tighten); that merges in without wiping questions or answers they have edited. Set regenerate=true only if the questions need rebuilding because the format changed. NEVER include a transcript or a score. Then tell them their prep is saved under the role and talk a couple of the questions through with them.",
+      "Build and save interview prep INTO a specific application so it is waiting for them when they come back to that role — never left only in the chat. Call this the MOMENT you're prepping someone for a role: you pass only the role (and the format if you know it), and it generates the 5 to 8 likely questions for THIS role, each with a coaching line on what it's really testing and the STRUCTURE to answer with (e.g. STAR). It does NOT write their answers — that is theirs to develop with you. Passing this tool the role IS how you put the questions together — you do not type the questions out in the chat instead. After you run a mock, call it again with a short `focus` note (the one story to lean on, the one answer to tighten); that merges in without wiping the questions or the answers THEY have written. Set regenerate=true only if the questions need rebuilding because the format changed. NEVER include a transcript, a score, or a written-out answer. Then tell them their prep is saved under the role and start coaching them through the questions.",
     input_schema: {
       type: 'object',
       properties: {
@@ -1003,37 +1003,40 @@ export async function executeAdvisorTool(
         let questions = existingQs;
         if (!existingQs.length || regenerate) {
           const profile = await getProfile(supabase, userId);
+          // MENTOR, not vending machine (principle 7): generate the question, what it's
+          // really testing (coaching), and the STRUCTURE to answer with — NEVER the answer.
+          // The answer stays the user's, drawn out in the mock and written by them.
           const genPrompt = [
             `You are an expert UK interview coach preparing an early-career / graduate candidate for a specific role.`,
             `\nROLE: ${roleTitle}${company ? ` at ${company}` : ''}`,
             format ? `INTERVIEW FORMAT: ${format}` : `INTERVIEW FORMAT: unknown — prepare for the MOST LIKELY format for this role and stage.`,
-            profile.cvText ? `\nTHEIR CV (draft each answer from THIS real background — never invent experience):\n${profile.cvText}` : `\nNo CV on file — write answers as a genuine skeleton/structure they can fill with their own detail, never invented specifics.`,
-            `\nProduce the 5 to 8 questions they are genuinely most likely to face, calibrated to the format:`,
-            `- Competency/behavioural → STAR-shaped questions; draft each answer as a real STAR starting point from their background (situation, task, action, result), never a script.`,
-            `- Strengths-based → questions about what energises them and how they work; answers are honest self-knowledge prompts, not rehearsed lines.`,
-            `- Technical/case → questions that need structured thinking out loud; answers sketch the approach/structure, not one perfect solution.`,
-            `Rules: real and specific to THIS role, not generic. Draft each answer as a FIRST DRAFT the person will shape — enough that they never face a blank box, never a finished script. No invented experience. Write like a person: no inflated adjectives, no em dashes, no filler.`,
-            `\nRespond with valid JSON only, exactly: {"questions":[{"question":"...","answer":"..."}]}`,
+            profile.cvText ? `\nTheir CV (use it ONLY to make the questions and coaching specific to their background — do NOT write their answers):\n${profile.cvText}` : '',
+            `\nProduce the 5 to 8 questions they are genuinely most likely to face, calibrated to the format. For EACH question give three things:`,
+            `- "question": the question, real and specific to THIS role (not generic).`,
+            `- "testing": ONE short line on what the interviewer is really asking / what a strong answer shows. This TEACHES them how to think about it.`,
+            `- "scaffold": the STRUCTURE to answer with, as a skeleton with NO content. Competency/behavioural → "Situation -> Task -> Action -> Result". Strengths-based → the honest self-knowledge to reflect on (e.g. "What genuinely energises you here, with a real example"). Technical/case → the approach to structure out loud (e.g. "Clarify -> assumptions -> approach -> trade-offs"). A frame to fill, never a filled-in answer.`,
+            `\nCRITICAL: you are coaching, not answering. NEVER write the candidate's answer, an example answer, or a first draft. No "a"/"answer" field. The answer is theirs to write. Write like a person: no inflated adjectives, no em dashes, no filler.`,
+            `\nRespond with valid JSON only, exactly: {"questions":[{"question":"...","testing":"...","scaffold":"..."}]}`,
           ].filter(Boolean).join('\n');
 
-          let generated: Array<{ question?: unknown; answer?: unknown }> = [];
+          let generated: Array<{ question?: unknown; testing?: unknown; scaffold?: unknown }> = [];
           try {
             const res = await callClaude({
               model: 'claude-haiku-4-5-20251001',
-              max_tokens: 3000,
+              max_tokens: 2000,
               messages: [{ role: 'user', content: genPrompt }],
             });
             const raw = await res.json();
             const text: string = raw.content?.[0]?.type === 'text' ? raw.content[0].text : '';
             const jsonStr = text.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
-            const parsed = JSON.parse(jsonStr) as { questions?: Array<{ question?: unknown; answer?: unknown }> };
+            const parsed = JSON.parse(jsonStr) as { questions?: Array<{ question?: unknown; testing?: unknown; scaffold?: unknown }> };
             generated = Array.isArray(parsed.questions) ? parsed.questions.slice(0, 8) : [];
           } catch (err) {
             console.error('[save_interview_prep] question generation failed:', err);
             return { content: 'I couldn\'t build the questions just now. Ask them to try again in a moment.', isError: true };
           }
           if (!generated.length) return { content: 'I couldn\'t build the questions just now. Ask them to try again in a moment.', isError: true };
-          // Preserve any answer the user has already edited when regenerating (pure + unit-tested).
+          // Preserve the user's own answer when regenerating (pure + unit-tested).
           questions = mergePrepQuestions(existingQs, generated, stripDashes);
         }
 

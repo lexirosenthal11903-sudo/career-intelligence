@@ -493,7 +493,13 @@ function OutreachSection({ job }: { job: PanelJob }) {
 interface PrepDoc {
   id: string;
   content: string; // the "focus for this interview" note ('' if none yet)
-  metadata: { jobTitle?: string; jobCompany?: string; questions?: Array<{ q: string; a: string }> };
+  metadata: {
+    jobTitle?: string;
+    jobCompany?: string;
+    // q = question · testing = what it's really asking (coaching) · scaffold = the structure
+    // to answer with · a = the USER's own answer (the advisor never writes this).
+    questions?: Array<{ q: string; testing?: string; scaffold?: string; a: string }>;
+  };
 }
 
 function PrepSection({ job, jobId }: { job: PanelJob; jobId: string }) {
@@ -593,21 +599,29 @@ function PrepSection({ job, jobId }: { job: PanelJob; jobId: string }) {
               <div className={s.docTitle}>{q.q}</div>
               <div className={s.docActions}>
                 <button className={s.chip} type="button" onClick={() => setOpenIdx(isOpen ? null : idx)}>
-                  {isOpen ? "Hide" : q.a ? "View answer" : "Answer"}
+                  {isOpen ? "Hide" : q.a ? "Your answer" : "Work on this"}
                 </button>
               </div>
             </div>
             {isOpen && (
               <div style={{ marginTop: "6px" }}>
+                {/* Coaching first: what it's testing + the structure to use. We teach and
+                    give the frame; the answer is theirs to write (principle 7). */}
+                {q.testing && (
+                  <p className={s.rdText}><strong>What they&rsquo;re really asking:</strong> {q.testing}</p>
+                )}
+                {q.scaffold && (
+                  <p className={s.rdText}><strong>Structure:</strong> {q.scaffold}</p>
+                )}
                 <textarea
                   className={s.noteBox}
                   rows={4}
                   value={draft}
                   onChange={(e) => { setDrafts((d) => ({ ...d, [idx]: e.target.value })); setSavedIdx(null); }}
-                  placeholder="Shape your answer here — build on the draft, make it yours."
+                  placeholder="Your answer, in your own words. Use the structure above, or work through it out loud with a mock first."
                 />
                 <button className={s.chip} type="button" onClick={() => saveAnswer(idx)}>
-                  {savedIdx === idx ? "Saved ✓" : "Save answer"}
+                  {savedIdx === idx ? "Saved ✓" : "Save my answer"}
                 </button>
               </div>
             )}
@@ -616,7 +630,7 @@ function PrepSection({ job, jobId }: { job: PanelJob; jobId: string }) {
       })}
 
       <button className={s.chip} type="button" style={{ marginTop: "8px" }} onClick={() => askAdvisor(`Run a mock interview with me for the ${job.title} role at ${job.company}.`)}>
-        Run a mock interview
+        Practise with a mock interview
       </button>
     </div>
   );
