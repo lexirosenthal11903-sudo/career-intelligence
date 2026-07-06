@@ -8,7 +8,10 @@ were gathered from primary sources but NOT adversarially verified (they errored 
 refuted). This doc is therefore two-tiered and the 🟡 tier must be re-verified before any build leans on a specific
 figure._
 
-**Review date: 2027-01-06.** Complete the interrupted verification (cheap targeted top-up) before Fable builds on the 🟡 tier.
+**Review date: 2027-01-06.** ~~Complete the interrupted verification~~ **Top-up DONE 2026-07-06 (Session 53):**
+targeted re-verification against primary sources upgraded most 🟡 claims to 🟢 (marked ⬆️🟢 inline below, with
+corrections). Still 🟡 after the top-up: the OECD §4 figures and the Royal Society rsif.2020.0898 specifics
+(verification cut off by a session limit / paywall — finish in a later pass; both remain directionally sound).
 
 ---
 
@@ -43,44 +46,61 @@ discovery-first advisor exists for, and the exact failure mode honest matching m
 Both are machine-readable and let us ingest occupations + skills directly — **no LLM guessing associations**, which
 is the whole point of the grounding project. ESCO API self-hosting means true £0 with no runtime dependency.
 
-### 🟡 GATHERED — crosswalks & the UK-fit problem (verify before build)
+### Crosswalks & the UK-fit problem — ⬆️🟢 verified 2026-07-06 top-up (was 🟡)
 
-- **O*NET related-occupations: 10 primary + 10 supplemental related SOC codes per occupation** — a **ready-made
-  adjacency/stepping-stone graph** out of the box. (validVotes 1, erroredVotes 2 — very likely true, confirm.)
+- ⬆️🟢 **O*NET related-occupations: CONFIRMED — "For each O*NET-SOC code included, 10 primary and 10 supplemental
+  related O*NET-SOC codes are listed"** (onetcenter.org data dictionary, related_occupations). Bonus structure:
+  primary is subdivided into Primary-Short (5 most closely related, expert-reviewed) + Primary-Long (6–10th);
+  supplemental = 11–20th. A **ready-made, quality-ranked adjacency graph** out of the box.
+- ⬆️🟢 **O*NET licence: CONFIRMED CC BY 4.0** — attribution wording corrected: credit **"O*NET Resource Center by
+  U.S. Department of Labor, Employment and Training Administration"** (not "O*NET Database & USDOL/ETA").
 - **O*NET is US-specific** — must be mapped to UK SOC / ESCO ourselves.
-- **ESCO↔O*NET crosswalk is a free download** — a bridge between the EU and US taxonomies (connects each ESCO
-  occupation to ≥1 O*NET occupation).
-- **⚠️ The UK bridging catch:** there is **no clean SOC 2020 ↔ ISCO-08 mapping** — it's **lossy and many-to-many**
-  (one SOC group splits across several ISCO groups and vice versa). So role titles grounded in one taxonomy do NOT
-  transfer one-to-one to another. **Design implication:** expect imperfect UK mapping; don't present crosswalked
-  titles as exact; keep a curated UK-title layer (our National Careers Service curation) on top.
+- ⬆️🟢 **ESCO↔O*NET crosswalk: CONFIRMED free CSV download** — "All the ESCO occupations are mapped to at least one
+  O*NET occupation." Two versions: standard (exact/narrow/broad/close matches) and enhanced (adds related matches,
+  lower QA coverage). (esco.ec.europa.eu crosswalk page.)
+- ⬆️🟢 **The UK bridging catch: CONFIRMED by ONS verbatim** — "There is no simple mapping from SOC 2020 to ISCO-08,
+  even at the most detailed (unit group) level… Many job titles classified to a single unit group within SOC 2020
+  are split across two or more unit groups in ISCO-08" (and vice versa); ONS handles it at the **job-title level**
+  (~30,000-title coding index), precisely because no clean group-level mapping exists. **Design implication stands:**
+  don't present crosswalked titles as exact; keep a curated UK-title layer (National Careers Service) on top.
 - **Not yet extracted (fetched, thin on claims):** ONS SOC 2020, National Careers Service profiles, LMI for All —
   covered in `GROUNDED-KNOWLEDGE-PLAN.md` as the UK curation layer; confirm licences there (NCS = OGL, per plan).
 
-## 2. Adjacency / stepping-stone roles — how to do it RIGHT 🟡 (primary sources, verify)
+## 2. Adjacency / stepping-stone roles — how to do it RIGHT (part-verified 2026-07-06)
 
 The evidence points to a clear best practice: **ground adjacency in real worker mobility, not just computed similarity.**
 
-- **Empirical mobility networks beat theoretical similarity.** A Royal Society (rsif 2020) occupational-mobility
+- 🟡 **Empirical mobility networks beat theoretical similarity.** A Royal Society (rsif 2020) occupational-mobility
   network built from **real job-to-job transitions** (US IPUMS-CPS, 464 occupations, edges = observed transition
-  probabilities) uses **where workers actually move**, not computed skill distance, as ground truth.
-- **BUT skill overlap tracks real mobility well.** A PLOS ONE (2021) "Skills Space" built from job-ad skills
-  **predicts real occupational transitions at ~76% accuracy** when combined with labour supply/demand — i.e.
-  skill-overlap similarity is a *statistically significant predictor* of actual moves, not a theoretical guess.
-- **The rule for stepping-stones:** genuinely adjacent roles are ones that **reuse the person's existing skills**;
-  successful transitions happen when workers leverage what they already have. (e.g. skill-adjacency can link
-  non-obvious pairs like sheet-metal worker → industrial designer.)
+  probabilities) uses **where workers actually move**, not computed skill distance, as ground truth. _(Still 🟡:
+  publisher page 403'd in the top-up — specifics unverified; treat the design principle as sound, don't quote the
+  464/IPUMS specifics until checked.)_
+- ⬆️🟢 **Skill overlap tracks real mobility well — CONFIRMED, with precision.** PLOS ONE 2021 (pone.0254722):
+  "Our results show that not only can we accurately predict occupational transitions (**Accuracy = 76%**)…" —
+  the 76% is an **XGBoost classifier's accuracy predicting whether a transition occurs** between a source and
+  target occupation, trained on Skills-Space distance **plus labour-market variables**. Data: **8,002,780
+  Australian online job ads (Burning Glass, 2012–2020), 11,000+ unique skills.** Scope caveat: Australian job-ad
+  data, not UK — the mechanism transfers, the exact figure is dataset-specific.
+- ⬆️🟢 **The rule for stepping-stones — and the example is real:** genuinely adjacent roles **reuse the person's
+  existing skills**. The paper's own example: a "Sheetmetal Trades Worker" skillset is highly similar to an
+  "Industrial Designer" (framed there as an automation-safe transition opportunity that leverages existing skills).
 - **Best £0 synthesis:** use ESCO/O*NET **skill-overlap** as the adjacency engine (buildable from the free data we
   already have), optionally weighted toward directions with real labour demand (LMI) — this surfaces **non-obvious
   adjacent paths** grounded in skills, which is exactly the honest-matching move OECD says is missing (§4).
 
-## 3. Match quality & measurement — how to evaluate ourselves cheaply and honestly 🟡
+## 3. Match quality & measurement — how to evaluate ourselves cheaply and honestly (verified 2026-07-06)
 
-- **Even strong person-job recommenders match a minority of the time:** reported benchmarks **Recall@10 ≈ 0.35–0.40,
-  HR@10 ≈ 0.452** (Frontiers in AI, 2025). **Implication:** perfect matching is not the bar and we should not pretend
-  to it — honest "here are a few worth a look, and why" beats a confident ranked wall.
-- **Cold-start is our core hard case:** users with **thin CVs and no application history** are the textbook
-  cold-start problem — and that IS our early-career cohort. Design for thin input from day one (the discovery
+- ⬆️🟢 **The benchmark figures are real — CONFIRMED with an important nuance.** Frontiers in AI 2025
+  (frai.2025.1660548, Tang et al., survey): **Recall@10 = 0.35–0.40** (PJFNN, Qin et al. 2018, Zhaopin.com data)
+  and **HR@10 = 0.452** (CNN-LSTM hybrids, Mao et al. 2023, PJRS benchmarks). **Nuance: these are two different
+  prior systems cited in a survey, not one unified benchmark** — and the "even strong systems match a minority of
+  the time" framing is OUR inference from those numbers, not the paper's claim. Keep the design implication, don't
+  attribute the framing to the source. **Implication stands:** perfect matching is not the bar — honest "here are
+  a few worth a look, and why" beats a confident ranked wall.
+- ⬆️🟢 **Cold-start is our core hard case — CONFIRMED** (same paper, §2.2): "the cold start problem, where new
+  users or items without sufficient interaction data cannot be recommended effectively." (The paper frames it
+  generically; "thin CVs / no application history" is our translation — substance matches.) That IS our
+  early-career cohort. Design for thin input from day one (the discovery
   conversation is partly a cold-start fix — it elicits signal the CV lacks).
 - **Fairness caveat:** standard fairness metrics (demographic parity) **ignore ranking position**, which matters —
   a fair-on-paper list can still bury certain candidates/roles. Note for when we rank listings.
@@ -89,7 +109,9 @@ The evidence points to a clear best practice: **ground adjacency in real worker 
   read. £0, matches the `GROUNDED-KNOWLEDGE-PLAN` validation approach. Don't chase offline Recall@k we can't
   compute without interaction data; use persona-vs-grounded-truth + honest human review.
 
-## 4. Honest-matching pitfalls — the OECD evidence is our thesis, quantified 🟡 (OECD primary, verify)
+## 4. Honest-matching pitfalls — the OECD evidence is our thesis, quantified 🟡 (OECD primary — STILL UNVERIFIED:
+the 2026-07-06 top-up's OECD check was cut off by the session limit; re-run this one cluster before quoting any
+specific figure below to a user or in external material. The directional story is consistent across the pass.)
 
 This is the strongest strategic material in the pass. It **validates the whole product** and names the failure modes:
 
@@ -136,8 +158,10 @@ copyable at £0 via ESCO/O*NET skills. Jack & Jill / CareerExplorer / Sokanu spe
 
 ## Open questions / to finish
 
-1. **Complete the interrupted verification** — re-run the 3-vote check on the 🟡 claims (targeted, cheap) before
-   Fable builds on any specific figure (esp. the 76% Skills-Space accuracy, the Recall@10 benchmarks, O*NET 10+10).
+1. ~~Complete the interrupted verification~~ **DONE 2026-07-06** for O*NET 10+10 ✅, O*NET licence ✅, ESCO↔O*NET
+   crosswalk ✅, SOC↔ISCO lossiness ✅ (ONS verbatim), PLOS ONE 76% + sheet-metal example ✅, Recall@10/HR@10 +
+   cold-start ✅ (with nuances recorded inline). **Remaining:** the OECD §4 figures (session-limit cut-off) and the
+   rsif.2020.0898 specifics (publisher 403) — one small cheap pass.
 2. Confirm **National Careers Service / LMI for All / ONS SOC** licences + retrieval (cross-ref `GROUNDED-KNOWLEDGE-PLAN`).
 3. Mine the **prior-art** sources (LinkedIn skills graph, Lightcast Open Skills, Jack & Jill) for concretely copyable moves.
 4. Is there a **UK-specific** occupational-mobility dataset (the transition studies are US/OECD) — ONS Longitudinal Study?
@@ -153,6 +177,8 @@ copyable at £0 via ESCO/O*NET skills. Jack & Jill / CareerExplorer / Sokanu spe
 - **OECD** — The State of Global Teenage Career Preparation (2025); Challenging Social Inequality Through Career Guidance (2024). _(career uncertainty; concentration; prestige bias; outcomes)_
 - **LinkedIn Engineering** — skills-graph taxonomy blog; **Lightcast** — Open Skills. _(prior art, to mine)_
 
-_Status: harness output, **verification interrupted by session limit** — 5 claims 3-0 confirmed, ~20 gathered from
-primary sources unverified (listed 🟡). NOT yet at the full research bar. Cleared to inform the Fable spec as
-tiered input; complete verification of the 🟡 tier before building on specific figures._
+_Status: harness output + **2026-07-06 targeted top-up (Session 53).** Confirmed against primary sources: the
+taxonomy/crosswalk cluster (§1), the PLOS ONE skills-adjacency cluster (§2), and the recommender-benchmark cluster
+(§3) — corrections and nuances recorded inline (⬆️🟢 markers). Still 🟡: OECD §4 figures and rsif.2020.0898
+specifics. **Cleared for the Fable grounding spec** — the spec may lean on ⬆️🟢/🟢 figures; treat §4 as directional
+(the design principles hold; don't quote its numbers externally until the last pass completes)._
