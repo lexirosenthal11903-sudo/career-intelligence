@@ -63,7 +63,7 @@ _Reset after a test→fix polish loop killed Lexi's momentum. Full context: memo
 5. **Close the loop — `/code-review` + `/simplify` after any code slice, before Lexi tests.** Give a pass/fail (tests, lint, shot.js) so I self-correct rather than stop at "looks done".
 6. **Compact at 60% context.** `/compact`: "keep API integration + design token decisions from SESSION_DECISIONS.md."
 7. **Run `/session-handoff` at end of every session.** Compact first if context >60%. `/clear` between unrelated threads.
-8. **Protect the cache.** Don't switch models mid-session (breaks it entirely); a session idle >1h also breaks it — if stepping away, `/session-handoff` → `/clear` → paste the summary into a new session.
+8. **Protect the cache.** Don't switch models mid-session (breaks it entirely); the prompt cache TTL is ~5 min by default (NOT 1h — that's a paid opt-in we don't use), so even a short idle goes cold — if stepping away, `/session-handoff` → `/clear` → paste the summary into a new session. Batch CLAUDE.md edits: editing it mid-session invalidates the cache for the rest of the turn.
 9. **CLAUDE.md max 200 lines — prune in the SAME edit whenever you add. Never let it pass 200; never make Lexi remind you.**
 10. **Own the timing of every working practice.** Lexi won't know when — you call the moment proactively (subagent job, fresh review before merge, natural `/clear` point, grill it first). Full set + triggers: `WORKING-PRACTICES.md`.
 

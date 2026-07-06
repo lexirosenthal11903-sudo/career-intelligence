@@ -17,6 +17,7 @@ itself, plan with it, push it, and keep the context clean._
 | **Close the loop** (`/code-review` + `/simplify`) | After any *code* slice, before Lexi tests | Claude (auto) |
 | **Push it / second version** | At any draft moment, especially advisor voice + copy | Claude prompts |
 | **Let Claude interview you** (`/grill-me`) | Before starting any sizeable new feature | Claude prompts |
+| **LLM Council** (`council this`) — FENCED | ONLY a high-stakes, non-obvious *strategy* fork (pricing, positioning, pivot, major architecture, naming). NEVER routine build/copy — it's ~15× a chat's tokens. Default to `/grill-me` first | Claude prompts (rarely) |
 | **Subagents** | When a task fans out into parallel research / audit / variations | Claude prompts |
 | **Writer/reviewer split** (fresh review / `ultrareview`) | Before any merge to `main` | Claude prompts |
 | **`/clear` between tasks** | When finishing one thread and starting an unrelated one | Claude prompts |
@@ -50,6 +51,9 @@ spec, and self-verify all STAY — they just happen at batch edges, not per item
 2. **Build the whole batch autonomously + self-verify each (middle).** No mid-batch check-ins. Claude builds,
    runs close-the-loop (`/code-review` + `/simplify` + build/lint/eval/`shot.js`) on each slice, and uses
    subagents to build independent slices in parallel where that speeds things up. One push at the end.
+   _This is our named default loop (Anthropic Product Design team's mode): **abstract problem → autonomous
+   build → review before polish** — give Claude the goal, let it work, review the walkable result, don't
+   micromanage each step._
 3. **One review pass (end).** Claude hands Lexi a numbered "test this → expect this" checklist for the whole
    batch. Lexi reviews once. Anything new she spots is captured WITH A RECEIPT and rolled into the next batch.
    **Live test via Claude in Chrome (set 2026-06-29, standing rule).** Automated gates (tsc/lint/build/tests/eval/
@@ -177,6 +181,10 @@ so it catches far more — the builder never grades its own homework. **Claude p
 The context window is the #1 constraint — performance drops as it fills with unrelated history. `/clear`
 between unrelated threads; a clean session with a sharp prompt beats a long cluttered one. Claude flags the
 natural `/clear` points.
+**The "2 corrections" trigger (Anthropic-official, added 2026-07-06):** if Lexi has corrected Claude more than
+twice on the *same* issue in one session, the context is polluted with failed approaches — Claude proactively
+`/clear`s and restarts with a sharper prompt rather than grinding on. _"A clean session with a better prompt
+almost always outperforms a long session with accumulated corrections."_ Claude owns calling this moment.
 
 ---
 
